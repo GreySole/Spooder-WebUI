@@ -7,10 +7,17 @@ class EventTable extends React.Component{
 	constructor(props){
 		super(props);
 		this.state = {};
-
-		this.state.events = Object.assign(props.data);
-		this.state.groups = props.groups;
+		if(props.data == null){
+			this.state.events = {};
+		}else{
+			this.state.events = Object.assign(props.data);
+		}
 		
+		if(props.groups == null){
+			this.state.groups = ['Default'];
+		}else{
+			this.state.groups = props.groups;
+		}
 		this.state._udpClients = props._udpClients;
 		this.state._plugins = props._plugins;
 		
@@ -130,7 +137,8 @@ class EventTable extends React.Component{
 		
 		
 		let newState = Object.assign(this.state.events);
-		newState[eventName].commands.push(newCommand)
+		if(newState[eventName].commands == null){newState[eventName].commands = [];}
+		newState[eventName].commands.push(newCommand);
 		this.setState(Object.assign(this.state,{events:newState}));
 	}
 	
@@ -567,7 +575,7 @@ class EventTable extends React.Component{
 										Cooldown (In Seconds):
 										<input type="number" name="cooldown" defaultValue={eventCooldown} onChange={this.handleChange}/>
 									</label>
-									<label class="label-switch">
+									<label className="label-switch">
 										Notify Activation in Chat:
 										<BoolSwitch name="chatnotification" checked={chatNotification} onChange={this.handleChange}/>
 									</label>

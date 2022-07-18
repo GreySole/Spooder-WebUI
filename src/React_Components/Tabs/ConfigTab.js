@@ -7,12 +7,16 @@ class ConfigTab extends React.Component{
 	constructor(props){
 		super(props);
 		this.state = Object.assign(props.data);
+		this.state["_tabOptions"] = Object.assign(props._taboptions);
 		console.log(this.state);
 		this.handleChange = this.handleChange.bind(this);
 		this.saveConfig = this.saveConfig.bind(this);
 		this.deleteUDPClient = this.deleteUDPClient.bind(this);
 		this.addSubVar = this.addSubVar.bind(this);
+		this.setDefaultTabs = this.setDefaultTabs.bind(this);
 	}
+
+	
 	
 	handleChange(s){
 		
@@ -57,7 +61,8 @@ class ConfigTab extends React.Component{
 	
 	saveConfig(){
 		let newList = Object.assign(this.state);
-		
+		delete newList["_tabOptions"];
+		console.log(newList);
 		const requestOptions = {
 			method: 'POST',
 			headers: {'Content-Type': 'application/json', 'Accept':'application/json'},
@@ -90,6 +95,24 @@ class ConfigTab extends React.Component{
 		this.setState(Object.assign(this.state, {"network":Object.assign(this.state.network,{udp_clients:newUDPClients})}));
 
 	}
+
+	setDefaultTabs(e){
+		localStorage.setItem("defaulttabs", e.currentTarget.value);
+		let newOptions = Object.assign(this.state._tabOptions);
+		newOptions.defaulttabs = e.currentTarget.value;
+		this.setState(Object.assign(this.state, {_tabOptions:newOptions}));
+	}
+
+	setCustomDefaultTabs(e){
+		
+		if(e.currentTarget.name == "setup"){
+			localStorage.setItem("customsetuptab", e.currentTarget.value);
+		}else if(e.currentTarget.name == "deck"){
+			localStorage.setItem("customdecktab", e.currentTarget.value);
+		}else if (e.currentTarget.name == "mode"){
+			localStorage.setItem("defaultmode", e.currentTarget.value);
+		}
+	}
 	
 	render(){
 		console.log(this.state);
@@ -106,6 +129,7 @@ class ConfigTab extends React.Component{
 		}
 		
 		for(let s in this.state){
+			if(s.startsWith("_")){continue;}
 			table = [];
 			//console.log(s);
 			for(let ss in this.state[s]){
@@ -115,7 +139,9 @@ class ConfigTab extends React.Component{
 				switch(dataType){
 					case 'number':
 					case 'string':
-						table.push(<div className="config-variable"><label>{ss}<input type="text" name={ss} sectionname={s} defaultValue={this.state[s][ss]} onChange={this.handleChange} /></label></div>);
+						let inputType = "text";
+						if(ss == "external_http_url" || ss == "external_tcp_url"){inputType = "password";}
+						table.push(<div className="config-variable"><label>{ss}<input type={inputType} name={ss} sectionname={s} defaultValue={this.state[s][ss]} onChange={this.handleChange} /></label></div>);
 					break;
 					case 'boolean':
 						
@@ -178,9 +204,56 @@ class ConfigTab extends React.Component{
 			}
 			sections.push(<div className="config-element" name={s}><label>{this.state[s]["sectionname"]}</label>{table}</div>);
 		}
+
+		
+	let tabOptionsContainer = null;
+	let deckTabOptionsContainer = null;
+	let modeContainer = null;
+	if(localStorage.getItem("defaulttabs") == "custom"){
+		let tabOptionsEl = [];
+		let deckTabOptionsEl = [];
+
+		for(let to in this.state._tabOptions.setup){
+			tabOptionsEl.push(
+				<option value={to}>{this.state._tabOptions.setup[to]}</option>
+			)
+		}
+
+		for(let dto in this.state._tabOptions.deck){
+			deckTabOptionsEl.push(
+				<option value={dto}>{this.state._tabOptions.deck[dto]}</option>
+			)
+		}
+
+		modeContainer = <label>Default Mode<select name="mode" onChange={this.setCustomDefaultTabs}>
+				<option value="setup">Setup Mode</option>
+				<option value="deck">Deck Mode</option>
+			</select></label>
+
+		tabOptionsContainer = <label>Setup Tab<select name="setup" onChange={this.setCustomDefaultTabs} defaultValue={localStorage.getItem("customsetuptab")}>
+			{tabOptionsEl}
+		</select></label>;
+
+		deckTabOptionsContainer = <label>Deck Tab<select name="deck" onChange={this.setCustomDefaultTabs} defaultValue={localStorage.getItem("customdecktab")}>
+			{deckTabOptionsEl}
+		</select></label>;
+	}
 		
 		return (
 			<form className="config-tab">
+				<div className="non-config-element">
+					<label>Default Tabs<p><br></br>
+						Saved on selection for this browser only
+						</p><br></br>
+					<select onChange={this.setDefaultTabs} defaultValue={localStorage.getItem("defaulttabs")}>
+						<option value="nodefault">No Defaults</option>
+						<option value="rememberlast">Remember Last Tab and Mode</option>
+						<option value="custom">Always Land on Tab</option>
+					</select></label>
+					{modeContainer}
+					{tabOptionsContainer}
+					{deckTabOptionsContainer}
+				</div>
 				{sections}
 				<div className="save-commands"><button type="button" id="saveCommandsButton" className="save-button" onClick={this.saveConfig}>Save</button><div id="saveStatusText" className="save-status"></div></div>
 			</form>

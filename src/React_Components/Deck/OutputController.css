@@ -1,0 +1,80 @@
+.output-controller-button{
+    display:flex;
+    align-items:center;
+    justify-content: center;
+    width:100px;
+    height:100px;
+    border-radius:10px;
+    margin-right:10px;
+    background-color:var(--button-obs-color);
+}
+
+.output-controller-button:hover{
+    filter:brightness(1.2);
+}
+
+.output-controller-button.streaming{
+    background-color:var(--button-obs-streaming);
+}
+
+.output-controller-button.streaming.reconnecting,
+.output-controller-button.reconnecting{
+    animation: streamReconnecting 1s infinite;
+}
+
+.output-controller-button.recording{
+    background-color:var(--button-obs-recording);
+}
+
+.output-controller-button.recording.paused,
+.output-controller-button.paused{
+    animation: recordingPaused 1s infinite;
+}
+
+@keyframes streamReconnecting{
+    0% {background-color:var(--button-obs-color)}
+    49% {background-color:var(--button-obs-color)}
+    50% {background-color:var(--button-obs-streaming)}
+    99% {background-color:var(--button-obs-streaming)}
+}
+
+@keyframes recordingPaused{
+    0% {background-color:var(--button-obs-color)}
+    49% {background-color:var(--button-obs-color)}
+    50% {background-color:var(--button-obs-recording)}
+    99% {background-color:var(--button-obs-recording)}
+}
+.deck-output-controller{
+    display:flex;
+    flex-flow:row;
+    justify-content: space-evenly;
+}
+
+.output-controller-stream,
+.output-controller-record{
+    display:flex;
+    flex-flow:row;
+    align-items:center;
+    margin:10px;
+}
+
+.output-controller-stream-status,
+.output-controller-record-status{
+    display:flex;
+    flex-flow:column;
+    align-items:left;
+    font-size:24px;
+}
+
+@media screen and (max-width:600px){
+    .output-controller-stream,
+    .output-controller-record{
+        flex-flow:column;
+        text-align:center;
+    }
+
+    .output-controller-stream-status,
+    .output-controller-record-status{
+        margin-left:0
+    }
+}

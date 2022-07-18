@@ -40,6 +40,20 @@
     margin-left: 10px;
 }
 
+.non-config-element{
+    margin-top:10px;
+    display:flex;
+    flex-flow:column;
+}
+
+.non-config-element label{
+    margin:5px;
+}
+
+.active-subs{
+    word-break:break-all;
+}
+
 .toggle-label{
     display:flex;
     flex-flow:row;
@@ -49,6 +63,7 @@
 
 .event-label{
     font-size:24px;
+    word-break:break-all;
     align-self:flex-start;
     margin-bottom:10px;
 }

@@ -6,7 +6,6 @@ import './React_Components/reset.css';
 import './index.css';
 import './React_Components/Tabs/CommandTable.css';
 import './React_Components/Tabs/ConfigTab.css';
-import './React_Components/Tabs/Monitor.css';
 import './React_Components/Tabs/ThemeTab.css';
 import './React_Components/UI/Helpers.js';
 import './React_Components/UI/BoolSwitch.js';

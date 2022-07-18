@@ -1,6 +1,4 @@
-
 import React from 'react';
-import {Monitor} from './Tabs/Monitor.js';
 import {EventTable} from './Tabs/EventTable.js';
 import {ConfigTab} from './Tabs/ConfigTab.js';
 import {PluginTab} from './Tabs/PluginTab.js';
@@ -8,6 +6,13 @@ import {OSCTunnelTab} from './Tabs/OSCTunnelTab.js';
 import {EventSubTab} from './Tabs/EventSubTab.js';
 import {ThemeTab} from './Tabs/ThemeTab.js';
 import OSC from 'osc-js';
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
+import {faBars, faArrowRight} from '@fortawesome/free-solid-svg-icons';
+
+import {VolumeControl} from './Deck/VolumeControl.js';
+import { OutputController } from './Deck/OutputController.js';
+import {SceneController} from './Deck/SceneController.js';
+import {OSCMonitor} from './Deck/OSCMonitor.js';
 
 const queryString = window.location.search;
 const urlParams = new URLSearchParams(queryString);
@@ -35,11 +40,59 @@ class App extends React.Component {
 
 	constructor(props){
 		super(props);
-		console.log("APP CONSTRUCTING");
+		let defaultTabs = localStorage.getItem("defaulttabs");
+		let customSetupTab = localStorage.getItem("customsetuptab");
+		let customDeckTab = localStorage.getItem("customdecktab");
+		let defaultMode = localStorage.getItem("defaultmode");
+		if(defaultTabs == null){
+			defaultTabs = "nodefault";
+			customSetupTab = "commands";
+			customDeckTab = "osc";
+		}else if(defaultTabs != "nodefault"){
+			if(customSetupTab == null){customSetupTab = "commands"}
+			if(customDeckTab == null){customDeckTab = "osc"}
+		}
+		if(defaultMode == null){
+			defaultMode = "setup";
+		}
 		this.state = {
-			tab:"monitor",
-			tabData:null
+			tab:customSetupTab,
+			tabData:null,
+			decktab:customDeckTab,
+			navOpen:false,
+			mode:defaultMode,
+			tabOptions:{"commands":"Events", "plugins":"Plugins", "osctunnels":"OSC Tunnels", "eventsub":"EventSub", "config":"Config"},
+			deckTabOptions:{"obs":"OBS Remote", "osc":"OSC Monitor", "mod":"Mod UI"},
+			oscConnected: false,
+			obsConnected: 0,
+			isExternal:window.location.protocol!="http:",
+			obsLoginInfo:{}
+			/*spooderAnimationInterval:setInterval(()=>{
+				document.querySelector(".App-title").innerText = String.raw`/╲/\( º - ω - º )/\╱\
+					`;
+				setTimeout(()=>{
+					document.querySelector(".App-title").innerText = String.raw`/╲/\( ºo ω oº )/\╱\
+					`;
+				}, 150)
+			},5000)*/
 		};
+		
+	}
+	
+	commandRef = React.createRef();
+	configRef = React.createRef();
+	pluginRef = React.createRef();
+	oscTunnelRef = React.createRef();
+	eventSubRef = React.createRef();
+	
+	selectTab = this.selectTab.bind(this);
+	setTabContent = this.setTabContent.bind(this);
+	navigationClick = this.navigationClick.bind(this);
+	deckToggle = this.deckToggle.bind(this);
+	handleObsInput = this.handleObsInput.bind(this);
+	connectOBS = this.connectOBS.bind(this);
+
+	componentDidMount(){
 		this.getServerState()
 		.then((data)=>{
 			console.log(data);
@@ -49,45 +102,50 @@ class App extends React.Component {
 			udpClients = serverData.osc["udp_clients"];
 			plugins = serverData.osc["plugins"];
 			console.log(serverData, udpClients);
-			osc = new OSC({plugin: new OSC.WebsocketClientPlugin({host:serverData.osc.host,port:serverData.osc.port,secure:false})});
-			this.initOSC();
+			if(osc == null){
+				osc = new OSC({plugin: new OSC.WebsocketClientPlugin({host:serverData.osc.host,port:serverData.osc.port,secure:false})});
+				this.initOSC();
+			}
 			this.setState(Object.assign(this.state, {"host":hostPort}));
+			if(this.state.mode == "setup"){
+				this.setTabContent(this.state.tab);
+			}else if(this.state.mode == "deck"){
+				this.setTabContent(this.state.decktab);
+			}
+			
 		})
 		.catch(err => console.log(err))
+		
 	}
-	
-	commandRef = React.createRef();
-	configRef = React.createRef();
-	monitorRef = React.createRef();
-	pluginRef = React.createRef();
-	oscTunnelRef = React.createRef();
-	eventSubRef = React.createRef();
-	
-	selectTab = this.selectTab.bind(this);
-	setTabContent = this.setTabContent.bind(this);
 
-	componentDidMount(){
-		this.setTabContent();
-	}
+	/*componentWillUnmount(){
+		clearInterval(this.state.spooderAnimationInterval);
+	}*/
 	
 	initOSC(){
 		console.log("OPENING OSC");
-		osc.open();
+		
 		osc.on("open", () =>{
-			console.log("OSC OPEN");
+			console.log("OSC OPEN", osc.status());
 			osc.send(new OSC.Message('/frontend/connect', 1.0));
 		});
-		osc.on('*', (message)=>{
-			if(message.address.startsWith("/frontend")){
-				console.log("I HEARD SOMETHING", message);
-				if(this.state.tab == "monitor"){
-					if(this.monitorRef.current != null){
-						this.monitorRef.current.addMonitorLog(message);
-					}
-					
-				}
+		osc.on('/frontend/*', (message)=>{
+			console.log("I HEARD SOMETHING", message);
+			if(message.address == "/frontend/connect/success"){
+				this.setState(Object.assign(this.state, {"oscConnected":true}));
+				osc.send(new OSC.Message('/obs/get/obslogininfo', 1.0));
 			}
+			
 		});
+		osc.on('/obs/status/connection', (message) => {
+			this.setState(Object.assign(this.state, {"obsConnected":message.args[0]}));
+		});
+		osc.on('/obs/get/obslogininfo', (message) => {
+			let obsLoginInfo = JSON.parse(message.args[0]);
+			console.log("OBS LOGIN", obsLoginInfo);
+			this.setState(Object.assign(this.state, {"obsLoginInfo":obsLoginInfo}));
+		})
+		osc.open();
 	}
 	
 	getServerState = async () => {
@@ -109,39 +167,51 @@ class App extends React.Component {
 		}
 	}
 	
-	selectTab(e){
-		console.log("TAB SELECT", e.target);
-		document.querySelector(".tab-button.selected").classList.remove("selected");
-		e.target.classList.add("selected");
-		this.setTabContent();
+	selectTab(tab){
+		this.setTabContent(tab);
 	}
 	
-	setTabContent(){
+	setTabContent(tab){
 		console.log("SET TAB CONTENT");
-		let tab = document.querySelector(".tab-button.selected").name;
-		this.setState(Object.assign(this.state, {"tab":tab, "tabData":null}));
-		switch(this.state.tab){
-			case "monitor":
-				this.loadMonitor();
-			break;
-			case "commands":
-				this.loadCommandData();
-			break;
-			case "config":
-				this.loadConfigData();
-			break;
-			case "plugins":
-				this.loadPlugins();
-			break;
-			case "osctunnels":
-				this.loadOSCTunnelData();
-			break;
-			case "eventsub":
-				this.loadEventSubData();
-			break;
-			case 'theme':
-				this.loadThemeData();
-			break;
+		
+		if(this.state.mode == "setup"){
+			switch(tab){
+				case "monitor":
+					this.loadMonitor();
+				break;
+				case "commands":
+					this.loadCommandData();
+				break;
+				case "config":
+					this.loadConfigData();
+				break;
+				case "plugins":
+					this.loadPlugins();
+				break;
+				case "osctunnels":
+					this.loadOSCTunnelData();
+				break;
+				case "eventsub":
+					this.loadEventSubData();
+				break;
+				case 'theme':
+					this.loadThemeData();
+				break;
+			}
+		}else if(this.state.mode == "deck"){
+			this.setState(Object.assign(this.state, {
+				decktab:tab,
+				navOpen:false
+			}));
+		}
+
+		if(localStorage.getItem("defaulttabs") == "rememberlast"){
+			localStorage.setItem("defaultmode", this.state.mode);
+			if(this.state.mode == "setup"){
+				localStorage.setItem("customsetuptab", tab);
+			}else{
+				localStorage.setItem("customdecktab", tab);
+			}
 		}
 	}
 	
@@ -155,8 +225,6 @@ class App extends React.Component {
 	loadPlugins = async () => {
 		const response = await fetch("/plugins");
 		const pluginDataRaw = await response.json();
-		//const pluginData = JSON.parse(pluginDataRaw);
-		console.log("I GOT PLUGINS! ",pluginDataRaw);
 
 		if(response.status !== 200){
 			throw Error("Error: "+response.status);
@@ -165,7 +233,8 @@ class App extends React.Component {
 			tabData:{
 				pluginData:pluginDataRaw,
 				_udpClients:udpClients
-			}
+			},
+			"tab":"plugins", "navOpen":false
 		}));
 	}
 	
@@ -173,8 +242,6 @@ class App extends React.Component {
 		const response = await fetch("/server_config");
 		const configDataRaw = await response.json();
 		const configData = JSON.parse(configDataRaw.express);
-		
-		console.log("I GOT CONFIG! ",configData);
 		
 		var body = configData;
 
@@ -184,7 +251,8 @@ class App extends React.Component {
 		this.setState(Object.assign(this.state, {
 			tabData:{
 				configData:configData
-			}
+			},
+			"tab":"config", "navOpen":false
 		}));
 	}
 	
@@ -207,7 +275,8 @@ class App extends React.Component {
 				commandData:commandData,
 				udpClients:udpClients,
 				plugins:plugins
-			}
+			},
+			"tab":"commands", "navOpen":false
 		}));
 	}
 	
@@ -224,7 +293,8 @@ class App extends React.Component {
 			tabData:{
 				tunnelData:tunnelData,
 				udpClients:udpClients
-			}
+			},
+			"tab":"osctunnels", "navOpen":false
 		}));
 	}
 
@@ -241,7 +311,8 @@ class App extends React.Component {
 				eventData:eventData,
 				udpClients:udpClients,
 				plugins:plugins
-			}
+			},
+			"tab":"eventsub", "navOpen":false
 		}));
 	}
 
@@ -249,25 +320,91 @@ class App extends React.Component {
 		this.setState(Object.assign(this.state, {
 			tabData:{
 				data:{}
-			}
+			},
+			"tab":"theme", "navOpen":false
 		}));
+	}
+
+	navigationClick(e){
+		this.setState(Object.assign(this.state, {navOpen:!this.state.navOpen}));
+	}
+
+	deckToggle(e){
+		console.log(this.state);
+		this.setState(Object.assign(this.state, {
+			navOpen:!this.state.navOpen,
+			mode:this.state.mode=="deck"?"setup":"deck"
+		}));
+		this.selectTab(this.state.mode=="setup"?this.state.tab:this.state.decktab);
+	}
+
+	handleObsInput(e){
+		let newLoginInfo = Object.assign(this.state.obsLoginInfo);
+		if(e.target.type == "checkbox"){
+			newLoginInfo[e.target.name] = e.target.checked;
+		}else{
+			newLoginInfo[e.target.name] = e.target.value;
+		}
+		
+		this.setState(Object.assign(this.state, {obsLoginInfo:newLoginInfo}));
+	}
+
+	connectOBS(){
+		
+		let rememberLogin = this.state.obsLoginInfo.remember != null? this.state.obsLoginInfo.remember:false;
+		osc.send(new OSC.Message("/obs/connectSocket", JSON.stringify({
+			url:this.state.obsLoginInfo.url,
+			port: this.state.obsLoginInfo.port,
+			password: this.state.obsLoginInfo.password,
+			remember:rememberLogin
+		})));
+	}
+
+	async connectChatChannel(e){
+		let channel = document.querySelector(".chat-actions input[name=channel]").value;
+
+		const response = await fetch("/chat_channel?channel="+channel).then(response => response.json());
+		//console.log(response);
+		if(response.status == "SUCCESS"){
+			e.target.innerText = "Done!";
+			setTimeout(()=>{
+				e.target.innerText = "Connect";
+			}, 3000);
+		}
+	}
+
+	async restartChat(e){
+		const response = await fetch("/chat_restart").then(response => response.json());
+		if(response.status == "SUCCESS"){
+			e.target.innerText = "Done!";
+			setTimeout(()=>{
+				e.target.innerText = "Restart Chat";
+			}, 3000);
+		}
+		//console.log(response);
 	}
 	
 	render(){
+
+		if(this.state.isExternal){
+			return <div className="App">
+				<div className="locals-only">
+					<h1 className="App-title">/╲/\( ºx ω xº )/\╱\</h1>
+					<h1>Sorry, locals only</h1>
+				</div>
+			</div>
+		}
 
 		let tabContent = null;
 
 		if(this.state.tabData){
 			let tabData = this.state.tabData;
 			switch(this.state.tab){
-				case "monitor":
-					tabContent = <Monitor ref={this.monitorRef}/>;
-				break;
 				case "commands":
 					tabContent = <EventTable ref={this.commandRef} data={tabData.commandData.events} groups={tabData.commandData.groups} _udpClients={tabData.udpClients} _plugins={tabData.plugins} />;
 				break;
 				case "config":
-					tabContent = <ConfigTab ref={this.configRef} data={tabData.configData} />;
+					tabContent = <ConfigTab ref={this.configRef} _taboptions={{setup:this.state.tabOptions,deck:this.state.deckTabOptions}} data={tabData.configData} />;
 				break;
 				case "plugins":
 					tabContent = <PluginTab ref={this.pluginRef} data={tabData.pluginData} _udpClients={tabData.udpClients} />;
@@ -283,36 +420,135 @@ class App extends React.Component {
 				break;*/
 			}
 		}
+
+		let appContent = null;
+		let navigationTabs = null;
+
+		if(this.state.mode == "setup"){
+			let tabButtons = [];
+			for(let t in this.state.tabOptions){
+				let tabName = this.state.tabOptions[t];
+				tabButtons.push(
+					<button type="button" name={t} className={"tab-button "+(this.state.tab==t?"selected":"")} onClick={()=>this.selectTab(t)}>{tabName}</button>
+				);
+			}
+			navigationTabs = <div className="navigation-tabs-mobile">
+									{tabButtons}
+							</div>;
+
+			appContent = <div className="App-content setup">
+							<div className="navigation-tabs">
+								{this.state.mode=="setup"?tabButtons:null}
+							</div>
+							<div id="tabContent">
+								{tabContent}
+							</div>
+						</div>;
+		}else if(this.state.mode == "deck"){
+			if(this.state.decktab == "obs"){
+				if(this.state.oscConnected && this.state.obsConnected){
+					appContent = <div className="App-content deck">
+						<label className="deck-component-label">Output</label><OutputController osc={osc} />
+						<label className="deck-component-label">Scenes</label><SceneController osc={osc} />
+						<label className="deck-component-label">Volume</label><VolumeControl osc={osc} />
+					</div>;
+				}else{
+					
+					if(!this.state.oscConnected){
+						appContent = 
+						<h1>Hold on...we're connecting to OSC</h1>
+					}else if(!this.state.obsConnected){
+						let obsLoginEl = null;
+						obsLoginEl = <div className="obs-login-info">
+							<label>IP Address
+								<input name="url" type="text" onInput={this.handleObsInput} defaultValue={this.state.obsLoginInfo.url}/>
+							</label>
+							<label>Port
+								<input name="port" type="text" onInput={this.handleObsInput} defaultValue={this.state.obsLoginInfo.port}/>
+							</label>
+							<label>Password
+								<input name="password" type="password" onInput={this.handleObsInput} defaultValue={this.state.obsLoginInfo.password}/>
+							</label>
+							<label>Remember
+								<input name="remember" onInput={this.handleObsInput} type="checkbox"/>
+							</label>
+							<button type="button" onClick={this.connectOBS}>Connect</button>
+						</div>;
+						
+						appContent = <div className="App-content deck">
+							<h1 style={{fontSize:"24px"}}>OBS not connected!</h1><br></br>
+							<p>OBS is connected by Spooder itself. So only one connect is needed for all your Web UI clients.
+								Check 'Remember' to save this info on file and Spooder will automatically attempt to connect to OBS
+								when starting up.
+							</p>
+							{obsLoginEl}
+						</div>
+						
+					}
+				}
+			}else if(this.state.decktab == "osc"){
+				if(!this.state.oscConnected){
+					appContent = 
+					<h1>Hold on...we're connecting to OSC</h1>
+				}else{
+					appContent = <div className="App-content">
+					<OSCMonitor osc={osc} />
+				</div>
+				}
+				
+			}else if(this.state.decktab == "mod"){
+				appContent = <div className="App-content">
+					<iframe id="ModUIViewer" src="/mod"/>
+				</div>
+			}
+
+			
+			let tabButtons = [];
+			for(let t in this.state.deckTabOptions){
+				let tabName = this.state.deckTabOptions[t];
+				tabButtons.push(
+					<button type="button" name={t} className={"tab-button "+(this.state.tab==t?"selected":"")} onClick={()=>this.selectTab(t)}>{tabName}</button>
+				);
+			}
+
+			navigationTabs = <div className="navigation-tabs-mobile">
+				{tabButtons}
+			</div>;
+			
+		}
+		let loginInfo = <div className="login-buttons">
+							<a href={"https://id.twitch.tv/oauth2/authorize?client_id="+clientID+"&redirect_uri=http://localhost:"+hostPort+"/handle&response_type=code&scope=chat:read chat:edit channel:read:goals bits:read channel:read:subscriptions moderation:read channel:read:redemptions channel:read:polls channel:read:predictions channel:read:hype_train"}>Authorize</a>
+							<a href={"/revoke"}>Revoke</a>
+						</div>;
+
 		
-		return(
-			<div className="App">
-				<div className="App-header">
-					<div className="top-header">
-						<h1 className="App-title">/╲/\( ºo ω oº )/\╱\</h1>
+		return <div className="App">
+					<div className={"navigation-menu "+(this.state.navOpen?"open":"")}>
+						<div className="deck-mode-button">
+							<button type="button" onClick={this.deckToggle} ><FontAwesomeIcon icon={faArrowRight}/> {this.state.mode=="deck"?"Setup Mode":"Deck Mode"}</button>
+						</div>
+						{navigationTabs}
+						<div className="chat-actions">
+							<label>Chat</label>
+							<button type="button" onClick={this.restartChat}>Restart Chat</button>
+							<label>Switch Channel</label>
+							<input name="channel" type="text"/>
+							<button type="button" onClick={this.connectChatChannel}>Connect</button>
+						</div>
 						<div className="login">
 							<div className="account-info">{username}</div>
-							<div className="login-buttons">
-								<a href={"https://id.twitch.tv/oauth2/authorize?client_id="+clientID+"&redirect_uri=http://localhost:"+hostPort+"/handle&response_type=code&scope=chat:read chat:edit channel:read:goals bits:read channel:read:subscriptions moderation:read channel:read:redemptions channel:read:polls channel:read:predictions channel:read:hype_train"}>Authorize</a>
-								<a href={"/revoke"}>Revoke</a>
-							</div>
+							{window.location.hostname=="localhost"?loginInfo:"Authorizing and Revoking only works on localhost"}
 						</div>
 					</div>
-					<div className="navigation-tabs">
-						<button type="button" name="monitor" className="tab-button selected" onClick={this.selectTab}>Deck</button>
-						<button type="button" name="commands" className="tab-button" onClick={this.selectTab}>Events</button>
-						<button type="button" name="plugins" className="tab-button" onClick={this.selectTab}>Plugins</button>
-						<button type="button" name="osctunnels" className="tab-button" onClick={this.selectTab}>OSC Tunnels</button>
-						<button type="button" name="eventsub" className="tab-button" onClick={this.selectTab}>EventSub</button>
-						<button type="button" name="config" className="tab-button" onClick={this.selectTab}>Config</button>
+					<div className="App-header">
+						<div className="top-header" onClick={this.navigationClick}>
+							<div className="navigation-open-button" ><FontAwesomeIcon icon={faBars} size="2x" /></div>
+							<h1 className="App-title">/╲/\( ºo ω oº )/\╱\</h1>
+						</div>
+						
 					</div>
-				</div>
-				<div className="App-content">
-					<div id="tabContent">
-						{tabContent}
-					</div>
-				</div>
-			</div>
-		);
+					{appContent}
+				</div>;
 	}
 }
 export default App;

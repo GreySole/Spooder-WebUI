@@ -367,7 +367,7 @@ class EventSubTab extends React.Component{
 													</label>
 												</div>
 											</div>
-											<div class="active-subs">Active subs
+											<div className="active-subs">Active subs
 												{subTable}
 											</div>
 										</div>);

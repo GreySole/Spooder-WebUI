@@ -11,6 +11,10 @@
     align-items: center;
 }
 
+.config-variable .link-button{
+    margin-left: 10px;
+}
+
 .eventsub-variable {
     display: flex;
     flex-flow: row;

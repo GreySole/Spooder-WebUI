@@ -2,6 +2,7 @@ import React from 'react';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {faTrash} from '@fortawesome/free-solid-svg-icons';
 import BoolSwitch from '../UI/BoolSwitch.js';
+import LinkButton from '../UI/LinkButton.js';
 
 class ConfigTab extends React.Component{
 	constructor(props){
@@ -140,8 +141,15 @@ class ConfigTab extends React.Component{
 					case 'number':
 					case 'string':
 						let inputType = "text";
-						if(ss == "external_http_url" || ss == "external_tcp_url"){inputType = "password";}
-						table.push(<div className="config-variable"><label>{ss}<input type={inputType} name={ss} sectionname={s} defaultValue={this.state[s][ss]} onChange={this.handleChange} /></label></div>);
+						let copyButton = null;
+						if(ss == "external_http_url" || ss == "external_tcp_url"){
+							inputType = "password";
+							if(ss == "external_http_url"){
+								copyButton = <LinkButton name={ss+"-mod"} text={"Copy Mod URL"} mode="copy" link={this.state[s][ss]+"/mod"} />
+							}
+						}
+
+						table.push(<div className="config-variable"><label>{ss}<input type={inputType} name={ss} sectionname={s} defaultValue={this.state[s][ss]} onChange={this.handleChange} /></label>{copyButton}</div>);
 					break;
 					case 'boolean':
 						

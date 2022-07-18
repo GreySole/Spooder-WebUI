@@ -447,17 +447,17 @@ class PluginTab extends React.Component {
 			let pluginLinks = [];
 			if(this.state[p].hasOverlay){
 				pluginLinks.push(
-					<LinkButton name={p+"-overlay"} text={"Copy Overlay URL"} mode="copy" link={this.state[p]["path"]+"/overlay/"+p} />
+					<LinkButton name={p+"-overlay"} text={"Copy Overlay URL"} mode="copy" link={window.location.origin+"/overlay/"+p} />
 				)
 			}
 			if(this.state[p].hasUtility){
-				pluginLinks.push(<LinkButton name={p+"-utility"} text={"Open Utility"} mode="newtab" link={this.state[p]["path"]+"/utility/"+p} />);
+				pluginLinks.push(<LinkButton name={p+"-utility"} text={"Open Utility"} mode="newtab" link={window.location.origin+"/utility/"+p} />);
 			}
 			pluginList.push(
 				<div className="plugin-entry" id={p}>
 					<div className="plugin-entry-ui">
 						<div className="plugin-entry-icon">
-							<img src={this.state[p]['path'] + "/overlay/"+p+"/icon.png"} onError={this.imgError} />
+							<img src={this.state[p]['path'] + "/icon.png"} onError={this.imgError} />
 							<FontAwesomeIcon icon={faSpider} size="lg" className="plugin-default-icon"/>
 						</div>
 						<div className="plugin-entry-info">

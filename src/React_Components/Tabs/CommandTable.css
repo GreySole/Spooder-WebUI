@@ -38,6 +38,12 @@ option{
 	background-color:black;
 }
 
+.event-trigger{
+	flex-flow:column;
+	align-items:flex-start;
+	flex-wrap:wrap;
+}
+
 .add-command #addCommandButton{
 	margin:0px 0px 3px 5px;
 	max-width:50px;
@@ -111,6 +117,25 @@ option{
 	
 }
 
+.command-arrows{
+	display:flex;
+	flex-direction:column;
+	
+}
+
+.type-label-conflicts{
+	display:flex;
+	flex-flow:column;
+}
+
+.command-arrows div{
+	flex:1;
+	width:100%;
+	margin-top:20px;
+	margin-bottom:20px;
+	color:var(--text-color);
+}
+
 .command-fields{
 	border-bottom: var(--border-color) 1px solid;
 	margin-left:15px;
@@ -154,7 +179,7 @@ option{
 
 .command-props label{
 	display:flex;
-	align-items:center;
+	align-items:flex-start;
 }
 
 .command-element input,
@@ -171,13 +196,36 @@ option{
 }
 
 .command-group{
-	margin:10px;
 	font-size:30px;
 	border-bottom: var(--border-color) 1px solid;
 }
 
-.command-group-label{
+.command-group-label:hover{
+	cursor:pointer;
+	background-color:var(--command-hover-color);
+}
+
+.command-group.expanded .command-group-label{
 	margin-bottom:10px;
+}
+
+.command-group-label{
+	display:flex;
+	flex-flow:row;
+	align-items: center;
+	padding:10px;
+	padding-left:5px;
+}
+
+.command-group-actions{
+	display:flex;
+	flex-flow:row;
+	align-items:center;
+	margin-left: 15px;
+}
+
+.command-group:not(.expanded) .command-group-actions{
+	display:none;
 }
 
 .label-switch{
@@ -206,5 +254,11 @@ option{
 	.command-fields{
 		flex-flow:column;
 		align-items:flex-start;
+	}
+	.command-arrows{
+		flex-direction:row;
+		justify-content:space-between;
+		align-items:center;
+		width:100%;
 	}
 }

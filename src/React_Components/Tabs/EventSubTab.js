@@ -306,7 +306,7 @@ class EventSubTab extends React.Component{
 								events[event] = {
 									"chat":{enabled:false, message:""},
 									"tcp":{enabled:false, address:"", value:""},
-									"plugin":{enabled:false, pluginname:""},
+									"plugin":{enabled:false, pluginname:"", eventname:""},
 									"udp":{enabled:false, dest:-1, address:"", value:""}
 								}
 							}
@@ -341,6 +341,9 @@ class EventSubTab extends React.Component{
 															<option value={-1}>Select a plugin</option>
 																{pluginOptions}
 														</select>
+													</label>
+													<label className={events[event].plugin.enabled?"":"hidden"}>Event Name:
+														<input type="text" eventname={event} name="plugin-eventname" defaultValue={events[event].plugin.eventname} onChange={this.handleChange} />
 													</label>
 												</div>
 

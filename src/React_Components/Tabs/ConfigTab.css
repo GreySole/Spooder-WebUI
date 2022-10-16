@@ -15,6 +15,10 @@
     margin-left: 10px;
 }
 
+.link-override{
+    align-self:center;
+}
+
 .eventsub-variable {
     display: flex;
     flex-flow: row;
@@ -156,7 +160,7 @@
 
 .event-sub-delete-button,
 .delete-button{
-    width:100px;
+    /*width:100px;*/
     align-self:center;
 	margin:10px;
 	padding:10px;
@@ -189,6 +193,58 @@
 
 .callback-url{
     margin-top:10px;
+}
+
+.restore-settings-select button,
+.restore-plugins-select button{
+    margin-left:10px;
+}
+
+.restore-settings-select,
+.restore-plugins-select{
+    display:flex;
+    flex-flow:row;
+    align-items:center;
+    margin:10px;
+}
+
+.restore-settings-button,
+.restore-plugins-button{
+    margin-left:10px;
+    display:flex;
+    flex-flow:row;
+}
+
+.restore-settings-button button,
+.restore-plugins-button button{
+    margin:5px;
+}
+
+.restore-settings-checkboxes{
+    display:flex;
+    flex-flow:column;
+    padding:5px;
+}
+
+.backup-action-button{
+    display:flex;
+    flex-flow:column;
+    margin:10px;
+}
+
+.backup-action-button button{
+    margin-left:10px;
+}
+
+.config-backup-restore{
+    padding:10px;
+    padding-top:10px;
+    border-top: 2px solid var(--border-color);
+}
+
+.backup-section-label,
+.restore-section-label{
+    font-size:24px;
 }
 
 @media screen and (max-width: 600px) {

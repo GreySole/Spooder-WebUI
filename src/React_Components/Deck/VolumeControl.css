@@ -1,6 +1,8 @@
 .deck-volume-control{
-    display:grid;
-    grid-template-columns: repeat(5, 200px);
+  display: flex;
+  flex-wrap: nowrap;
+  max-width: 100%;
+  overflow-x: auto;
 }
 
 .deck-volume-meter{
@@ -175,7 +177,7 @@ input[type=range] {
     .deck-volume-control{
         display:flex;
         align-items:flex-start;
-        flex-flow:column;
+        flex-flow:column !important;
         padding:20px;
     }
 

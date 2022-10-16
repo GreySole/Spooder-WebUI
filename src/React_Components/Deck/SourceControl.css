@@ -1,0 +1,27 @@
+.deck-source-controller{
+    display:flex;
+    align-items:flex-start;
+}
+
+.source-item,
+.source-group-item{
+    display:flex;
+    flex-flow:column;
+    align-items:center;
+    padding:10px;
+}
+
+.source-item-name,
+.source-group-item-name{
+    margin-left:10px;
+}
+
+.source-group-item-subitems,
+.source-group-item-container{
+    display:flex;
+}
+
+.source-group-container{
+    display:flex;
+    align-items:flex-start;
+}

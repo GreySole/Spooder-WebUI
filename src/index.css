@@ -235,10 +235,23 @@ input::placeholder {
 }
 
 .deck-component{
+    display:flex;
+    flex-flow:row;
     margin-top:10px;
     margin-bottom:10px;
     padding-bottom:5px;
     border-bottom: 2px solid var(--border-color);
+    width:100%;
+}
+
+.deck-scene-controller{
+    flex-flow:column;
+}
+
+.deck-div-horizontal{
+    display:flex;
+    flex-flow:row;
+    width:100%;
 }
 
 .deck-component-label{
@@ -286,7 +299,7 @@ input::placeholder {
 .add-button,
 .save-button,
 .command-button {
-    width: 75px;
+    /*width: 75px;*/
     margin: 10px;
     padding: 10px;
     font-size:18px;

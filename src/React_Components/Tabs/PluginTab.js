@@ -4,6 +4,10 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCog, faTrash, faPlusCircle, faUpload, faSync, faSpider, faFile, faDownload } from '@fortawesome/free-solid-svg-icons';
 import LinkButton from "../UI/LinkButton.js";
 
+window.settingsFrame = function(){
+	return;
+}
+
 class PluginTab extends React.Component {
 	constructor(props) {
 		super(props);
@@ -12,6 +16,8 @@ class PluginTab extends React.Component {
 		this.state["_openSettings"] = null;
 		this.state["_openAssets"] = null;
 		this.state["_assetFilePreview"] = null;
+
+		console.log("Plugin Data", props.data);
 
 		this.hiddenFileInput = React.createRef();
 		this.hiddenAssetInput = React.createRef();
@@ -58,9 +64,17 @@ class PluginTab extends React.Component {
 			for(let a in assets){
 				if(format != "*" && format != ""){
 					let astring = assets[a];
-					if(extensions[format].includes(astring.substring(astring.lastIndexOf(".")))){
-						options.push(astring);
+					if(extensions[format] == null){
+						console.log(astring.substring(astring.lastIndexOf(".")));
+						if(format.includes(astring.substring(astring.lastIndexOf(".")))){
+							options.push(astring);
+						}
+					}else{
+						if(extensions[format].includes(astring.substring(astring.lastIndexOf(".")))){
+							options.push(astring);
+						}
 					}
+					
 				}else{
 					options.push(assets[a]);
 				}
@@ -97,6 +111,11 @@ class PluginTab extends React.Component {
 		
 			var s = this.state._openSettings;
 			let settingsForm = document.querySelector("#"+s+" .settings-form");
+			console.log("S", s);
+			if(document.querySelector("#"+s+"SettingsForm")?.tagName == "IFRAME"){
+				
+				return;
+			}
 			this.fillAssetFields(s);
 			this.fillUDPFields(s);
 			
@@ -104,7 +123,7 @@ class PluginTab extends React.Component {
 				settingsForm.onsubmit = this.onSettingsFormSubmit;
 				let settings = this.state[s]["settings"];
 				for(let ss in settings){
-					if(typeof settings[ss] == "object"){
+					if(settings[ss] instanceof Object){
 						let subform = settingsForm.querySelector("[subname="+ss+"-form] .subform-container");
 						let subformArray = [];
 						let subsettings = settings[ss];
@@ -113,11 +132,55 @@ class PluginTab extends React.Component {
 							let newSubForm = subform.cloneNode(true);
 							newSubForm.setAttribute("subname",sss);
 							let newSubFormNames = newSubForm.querySelectorAll("[subvar]");
+							console.log(sss);
 							for(let i=0; i<newSubFormNames.length; i++){
 								if(newSubFormNames[i].getAttribute("subvar") == "keyname"){
 									newSubForm.querySelector("[subvar="+newSubFormNames[i].getAttribute("subvar")+"]").value = sss;
 								}else{
-									newSubFormNames[i].value = subsettings[sss][newSubFormNames[i].getAttribute("subvar")];
+									/*if(subsettings[sss][newSubFormNames[i].getAttribute("subvar")] instanceof Object){
+										console.log("SUBFIELD", subsettings[sss][newSubFormNames[i].getAttribute("subvar")]);
+										let thisSubvar = newSubFormNames[i].getAttribute("subvar");
+										let subfield = newSubFormNames[i].querySelector(".subfield-container");
+										for(let ssss in subsettings[sss][thisSubvar]){
+											let newSubfield = subfield.cloneNode(true);
+											let newSubfieldNames = newSubfield.querySelectorAll("[subfieldvar]");
+											for(let j=0; j<newSubfieldNames.length; j++){
+												if(newSubfieldNames[j].getAttribute("subfieldvar") == "keyname"){
+													newSubfieldNames[j].value = ssss;
+												}else{
+													if(newSubfieldNames[j].type == "checkbox"){
+														newSubfieldNames[j].checked = subsettings[sss][thisSubvar][ssss];
+													}else{
+														newSubfieldNames[j].value = subsettings[sss][thisSubvar][ssss];
+													}
+												}
+											}
+											
+											
+											newSubFormNames[i].append(newSubfield);
+										}
+										subfield.style.display = "none";
+										if(newSubFormNames[i].querySelector(".add-button") != null){
+											newSubFormNames[i].querySelector(".add-button").onclick = () => {
+												let addSubfield = subfield.cloneNode(true);
+												addSubfield.style.display = "";
+												newSubFormNames[i].append(addSubfield);
+											}
+										}
+									}else{
+										if(newSubFormNames[i].type == "checkbox"){
+											newSubFormNames[i].checked = subsettings[sss][newSubFormNames[i].getAttribute("subvar")];
+										}else{
+											newSubFormNames[i].value = subsettings[sss][newSubFormNames[i].getAttribute("subvar")];
+										}
+									}*/
+
+									if(newSubFormNames[i].type == "checkbox"){
+										newSubFormNames[i].checked = subsettings[sss][newSubFormNames[i].getAttribute("subvar")];
+									}else{
+										newSubFormNames[i].value = subsettings[sss][newSubFormNames[i].getAttribute("subvar")];
+									}
+									
 								}
 							}
 							subformArray.push(newSubForm);
@@ -128,22 +191,43 @@ class PluginTab extends React.Component {
 						for(let sa in subformArray){
 							subformCont.appendChild(subformArray[sa]);
 						}
-						settingsForm.querySelector("[varname="+ss+"] .add-button").onclick = () => {
-							console.log("ADDING SUBFORM", ss);
-							let newSubForm = subform.cloneNode(true);
-							newSubForm.style.display = "";
-							newSubForm.setAttribute("subname", "newcommand");
-							newSubForm.querySelector(".delete-button").onclick = function(){this.closest(".subform-container").remove()}
-							subformCont.appendChild(newSubForm);
-							subformCont.scrollLeft = subformCont.scrollWidth;
-						}
+						settingsForm.querySelectorAll("[varname="+ss+"] .add-button").forEach((e,i)=>{
+							e.onclick = function(){
+								let thisSubform = settingsForm.querySelector("[subname="+ss+"-form]");
+								let newSubForm = subform.cloneNode(true);
+								newSubForm.style.display = "";
+								newSubForm.setAttribute("subname", "newcommand");
+								if(newSubForm.querySelector(".delete-button") != null){
+									newSubForm.querySelector(".delete-button").onclick = function(){this.closest(".subform-container").remove()}
+								}
+								
+								if(newSubForm.querySelector(".add-button") != null){
+									newSubForm.querySelector(".add-button").onclick = () => {
+										let addSubfield = subfield.cloneNode(true);
+										addSubfield.style.display = "";
+										newSubForm.append(addSubfield);
+									}
+								}
+								thisSubform.appendChild(newSubForm);
+								thisSubform.scrollLeft = thisSubform.scrollWidth;
+							}
+							
+						});
 						
-						settingsForm.querySelectorAll(".subform-container .delete-button").forEach((e,i) => {
+						settingsForm.querySelectorAll(".subform-container .delete-button:not(.subfield)").forEach((e,i) => {
 							e.onclick = function(){e.closest(".subform-container").remove();}
+						});
+
+						settingsForm.querySelectorAll(".subfield-container .delete-button").forEach((e,i) => {
+							e.onclick = function(){e.closest(".subfield-container").remove();}
 						});
 					}else{
 						if(settingsForm.querySelector("[name="+ss+"]") != null){
-							settingsForm.querySelector("[name="+ss+"]").value = settings[ss];
+							if(settingsForm.querySelector("[name="+ss+"]").type == "checkbox"){
+								settingsForm.querySelector("[name="+ss+"]").checked = settings[ss];
+							}else{
+								settingsForm.querySelector("[name="+ss+"]").value = settings[ss];
+							}
 						}
 					}
 					
@@ -179,7 +263,11 @@ class PluginTab extends React.Component {
 				for(let sv in subvars){
 					if(typeof subvars[sv] != "object"){continue;}
 					if(subvars[sv].getAttribute("subvar") == commandName){continue;}
-					command[subvars[sv].getAttribute("subvar")] = subvars[sv].value;
+					if(subvars[sv].type == "checkbox"){
+						command[subvars[sv].getAttribute("subvar")] = subvars[sv].checked;
+					}else{
+						command[subvars[sv].getAttribute("subvar")] = subvars[sv].value;
+					}
 				}
 				newSettings[varname][commandName] = command;
 			}
@@ -299,7 +387,7 @@ class PluginTab extends React.Component {
 		let pluginName = e.target.closest(".plugin-entry").id;
 		let varname = e.target.getAttribute("name");
 		let varval = e.target.value;
-		if(typeof this.state[pluginName].settings[varname] == "boolean"){
+		if(e.target.type == "checkbox"){
 			varval = e.target.checked;
 			window.setClass(e.target.parentElement, "checked", varval);
 		}
@@ -335,10 +423,28 @@ class PluginTab extends React.Component {
 
 		let isOpen = name == this.state._openSettings;
 		if(isOpen){
-			return <div className='settings-form-container'>
-				<div id={name+"SettingsForm"} className='settings-form-html' pluginname={name} dangerouslySetInnerHTML={{__html:sForm}}></div>
-				<div className="save-div"><button type="submit" form="settingsForm" className="save-button">Save</button><div className="save-status"></div></div>
-			</div>
+			if(sForm == null){
+
+				window.settingsFrame = () => {
+					console.log("SENDING SETTINGS");
+					let thisSettings = Object.assign(this.state[this.state._openSettings]["settings"]);
+					let udpClients = this.state._udpClients;
+					let assets = this.state[this.state._openSettings]["assets"];
+					thisSettings.isSettings = true;
+					thisSettings.udpClients = udpClients;
+					thisSettings.assets = assets;
+					return thisSettings;
+				}
+				
+				return <iframe id={name+"SettingsForm"} className='settings-form-html' src={window.location.origin+"/settings/"+name}>
+					
+				</iframe>;
+			}else{
+				return <div className='settings-form-container'>
+					<div id={name+"SettingsForm"} className='settings-form-html' pluginname={name} dangerouslySetInnerHTML={{__html:sForm}}></div>
+					<div className="save-div"><button type="submit" form="settingsForm" className="save-button">Save</button><div className="save-status"></div></div>
+				</div>
+			}
 		}else{
 			return null;
 		}
@@ -475,7 +581,7 @@ class PluginTab extends React.Component {
 						</div>
 					</div>
 					<div className="plugin-entry-settings">
-						{this.renderSettings(p, this.state[p]['settings-form'])}
+						{this.renderSettings(p, this.state[p].hasExternalSettingsPage?null:this.state[p]['settings-form'])}
 					</div>
 					<div className="plugin-asset-manager">
 						{this.renderAssetManager(p)}

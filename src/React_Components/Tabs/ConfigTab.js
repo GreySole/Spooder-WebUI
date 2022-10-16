@@ -1,20 +1,44 @@
 import React from 'react';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
-import {faTrash} from '@fortawesome/free-solid-svg-icons';
+import {faDownload, faTrash, faUpload} from '@fortawesome/free-solid-svg-icons';
 import BoolSwitch from '../UI/BoolSwitch.js';
 import LinkButton from '../UI/LinkButton.js';
 
 class ConfigTab extends React.Component{
 	constructor(props){
 		super(props);
-		this.state = Object.assign(props.data);
+		this.state = Object.assign(props.data.config);
 		this.state["_tabOptions"] = Object.assign(props._taboptions);
+		this.state["_brstatus"] = {
+			backupSettings:false,
+			backupPlugins:false,
+			restoreSettings:false,
+			restorePlugins:false
+		};
+		this.state["_backups"] = Object.assign(props.data.backup);
 		console.log(this.state);
 		this.handleChange = this.handleChange.bind(this);
 		this.saveConfig = this.saveConfig.bind(this);
 		this.deleteUDPClient = this.deleteUDPClient.bind(this);
 		this.addSubVar = this.addSubVar.bind(this);
 		this.setDefaultTabs = this.setDefaultTabs.bind(this);
+
+		this.backupSettings = this.backupSettings.bind(this);
+		this.backupPlugins = this.backupPlugins.bind(this);
+		this.deleteSettingsBackup = this.deleteSettingsBackup.bind(this);
+		this.deletePluginsBackup = this.deletePluginsBackup.bind(this);
+		this.restoreSettings = this.restoreSettings.bind(this);
+		this.restorePlugins = this.restorePlugins.bind(this);
+
+		this.restoreSettingsFileSelect = this.restoreSettingsFileSelect.bind(this);
+		this.restorePluginsFileSelect = this.restorePluginsFileSelect.bind(this);
+
+		this.hiddenSettingsUpload = React.createRef();
+		this.hiddenPluginsUpload = React.createRef();
+
+		this.handleFileClick = this.handleFileClick.bind(this);
+		this.uploadSettingsBackup = this.uploadSettingsBackup.bind(this);
+		this.uploadPluginsBackup = this.uploadPluginsBackup.bind(this);
 	}
 
 	
@@ -113,6 +137,194 @@ class ConfigTab extends React.Component{
 		}else if (e.currentTarget.name == "mode"){
 			localStorage.setItem("defaultmode", e.currentTarget.value);
 		}
+	}
+
+	backupSettings(e){
+		let newStatus = Object.assign(this.state._brstatus);
+		newStatus.backupSettings = true;
+		let backupName = document.querySelector(".backup-action-button input[name=backupSettings]").value;
+		fetch("/backup_settings", {method: 'POST',
+		headers: {'Content-Type': 'application/json'}, 
+		body:JSON.stringify({backupName:backupName})})
+		.then(async response => {
+			let newSettingsBackups = await response.json();
+			console.log(newSettingsBackups);
+			this.brFinish("backupSettings", newSettingsBackups.newbackups);
+		});
+
+		this.setState(Object.assign(this.state, {_brstatus:newStatus}));
+	}
+
+	backupPlugins(e){
+		let newStatus = Object.assign(this.state._brstatus);
+		newStatus.backupPlugins = true;
+		let backupName = document.querySelector(".backup-action-button input[name=backupPlugins]").value;
+		fetch("/backup_plugins", {method: 'POST',
+		headers: {'Content-Type': 'application/json'},
+		body:JSON.stringify({backupName:backupName})})
+		.then(async response => {
+			let newSettingsBackups = await response.json();
+			console.log(newSettingsBackups);
+			this.brFinish("backupPlugins", newSettingsBackups.newbackups);
+		});
+		this.setState(Object.assign(this.state, {_brstatus:newStatus}));
+	}
+
+	deleteSettingsBackup(e){
+		let backupName = document.querySelector(".restore-settings-div select").value;
+		if(confirm("Are you sure you want to delete "+backupName+"?") == false){
+			return;
+		}
+		fetch("/delete_backup_settings", {
+			method:"POST",
+			headers:{'Content-Type':'application/json'},
+			body:JSON.stringify({backupName:backupName})
+		})
+		.then(async response => {
+			let newSettingsBackups = await response.json();
+			if(newSettingsBackups.status == "SUCCESS"){
+				this.brFinish("backupSettings", newSettingsBackups.newbackups);
+			}
+		});
+	}
+
+	deletePluginsBackup(e){
+		let backupName = document.querySelector(".restore-plugins-div select").value;
+		if(confirm("Are you sure you want to delete "+backupName+"?") == false){
+			return;
+		}
+		fetch("/delete_backup_plugins", {
+			method:"POST",
+			headers:{'Content-Type':'application/json'},
+			body:JSON.stringify({backupName:backupName})
+		})
+		.then(async response => {
+			let newSettingsBackups = await response.json();
+			if(newSettingsBackups.status == "SUCCESS"){
+				this.brFinish("backupPlugins", newSettingsBackups.newbackups);
+			}
+		});
+	}
+
+	restoreSettings(e){
+		if(confirm("The selected files from the backup will overwrite your current setup. You should probably restart Spooder after doing this. Continue?") == false){
+			return;
+		}
+		let restoreFileName = document.querySelector(".restore-settings-div select").value;
+		let newStatus = Object.assign(this.state._brstatus);
+		let restoreSelections = {
+			config:document.querySelector(".restore-settings-checkboxes #restoreConfig").checked,
+			commands:document.querySelector(".restore-settings-checkboxes #restoreEvents").checked,
+			eventsub:document.querySelector(".restore-settings-checkboxes #restoreEventsub").checked,
+			oauth:document.querySelector(".restore-settings-checkboxes #restoreOauth").checked,
+			"osc-tunnels":document.querySelector(".restore-settings-checkboxes #restoreTunnels").checked,
+			"mod-blacklist":document.querySelector(".restore-settings-checkboxes #restoreBlacklist").checked
+		};
+		
+		newStatus.restoreSettings = true;
+		fetch("/restore_settings", {
+			method:"POST",
+			headers:{'Content-Type':'application/json'},
+			body:JSON.stringify({backupName:restoreFileName, selections:restoreSelections})
+		})
+		.then(async response => {
+			let newSettingsBackups = await response.json();
+			if(newSettingsBackups.status == "SUCCESS"){
+				this.brFinish("backupPlugins", newSettingsBackups.newbackups);
+			}
+		});
+		this.setState(Object.assign(this.state, {_brstatus:newStatus}));
+	}
+
+	restorePlugins(e){
+		if(confirm("This will wipe your current plugins and replace it with everything in this file. Continue?") == false){
+			return;
+		}
+		let restoreFileName = document.querySelector(".restore-plugins-div select").value;
+		let newStatus = Object.assign(this.state._brstatus);
+		newStatus.restorePlugins = true;
+
+		fetch("/restore_plugins", {
+			method:"POST",
+			headers:{'Content-Type':'application/json'},
+			body:JSON.stringify({backupName:restoreFileName})
+		})
+		.then(async response => {
+			let newSettingsBackups = await response.json();
+			if(newSettingsBackups.status == "SUCCESS"){
+				this.brFinish("backupPlugins", newSettingsBackups.newbackups);
+			}
+		});
+
+		this.setState(Object.assign(this.state, {_brstatus:newStatus}));
+	}
+
+	restoreSettingsFileSelect(e){
+		let fileName = e.currentTarget.value;
+		this.setState(Object.assign(this.state, {_restoreSettingsFile:fileName}));
+	}
+
+	restorePluginsFileSelect(e){
+		let fileName = e.currentTarget.value;
+		this.setState(Object.assign(this.state, {_restorePluginsFile:fileName}));
+	}
+
+	brFinish(which, newState){
+		let newStatus = Object.assign(this.state._brstatus);
+		let newBackups = Object.assign(this.state._backups);
+		if(which == "backupSettings"){
+			newStatus.backupSettings = false;
+			newBackups.settings = newState;
+		}else if(which == "backupPlugins"){
+			newStatus.backupPlugins = false;
+			newBackups.plugins = newState;
+		}else if(which == "restoreSettings"){
+			newStatus.restoreSettings = false;
+		}else if(which == "restorePlugins"){
+			newStatus.restorePlugins = false;
+		}
+
+		this.setState(Object.assign(this.state, {_brstatus:newStatus}));
+	}
+
+	handleFileClick(e){
+		if(e.currentTarget.getAttribute("backup") == "settings"){
+			this.hiddenSettingsUpload.current.click();
+		}else if(e.currentTarget.getAttribute("backup") == "plugins"){
+			this.hiddenPluginsUpload.current.click();
+		}
+	}
+
+	async uploadSettingsBackup(e){
+		var fd = new FormData();
+		fd.append('file', e.target.files[0]);
+		//return;
+
+		const requestOptions = {
+			method: 'POST',
+			body: fd
+		};
+		let newBackups = Object.assign(this.state._backups);
+		newBackups.settings = await fetch('/checkin_settings', requestOptions)
+			.then(response => response.json());
+
+		this.setState(Object.assign(this.state, {_backups:newBackups}));
+	}
+
+	async uploadPluginsBackup(e){
+		var fd = new FormData();
+		fd.append('file', e.target.files[0]);
+		//return;
+
+		const requestOptions = {
+			method: 'POST',
+			body: fd
+		};
+		let newBackups = Object.assign(this.state._backups);
+		newBackups.plugins = await fetch('/checkin_plugins', requestOptions)
+			.then(response => response.json());
+
+		this.setState(Object.assign(this.state, {_backups:newBackups}));
 	}
 	
 	render(){
@@ -246,6 +458,21 @@ class ConfigTab extends React.Component{
 			{deckTabOptionsEl}
 		</select></label>;
 	}
+
+	let restoreSettingsOptions = [<option>Select a Backup</option>];
+	let restorePluginsOptions = [<option>Select a Backup</option>];
+
+	for(let rs in this.state._backups.settings){
+		restoreSettingsOptions.push(
+			<option>{this.state._backups.settings[rs]}</option>
+		);
+	}
+
+	for(let rp in this.state._backups.plugins){
+		restorePluginsOptions.push(
+			<option>{this.state._backups.plugins[rp]}</option>
+		);
+	}
 		
 		return (
 			<form className="config-tab">
@@ -264,6 +491,87 @@ class ConfigTab extends React.Component{
 				</div>
 				{sections}
 				<div className="save-commands"><button type="button" id="saveCommandsButton" className="save-button" onClick={this.saveConfig}>Save</button><div id="saveStatusText" className="save-status"></div></div>
+				<div className="config-backup-restore">
+					<div className="backup-actions"><label className="backup-section-label">Backup</label>
+						<div className="backup-action-button">
+							<label>Settings</label>
+							<div>
+								<input type="text" placeholder='Default: Timestamp' name="backupSettings"/>
+								<button type="button" className="link-button-button" onClick={this.backupSettings}>{this.state._brstatus.backupSettings==true?"Backing up...":"Backup Settings"}</button>
+								<input type='file' id='input-file-settings' ref={this.hiddenSettingsUpload} onChange={this.uploadSettingsBackup} style={{ display: 'none' }} />
+								<label htmlFor='input-file-settings'>
+									<button type="button" className="link-button-button" backup="settings" onClick={this.handleFileClick}>Import <FontAwesomeIcon icon={faUpload} size="lg" /></button>
+								</label>
+							</div>
+						</div>
+						<div className="backup-action-button">
+							<label>Plugins</label>
+							<div>
+								<input type="text" placeholder='Default: Timestamp' name="backupPlugins"/>
+								<button type="button" className="link-button-button" onClick={this.backupPlugins}>{this.state._brstatus.backupPlugins==true?"Backing up...":"Backup Plugins"}</button>
+								<input type='file' id='input-file-plugins' ref={this.hiddenPluginsUpload} onChange={this.uploadPluginsBackup} style={{ display: 'none' }} />
+								<label htmlFor='input-file-settings'>
+									<button type="button" className="link-button-button" backup="plugins" onClick={this.handleFileClick}>Import <FontAwesomeIcon icon={faUpload} size="lg" /></button>
+								</label>
+							</div>
+						</div>
+					</div>
+					<div className="restore-actions"><label className="restore-section-label">Restore</label>
+						<div className="restore-settings-div">
+							<div className="restore-settings-select">
+								<select onChange={this.restoreSettingsFileSelect}>
+									{restoreSettingsOptions}
+								</select>
+								<div className="restore-settings-button">
+									<button type="button" className="link-button-button icononly" onClick={this.deleteSettingsBackup}><FontAwesomeIcon icon={faTrash} size="2x"/></button>
+									<a className="link-override" href={"/checkout_settings/"+this.state._restoreSettingsFile} download={this.state._restoreSettingsFile}><div className="link-button-button">Download <FontAwesomeIcon icon={faDownload} size="lg" /></div></a>
+								</div>
+								
+							</div>
+							<div className="restore-settings-checkboxes">
+									<label>Config
+										<input id="restoreConfig" type="checkbox" name="config" defaultChecked/>
+									</label>
+									<label>Events
+										<input id="restoreEvents" type="checkbox" name="commands" defaultChecked/>
+									</label>
+									<label>EventSub
+										<input id="restoreEventsub" type="checkbox" name="eventsub" defaultChecked/>
+									</label>
+									<label>oAuth
+										<input id="restoreOauth" type="checkbox" name="oauth"/>
+									</label>
+									<label>OSC Tunnels
+										<input id="restoreTunnels" type="checkbox" name="osc-tunnels" defaultChecked/>
+									</label>
+									<label>Mod Blacklist
+										<input id="restoreBlacklist" type="checkbox" name="mod-blacklist" defaultChecked/>
+									</label>
+									
+								</div>
+							<div className="restore-settings-button">
+								<button type="button" className="link-button-button" onClick={this.restoreSettings}>Restore Settings</button>
+							</div>
+						</div>
+						<div className="restore-plugins-div">
+							<div className="restore-plugins-select">
+								<select onChange={this.restorePluginsFileSelect}>
+									{restorePluginsOptions}
+								</select>
+								<div className="restore-plugins-button">
+									<button type="button" className="link-button-button icononly" onClick={this.deletePluginsBackup}><FontAwesomeIcon icon={faTrash} size="2x"/></button>
+									<a className="link-override" href={"/checkout_plugins/"+this.state._restorePluginsFile} download={this.state._restorePluginsFile}><div className="link-button-button">Download <FontAwesomeIcon icon={faDownload} size="lg" /></div></a>
+								</div>
+								
+							</div>
+							<div className="restore-plugins-button">
+								<button type="button" className="link-button-button" onClick={this.restorePlugins}>Restore Plugins</button>
+							</div>
+							
+						</div>
+					</div>
+				</div>
+				
 			</form>
 		);
 	}

@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useRef, createRef } from 'react';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
-import {faTrash, faAward, faCommentDots} from '@fortawesome/free-solid-svg-icons';
+import {faTrash, faAward, faCommentDots, faNetworkWired, faSquareCaretUp, faSquareCaretDown, faCaretDown, faCaretUp} from '@fortawesome/free-solid-svg-icons';
 import BoolSwitch from '../UI/BoolSwitch.js';
 
 class EventTable extends React.Component{
+
 	constructor(props){
 		super(props);
 		this.state = {};
@@ -11,6 +12,42 @@ class EventTable extends React.Component{
 			this.state.events = {};
 		}else{
 			this.state.events = Object.assign(props.data);
+		}
+		
+		//Auto-fix/upgrade events to current structure
+		for(let e in this.state.events){
+			for(let ev in this.eventStructure){
+				if(ev == "triggers"){
+
+					for(let t in this.eventStructure[ev]){
+						if(this.state.events[e][ev][t] == null){
+							this.state.events[e][ev][t] = this.eventStructure[ev][t];
+						}else{
+							for(let tt in this.eventStructure[ev][t]){
+								if(this.state.events[e][ev][t][tt] == null){
+									this.state.events[e][ev][t][tt] = this.eventStructure[ev][t][tt];
+								}
+							}
+						}
+					}
+
+				}else if(ev == "commands"){
+
+					for(let c in this.state.events[e][ev]){
+						
+						for(let co in this.eventStructure[ev][this.state.events[e][ev][c].type]){
+							if(this.state.events[e][ev][c][co] == null){
+								this.state.events[e][ev][c][co] = this.eventStructure[ev][this.state.events[e][ev][c].type][co];
+							}
+						}
+					}
+
+				}else{
+					if(this.state.events[e][ev] == null){
+						this.state.events[e][ev] = this.eventStructure[ev];
+					}
+				}
+			}
 		}
 		
 		if(props.groups == null){
@@ -28,10 +65,66 @@ class EventTable extends React.Component{
 		this.saveCommands = this.saveCommands.bind(this);
 		this.deleteCommand = this.deleteCommand.bind(this);
 		this.deleteEvent = this.deleteEvent.bind(this);
+		this.deleteGroup = this.deleteGroup.bind(this);
 		this.getCustomRewards = this.getCustomRewards.bind(this);
 		this.checkEventTaken = this.checkEventTaken.bind(this);
+
+		this.arrangeCommands = this.arrangeCommands.bind(this);
+		this.checkCommandConflicts = this.checkCommandConflicts.bind(this);
+
+		this.dragItem = createRef();
+		this.dragOverItem = createRef();
 		
 		this.getCustomRewards();
+	}
+
+	eventStructure = {
+		name:"",
+		description:"",
+		group:"Default",
+		cooldown:60,
+		triggers:{
+			chat:{
+				enabled:false,
+				command:""
+			},
+			redemption:{
+				enabled:false,
+				reward:""
+			},
+			osc:{
+				enabled:false,
+				handle:"trigger",
+				address:"/",
+				type:"single",
+				condition:"==",
+				value:"0",
+				condition2:"==",
+				value2:"0"
+			}
+		},
+		commands:{
+			"response":{
+				"message":"",
+				"delay":0
+			},
+			"plugin":{
+				"pluginname":"",
+				"eventname":"",
+				"delay":0
+			},
+			"software":{
+				"type":"software",
+				"etype":"timed",
+				"dest_udp":"-1",
+				"address":"",
+				"valueOn":"1",
+				"valueOff":"0",
+				"duration":60,
+				"delay":0,
+				"priority":0
+			},
+		}
 	}
 	
 	handleChange(e){
@@ -47,8 +140,13 @@ class EventTable extends React.Component{
 			newState[eventName].commands[commandIndex][varname] = e.target.value;
 
 		}else if(isTrigger){
+			
 			let varname = e.target.name;
 			let triggerType = e.target.closest("[triggertype]").getAttribute("triggertype");
+			if(newState[eventName].triggers[triggerType] == null){
+				newState[eventName].triggers[triggerType] = {};
+			}
+			
 			if(e.target.type == "checkbox"){
 				newState[eventName].triggers[triggerType][varname] = e.target.checked;
 			}else{
@@ -67,7 +165,6 @@ class EventTable extends React.Component{
 		}
 		
 		this.setState(Object.assign(this.state,{events:newState}));
-		//console.log(this.state);
 	}
 
 	addGroup(e){
@@ -80,8 +177,8 @@ class EventTable extends React.Component{
 	}
 
 	addEvent(e){
-		let newKey = document.querySelector(".event-add #eventkey").value;
-		let eventGroup = document.querySelector(".event-add #eventgroup").value;
+		let newKey = e.currentTarget.previousElementSibling.value;
+		let eventGroup = e.currentTarget.getAttribute("groupname");
 
 		let newEvent = {
 			"name":newKey,
@@ -90,8 +187,9 @@ class EventTable extends React.Component{
 			"cooldown":0,
 			"chatnotification":false,
 			"triggers":{
-				"chat":{"enabled":true, "command":"!"},
-				"redemption":{"enabled":false, "id":""}
+				"chat":{"enabled":true, "command":"!"+newKey},
+				"redemption":{"enabled":false, "id":""},
+				"osc":{"enabled":false, "address":"/", "type":"single","condition":"==", "value":0, "condition2":"==", "value2":0}
 			},
 			"commands":[]
 		};
@@ -110,7 +208,7 @@ class EventTable extends React.Component{
 				newCommand = {
 					type:"response",
 					enabled:true,
-					command:"",
+					command:"return event.username+' has triggered this command!';",
 					delay:0
 				};
 			break;
@@ -118,6 +216,7 @@ class EventTable extends React.Component{
 				newCommand = {
 					type:"plugin",
 					pluginname:"",
+					eventname:"",
 					delay:0
 				};
 			break;
@@ -130,9 +229,18 @@ class EventTable extends React.Component{
 					valueOn:1.0,
 					valueOff:0.0,
 					duration:60,
-					delay:0
+					delay:0,
+					priority:0
 				};
 			break;
+			/*case 'obs':
+				newCommand = {
+					type:"obs",
+					eventname:"",
+					value:0,
+					delay:0
+				}
+			break;*/
 		}
 		
 		
@@ -151,7 +259,7 @@ class EventTable extends React.Component{
 				}
 			}
 		}
-		let eventElements = document.querySelectorAll(".command-element");
+		//let eventElements = document.querySelectorAll(".command-element");
 		for(let e in newEvents){
 			newEvents[e].group = document.querySelector("#"+e+" [name='group']").value;
 		}
@@ -185,8 +293,9 @@ class EventTable extends React.Component{
 		let eventName = e.target.closest(".command-element").id;
 		let cIndex = e.target.closest(".command-fields").getAttribute("commandindex");
 		let newEvents = Object.assign(this.state.events);
+		
 		newEvents[eventName].commands.splice(cIndex,1);
-
+		
 		this.setState(Object.assign(this.state,{events:newEvents}));
 	}
 
@@ -200,8 +309,23 @@ class EventTable extends React.Component{
 
 		this.setState(Object.assign(this.state, {events:newState}));
 	}
+
+	deleteGroup(groupName){
+		if(confirm("All events assigned to this group will be deleted. Is that okay?")){
+			let newEvents = Object.assign(this.state.events);
+			let newGroups = Object.assign(this.state.groups);
+			for(let ev in newEvents){
+				if(newEvents[ev].group == groupName){
+					delete newEvents[ev];
+				}
+			}
+			newGroups.splice(newGroups.indexOf(groupName),1);
+			this.setState(Object.assign(this.state, {groups:newGroups,events:newEvents}));
+		}
+	}
 	
 	toggleProps(e){
+		
 		let topElement = e.currentTarget.closest(".command-element");
 		let middleElement = topElement.querySelector(".command-key");
 		let element = topElement.querySelector(".command-section");
@@ -209,6 +333,14 @@ class EventTable extends React.Component{
 		window.toggleClass(topElement, "expanded");
 		window.toggleClass(middleElement, "expanded");
 		window.toggleClass(element, "hidden");
+	}
+
+	toggleGroup(e){
+		console.log(e.target);
+		
+		let element = e.currentTarget.closest(".command-group").querySelector(".command-group-content");
+		window.toggleClass(element, "hidden");
+		window.toggleClass(e.currentTarget.closest(".command-group"), "expanded");
 	}
 	
 	sortList() {
@@ -299,11 +431,43 @@ class EventTable extends React.Component{
 	}
 
 	checkEventTaken(e){
+		e.target.value = e.target.value.replace(" ", "_");
 		if(Object.keys(this.state.events).includes(e.target.value)){
 			window.setClass(e.target, "error", true);
 		}else{
 			window.setClass(e.target, "error", false);
 		}
+		
+	}
+
+	checkCommandConflicts(eventName, commandIndex){
+		//console.log(eventName, commandIndex);
+		let eventConflicts = [];
+		let events = this.state.events;
+		let checkAddress = events[eventName].commands[commandIndex].address;
+		let checkValue = events[eventName].commands[commandIndex].valueOn;
+		for(let e in events){
+			for(let c in events[e].commands){
+				if(e==eventName && c==commandIndex){continue;}
+				if(events[e].commands[c].type =="software"){
+					if(events[e].commands[c].address == checkAddress){
+						if(isNaN(checkValue)){
+							if(checkValue.includes(",")){
+								if(events[e].commands[c].valueOn.includes(",")){
+									if(events[e].commands[c].valueOn.split(",")[0] == checkValue.split(",")[0]){
+										eventConflicts.push(e+c);
+									}
+								}
+							}else{
+								eventConflicts.push(e+c);
+							}
+						}
+					}
+				}
+			}
+		}
+
+		return eventConflicts;
 	}
 
 	async getCustomRewards(){
@@ -322,6 +486,23 @@ class EventTable extends React.Component{
 		let newState = Object.assign(this.state);
 		newState._rewards = rewards;
 		this.setState(newState);
+	}
+
+	arrangeCommands(e){
+		let eventName = e.currentTarget.closest(".command-element").id;
+		let direction = e.currentTarget.getAttribute("direction");
+		let commandIndex = parseInt(e.currentTarget.closest(".command-fields").getAttribute("commandindex"));
+		console.log(eventName, direction, commandIndex);
+		let newEvents = Object.assign(this.state.events);
+		if(direction == "up"){
+			if(commandIndex<=0){return;}
+			newEvents[eventName].commands[commandIndex] = newEvents[eventName].commands.splice(commandIndex-1, 1, newEvents[eventName].commands[commandIndex])[0];
+		}else{
+			if(commandIndex>=newEvents[eventName].commands.length-1){return;}
+			newEvents[eventName].commands[commandIndex] = newEvents[eventName].commands.splice(commandIndex+1, 1, newEvents[eventName].commands[commandIndex])[0];
+		}
+
+		this.setState(Object.assign(this.state, {events:newEvents}))
 	}
 	
 	render(){
@@ -358,7 +539,6 @@ class EventTable extends React.Component{
 			}
 		}
 
-		let eventTable = [];
 		let trashButton = <FontAwesomeIcon icon={faTrash} size="lg" className="delete-button" onClick={this.deleteCommand} />;
 
 		var groups = this.state.groups;
@@ -366,6 +546,7 @@ class EventTable extends React.Component{
 
 		let groupOptions = [];
 		for(let g in groups){
+			groupObjects[groups[g]] = [];
 			groupOptions.push(
 				<option value={groups[g]}>{groups[g]}</option>
 			);
@@ -400,7 +581,7 @@ class EventTable extends React.Component{
 			let redemptionTrigger = null;
 			if(this.state._rewards != null){
 				redemptionTrigger = this.state._rewards.length > 0 ? 
-				<label triggertype="redemption">
+				<label triggertype="redemption" className="event-trigger">
 					Redemption:
 					<label>
 						Enabled:
@@ -408,26 +589,132 @@ class EventTable extends React.Component{
 					</label>
 					<label>
 						Reward:
-						<select name="id" defaultValue={eventTriggers.redemption.id} onChange={this.handleChange}>
+						<select name="id" value={eventTriggers.redemption.id} onChange={this.handleChange}>
 							{rewardOptions}
 						</select>
 					</label>
 				</label>:null;
 			}
+
+			let chatTrigger = <label triggertype="chat" className="event-trigger">
+								Chat:
+								<label>
+									Enabled:
+									<BoolSwitch name="enabled" checked={eventTriggers.chat.enabled} onChange={this.handleChange}/>
+								</label>
+								<label>
+									Command:
+									<input type="text" name="command" value={eventTriggers.chat.command} onChange={this.handleChange} />
+								</label>
+							</label>
+
+			let oscTrigger = null;
+
+			if(eventTriggers.osc?.type=="double"){
+				oscTrigger = <label triggertype="osc" className="event-trigger">
+				OSC:
+					<label>
+						Enabled:
+						<BoolSwitch name="enabled" checked={eventTriggers.osc?.enabled} onChange={this.handleChange}/>
+					</label>
+					<label>
+						Handle:
+						<select name="handletype" value={eventTriggers.osc?.handletype} onChange={this.handleChange}>
+							<option value='trigger'>Trigger</option>
+							<option value='toggle'>Toggle</option>
+						</select>
+					</label>
+					<label>
+						Address:
+						<input type="text" name="address" value={eventTriggers.osc?.address} onChange={this.handleChange} />
+					</label>
+					<label>
+						Args:
+						<select name="type" value={eventTriggers.osc?.type} onChange={this.handleChange}>
+							<option value="single">Single</option>
+							<option value="double">Double</option>
+						</select>
+					</label>
+					<label>
+						Condition 1:
+						<select name="condition" value={eventTriggers.osc?.condition} onChange={this.handleChange} >
+							<option value="==">Equals</option>
+							<option value="!=">Not Equals</option>
+							<option value=">=">Greater than or equal to</option>
+							<option value="<=">Less than or equal to</option>
+							<option value=">">Greater than</option>
+							<option value="<">Less than</option>
+						</select>
+					</label>
+					<label>
+						Value 1:
+						<input type="number" name="value" value={eventTriggers.osc?.value} onChange={this.handleChange}/>
+					</label>
+					<label>
+						Condition 2:
+						<select name="condition2" value={eventTriggers.osc?.condition2} onChange={this.handleChange} >
+							<option value="==">Equals</option>
+							<option value="!=">Not Equals</option>
+							<option value=">=">Greater than or equal to</option>
+							<option value="<=">Less than or equal to</option>
+							<option value=">">Greater than</option>
+							<option value="<">Less than</option>
+						</select>
+					</label>
+					<label>
+						Value 2:
+						<input type="number" name="value2" value={eventTriggers.osc?.value2} onChange={this.handleChange}/>
+					</label>
+			</label>;
+			}else{
+				oscTrigger = <label triggertype="osc" className="event-trigger">
+				OSC:
+					<label>
+						Enabled:
+						<BoolSwitch name="enabled" checked={eventTriggers.osc?.enabled} onChange={this.handleChange}/>
+					</label>
+					<label>
+						Handle:
+						<select name="handletype" value={eventTriggers.osc?.handletype} onChange={this.handleChange}>
+							<option value='trigger'>Trigger</option>
+							<option value='toggle'>Toggle</option>
+						</select>
+					</label>
+					<label>
+						Address:
+						<input type="text" name="address" value={eventTriggers.osc?.address} onChange={this.handleChange} />
+					</label>
+					<label>
+						Args:
+						<select name="type" value={eventTriggers.osc?.type} onChange={this.handleChange}>
+							<option value="single">Single</option>
+							<option value="double">Double</option>
+						</select>
+					</label>
+					<label>
+						Condition:
+						<select name="condition" value={eventTriggers.osc?.condition} onChange={this.handleChange} >
+							<option value="==">Equals</option>
+							<option value="!=">Not Equals</option>
+							<option value=">=">Greater than or equal to</option>
+							<option value="<=">Less than or equal to</option>
+							<option value=">">Greater than</option>
+							<option value="<">Less than</option>
+						</select>
+					</label>
+					<label>
+						Value:
+						<input type="number" name="value" value={eventTriggers.osc?.value} onChange={this.handleChange}/>
+					</label>
+			</label>;
+			}
+			
+			
 			
 			let triggerElement = <div className="command-props triggers">
-									<label triggertype="chat">
-										Chat:
-										<label>
-											Enabled:
-											<BoolSwitch name="enabled" checked={eventTriggers.chat.enabled} onChange={this.handleChange}/>
-										</label>
-										<label>
-											Command:
-											<input type="text" name="command" defaultValue={eventTriggers.chat.command} onChange={this.handleChange} />
-										</label>
-									</label>
+									{chatTrigger}
 									{redemptionTrigger}
+									{oscTrigger}
 								</div>;
 
 			let eventCommands = thisEvent[s].commands;
@@ -440,13 +727,12 @@ class EventTable extends React.Component{
 						element = <div className="command-props response">
 							<label>
 								Message:
-								<textarea name="message" key={s} defaultValue={eventCommands[c].message} onChange={this.handleChange} placeholder="Write your response script in JS here. You can access the sender name and tags with 'event.username and event.tags' be sure to end the script with 'return <string>' without quotes." ></textarea>
+								<textarea name="message" key={s} value={eventCommands[c].message} onChange={this.handleChange} placeholder="Write your response script in JS here. You can access the sender name and tags with 'event.username and event.tags' be sure to end the script with 'return <string>' without quotes." ></textarea>
 								<div className="verify-message"><button className="verify-message-button save-button" onClick={this.verifyResponseScript}>Verify Script</button></div>
 							</label>
-							
 							<label>
 								Delay (Milliseconds):
-								<input name="delay" key={s} defaultValue={eventCommands[c].delay} type="number" break="anywhere" onChange={this.handleChange} />
+								<input name="delay" key={s} value={eventCommands[c].delay} type="number" break="anywhere" onChange={this.handleChange} />
 							</label>
 						</div>;
 					break;
@@ -454,32 +740,33 @@ class EventTable extends React.Component{
 						element = <div className="command-props plugin">
 							<label>
 								Plugin:
-								<select name="pluginname" key={s} defaultValue={eventCommands[c].pluginname} onChange={this.handleChange}>{pluginOptions}</select>
+								<select name="pluginname" key={s} value={eventCommands[c].pluginname} onChange={this.handleChange}>{pluginOptions}</select>
 							</label>
 							<label>
 								Event Name:
-								<input type="text" key={s} name="eventname" defaultValue={eventCommands[c].eventname} onChange={this.handleChange} />
+								<input type="text" key={s} name="eventname" value={eventCommands[c].eventname} onChange={this.handleChange} />
 							</label>
 							<label>
 								Delay (Milliseconds):
-								<input name="delay" key={s} defaultValue={eventCommands[c].delay} type="number" break="anywhere" onChange={this.handleChange} />
+								<input name="delay" key={s} value={eventCommands[c].delay} type="number" break="anywhere" onChange={this.handleChange} />
 							</label>
 						</div>;
 					break;
 					case 'software':
 						let duration = eventCommands[c].etype=="timed" ? <label>
 																		Duration (Seconds):
-																		<input type="number" name="duration" key={s} defaultValue={eventCommands[c].duration} onChange={this.handleChange} />
+																		<input type="number" name="duration" key={s} value={eventCommands[c].duration} onChange={this.handleChange} />
 																	</label>:null;
+						
 						element = <div className="command-props software">
 							
 							<label>
 								Address:
-								<input type="text" name="address" key={s} defaultValue={eventCommands[c].address} onChange={this.handleChange} />
+								<input type="text" name="address" key={s} value={eventCommands[c].address} onChange={this.handleChange} />
 							</label>
 							<label>
 								UDP:
-								<select name="dest_udp" key={s} defaultValue={eventCommands[c].dest_udp} onChange={this.handleChange}>
+								<select name="dest_udp" key={s} value={eventCommands[c].dest_udp} onChange={this.handleChange}>
 									<option value={-1}>None</option>
 									<option value={-2}>All</option>
 										{udpHostOptions}
@@ -487,36 +774,75 @@ class EventTable extends React.Component{
 							</label>
 							<label>
 								Value On:
-								<input type="text" name="valueOn" key={s} defaultValue={eventCommands[c].valueOn} onChange={this.handleChange} />
+								<input type="text" name="valueOn" key={s} value={eventCommands[c].valueOn} onChange={this.handleChange} />
 							</label>
 							<label>
 								Value Off:
-								<input type="text" name="valueOff" key={s} defaultValue={eventCommands[c].valueOff} onChange={this.handleChange} />
+								<input type="text" name="valueOff" key={s} value={eventCommands[c].valueOff} onChange={this.handleChange} />
 							</label>
 							<label>
 								Event Type:
-								<select name="etype" key={s} defaultValue={eventCommands[c].etype} onChange={this.handleChange}><option value="timed">Timed</option><option value="oneshot">One Shot</option></select>
+								<select name="etype" key={s} value={eventCommands[c].etype} onChange={this.handleChange}>
+									<option value="timed">Timed</option>
+									<option value="oneshot">One Shot</option>
+								</select>
 							</label>
 							{duration}
 							<label>
 								Delay (Milliseconds):
-								<input name="delay" key={s} defaultValue={eventCommands[c].delay} type="number" break="anywhere" onChange={this.handleChange} />
+								<input name="delay" key={s} value={eventCommands[c].delay} type="number" break="anywhere" onChange={this.handleChange} />
+							</label>
+							<label className="tooltip"><span className="tooltiptext">This is for overlapping events that use the same address. Higher priority will override the overlapping event.</span>
+								Priority:
+								<input name="priority" key={s} value={eventCommands[c].priority} type="number" break="anywhere" onChange={this.handleChange} />
 							</label>
 						</div>;
-					
 					break;
 				}
+
+				let typeLabel = <div>{eventCommands[c].type}</div>;
+				let commandConflicts = null;
+
+				if(eventCommands[c].type == "software"){
+					commandConflicts = this.checkCommandConflicts(s,c);
+					if(commandConflicts.length>0){
+						typeLabel = <div className="type-label-conflicts">
+										<label>{commandConflicts.length+" event"+(commandConflicts.length==1?"":"s")+" share this address. Use 'priority' to handle the overlap"}</label>
+										<label>Conflicts: {commandConflicts.join(", ")}</label>
+									</div>
+					}
+				}
+				let commandArrows = null;
+				if(eventCommands.length>1){
+					if(c == 0){
+						commandArrows = <div className="command-arrows">
+											<div className="command-arrow" direction="down" onClick={this.arrangeCommands}><FontAwesomeIcon icon={faCaretDown} size="2x" /></div>
+										</div>;
+					}else if(c == eventCommands.length-1){
+						commandArrows = <div className="command-arrows">
+											<div className="command-arrow" direction="up" onClick={this.arrangeCommands}><FontAwesomeIcon icon={faCaretUp} size="2x" /></div>
+										</div>;
+					}else{
+						commandArrows = <div className="command-arrows">
+											<div className="command-arrow" direction="up" onClick={this.arrangeCommands}><FontAwesomeIcon icon={faCaretUp} size="2x" /></div>
+											<div className="command-arrow" direction="down" onClick={this.arrangeCommands}><FontAwesomeIcon icon={faCaretDown} size="2x" /></div>
+										</div>;
+					}
+				}
+
 				
 				commandElements.push(
-					<div className="command-fields" key={c} commandindex={c}>
+					<div className="command-fields" key={c} commandindex={c}  onDragEnter={this.dragEnterCommand} onDragEnd={this.dropCommand}>
+						{commandArrows}
 						<label>
-							{eventCommands[c].type}
+							{typeLabel}
 							{element}
 						</label>
 						
 						<div className="command-actions">
 							{trashButton}
 						</div>
+						
 					</div>
 				);
 			}
@@ -529,6 +855,7 @@ class EventTable extends React.Component{
 							<option value={"response"}>Reponse</option>
 							<option value={"plugin"}>Plugin</option>
 							<option value={"software"}>Software</option>
+							
 						</select>
 						</label>
 					</div>
@@ -550,6 +877,12 @@ class EventTable extends React.Component{
 				)
 			}
 
+			if(eventTriggers.osc?.enabled){
+				triggerIcons.push(
+					<FontAwesomeIcon icon={faNetworkWired} />
+				)
+			}
+
 			let eventElement = <div className="command-element" key={s} id={s}>
 									<div className="command-key" onClick={this.toggleProps}>
 										<label>
@@ -558,22 +891,25 @@ class EventTable extends React.Component{
 									</div>
 									<div className="command-section hidden">
 									<label>
+										Internal Name: {s}
+									</label>
+									<label>
 										Name:
-										<input name="name" defaultValue={eventName} onChange={this.handleChange}/>
+										<input name="name" value={eventName} onChange={this.handleChange}/>
 									</label>
 									<label>
 										Description:
-										<input name="description" defaultValue={eventDesc} onChange={this.handleChange}/>
+										<input name="description" value={eventDesc} onChange={this.handleChange}/>
 									</label>
 									<label>
 										Group:
-										<select name="group" defaultValue={groupName}>
+										<select name="group" value={groupName} onChange={this.handleChange}>
 											{groupOptions}
 										</select>
 									</label>
 									<label>
 										Cooldown (In Seconds):
-										<input type="number" name="cooldown" defaultValue={eventCooldown} onChange={this.handleChange}/>
+										<input type="number" name="cooldown" value={eventCooldown} onChange={this.handleChange}/>
 									</label>
 									<label className="label-switch">
 										Notify Activation in Chat:
@@ -609,9 +945,23 @@ class EventTable extends React.Component{
 
 		for(let go in groupKeys){
 			groupElements.push(
-				<div className="command-group">
-					<div className="command-group-label">{groupKeys[go]}</div>
-					<div className="command-group-content">{groupObjects[groupKeys[go]]}</div>
+				<div className="command-group" >
+					<div className="command-group-label" onClick={this.toggleGroup}>
+						{groupKeys[go]}
+						
+					</div>
+					<div className="command-group-content hidden">
+						<div className="command-group-actions" onClick={(e)=>{e.stopPropagation()}}>
+							<div>
+								<input type="text" id="eventkey" placeholder="Event name" onInput={this.checkEventTaken} />
+								<button type="button" id="addEventButton" groupname={groupKeys[go]} className="add-button" onClick={this.addEvent}>Add</button>
+							</div>
+							<div className="delete-event-div">
+								<button type="button" className="delete-button" onClick={()=>{this.deleteGroup(groupKeys[go])}}>DELETE GROUP</button>
+							</div>
+						</div>
+						{groupObjects[groupKeys[go]]}
+						</div>
 				</div>
 			);
 		}
@@ -621,19 +971,9 @@ class EventTable extends React.Component{
 				<div className="event-container">
 					{groupElements}
 				</div>
-				<div className="event-add">Add Event
-					<div>
-						<input type="text" id="eventkey" placeholder="Event name" onInput={this.checkEventTaken} />
-						<select name="group" id="eventgroup" defaultValue="Default">
-							{groupOptions}
-						</select>
-						<button type="button" id="addEventButton" className="add-button" onClick={this.addEvent}>Add</button>
-					</div>
-				</div>
 				<div className="event-add">
 					<label>
-						Groups:
-						{this.state.groups.join(", ")}
+						Add Group
 					</label>
 					<div className="add-command-actions">
 							<input type="text" name="groupname" />

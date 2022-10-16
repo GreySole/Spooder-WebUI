@@ -104,7 +104,7 @@
     background-color:var(--button-save-color);
 }
 
-.link-button-button svg{
+.link-button-button:not(.icononly) svg{
     margin-left:10px;
 }
 

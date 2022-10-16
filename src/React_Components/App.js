@@ -12,6 +12,7 @@ import {faBars, faArrowRight} from '@fortawesome/free-solid-svg-icons';
 import {VolumeControl} from './Deck/VolumeControl.js';
 import { OutputController } from './Deck/OutputController.js';
 import {SceneController} from './Deck/SceneController.js';
+import {SourceControl} from './Deck/SourceControl.js';
 import {OSCMonitor} from './Deck/OSCMonitor.js';
 
 const queryString = window.location.search;
@@ -232,7 +233,7 @@ class App extends React.Component {
 		this.setState(Object.assign(this.state, {
 			tabData:{
 				pluginData:pluginDataRaw,
-				_udpClients:udpClients
+				udpClients:udpClients
 			},
 			"tab":"plugins", "navOpen":false
 		}));
@@ -450,6 +451,7 @@ class App extends React.Component {
 					appContent = <div className="App-content deck">
 						<label className="deck-component-label">Output</label><OutputController osc={osc} />
 						<label className="deck-component-label">Scenes</label><SceneController osc={osc} />
+						<label className="deck-component-label">Sources</label><SourceControl osc={osc} />
 						<label className="deck-component-label">Volume</label><VolumeControl osc={osc} />
 					</div>;
 				}else{

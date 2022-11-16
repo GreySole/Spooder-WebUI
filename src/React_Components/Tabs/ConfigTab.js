@@ -10,6 +10,7 @@ class ConfigTab extends React.Component{
 		this.state = Object.assign(props.data.config);
 		this.state["_tabOptions"] = Object.assign(props._taboptions);
 		this.state["_brstatus"] = {
+			brExpanded:false,
 			backupSettings:false,
 			backupPlugins:false,
 			restoreSettings:false,
@@ -23,6 +24,7 @@ class ConfigTab extends React.Component{
 		this.addSubVar = this.addSubVar.bind(this);
 		this.setDefaultTabs = this.setDefaultTabs.bind(this);
 
+		this.toggleBackupRestore = this.toggleBackupRestore.bind(this);
 		this.backupSettings = this.backupSettings.bind(this);
 		this.backupPlugins = this.backupPlugins.bind(this);
 		this.deleteSettingsBackup = this.deleteSettingsBackup.bind(this);
@@ -326,6 +328,12 @@ class ConfigTab extends React.Component{
 
 		this.setState(Object.assign(this.state, {_backups:newBackups}));
 	}
+
+	toggleBackupRestore(e){
+		let newBackups = Object.assign(this.state._brstatus);
+		newBackups.brExpanded = !newBackups.brExpanded;
+		this.setState(Object.assign(this.state, {_brstatus:newBackups}))
+	}
 	
 	render(){
 		console.log(this.state);
@@ -473,6 +481,87 @@ class ConfigTab extends React.Component{
 			<option>{this.state._backups.plugins[rp]}</option>
 		);
 	}
+
+	let backupRestore = this.state._brstatus.brExpanded==true?<div className="config-backup-restore">
+	<div className="backup-actions"><label className="backup-section-label">Backup</label>
+		<div className="backup-action-button">
+			<label>Settings</label>
+			<div>
+				<input type="text" placeholder='Default: Timestamp' name="backupSettings"/>
+				<button type="button" className="link-button-button" onClick={this.backupSettings}>{this.state._brstatus.backupSettings==true?"Backing up...":"Backup Settings"}</button>
+				<input type='file' id='input-file-settings' ref={this.hiddenSettingsUpload} onChange={this.uploadSettingsBackup} style={{ display: 'none' }} />
+				<label htmlFor='input-file-settings'>
+					<button type="button" className="link-button-button" backup="settings" onClick={this.handleFileClick}>Import <FontAwesomeIcon icon={faUpload} size="lg" /></button>
+				</label>
+			</div>
+		</div>
+		<div className="backup-action-button">
+			<label>Plugins</label>
+			<div>
+				<input type="text" placeholder='Default: Timestamp' name="backupPlugins"/>
+				<button type="button" className="link-button-button" onClick={this.backupPlugins}>{this.state._brstatus.backupPlugins==true?"Backing up...":"Backup Plugins"}</button>
+				<input type='file' id='input-file-plugins' ref={this.hiddenPluginsUpload} onChange={this.uploadPluginsBackup} style={{ display: 'none' }} />
+				<label htmlFor='input-file-settings'>
+					<button type="button" className="link-button-button" backup="plugins" onClick={this.handleFileClick}>Import <FontAwesomeIcon icon={faUpload} size="lg" /></button>
+				</label>
+			</div>
+		</div>
+	</div>
+	<div className="restore-actions"><label className="restore-section-label">Restore</label>
+		<div className="restore-settings-div">
+			<div className="restore-settings-select">
+				<select onChange={this.restoreSettingsFileSelect}>
+					{restoreSettingsOptions}
+				</select>
+				<div className="restore-settings-button">
+					<button type="button" className="link-button-button icononly" onClick={this.deleteSettingsBackup}><FontAwesomeIcon icon={faTrash} size="2x"/></button>
+					<a className="link-override" href={"/checkout_settings/"+this.state._restoreSettingsFile} download={this.state._restoreSettingsFile}><div className="link-button-button">Download <FontAwesomeIcon icon={faDownload} size="lg" /></div></a>
+				</div>
+				
+			</div>
+			<div className="restore-settings-checkboxes">
+					<label>Config
+						<input id="restoreConfig" type="checkbox" name="config" defaultChecked/>
+					</label>
+					<label>Events
+						<input id="restoreEvents" type="checkbox" name="commands" defaultChecked/>
+					</label>
+					<label>EventSub
+						<input id="restoreEventsub" type="checkbox" name="eventsub" defaultChecked/>
+					</label>
+					<label>oAuth
+						<input id="restoreOauth" type="checkbox" name="oauth"/>
+					</label>
+					<label>OSC Tunnels
+						<input id="restoreTunnels" type="checkbox" name="osc-tunnels" defaultChecked/>
+					</label>
+					<label>Mod Blacklist
+						<input id="restoreBlacklist" type="checkbox" name="mod-blacklist" defaultChecked/>
+					</label>
+					
+				</div>
+			<div className="restore-settings-button">
+				<button type="button" className="link-button-button" onClick={this.restoreSettings}>Restore Settings</button>
+			</div>
+		</div>
+		<div className="restore-plugins-div">
+			<div className="restore-plugins-select">
+				<select onChange={this.restorePluginsFileSelect}>
+					{restorePluginsOptions}
+				</select>
+				<div className="restore-plugins-button">
+					<button type="button" className="link-button-button icononly" onClick={this.deletePluginsBackup}><FontAwesomeIcon icon={faTrash} size="2x"/></button>
+					<a className="link-override" href={"/checkout_plugins/"+this.state._restorePluginsFile} download={this.state._restorePluginsFile}><div className="link-button-button">Download <FontAwesomeIcon icon={faDownload} size="lg" /></div></a>
+				</div>
+				
+			</div>
+			<div className="restore-plugins-button">
+				<button type="button" className="link-button-button" onClick={this.restorePlugins}>Restore Plugins</button>
+			</div>
+			
+		</div>
+	</div>
+</div>:null;
 		
 		return (
 			<form className="config-tab">
@@ -491,86 +580,8 @@ class ConfigTab extends React.Component{
 				</div>
 				{sections}
 				<div className="save-commands"><button type="button" id="saveCommandsButton" className="save-button" onClick={this.saveConfig}>Save</button><div id="saveStatusText" className="save-status"></div></div>
-				<div className="config-backup-restore">
-					<div className="backup-actions"><label className="backup-section-label">Backup</label>
-						<div className="backup-action-button">
-							<label>Settings</label>
-							<div>
-								<input type="text" placeholder='Default: Timestamp' name="backupSettings"/>
-								<button type="button" className="link-button-button" onClick={this.backupSettings}>{this.state._brstatus.backupSettings==true?"Backing up...":"Backup Settings"}</button>
-								<input type='file' id='input-file-settings' ref={this.hiddenSettingsUpload} onChange={this.uploadSettingsBackup} style={{ display: 'none' }} />
-								<label htmlFor='input-file-settings'>
-									<button type="button" className="link-button-button" backup="settings" onClick={this.handleFileClick}>Import <FontAwesomeIcon icon={faUpload} size="lg" /></button>
-								</label>
-							</div>
-						</div>
-						<div className="backup-action-button">
-							<label>Plugins</label>
-							<div>
-								<input type="text" placeholder='Default: Timestamp' name="backupPlugins"/>
-								<button type="button" className="link-button-button" onClick={this.backupPlugins}>{this.state._brstatus.backupPlugins==true?"Backing up...":"Backup Plugins"}</button>
-								<input type='file' id='input-file-plugins' ref={this.hiddenPluginsUpload} onChange={this.uploadPluginsBackup} style={{ display: 'none' }} />
-								<label htmlFor='input-file-settings'>
-									<button type="button" className="link-button-button" backup="plugins" onClick={this.handleFileClick}>Import <FontAwesomeIcon icon={faUpload} size="lg" /></button>
-								</label>
-							</div>
-						</div>
-					</div>
-					<div className="restore-actions"><label className="restore-section-label">Restore</label>
-						<div className="restore-settings-div">
-							<div className="restore-settings-select">
-								<select onChange={this.restoreSettingsFileSelect}>
-									{restoreSettingsOptions}
-								</select>
-								<div className="restore-settings-button">
-									<button type="button" className="link-button-button icononly" onClick={this.deleteSettingsBackup}><FontAwesomeIcon icon={faTrash} size="2x"/></button>
-									<a className="link-override" href={"/checkout_settings/"+this.state._restoreSettingsFile} download={this.state._restoreSettingsFile}><div className="link-button-button">Download <FontAwesomeIcon icon={faDownload} size="lg" /></div></a>
-								</div>
-								
-							</div>
-							<div className="restore-settings-checkboxes">
-									<label>Config
-										<input id="restoreConfig" type="checkbox" name="config" defaultChecked/>
-									</label>
-									<label>Events
-										<input id="restoreEvents" type="checkbox" name="commands" defaultChecked/>
-									</label>
-									<label>EventSub
-										<input id="restoreEventsub" type="checkbox" name="eventsub" defaultChecked/>
-									</label>
-									<label>oAuth
-										<input id="restoreOauth" type="checkbox" name="oauth"/>
-									</label>
-									<label>OSC Tunnels
-										<input id="restoreTunnels" type="checkbox" name="osc-tunnels" defaultChecked/>
-									</label>
-									<label>Mod Blacklist
-										<input id="restoreBlacklist" type="checkbox" name="mod-blacklist" defaultChecked/>
-									</label>
-									
-								</div>
-							<div className="restore-settings-button">
-								<button type="button" className="link-button-button" onClick={this.restoreSettings}>Restore Settings</button>
-							</div>
-						</div>
-						<div className="restore-plugins-div">
-							<div className="restore-plugins-select">
-								<select onChange={this.restorePluginsFileSelect}>
-									{restorePluginsOptions}
-								</select>
-								<div className="restore-plugins-button">
-									<button type="button" className="link-button-button icononly" onClick={this.deletePluginsBackup}><FontAwesomeIcon icon={faTrash} size="2x"/></button>
-									<a className="link-override" href={"/checkout_plugins/"+this.state._restorePluginsFile} download={this.state._restorePluginsFile}><div className="link-button-button">Download <FontAwesomeIcon icon={faDownload} size="lg" /></div></a>
-								</div>
-								
-							</div>
-							<div className="restore-plugins-button">
-								<button type="button" className="link-button-button" onClick={this.restorePlugins}>Restore Plugins</button>
-							</div>
-							
-						</div>
-					</div>
-				</div>
+				<div className="backup-restore-toggle-label" onClick={this.toggleBackupRestore}>Backup/Restore</div>
+				{backupRestore}
 				
 			</form>
 		);

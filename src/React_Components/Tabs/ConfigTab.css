@@ -151,6 +151,7 @@
     display: flex;
     flex-flow: row;
     align-items: center;
+    border-bottom: 2px solid var(--border-color);
 }
 
 .settings-form .heading{
@@ -239,12 +240,23 @@
 .config-backup-restore{
     padding:10px;
     padding-top:10px;
-    border-top: 2px solid var(--border-color);
 }
 
 .backup-section-label,
 .restore-section-label{
+    font-size:18px;
+}
+
+.backup-restore-toggle-label{
+    user-select: none;
     font-size:24px;
+    width:95%;
+    padding:10px;
+    margin-bottom:20px;
+}
+
+.backup-restore-toggle-label:hover{
+    background-color:var(--tab-inactive-color);
 }
 
 @media screen and (max-width: 600px) {

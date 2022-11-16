@@ -59,8 +59,6 @@ class SourceControl extends React.Component{
     }
 
     programSceneChanged(data){
-        console.log(this.state);
-        console.log("PROGRAM",this.state.currentProgramScene, data.args[0]);
         this.osc.send(new OSC.Message("/obs/get/scene/itemlist", 1));
         this.setState(Object.assign(this.state, {
             currentProgramScene:data.args[0]
@@ -68,7 +66,6 @@ class SourceControl extends React.Component{
     }
 
     previewSceneChanged(data){
-        console.log("PREVIEW",this.state.currentPreviewScene, data.args[0]);
         this.setState(Object.assign(this.state, {
             currentPreviewScene:data.args[0]
         }));
@@ -76,14 +73,30 @@ class SourceControl extends React.Component{
 
     sceneItemEnableStateChanged(data){
         let sceneItemData = JSON.parse(data.args[0]);
-        let newItems = Object.assign(this.state.sceneItems);
-        for(let item in newItems){
-            if(newItems[item].id == sceneItemData.sceneItemId){
-                newItems[item].enabled = sceneItemData.sceneItemEnabled;
+        
+        if(Object.keys(this.state.groups).includes(sceneItemData.sceneName)){
+            let newGroups = Object.assign(this.state.groups);
+            for(let sceneItem in newGroups[sceneItemData.sceneName].items){
+                console.log("CHANGING", newGroups[sceneItemData.sceneName].items[sceneItem].sceneItemId, sceneItemData.sceneItemId);
+                if(newGroups[sceneItemData.sceneName].items[sceneItem].sceneItemId == sceneItemData.sceneItemId){
+                    newGroups[sceneItemData.sceneName].items[sceneItem].sceneItemEnabled = sceneItemData.sceneItemEnabled;
+                    break;
+                }
             }
+            this.setState(Object.assign(this.state, {groups:newGroups}));
+        }else{
+            let newItems = Object.assign(this.state.sceneItems);
+            for(let item in newItems){
+                if(newItems[item].id == sceneItemData.sceneItemId){
+                    newItems[item].enabled = sceneItemData.sceneItemEnabled;
+                    break;
+                }
+            }
+            this.setState(Object.assign(this.state, {sceneItems:newItems}));
         }
+        
 
-        this.setState(Object.assign(this.state, {sceneItems:newItems}));
+        
     }
 
     studioModeChanged(data){
@@ -95,7 +108,6 @@ class SourceControl extends React.Component{
 
     getProgramScene(data){
         let sceneData = JSON.parse(data.args[0]);
-        console.log("GOT Program Scene", sceneData);
         if(sceneData.currentProgramSceneName != null){
             this.osc.send(new OSC.Message("/obs/get/scene/itemlist", sceneData.currentProgramSceneName));
         }
@@ -121,7 +133,6 @@ class SourceControl extends React.Component{
             sceneItems:sceneItemData.items,
             groups:groupList,
         }));
-        console.log("SCENE ITEM LIST", sceneItemData);
     }
 
     getGroupList(data){
@@ -138,7 +149,6 @@ class SourceControl extends React.Component{
     }
 
     toggleVisible(sceneName, sceneItemId, sceneItemEnabled){
-        console.log(sceneName, sceneItemEnabled);
         this.osc.send(new OSC.Message("/obs/set/source/enabled", JSON.stringify({
             sceneName:sceneName,
             sceneItemId:sceneItemId,
@@ -148,7 +158,6 @@ class SourceControl extends React.Component{
 
     expandGroup(e){
         let groupName = e.currentTarget.getAttribute("name");
-        console.log(groupName);
         let newGroups = Object.assign(this.state.groups);
         newGroups[groupName].expanded = !newGroups[groupName].expanded;
         this.setState(Object.assign(this.state, {groups:newGroups}));
@@ -159,12 +168,9 @@ class SourceControl extends React.Component{
     }
 
     render(){
-        
-        let sceneVisibleButtons = [];
         let groupElements = [];
 
         for(let g in this.state.groups){
-            let thisGroup = this.state.groups[g];
             let thisGroupElement = null;
             let thisGroupSceneItem = null;
             for(let item in this.state.sceneItems){
@@ -175,7 +181,7 @@ class SourceControl extends React.Component{
                 }
             }
 
-            console.log("SOURCE ITEMS", thisGroup);
+            //console.log("SOURCE ITEMS", thisGroup);
             
             let visibleIcon = faEye;
             if(thisGroupSceneItem.enabled){
@@ -192,7 +198,7 @@ class SourceControl extends React.Component{
                             {this.state.groups[g].items[s].sourceName}
                         </div>
                         <div className="source-item-actions">
-                            <FontAwesomeIcon name={this.state.groups[g].items[s].sourceName} icon={this.state.groups[g].items[s].sceneItemEnabled?faEye:faEyeSlash} size="3x" onClick={()=>{this.toggleVisible(this.state.currentProgramScene, this.state.groups[g].items[s].sceneItemId, !this.state.groups[g].items[s].sceneItemEnabled)}}/>
+                            <FontAwesomeIcon name={this.state.groups[g].items[s].sourceName} icon={this.state.groups[g].items[s].sceneItemEnabled?faEye:faEyeSlash} size="3x" onClick={()=>{this.toggleVisible(g, this.state.groups[g].items[s].sceneItemId, !this.state.groups[g].items[s].sceneItemEnabled)}}/>
                         </div>
                         </div>
                     )
@@ -200,7 +206,7 @@ class SourceControl extends React.Component{
             }
             thisGroupElement = <div className='source-group-item'>
                     <div className="source-group-item-name">
-                        {thisGroupSceneItem.name}
+                        {this.truncate(thisGroupSceneItem.name,12)}
                     </div>
                     <div className="source-group-item-container">
                         <div className="source-group-item-actions">
@@ -214,7 +220,7 @@ class SourceControl extends React.Component{
                 </div>;
             
             groupElements.push(
-                <div className='source-group-container'>
+                <div className={"source-group-container "+(this.state.groups[g].expanded?"expanded":"")}>
                     {thisGroupElement}
                     {groupSceneItems}
                 </div>
@@ -227,7 +233,7 @@ class SourceControl extends React.Component{
                 regularSceneItems.push(
                     <div className="source-item">
                         <div className="source-item-name">
-                        {this.state.sceneItems[s].name}
+                        {this.truncate(this.state.sceneItems[s].name,12)}
                     </div>
                     <div className="source-item-actions">
                         <FontAwesomeIcon name={this.state.sceneItems[s].name} icon={this.state.sceneItems[s].enabled?faEye:faEyeSlash} size="3x" onClick={()=>{this.toggleVisible(this.state.currentProgramScene, this.state.sceneItems[s].id, !this.state.sceneItems[s].enabled)}}/>
@@ -236,24 +242,6 @@ class SourceControl extends React.Component{
                 )
             }
         }
-
-        /*for(let g in this.state.groups){
-            if(this.state.groups[g].expanded){
-                for(let s in this.state.groups[g].items){
-                    regularSceneItems.push(
-                        <div className="source-item">
-                            <div className="source-item-name">
-                            {this.state.groups[g].items[s].sourceName}
-                        </div>
-                        <div className="source-item-actions">
-                            <FontAwesomeIcon name={this.state.groups[g].items[s].sourceName} icon={this.state.groups[g].items[s].sceneItemEnabled?faEye:faEyeSlash} size="3x" onClick={()=>{this.toggleVisible(this.state.currentProgramScene, this.state.groups[g].items[s].sceneItemId, !this.state.groups[g].items[s].sceneItemEnabled)}}/>
-                        </div>
-                        </div>
-                    )
-                }
-            }
-        }*/
-        
 
         return <div className="deck-component deck-source-controller">
             {groupElements}

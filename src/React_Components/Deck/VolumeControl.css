@@ -1,7 +1,7 @@
 .deck-volume-control{
   display: flex;
   flex-wrap: nowrap;
-  max-width: 100%;
+  width: 100%;
   overflow-x: auto;
 }
 
@@ -10,6 +10,12 @@
     flex-flow:column;
     align-items:center;
     width:100%;
+    padding-left:20px;
+    padding-bottom:10px;
+}
+
+.deck-volume-meter-label{
+  white-space: nowrap;
 }
 
 .deck-volume-meter-bars{
@@ -172,13 +178,17 @@ input[type=range] {
     background: #50555C;
   }
 
-@media screen and (max-width:600px) {
+/*@media screen and (max-width:600px) {
 
     .deck-volume-control{
         display:flex;
         align-items:flex-start;
         flex-flow:column !important;
-        padding:20px;
+    }
+
+    .deck-volume-meter{
+      padding-left:0px;
+      padding-bottom:0px;
     }
 
     .deck-source-buttons{
@@ -198,7 +208,7 @@ input[type=range] {
     
     .deck-volume-meter-bar{
         height:10px;
-        width:100%;
+        width:95%;
         background: linear-gradient(90deg, rgb(0, 75, 0) 0%, rgba(0,75,0,1) 60%, rgba(75,75,0,1) 60%, rgba(75,75,0,1) 80%, rgba(75,0,0,1) 80%, rgba(75,0,0,1) 100%);
     }
 
@@ -217,3 +227,4 @@ input[type=range] {
         width:5px;
     }
 }
+*/

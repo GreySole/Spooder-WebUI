@@ -1,5 +1,11 @@
+.deck-osc-monitor.log{
+    height:80vh;
+}
+
 .osc-monitor-logs{
     padding:20px;
+    height:100%;
+    overflow-y:auto;
 }
 
 .monitor-log{
@@ -22,6 +28,10 @@
     background-color:#222222;
 }
 
+.osc-monitor-filters{
+    padding:10px;
+}
+
 .monitor-filters-address-input{
     margin-top:10px;
 }
@@ -42,6 +52,17 @@
 .monitor-filters-button-address:hover
 {
     filter:brightness(1.2)
+}
+
+.monitor-filters-button.scroll-to-bottom{
+    position:absolute;
+    box-shadow: 5px 5px 5px #000000aa;
+    bottom:0;
+    margin:15px;
+    padding:10px 15px 10px 15px;
+    margin-bottom:20px;
+    border-radius:10px;
+    background-color:var(--button-color);
 }
 
 .monitor-filters-button-address{
@@ -80,6 +101,43 @@
 
 .monitor-log-address{
     word-break:break-all;
+}
+
+.osc-monitor-variables{
+    display:flex;
+    flex-flow:row;
+    flex-wrap:wrap;
+}
+
+.osc-monitor-variable{
+    display:flex;
+    flex-flow:column;
+    justify-content: space-evenly;
+    margin:10px;
+    padding:10px;
+    background: var(--button-color);
+    border-radius:10px;
+}
+
+.osc-monitor-controls-1{
+    display:flex;
+    flex-flow:row;
+    margin-bottom:10px;
+}
+
+.monitor-variables-switch{
+    display:flex;
+    flex-flow:row;
+    font-size: 24px;
+    margin-left:10px;
+    align-items:center;
+}
+
+.monitor-variable-numbers{
+    padding:10px;
+    display:flex;
+    flex-flow:row;
+    justify-content: space-evenly;
 }
 
 @media screen and (max-width:600px){

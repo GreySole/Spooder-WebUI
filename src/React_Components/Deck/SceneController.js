@@ -31,33 +31,36 @@ class SceneController extends React.Component{
         this.setState(Object.assign(this.state, {
             isReady:true,
             oscSubIDs:{
-                sceneList: this.osc.on("/obs/get/scene/list", this.getSceneList),
-                studioModeChanged: this.osc.on("/obs/event/StudioModeStateChanged", this.studioModeChanged),
-                getStudioModeStatus: this.osc.on("/obs/get/studiomode", this.studioModeChanged),
-                currentProgramSceneChanged:this.osc.on("/obs/event/CurrentProgramSceneChanged", this.programSceneChanged),
-                currentPreviewSceneChanged:this.osc.on("/obs/event/CurrentPreviewSceneChanged", this.previewSceneChanged)
+                sceneList: {address:"/obs/get/scene/list",id:this.osc.on("/obs/get/scene/list", this.getSceneList)},
+                studioModeChanged: {address:"/obs/event/StudioModeStateChanged",id:this.osc.on("/obs/event/StudioModeStateChanged", this.studioModeChanged)},
+                getStudioModeStatus: {address:"/obs/get/studiomode",id:this.osc.on("/obs/get/studiomode", this.studioModeChanged)},
+                currentProgramSceneChanged:{address:"/obs/event/CurrentProgramSceneChanged",id:this.osc.on("/obs/event/CurrentProgramSceneChanged", this.programSceneChanged)},
+                currentPreviewSceneChanged:{address:"/obs/event/CurrentPreviewSceneChanged",id:this.osc.on("/obs/event/CurrentPreviewSceneChanged", this.previewSceneChanged)}
             }
         }));
         this.osc.send(new OSC.Message("/obs/get/scene/list", 1));
         this.osc.send(new OSC.Message("/obs/get/studiomode", 1));
     }
 
+    componentWillUnmount(){
+        for(let o in this.state.oscSubIDs){
+            this.osc.off(this.state.oscSubIDs[o].address, this.state.oscSubIDs[o].id);
+        }
+    }
+
     programSceneChanged(data){
-        console.log("PROGRAM",this.state.currentProgramScene, data.args[0]);
         this.setState(Object.assign(this.state, {
             currentProgramScene:data.args[0]
         }));
     }
 
     previewSceneChanged(data){
-        console.log("PREVIEW",this.state.currentPreviewScene, data.args[0]);
         this.setState(Object.assign(this.state, {
             currentPreviewScene:data.args[0]
         }));
     }
 
     studioModeChanged(data){
-        console.log("STUDIO MODE CHANGED", data.args[0])
         this.setState(Object.assign(this.state, {
             studioMode:data.args[0]
         }));
@@ -65,7 +68,6 @@ class SceneController extends React.Component{
 
     getSceneList(data){
         let sceneData = JSON.parse(data.args[0]);
-        console.log("GOT SCENES", sceneData);
         this.setState(Object.assign(this.state, {
             currentPreviewScene:sceneData.currentPreviewSceneName,
             currentProgramScene:sceneData.currentProgramSceneName,

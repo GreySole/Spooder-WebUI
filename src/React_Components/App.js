@@ -67,7 +67,15 @@ class App extends React.Component {
 			oscConnected: false,
 			obsConnected: 0,
 			isExternal:window.location.protocol!="http:",
-			obsLoginInfo:{}
+			obsLoginInfo:{},
+			customSpooder:{
+				mouth:"ω",
+				bigEyeLeft:"o",
+				littleEyeLeft:"º",
+				bigEyeRight:"o",
+				littleEyeRight:"º",
+				color:"cyan"
+			}
 			/*spooderAnimationInterval:setInterval(()=>{
 				document.querySelector(".App-title").innerText = String.raw`/╲/\( º - ω - º )/\╱\
 					`;
@@ -96,13 +104,11 @@ class App extends React.Component {
 	componentDidMount(){
 		this.getServerState()
 		.then((data)=>{
-			console.log(data);
 			let serverData = data;
 			hostPort = serverData.host.port;
 			clientID = serverData.clientID;
 			udpClients = serverData.osc["udp_clients"];
 			plugins = serverData.osc["plugins"];
-			console.log(serverData, udpClients);
 			if(osc == null){
 				osc = new OSC({plugin: new OSC.WebsocketClientPlugin({host:serverData.osc.host,port:serverData.osc.port,secure:false})});
 				this.initOSC();
@@ -131,7 +137,7 @@ class App extends React.Component {
 			osc.send(new OSC.Message('/frontend/connect', 1.0));
 		});
 		osc.on('/frontend/*', (message)=>{
-			console.log("I HEARD SOMETHING", message);
+			//console.log("I HEARD SOMETHING", message);
 			if(message.address == "/frontend/connect/success"){
 				this.setState(Object.assign(this.state, {"oscConnected":true}));
 				osc.send(new OSC.Message('/obs/get/obslogininfo', 1.0));
@@ -143,7 +149,6 @@ class App extends React.Component {
 		});
 		osc.on('/obs/get/obslogininfo', (message) => {
 			let obsLoginInfo = JSON.parse(message.args[0]);
-			console.log("OBS LOGIN", obsLoginInfo);
 			this.setState(Object.assign(this.state, {"obsLoginInfo":obsLoginInfo}));
 		})
 		osc.open();
@@ -173,8 +178,6 @@ class App extends React.Component {
 	}
 	
 	setTabContent(tab){
-		console.log("SET TAB CONTENT");
-		
 		if(this.state.mode == "setup"){
 			switch(tab){
 				case "monitor":
@@ -331,7 +334,6 @@ class App extends React.Component {
 	}
 
 	deckToggle(e){
-		console.log(this.state);
 		this.setState(Object.assign(this.state, {
 			navOpen:!this.state.navOpen,
 			mode:this.state.mode=="deck"?"setup":"deck"
@@ -545,7 +547,27 @@ class App extends React.Component {
 					<div className="App-header">
 						<div className="top-header" onClick={this.navigationClick}>
 							<div className="navigation-open-button" ><FontAwesomeIcon icon={faBars} size="2x" /></div>
-							<h1 className="App-title">/╲/\( ºo ω oº )/\╱\</h1>
+							<h1 className="App-title">
+								<span>/</span>
+								<span>╲</span>
+								<span>/</span>
+								<span>\</span>
+								<span>(</span>
+								<span> </span>
+								<span>{this.state.customSpooder.littleEyeLeft}</span>
+								<span>{this.state.customSpooder.bigEyeLeft}</span>
+								<span> </span>
+								<span>{this.state.customSpooder.mouth}</span>
+								<span> </span>
+								<span>{this.state.customSpooder.bigEyeRight}</span>
+								<span>{this.state.customSpooder.littleEyeRight}</span>
+								<span> </span>
+								<span>)</span>
+								<span>/</span>
+								<span>\</span>
+								<span>╱</span>
+								<span>\</span>
+							</h1>
 						</div>
 						
 					</div>

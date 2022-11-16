@@ -279,7 +279,7 @@ class EventSubTab extends React.Component{
 		for(let s in this.state){
 				switch(s){
 					case 'callback_url':
-						table.push(<div className="eventsub-variable"><div><label>NOTE: Eventsubs callback_url has moved to the Config tab as external_http_url. This url is used for both Eventsubs and serving the Mod UI. WARNING: Changing the external_http_url invalidates all your event subs. They'll need to be deleted and added again. Deleting subs will not delete their settings.</label></div></div>);
+						table.push(<div className="eventsub-variable"><div><label>WARNING: Changing the external_http_url invalidates all your event subs. They'll need to be deleted and added again. Deleting subs will not delete their settings.</label></div></div>);
 					break;
 					case 'eventsub':
 						

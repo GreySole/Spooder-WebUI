@@ -90,7 +90,8 @@ class EventTable extends React.Component{
 			},
 			redemption:{
 				enabled:false,
-				reward:""
+				reward:"",
+				override:false
 			},
 			osc:{
 				enabled:false,
@@ -188,7 +189,7 @@ class EventTable extends React.Component{
 			"chatnotification":false,
 			"triggers":{
 				"chat":{"enabled":true, "command":"!"+newKey},
-				"redemption":{"enabled":false, "id":""},
+				"redemption":{"enabled":false, "id":"", override:false},
 				"osc":{"enabled":false, "address":"/", "type":"single","condition":"==", "value":0, "condition2":"==", "value2":0}
 			},
 			"commands":[]
@@ -592,6 +593,10 @@ class EventTable extends React.Component{
 						<select name="id" value={eventTriggers.redemption.id} onChange={this.handleChange}>
 							{rewardOptions}
 						</select>
+					</label>
+					<label>
+						Override Approval (Refundable):
+						<BoolSwitch name="override" checked={eventTriggers.redemption.override} onChange={this.handleChange}/>
 					</label>
 				</label>:null;
 			}

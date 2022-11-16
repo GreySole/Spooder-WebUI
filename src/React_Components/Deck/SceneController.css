@@ -7,9 +7,8 @@
 .scene-controller-container{
     display:flex;
     flex-flow:row;
-    align-items:center;
-    flex-wrap:wrap;
-    
+    width:100%;
+    overflow-x: auto;
 }
 
 .scene-controller-transition{
@@ -29,12 +28,18 @@
     align-items: center;
     text-align: center;
     justify-content: space-evenly;
+    white-space: nowrap;
     width:75px;
     height:75px;
     margin:15px;
     padding:15px;
     border-radius:15px;
     background-color:var(--button-obs-color);
+}
+
+.scene-controller-studiomode-button,
+.scene-controller-transition-button{
+    height:30px;
 }
 
 .scene-controller-scene-button:hover,

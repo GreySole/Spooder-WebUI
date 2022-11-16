@@ -1,7 +1,6 @@
 import React from 'react';
 import OSC from 'osc-js';
 import './VolumeControl.css';
-import {VolumeMeter} from './VolumeMeter.js';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {faVolumeMute, faVolumeHigh, faEye, faEyeSlash, faPlus, faMinus} from '@fortawesome/free-solid-svg-icons';
 
@@ -12,7 +11,7 @@ class VolumeControl extends React.Component{
 
         this.state = {
             inputs:{},
-            meters:{},
+            meters:{inputs:{}},
             groups:{},
             isReady:false,
             oscSubIDs: {}
@@ -25,6 +24,7 @@ class VolumeControl extends React.Component{
         this.volumeChanged = this.volumeChanged.bind(this);
         this.muteStateChanged = this.muteStateChanged.bind(this);
         this.programSceneChanged = this.programSceneChanged.bind(this);
+        this.activateInputVolumeMeters = this.activateInputVolumeMeters.bind(this);
 
         this.setGroupVolume = this.setGroupVolume.bind(this);
         this.toggleGroupMute = this.toggleGroupMute.bind(this);
@@ -38,6 +38,7 @@ class VolumeControl extends React.Component{
             isReady:true,
             oscSubIDs:{
                 InputVolumeMeters:{address:"/obs/sound/InputVolumeMeters",id:this.osc.on("/obs/sound/InputVolumeMeters", this.receiveMeter)},
+                InputVolumeMetersActivate:{address:"/obs/event/InputVolumeMeters", id:this.osc.on("/obs/event/InputVolumeMeters", this.activateInputVolumeMeters)},
                 GetInputList: {address:"/obs/get/input/volumelist",id:this.osc.on("/obs/get/input/volumelist", this.getVolumes)},
                 GetVolumes: {address:"/obs/get/input/volume",id:this.osc.on("/obs/get/input/volume", this.getVolume)},
                 GetInputMute: {address:"/obs/get/input/mute",id:this.osc.on("/obs/get/input/mute", this.getMute)},
@@ -57,6 +58,10 @@ class VolumeControl extends React.Component{
         }
         
         this.osc.send(new OSC.Message("/obs/event/InputVolumeMeters", 0));
+    }
+
+    activateInputVolumeMeters(){
+        this.osc.send(new OSC.Message("/obs/event/InputVolumeMeters", 1));
     }
 
     programSceneChanged(data){
@@ -152,9 +157,24 @@ class VolumeControl extends React.Component{
 
     receiveMeter(data){
         let recMeters = JSON.parse(data.args[0]);
-        //console.log(recMeters);
         if(this.state.isReady == true){
-            //console.log("Setting meter")
+            //Meter decay
+            for(let meter in recMeters.inputs){
+                if(recMeters.inputs[meter].inputLevelsMul.length>0){
+                    for(let speaker in recMeters.inputs[meter].inputLevelsMul){
+                        recMeters.inputs[meter].inputLevelsMul[speaker][1] = Math.pow(recMeters.inputs[meter].inputLevelsMul[speaker][1],0.2);
+                        if(this.state.meters.inputs[meter]?.inputLevelsMul[speaker] && recMeters.inputs[meter]?.inputLevelsMul[speaker]){
+                            if(this.state.meters.inputs[meter].inputLevelsMul[speaker].length === recMeters.inputs[meter].inputLevelsMul[speaker].length){
+                                if(recMeters.inputs[meter].inputLevelsMul[speaker][1] < this.state.meters.inputs[meter].inputLevelsMul[speaker][1]){
+                                    recMeters.inputs[meter].inputLevelsMul[speaker][1] = this.state.meters.inputs[meter].inputLevelsMul[speaker][1]-0.005;
+                                    if(recMeters.inputs[meter].inputLevelsMul[speaker][1]<0){recMeters.inputs[meter].inputLevelsMul[speaker][1] = 0}
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            
             this.setState(Object.assign(this.state, {meters:recMeters}));
         }
         
@@ -215,6 +235,8 @@ class VolumeControl extends React.Component{
         this.setState(Object.assign(this.state, {groups:newGroups}));
     }
 
+
+
     render(){
 
         let meterElements = [];
@@ -257,7 +279,7 @@ class VolumeControl extends React.Component{
                                             
                                         </div>
                                         <div className="deck-volume-control-slider">
-                                            <input key={inputName+"- Volume - "+Object.keys(this.state.inputs).length} inputname={inputName} onChange={this.setVolume} orient={window.innerWidth<600?"horizontal":"vertical"} type="range" min={0} max={1} step={0.01} defaultValue={this.state.inputs[inputName].volumeData.inputVolumeMul!=null?Math.sqrt(this.state.inputs[inputName].volumeData.inputVolumeMul):0}/>
+                                            <input key={inputName+"- Volume - "+Object.keys(this.state.inputs).length} inputname={inputName} onChange={this.setVolume} orient={window.innerWidth<600?"vertical":"vertical"} type="range" min={0} max={1} step={0.01} defaultValue={this.state.inputs[inputName].volumeData.inputVolumeMul!=null?Math.sqrt(this.state.inputs[inputName].volumeData.inputVolumeMul):0}/>
                                         </div>
                                         <div className="deck-source-buttons">
                                             <button inputname={inputName} onClick={this.toggleMute}><FontAwesomeIcon icon={this.state.inputs[inputName].volumeMuteData.inputMuted?faVolumeMute:faVolumeHigh}/></button>
@@ -284,7 +306,6 @@ class VolumeControl extends React.Component{
                 
             }
             if(!groupNames.includes(inputName)){
-                console.log(inputName);
                 if(this.state.inputs[inputName] != null){
                     meterElements.push(
                         <div className="deck-volume-meter" >
@@ -298,7 +319,7 @@ class VolumeControl extends React.Component{
                                     
                                 </div>
                                 <div className="deck-volume-control-slider">
-                                    <input key={inputName+"- Volume - "+Object.keys(this.state.inputs).length} inputname={inputName} onChange={this.setVolume} orient={window.innerWidth<600?"horizontal":"vertical"} type="range" min={0} max={1} step={0.01} defaultValue={this.state.inputs[inputName].volumeData.inputVolumeMul!=null?Math.sqrt(this.state.inputs[inputName].volumeData.inputVolumeMul):0}/>
+                                    <input key={inputName+"- Volume - "+Object.keys(this.state.inputs).length} inputname={inputName} onChange={this.setVolume} orient={window.innerWidth<600?"vertical":"vertical"} type="range" min={0} max={1} step={0.01} defaultValue={this.state.inputs[inputName].volumeData.inputVolumeMul!=null?Math.sqrt(this.state.inputs[inputName].volumeData.inputVolumeMul):0}/>
                                 </div>
                                 <div className="deck-source-buttons">
                                     <button inputname={inputName} onClick={this.toggleMute}><FontAwesomeIcon icon={this.state.inputs[inputName].volumeMuteData.inputMuted?faVolumeMute:faVolumeHigh}/></button>
@@ -343,6 +364,32 @@ class VolumeControl extends React.Component{
             {meterElements}
         </div>;
     }
+}
+
+const VolumeMeter = (rawLevel)=>{
+    let scaleDim = window.innerWidth<600?"Y":"Y";
+        let levels = {
+            level:0
+        }
+
+        if(rawLevel.level){
+            
+            levels.level = rawLevel.level[1];
+        }else{
+            levels = {
+                level:0
+            }
+        }
+
+        let levelStyle = {
+            level:{clipPath:`polygon(${scaleDim=="X"?(levels.level*100):100}% ${scaleDim=="Y"?(100-levels.level*100):0}%, 0% ${scaleDim=="Y"?(100-levels.level*100):0}%, 0% 100%, ${scaleDim=="X"?(levels.level*100):100}% 100%)`},
+        }
+        
+        return <div className="deck-volume-meter-bar" >
+                <div className="deck-volume-meter-bar-peak"></div>
+                <div className="deck-volume-meter-bar-level" style={levelStyle.level}></div>
+                <div className="deck-volume-meter-bar-power"></div>
+            </div>;
 }
 
 export {VolumeControl};

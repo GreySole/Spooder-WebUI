@@ -27,6 +27,18 @@
     margin: 15px;
 }
 
+.plugin-entry-title{
+    font-size: 36px;
+    display:flex;
+    flex-flow:row;
+    align-items:center;
+}
+
+.plugin-entry-subtitle{
+    margin-left:10px;
+    font-size:18px;
+}
+
 .plugin-entry-info {
     margin-left: 10px;
 }

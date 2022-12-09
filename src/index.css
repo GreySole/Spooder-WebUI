@@ -143,6 +143,7 @@ input::placeholder {
 .login {
     font-size: 24px;
     margin-top:10px;
+    margin-left:10px;
 }
 
 .account-info{
@@ -183,6 +184,10 @@ input::placeholder {
 
 .App-title{
     padding-right:10px;
+}
+
+.App-content.deck .deck-component-label{
+    display:none;
 }
 
 .navigation-menu{
@@ -237,11 +242,16 @@ input::placeholder {
 .deck-component{
     display:flex;
     flex-flow:row;
-    margin-top:10px;
-    margin-bottom:10px;
-    padding-bottom:5px;
-    border-bottom: 2px solid var(--border-color);
+    padding-top:10px;
+    padding-bottom:10px;
+    outline: 1px solid var(--border-color);
     width:100%;
+}
+
+.deck-component-container{
+    display:flex;
+    flex-flow:row;
+    width:50%;
 }
 
 .deck-scene-controller{
@@ -256,6 +266,8 @@ input::placeholder {
 
 .deck-component-label{
     font-size: 24px;
+    padding:10px;
+    align-self:flex-start;
 }
 
 .obs-login-info{

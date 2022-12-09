@@ -58,6 +58,21 @@
     margin:5px;
 }
 
+.custom-spooder-inputs{
+    display:flex;
+    flex-flow:row;
+}
+
+.custom-spooder-ui input[type=text]{
+    width:30px;
+    font-size:24px;
+    margin:5px;
+}
+
+.custom-spooder-pair{
+    padding:5px;
+}
+
 .active-subs{
     word-break:break-all;
 }

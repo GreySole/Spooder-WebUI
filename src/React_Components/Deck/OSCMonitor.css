@@ -1,5 +1,5 @@
 .deck-osc-monitor.log{
-    height:80vh;
+    height:79vh;
 }
 
 .osc-monitor-logs{
@@ -58,6 +58,7 @@
     position:absolute;
     box-shadow: 5px 5px 5px #000000aa;
     bottom:0;
+    right:0;
     margin:15px;
     padding:10px 15px 10px 15px;
     margin-bottom:20px;

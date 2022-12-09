@@ -27,11 +27,11 @@
     flex-flow:column;
     align-items: center;
     text-align: center;
-    justify-content: space-evenly;
+    justify-content: space-between;
     white-space: nowrap;
     width:75px;
-    height:75px;
-    margin:15px;
+    height:50px;
+    margin:10px;
     padding:15px;
     border-radius:15px;
     background-color:var(--button-obs-color);
@@ -39,6 +39,7 @@
 
 .scene-controller-studiomode-button,
 .scene-controller-transition-button{
+    width:40px;
     height:30px;
 }
 

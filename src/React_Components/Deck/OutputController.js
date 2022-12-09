@@ -22,6 +22,7 @@ class OutputController extends React.Component{
         this.recordStateChanged = this.recordStateChanged.bind(this);
         this.streamStateChanged = this.streamStateChanged.bind(this);
         this.getStatus = this.getStatus.bind(this);
+        this.activateInterval = this.activateInterval.bind(this);
     }
 
     statusInterval = null;
@@ -31,9 +32,10 @@ class OutputController extends React.Component{
         this.setState(Object.assign(this.state, {
             isReady:true,
             oscSubIDs:{
-                Status: this.osc.on("/obs/get/status", this.getStatus),
-                RecordStateChange: this.osc.on("/obs/event/RecordStateChanged", this.recordStateChanged),
-                StreamStateChange:this.osc.on("/obs/event/StreamStateChanged", this.streamStateChanged)
+                Status: {address:"/obs/get/status",id:this.osc.on("/obs/get/status", this.getStatus)},
+                RecordStateChange: {address:"/obs/event/RecordStateChanged",id:this.osc.on("/obs/event/RecordStateChanged", this.recordStateChanged)},
+                StreamStateChange:{address:"/obs/event/StreamStateChanged",id:this.osc.on("/obs/event/StreamStateChanged", this.streamStateChanged)},
+                IntervalActivate:{address:"/obs/event/InputVolumeMeters", id:this.osc.on("/obs/status/interval", this.activateInterval)},
             }
         }));
         
@@ -42,20 +44,24 @@ class OutputController extends React.Component{
 
     componentWillUnmount(){
         //return;
-        this.osc.off("/obs/get/status", this.state.oscSubIDs.Status);
-        this.osc.off("/obs/event/RecordStateChanged", this.state.oscSubIDs.RecordStateChange);
-        this.osc.off("/obs/event/StreamStateChanged", this.state.oscSubIDs.StreamStateChange);
+        for(let o in this.state.oscSubIDs){
+            this.osc.off(this.state.oscSubIDs[o].address, this.state.oscSubIDs[o].id);
+        }
         this.osc.send(new OSC.Message("/obs/status/interval", 0));
+    }
+
+    activateInterval(){
+        this.osc.send(new OSC.Message("/obs/status/interval", 1));
     }
 
     getStatus(data){
         
         let statusData = JSON.parse(data.args[0]);
-        console.log("GOT STATUS DATA", statusData);
-        this.setState(Object.assign(this.state, {streamStatus:statusData.stream, recordStatus:statusData.record}));
-        if(statusData.stream.outputActive == true || statusData.record.outputActive == true){
+        if((statusData.stream.outputActive == true || statusData.record.outputActive == true) && this.state.streamStatus.stream == null){
             this.osc.send(new OSC.Message("/obs/status/interval", 1));
         }
+        this.setState(Object.assign(this.state, {streamStatus:statusData.stream, recordStatus:statusData.record}));
+        
     }
 
     toggleStream(){
@@ -121,22 +127,30 @@ class OutputController extends React.Component{
         }
 
         let recordPauseButton =<div onClick={this.toggleRecordPause} className={"output-controller-button"}>
-        <FontAwesomeIcon icon={this.state.recordStatus.outputPaused?faPlay:faPause} size="2x"/>
-    </div>;
+                                    <label>Pause</label>
+                                    <FontAwesomeIcon icon={this.state.recordStatus.outputPaused?faPlay:faPause} size="2x"/>
+                                </div>;
 
         return <div className="deck-component deck-output-controller">
-            <div className="output-controller-stream">
-                <div onClick={this.toggleStream} className={"output-controller-button "+(this.state.streamStatus?.outputActive?"streaming ":"")+(this.state.streamStatus?.outputReconnecting?"reconnecting":"")}>
-                    <FontAwesomeIcon icon={faStream} size="2x"/>
+            <label className="deck-component-label">Output</label>
+            <div className="output-controller-buttons">
+                <div className="output-controller-stream">
+                    <div onClick={this.toggleStream} className={"output-controller-button "+(this.state.streamStatus?.outputActive?"streaming ":"")+(this.state.streamStatus?.outputReconnecting?"reconnecting":"")}>
+                        <label>Stream</label>
+                        <FontAwesomeIcon icon={faStream} size="2x"/>
+                    </div>
+                    {streamStatusEl}
                 </div>
-                {streamStatusEl}
-            </div>
-            <div className="output-controller-record">
-                <div onClick={this.toggleRecord} className={"output-controller-button "+(this.state.recordStatus?.outputActive?"recording ":"")+(this.state.recordStatus?.outputPaused?"paused":"")}>
-                    <FontAwesomeIcon icon={faCircle} size="2x"/>
+                <div className="output-controller-record">
+                    <div className="controller-record-buttons">
+                        <div onClick={this.toggleRecord} className={"output-controller-button "+(this.state.recordStatus?.outputActive?"recording ":"")+(this.state.recordStatus?.outputPaused?"paused":"")}>
+                            <label>Record</label>
+                            <FontAwesomeIcon icon={faCircle} size="2x"/>
+                        </div>
+                        {this.state.recordStatus.outputActive||this.state.recordStatus.outputPaused?recordPauseButton:null}
+                    </div>
+                    {recordStatusEl}
                 </div>
-                {this.state.recordStatus.outputActive||this.state.recordStatus.outputPaused?recordPauseButton:null}
-                {recordStatusEl}
             </div>
         </div>
     }

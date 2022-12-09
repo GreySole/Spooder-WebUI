@@ -1,9 +1,25 @@
+.deck-component.deck-output-controller{
+    display:flex;
+    flex-flow:column;
+}
+
+.output-controller-buttons{
+    display:flex;
+    flex-flow:row;
+    justify-content: space-evenly;
+}
+
+.controller-record-buttons{
+    display:flex;
+    flex-flow:row;
+}
+
 .output-controller-button{
     display:flex;
     align-items:center;
     justify-content: center;
-    width:100px;
-    height:100px;
+    width:85px;
+    height:85px;
     border-radius:10px;
     margin-right:10px;
     background-color:var(--button-obs-color);
@@ -50,6 +66,14 @@
     justify-content: space-evenly;
 }
 
+.output-controller-button{
+    flex-flow:column;
+}
+
+.output-controller-button label{
+    margin-bottom:5px;
+}
+
 .output-controller-stream,
 .output-controller-record{
     display:flex;
@@ -67,14 +91,21 @@
 }
 
 @media screen and (max-width:600px){
+
+    .output-controller-button{
+        margin:0;
+    }
     .output-controller-stream,
     .output-controller-record{
+        display:flex;
         flex-flow:column;
         text-align:center;
+        align-items: center;
     }
 
     .output-controller-stream-status,
     .output-controller-record-status{
-        margin-left:0
+        margin-top:5px;
+        font-size:18px;
     }
 }

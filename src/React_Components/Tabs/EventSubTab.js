@@ -11,7 +11,6 @@ class EventSubTab extends React.Component{
 
 	constructor(props){
 		super(props);
-		console.log(props.udpClients);
 		this.state = Object.assign(props.data);
 		if(this.state.callback_url == null){
 			this.state.callback_url = "";
@@ -29,7 +28,6 @@ class EventSubTab extends React.Component{
 	}
 
 	componentDidMount(){
-		console.log("AUTH MESSAGE", authMessageHidden);
 		window.setClass(document.querySelector("#authMessage"), "hidden", authMessageHidden);
 	}
 
@@ -44,8 +42,6 @@ class EventSubTab extends React.Component{
 		if(s.target.type == "checkbox"){
 			value = s.target.checked;
 		}
-
-		console.log(name, eventname, value);
 
 		if(!eventname){
 			let newConfig = Object.assign(this.state);
@@ -100,7 +96,6 @@ class EventSubTab extends React.Component{
 			headers: {'Content-Type': 'application/json', 'Accept':'application/json'},
 			body: JSON.stringify(newList)
 		};
-		console.log(requestOptions);
 		fetch('/saveEventSubs', requestOptions)
 		.then(response => response.json())
 		.then(data => {
@@ -122,7 +117,6 @@ class EventSubTab extends React.Component{
 		let eventsubs = eventsubsRaw.data;
 		
 		let newEventState = {};
-		console.log(newEventState);
 		for(let e in eventsubs){
 			if(newEventState[eventsubs[e].type] == null){
 				newEventState[eventsubs[e].type] = [];
@@ -133,7 +127,6 @@ class EventSubTab extends React.Component{
 		}
 
 		this.setState(Object.assign(this.state, {"eventsub":newEventState}));
-		console.log(this.state);
 	}
 
 	initEventSub = async(e) => {
@@ -141,7 +134,6 @@ class EventSubTab extends React.Component{
 		if(eventType == null){return;}
 		let eventSub = await fetch('/init_followsub?type='+eventType)
 		.then(response => response.json());
-		console.log(eventSub);
 		document.querySelector("#eventSubAddStatus").textContent = eventSub.status;
 		setTimeout(function(){
 			document.querySelector("#eventSubAddStatus").textContent = "";
@@ -153,7 +145,6 @@ class EventSubTab extends React.Component{
 		e.preventDefault();
 		let followSub = await fetch('/delete_eventsub?id='+e.target.getAttribute("subid"))
 		.then(response => response.json());
-		console.log(followSub);
 
 		this.getEventSubs();
 	}
@@ -177,7 +168,18 @@ class EventSubTab extends React.Component{
 		
 		console.log("DONE", saveStatus);
 	}
-	
+
+	async refreshEventSubs(){
+		let confirmation = window.confirm("This will delete and add fresh subscriptions without affecting your settings. Ok?");
+		if(confirmation == false){return;}
+
+		let refreshStatus = await fetch('/refresh_eventsubs')
+		.then(response => response.json());
+
+		this.getEventSubs();
+		console.log("EVENTSUBS REFRESHED");
+	}
+
 	hideAuthMessage(e){
 		let isHidden = window.toggleClass(document.querySelector("#authMessage"), "hidden");
 		if(isHidden){
@@ -190,11 +192,9 @@ class EventSubTab extends React.Component{
 	}
 	
 	render(){
-		console.log(this.state);
 		let table = [];
 		let udpHostOptions = [];
-		
-		console.log(_udpClients);
+
 		if(Object.keys(_udpClients).length > 0){
 			for(let u in _udpClients){
 				udpHostOptions.push(
@@ -228,6 +228,7 @@ class EventSubTab extends React.Component{
 							<button type="button" className="oauth-broadcaster-button command-button" onClick={this.hideAuthMessage}>Hide</button>
 							<button type="button" className="oauth-broadcaster-button save-button" onClick={this.saveAuthToBroadcaster}>Save Current Oauth as Broadcaster</button>
 							<button type="button" className="oauth-broadcaster-button delete-button" onClick={this.revokeBroadcasterAuth}>Revoke Broadcaster Oauth</button>
+							<button type="button" className="oauth-broadcaster-button command-button" onClick={this.refreshEventSubs}>Refresh EventSubs</button>
 						</div>
 							
 						</div>);
@@ -279,7 +280,7 @@ class EventSubTab extends React.Component{
 		for(let s in this.state){
 				switch(s){
 					case 'callback_url':
-						table.push(<div className="eventsub-variable"><div><label>WARNING: Changing the external_http_url invalidates all your event subs. They'll need to be deleted and added again. Deleting subs will not delete their settings.</label></div></div>);
+						table.push(<div className="eventsub-variable"><div><label>Note: Changing external settings should refresh all your eventsubs to match the current callback url. You can manually refresh your eventsubs above.</label></div></div>);
 					break;
 					case 'eventsub':
 						

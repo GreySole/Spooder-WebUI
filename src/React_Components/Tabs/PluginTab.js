@@ -401,7 +401,8 @@ class PluginTab extends React.Component {
 		let confirmation = window.confirm("Are you sure you want to delete this plugin?");
 		if (confirmation == false) { return; }
 
-		let currentPlugins = Object.assign(this.state);
+		let currentPlugins = {};
+		Object.assign(this.currentPlugins, this.state);
 
 		let pluginID = e.target.closest(".plugin-entry").id;
 
@@ -514,7 +515,6 @@ class PluginTab extends React.Component {
 			}
 
 			return <div className="asset-container">
-					
 					<div className="asset-select">
 						<div className="asset-fileselect">
 							{fileTable}
@@ -560,14 +560,14 @@ class PluginTab extends React.Component {
 				pluginLinks.push(<LinkButton name={p+"-utility"} text={"Open Utility"} mode="newtab" link={window.location.origin+"/utility/"+p} />);
 			}
 			pluginList.push(
-				<div className="plugin-entry" id={p}>
+				<div className="plugin-entry" id={p} key={p}>
 					<div className="plugin-entry-ui">
 						<div className="plugin-entry-icon">
-							<img src={this.state[p]['path'] + "/icon.png"} onError={this.imgError} />
+							<img src={window.location.origin + "/icons/"+p+".png"} onError={this.imgError} />
 							<FontAwesomeIcon icon={faSpider} size="lg" className="plugin-default-icon"/>
 						</div>
 						<div className="plugin-entry-info">
-							<div className="plugin-entry-title">{p}</div>
+							<div className="plugin-entry-title">{this.state[p].name}<div className="plugin-entry-subtitle">{this.state[p].version+" by "+this.state[p].author}</div></div>
 							<div className="plugin-entry-links">
 								{pluginLinks}
 							</div>

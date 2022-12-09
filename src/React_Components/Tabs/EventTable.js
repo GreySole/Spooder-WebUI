@@ -1,6 +1,6 @@
-import React, { useRef, createRef } from 'react';
+import React, { createRef } from 'react';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
-import {faTrash, faAward, faCommentDots, faNetworkWired, faSquareCaretUp, faSquareCaretDown, faCaretDown, faCaretUp} from '@fortawesome/free-solid-svg-icons';
+import {faTrash, faAward, faCommentDots, faNetworkWired, faCaretDown, faCaretUp} from '@fortawesome/free-solid-svg-icons';
 import BoolSwitch from '../UI/BoolSwitch.js';
 
 class EventTable extends React.Component{
@@ -57,6 +57,7 @@ class EventTable extends React.Component{
 		}
 		this.state._udpClients = props._udpClients;
 		this.state._plugins = props._plugins;
+		this.state._obs = props._obs;
 		
 		this.handleChange = this.handleChange.bind(this);
 		this.addCommand = this.addCommand.bind(this);
@@ -75,7 +76,7 @@ class EventTable extends React.Component{
 		this.dragItem = createRef();
 		this.dragOverItem = createRef();
 		
-		this.getCustomRewards();
+		
 	}
 
 	eventStructure = {
@@ -83,9 +84,12 @@ class EventTable extends React.Component{
 		description:"",
 		group:"Default",
 		cooldown:60,
+		chatnotification:false,
+		cooldownnotification:false,
 		triggers:{
 			chat:{
 				enabled:false,
+				search:false,
 				command:""
 			},
 			redemption:{
@@ -105,27 +109,53 @@ class EventTable extends React.Component{
 			}
 		},
 		commands:{
-			"response":{
-				"message":"",
-				"delay":0
+			response:{
+				message:"",
+				delay:0
 			},
-			"plugin":{
-				"pluginname":"",
-				"eventname":"",
-				"delay":0
+			plugin:{
+				pluginname:"",
+				eventname:"",
+				delay:0
 			},
-			"software":{
-				"type":"software",
-				"etype":"timed",
-				"dest_udp":"-1",
-				"address":"",
-				"valueOn":"1",
-				"valueOff":"0",
-				"duration":60,
-				"delay":0,
-				"priority":0
+			software:{
+				type:"software",
+				etype:"timed",
+				dest_udp:"-1",
+				address:"",
+				valueOn:"1",
+				valueOff:"0",
+				duration:60,
+				delay:0,
+				priority:0
 			},
+			obs:{
+				type:"obs",
+				function:"setinputmute",
+				etype:"timed",
+				scene:"",
+				item:"",
+				valueOn:1,
+				valueOff:0,
+				itemOn:"",
+				itemOff:"",
+				duration:60,
+				delay:0
+			},
+			mod:{
+				type:"mod",
+				function:"lock",
+				targettype:"event",
+				target:"",
+				etype:"toggle",
+				duration:60,
+				delay:0
+			}
 		}
+	}
+
+	componentDidMount(){
+		this.getCustomRewards();
 	}
 	
 	handleChange(e){
@@ -134,12 +164,15 @@ class EventTable extends React.Component{
 		let isTrigger = e.target.closest(".command-props.triggers") != null;
 
 		let newState = Object.assign(this.state.events);
-
 		if(isCommand){
 			let commandIndex = e.target.closest(".command-fields").getAttribute("commandindex");
 			let varname = e.target.name;
-			newState[eventName].commands[commandIndex][varname] = e.target.value;
-
+			if(e.target.type == "checkbox"){
+				newState[eventName].commands[commandIndex][varname] = e.target.checked;
+			}else{
+				newState[eventName].commands[commandIndex][varname] = e.target.value;
+			}
+			
 		}else if(isTrigger){
 			
 			let varname = e.target.name;
@@ -156,7 +189,6 @@ class EventTable extends React.Component{
 			
 		}else{
 			let varname = e.target.name;
-			console.log(eventName, varname, e.target.type);
 			if(e.target.type == "checkbox"){
 				newState[eventName][varname] = e.target.checked;
 			}else{
@@ -170,7 +202,6 @@ class EventTable extends React.Component{
 
 	addGroup(e){
 		let newGroup = e.target.closest(".add-command-actions").querySelector("[name='groupname']").value;
-		//console.log("NEW GROUP", newGroup);
 
 		let newGroups = Object.assign(this.state.groups);
 		newGroups.push(newGroup);
@@ -187,6 +218,7 @@ class EventTable extends React.Component{
 			"group":eventGroup,
 			"cooldown":0,
 			"chatnotification":false,
+			"cooldownnotification":false,
 			"triggers":{
 				"chat":{"enabled":true, "command":"!"+newKey},
 				"redemption":{"enabled":false, "id":"", override:false},
@@ -209,6 +241,7 @@ class EventTable extends React.Component{
 				newCommand = {
 					type:"response",
 					enabled:true,
+					search:false,
 					command:"return event.username+' has triggered this command!';",
 					delay:0
 				};
@@ -234,14 +267,32 @@ class EventTable extends React.Component{
 					priority:0
 				};
 			break;
-			/*case 'obs':
+			case 'obs':
 				newCommand = {
 					type:"obs",
-					eventname:"",
-					value:0,
+					function:"setinputmute",
+					etype:"timed",
+					scene:"",
+					item:"",
+					valueOn:1,
+					valueOff:0,
+					itemOn:"",
+					itemOff:"",
+					duration:60,
 					delay:0
 				}
-			break;*/
+			break;
+			case 'mod':
+				newCommand = {
+					type:"mod",
+					function:"lock",
+					targettype:"event",
+					target:"",
+					etype:"toggle",
+					duration:60,
+					delay:0
+				}
+			break;
 		}
 		
 		
@@ -337,8 +388,6 @@ class EventTable extends React.Component{
 	}
 
 	toggleGroup(e){
-		console.log(e.target);
-		
 		let element = e.currentTarget.closest(".command-group").querySelector(".command-group-content");
 		window.toggleClass(element, "hidden");
 		window.toggleClass(e.currentTarget.closest(".command-group"), "expanded");
@@ -376,7 +425,7 @@ class EventTable extends React.Component{
 	  }
 	}
 
-	verifyResponseScript(e){
+	async verifyResponseScript(e){
 		e.preventDefault();
 		let parentEl = e.target.closest(".command-props");
 		let responseEl = parentEl.querySelector("[name='message']");
@@ -417,8 +466,8 @@ class EventTable extends React.Component{
 		  
 
 		try{
-			let responseFunct = eval("() => { let event = "+JSON.stringify(testEvent)+"; "+responseScript.replace(/\n/g, "")+"}");
-			let response = responseFunct();
+			let responseFunct = eval("async () => { let event = "+JSON.stringify(testEvent)+"; let extra= "+JSON.stringify(testEvent)+"; "+responseScript.replace(/\n/g, "")+"}");
+			let response = await responseFunct();
 			console.log("SCRIPT RAN SUCCESSFULLY:",response);
 			window.setClass(responseEl, "verified", true);
 			window.setClass(responseEl, "failed", false);
@@ -432,7 +481,7 @@ class EventTable extends React.Component{
 	}
 
 	checkEventTaken(e){
-		e.target.value = e.target.value.replace(" ", "_");
+		e.target.value = e.target.value.replace(/[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/,"").replace(" ", "_");
 		if(Object.keys(this.state.events).includes(e.target.value)){
 			window.setClass(e.target, "error", true);
 		}else{
@@ -442,7 +491,6 @@ class EventTable extends React.Component{
 	}
 
 	checkCommandConflicts(eventName, commandIndex){
-		//console.log(eventName, commandIndex);
 		let eventConflicts = [];
 		let events = this.state.events;
 		let checkAddress = events[eventName].commands[commandIndex].address;
@@ -452,7 +500,7 @@ class EventTable extends React.Component{
 				if(e==eventName && c==commandIndex){continue;}
 				if(events[e].commands[c].type =="software"){
 					if(events[e].commands[c].address == checkAddress){
-						if(isNaN(checkValue)){
+						if(isNaN(checkValue) && isNaN(events[e].commands[c].valueOn)){
 							if(checkValue.includes(",")){
 								if(events[e].commands[c].valueOn.includes(",")){
 									if(events[e].commands[c].valueOn.split(",")[0] == checkValue.split(",")[0]){
@@ -493,7 +541,6 @@ class EventTable extends React.Component{
 		let eventName = e.currentTarget.closest(".command-element").id;
 		let direction = e.currentTarget.getAttribute("direction");
 		let commandIndex = parseInt(e.currentTarget.closest(".command-fields").getAttribute("commandindex"));
-		console.log(eventName, direction, commandIndex);
 		let newEvents = Object.assign(this.state.events);
 		if(direction == "up"){
 			if(commandIndex<=0){return;}
@@ -533,9 +580,10 @@ class EventTable extends React.Component{
 		let pluginOptions = [];
 		if(this.state._plugins != null){
 			let plugins = this.state._plugins;
-			for(let p in plugins){
+			let sortedPlugins = Object.values(plugins).sort();
+			for(let p in sortedPlugins){
 				pluginOptions.push(
-					<option value={plugins[p]}>{plugins[p]}</option>
+					<option value={sortedPlugins[p]}>{sortedPlugins[p]}</option>
 				)
 			}
 		}
@@ -573,10 +621,9 @@ class EventTable extends React.Component{
 			if(groupName==null){groupName = ""}
 
 			let eventCooldown = thisEvent[s].cooldown;
-			if(eventCooldown == null){eventCooldown = 0}
 
 			let chatNotification = thisEvent[s].chatnotification;
-			if(chatNotification == null){chatNotification = false}
+			let cooldownNotification = thisEvent[s].cooldownnotification;
 
 			let eventTriggers = thisEvent[s].triggers;
 			let redemptionTrigger = null;
@@ -606,6 +653,10 @@ class EventTable extends React.Component{
 								<label>
 									Enabled:
 									<BoolSwitch name="enabled" checked={eventTriggers.chat.enabled} onChange={this.handleChange}/>
+								</label>
+								<label>
+									Search and Match in Message:
+									<BoolSwitch name="search" checked={eventTriggers.chat.search} onChange={this.handleChange}/>
 								</label>
 								<label>
 									Command:
@@ -803,6 +854,217 @@ class EventTable extends React.Component{
 							</label>
 						</div>;
 					break;
+					case "obs":
+						if(Object.keys(this.state._obs).length == 0){
+							element = <div className="command-props software">
+								<label>OBS not connected. Connect to OBS remote in Deck Mode and refresh. Saving now will not affect any settings in place.</label>
+							</div>;
+							break;
+						}
+						let oduration = eventCommands[c].etype=="timed" ? <label>
+																		Duration (Seconds):
+																		<input type="number" name="duration" key={s} value={eventCommands[c].duration} onChange={this.handleChange} />
+																	</label>:null;
+						let inputItemOptions = [];
+						for(let i in this.state._obs.inputs){
+							inputItemOptions.push(
+								<option value={this.state._obs.inputs[i].inputName}>
+									{this.state._obs.inputs[i].inputName}
+								</option>
+							);
+						}
+						//console.log("OBS", this.state._obs);
+						let sceneOptions = [];
+						for(let s in this.state._obs.scenes){
+							sceneOptions.push(
+								<option value={this.state._obs.scenes[s].sceneName}>
+									{this.state._obs.scenes[s].sceneName}
+								</option>
+							);
+						}
+
+						let sceneItemOptions = [];
+						for(let si in this.state._obs.sceneItems[eventCommands[c].scene]?.sceneItems){
+							console.log(this.state._obs.sceneItems[eventCommands[c].scene].sceneItems[si])
+							sceneItemOptions.push(
+								<option value={this.state._obs.sceneItems[eventCommands[c].scene].sceneItems[si].sceneItemId}>
+									{this.state._obs.sceneItems[eventCommands[c].scene].sceneItems[si].sourceName}
+								</option>
+							)
+						}
+						let commandContent = null;
+						switch(eventCommands[c].function){
+							case "setinputmute":
+								let valueOff = eventCommands[c].etype == "timed"?<label>
+								Value Off:
+								<BoolSwitch key={s} name="valueOff" checked={eventCommands[c].valueOff} onChange={this.handleChange}/>
+							</label>:null;
+								commandContent = <div className="command-content">
+									<label>
+										Item:
+										<select name="item" key={s} value={eventCommands[c].item} onChange={this.handleChange}>
+											{inputItemOptions}
+										</select>
+									</label>
+									<label>
+										Value On:
+										<BoolSwitch key={s} name="valueOn" checked={eventCommands[c].valueOn} onChange={this.handleChange}/>
+									</label>
+									{valueOff}
+									<label>
+										Event Type:
+										<select name="etype" key={s} value={eventCommands[c].etype} onChange={this.handleChange}>
+											<option value="timed">Timed</option>
+											<option value="oneshot">One Shot</option>
+										</select>
+									</label>
+									{oduration}
+									<label>
+										Delay (Milliseconds):
+										<input name="delay" key={s} value={eventCommands[c].delay} type="number" break="anywhere" onChange={this.handleChange} />
+									</label>
+								</div>
+							break;
+							case "switchscenes":
+								let sceneOff = eventCommands[c].etype=="timed"?<label>
+								Scene Off:
+								<select name="itemOff" key={s} value={eventCommands[c].itemOff} onChange={this.handleChange}>
+									{sceneOptions}
+								</select>
+							</label>:null;
+								commandContent = <div className="command-content">
+									<label>
+										Scene On:
+										<select name="itemOn" key={s} value={eventCommands[c].itemOn} onChange={this.handleChange}>
+											{sceneOptions}
+										</select>
+									</label>
+									{sceneOff}
+									<label>
+										Event Type:
+										<select name="etype" key={s} value={eventCommands[c].etype} onChange={this.handleChange}>
+											<option value="timed">Timed</option>
+											<option value="oneshot">One Shot</option>
+										</select>
+									</label>
+									{oduration}
+									<label>
+										Delay (Milliseconds):
+										<input name="delay" key={s} value={eventCommands[c].delay} type="number" break="anywhere" onChange={this.handleChange} />
+									</label>
+								</div>
+							break;
+							case "enablesceneitem":
+								let itemOff = eventCommands[c].etype == "timed"?<label>
+								Value Off:
+								<BoolSwitch key={s} name="valueOff" checked={eventCommands[c].valueOff} onChange={this.handleChange}/>
+							</label>:null;
+								commandContent = <div className="command-content">
+									<label>
+										Scene:
+										<select name="scene" key={s} value={eventCommands[c].scene} onChange={this.handleChange}>
+											{sceneOptions}
+										</select>
+									</label>
+									<label>
+										Item:
+										<select name="item" key={s} value={eventCommands[c].item} onChange={this.handleChange}>
+											{sceneItemOptions}
+										</select>
+									</label>
+									<label>
+										Value On:
+										<BoolSwitch key={s} name="valueOn" checked={eventCommands[c].valueOn} onChange={this.handleChange}/>
+									</label>
+									{itemOff}
+									<label>
+										Event Type:
+										<select name="etype" key={s} value={eventCommands[c].etype} onChange={this.handleChange}>
+											<option value="timed">Timed</option>
+											<option value="oneshot">One Shot</option>
+										</select>
+									</label>
+									{oduration}
+									<label>
+										Delay (Milliseconds):
+										<input name="delay" key={s} value={eventCommands[c].delay} type="number" break="anywhere" onChange={this.handleChange} />
+									</label>
+								</div>
+							break;
+						}
+
+						let functionSelect = <select name="function" key={s} value={eventCommands[c].function} onChange={this.handleChange}>
+							<option value="setinputmute">Set Input Mute</option>
+							<option value="switchscenes">Switch Scenes</option>
+							<option value="enablesceneitem">Enable Scene Item</option>
+						</select>
+
+						element = <div className="command-props software">
+							<label>Function: {functionSelect}</label>
+							{commandContent}
+						</div>;
+					break;
+					case "mod":
+						let mduration = eventCommands[c].etype=="timed" ? <label>
+																		Duration (Seconds):
+																		<input type="number" name="duration" key={s} value={eventCommands[c].duration} onChange={this.handleChange} />
+																	</label>:null;
+						let targetField = null;
+						let targetOptions = [<option value="all">All</option>];
+						if(eventCommands[c].targettype == "event"){
+							let sortedKeys = Object.keys(this.state.events).sort();
+							
+							for(let s in sortedKeys){
+								targetOptions.push(
+									<option value={sortedKeys[s]}>{sortedKeys[s]}</option>
+								)
+							}
+						}else if(eventCommands[c].targettype == "plugin"){
+							targetOptions = targetOptions.concat(pluginOptions);
+						}
+						if(eventCommands[c].targettype != "all"){
+							targetField = <label>
+								Target:
+								<select name="target" key={s} value={eventCommands[c].target} onChange={this.handleChange}>
+									{targetOptions}
+								</select>
+							</label>;
+						}
+						element = <div className="command-props software">
+							<h3>
+								Moderation chat commands are already built into Spooder. This is mainly so you can hook an OSC trigger for quick moderation actions.
+							</h3>
+							<label>
+								Function:
+								<select name="function" key={s} value={eventCommands[c].function} onChange={this.handleChange}>
+									<option value="lock">Lock/Unlock</option>
+									<option value="spamguard">Spam Guard</option>
+									<option value="stop">Stop Event</option>
+								</select>
+							</label>
+							<label>
+								Target Type:
+								<select name="targettype" key={s} value={eventCommands[c].targettype} onChange={this.handleChange}>
+									<option value="all">Everything</option>
+									<option value="event">Event</option>
+									<option value="plugin">Plugin</option>
+								</select>
+							</label>
+							{targetField}
+							<label>
+								Handle Type:
+								<select name="etype" key={s} value={eventCommands[c].etype} onChange={this.handleChange}>
+									<option value="toggle">Toggle</option>
+									<option value="timed">Timed</option>
+								</select>
+							</label>
+							{mduration}
+							<label>
+								Delay (Milliseconds):
+								<input name="delay" key={s} value={eventCommands[c].delay} type="number" break="anywhere" onChange={this.handleChange} />
+							</label>
+						</div>;
+					break;
 				}
 
 				let typeLabel = <div>{eventCommands[c].type}</div>;
@@ -860,7 +1122,8 @@ class EventTable extends React.Component{
 							<option value={"response"}>Reponse</option>
 							<option value={"plugin"}>Plugin</option>
 							<option value={"software"}>Software</option>
-							
+							<option value={"obs"}>OBS</option>
+							<option value={"mod"}>Moderation</option>
 						</select>
 						</label>
 					</div>
@@ -919,6 +1182,10 @@ class EventTable extends React.Component{
 									<label className="label-switch">
 										Notify Activation in Chat:
 										<BoolSwitch name="chatnotification" checked={chatNotification} onChange={this.handleChange}/>
+									</label>
+									<label className="label-switch">
+										Tell How Much Time Left for Cooldown:
+										<BoolSwitch name="cooldownnotification" checked={cooldownNotification} onChange={this.handleChange}/>
 									</label>
 									<label className="field-section">
 										Trigger:

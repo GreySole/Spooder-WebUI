@@ -110,6 +110,7 @@ class SceneController extends React.Component{
         }
 
         return <div className="deck-component deck-scene-controller">
+            <label className="deck-component-label">Scenes</label>
             <div className="scene-controller-transition">
                 <div onClick={this.toggleStudioMode} className={"scene-controller-studiomode-button "+(this.state.studioMode==true?"enabled":"")}>
                     <FontAwesomeIcon icon={faTableColumns} size="2x"/>

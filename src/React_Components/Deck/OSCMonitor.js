@@ -12,9 +12,10 @@ class OSCMonitor extends React.Component{
         this.state = {
             isReady:false,
             addressInput:"",
-            activeFilters:["tcp", "udp", "send", "receive"],
+            activeFilters:["tcp", "udp", "send", "receive", "plugin"],
             addressFilters:[],
             logs:[],
+            pluginlogs:[],
             variables:{},
             varMode:false,
             scrollLock:false
@@ -22,6 +23,7 @@ class OSCMonitor extends React.Component{
 
         this.getAllLogs = this.getAllLogs.bind(this);
         this.getLog = this.getLog.bind(this);
+        this.getPluginLog = this.getPluginLog.bind(this);
         this.setFilter = this.setFilter.bind(this);
         this.handleAddressInput = this.handleAddressInput.bind(this);
         this.setAddressFilter = this.setAddressFilter.bind(this);
@@ -34,7 +36,8 @@ class OSCMonitor extends React.Component{
         this.setState(Object.assign(this.state, {
             isReady:true,
             oscSubIDs:{
-                monitor: this.osc.on("/frontend/monitor", this.getLog),
+                monitor: this.osc.on("/frontend/monitor/osc", this.getLog),
+                pluginmonitor: this.osc.on("/frontend/monitor/plugin", this.getPluginLog),
                 getAllLogs: this.osc.on("/frontend/monitor/get/all", this.getAllLogs)
             }
         }));
@@ -44,7 +47,8 @@ class OSCMonitor extends React.Component{
     }
 
     componentWillUnmount(){
-        this.osc.off("/frontend/monitor", this.state.oscSubIDs.monitor);
+        this.osc.off("/frontend/monitor/osc", this.state.oscSubIDs.monitor);
+        this.osc.off("/frontend/monitor/plugin", this.state.oscSubIDs.pluginmonitor);
         this.osc.off("/frontend/monitor/get/all", this.state.oscSubIDs.getAllLogs);
         this.osc.send(new OSC.Message("/frontend/monitor/logging", 0));
     }
@@ -57,7 +61,7 @@ class OSCMonitor extends React.Component{
 
     getAllLogs(message){
         let logObj = JSON.parse(message.args[0]);
-        this.setState(Object.assign(this.state, {logs:logObj.logs}));
+        this.setState(Object.assign(this.state, {logs:logObj.logs, pluginlogs:logObj.pluginlogs}));
     }
 
     getLog(message){
@@ -90,6 +94,16 @@ class OSCMonitor extends React.Component{
         }
         this.setState(Object.assign(this.state, {logs:newLogs, variables:newVars}));
         
+    }
+
+    getPluginLog(message){
+        let logObj = JSON.parse(message.args[0]);
+        let newLogs = Object.assign(this.state.pluginlogs);
+        newLogs.push(logObj);
+        if(newLogs.length >500){
+            newLogs.shift();
+        }
+        this.setState(Object.assign(this.state, {pluginlogs:newLogs}));
     }
 
     setFilter(filter){
@@ -125,10 +139,8 @@ class OSCMonitor extends React.Component{
     }
 
     scrollToLock(e){
-        console.log("SCROLLING TO LOCK", e.currentTarget.scrollTop, e.currentTarget.scrollHeight-e.currentTarget.getBoundingClientRect().height);
         if(e.currentTarget.scrollTop >= e.currentTarget.scrollHeight-e.currentTarget.getBoundingClientRect().height){
             this.setState(Object.assign(this.state, {scrollLock:true}));
-            console.log("SCROLL LOCK ON");
         }else{
             this.setState(Object.assign(this.state, {scrollLock:false}));
         }
@@ -151,34 +163,52 @@ class OSCMonitor extends React.Component{
             </div>
             ];
 
-            for(let l in this.state.logs){
-                if(this.state.activeFilters.includes(this.state.logs[l].protocol) &&
-                    this.state.activeFilters.includes(this.state.logs[l].direction)){
-                    let aFilterPass = true;
-                    if(this.state.addressFilters.length>0){
-                        aFilterPass = false;
-                        for(let af in this.state.addressFilters){
-                            let thisFilter = this.state.addressFilters[af];
-                            if(thisFilter.endsWith("/*")){
-                                if(this.state.logs[l].data.address.startsWith(thisFilter.substring(0,thisFilter.length-2))){
+            let finalLogs = [];
+            finalLogs = finalLogs.concat(this.state.logs, this.state.pluginlogs);
+            finalLogs.sort((a,b)=>{
+                return a.timestamp-b.timestamp;
+            })
+
+            for(let l in finalLogs){
+                if(finalLogs[l].type == "osc"){
+                    if(this.state.activeFilters.includes(finalLogs[l].protocol) &&
+                        this.state.activeFilters.includes(finalLogs[l].direction)){
+                        let aFilterPass = true;
+                        if(this.state.addressFilters.length>0){
+                            aFilterPass = false;
+                            for(let af in this.state.addressFilters){
+                                let thisFilter = this.state.addressFilters[af];
+                                if(thisFilter.endsWith("/*")){
+                                    if(finalLogs[l].data.address.startsWith(thisFilter.substring(0,thisFilter.length-2))){
+                                        aFilterPass = true;
+                                    }
+                                }else if(thisFilter == finalLogs[l].data.address){
                                     aFilterPass = true;
                                 }
-                            }else if(thisFilter == this.state.logs[l].data.address){
-                                aFilterPass = true;
                             }
                         }
+                        if(aFilterPass){
+                            logList.push(
+                                <div className="monitor-log">
+                                    <div className="monitor-log-protocol">{finalLogs[l].protocol}</div>
+                                    <div className="monitor-log-direction">{finalLogs[l].direction}</div>
+                                    <div className="monitor-log-types">{finalLogs[l].data.types}</div>
+                                    <div className="monitor-log-address">{finalLogs[l].data.address}</div>
+                                    <div className="monitor-log-data">{finalLogs[l].data.data}</div>
+                                </div>
+                            );
+                        }
                     }
-                    if(aFilterPass){
-                        logList.push(
-                            <div className="monitor-log">
-                                <div className="monitor-log-protocol">{this.state.logs[l].protocol}</div>
-                                <div className="monitor-log-direction">{this.state.logs[l].direction}</div>
-                                <div className="monitor-log-types">{this.state.logs[l].data.types}</div>
-                                <div className="monitor-log-address">{this.state.logs[l].data.address}</div>
-                                <div className="monitor-log-data">{this.state.logs[l].data.data}</div>
-                            </div>
-                        );
-                    }
+                }else if(finalLogs[l].type=="error" && this.state.activeFilters.includes("plugin")){
+                    logList.push(
+                        <div className="monitor-log">
+                            <div className="monitor-log-protocol">Plugin</div>
+                            <div className="monitor-log-direction"></div>
+                            <div className="monitor-log-types">{finalLogs[l].type}</div>
+                            <div className="monitor-log-address">{finalLogs[l].name}</div>
+                            <div className="monitor-log-data">{finalLogs[l].message}</div>
+                        </div>
+                    );
                 }
             }
 
@@ -203,6 +233,7 @@ class OSCMonitor extends React.Component{
                             <button className={"monitor-filters-button "+(this.state.activeFilters.includes("udp")?"enabled":"")} onClick={()=>this.setFilter("udp")}>UDP</button>
                             <button className={"monitor-filters-button "+(this.state.activeFilters.includes("send")?"enabled":"")} onClick={()=>this.setFilter("send")}>Send</button>
                             <button className={"monitor-filters-button "+(this.state.activeFilters.includes("receive")?"enabled":"")} onClick={()=>this.setFilter("receive")}>Receive</button>
+                            <button className={"monitor-filters-button "+(this.state.activeFilters.includes("plugin")?"enabled":"")} onClick={()=>this.setFilter("plugin")}>Plugin</button>
                         </div>
                         <div className="monitor-variables-switch">
                             Variables:
@@ -249,7 +280,6 @@ class OSCMonitor extends React.Component{
                                 {this.state.variables[v].max}
                             </div>
                         </div>
-                        
                     </div>
                 );
             }

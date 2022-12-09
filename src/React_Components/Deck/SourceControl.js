@@ -244,8 +244,11 @@ class SourceControl extends React.Component{
         }
 
         return <div className="deck-component deck-source-controller">
-            {groupElements}
-            {regularSceneItems}
+            <label className="deck-component-label">Sources</label>
+            <div className="component-source-buttons">
+                {groupElements}
+                {regularSceneItems}
+            </div>
         </div>;
     }
 }

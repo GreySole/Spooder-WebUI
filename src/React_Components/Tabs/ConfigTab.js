@@ -3,13 +3,14 @@ import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {faDownload, faTrash, faUpload} from '@fortawesome/free-solid-svg-icons';
 import BoolSwitch from '../UI/BoolSwitch.js';
 import LinkButton from '../UI/LinkButton.js';
-
+import tinycolor from 'tinycolor2';
 class ConfigTab extends React.Component{
 	constructor(props){
 		super(props);
 		this.state = Object.assign(props.data.config);
 		this.state["_tabOptions"] = Object.assign(props._taboptions);
 		this.state["_brstatus"] = {
+			csExpanded:false,
 			brExpanded:false,
 			backupSettings:false,
 			backupPlugins:false,
@@ -17,7 +18,13 @@ class ConfigTab extends React.Component{
 			restorePlugins:false
 		};
 		this.state["_backups"] = Object.assign(props.data.backup);
-		console.log(this.state);
+		this.state["_saveCustomSpooder"] = props.saveCustomSpooder;
+		this.state["_updateCustomSpooder"] = props.updateCustomSpooder;
+		let cSpooder = Object.assign(props._customSpooder);
+		for(let c in cSpooder.colors){
+			cSpooder.colors[c] = tinycolor(cSpooder.colors[c]).toHexString();
+		}
+		this.state["_customSpooder"] = cSpooder;
 		this.handleChange = this.handleChange.bind(this);
 		this.saveConfig = this.saveConfig.bind(this);
 		this.deleteUDPClient = this.deleteUDPClient.bind(this);
@@ -41,9 +48,45 @@ class ConfigTab extends React.Component{
 		this.handleFileClick = this.handleFileClick.bind(this);
 		this.uploadSettingsBackup = this.uploadSettingsBackup.bind(this);
 		this.uploadPluginsBackup = this.uploadPluginsBackup.bind(this);
+
+		this.toggleCustomSpooder = this.toggleCustomSpooder.bind(this);
+
+		for(let cs in this.configStructure){
+			if(this.state[cs] == null){
+				this.state[cs] = this.configStructure[cs];
+				continue;
+			}
+			for(let css in this.configStructure[cs]){
+				if(this.state[cs][css] == null){
+					this.state[cs][css] = this.configStructure[cs][css];
+				}
+			}
+		}
 	}
 
-	
+	configStructure = {
+		"bot":{
+			"sectionname":"Bot Settings",
+			"bot_name":"",
+			"help_command":"",
+			"introduction":"I'm a Spooder connected to the stream ^_^"
+		},
+		"broadcaster":{
+			"sectionname":"Broadcaster",
+			"username":""
+		},"network":{
+			"sectionname":"Network",
+			"host":"",
+			"host_port":3000,
+			"externalhandle":"ngrok",
+			"ngrokauthtoken":"",
+			"external_http_url":"",
+			"external_tcp_url":"",
+			"udp_clients":{},
+			"osc_udp_port":9000,
+			"osc_tcp_port":3333
+		}
+	}
 	
 	handleChange(s){
 		
@@ -74,7 +117,7 @@ class ConfigTab extends React.Component{
 
 		let clientKey = el.querySelector(".config-sub-var-ui input[name='clientKey']").value;
 		let clientName = el.querySelector(".config-sub-var-ui input[name='clientName']").value;
-		let clientIP = el.querySelector(".config-sub-var-ui input[name='clientIP']").value
+		let clientIP = el.querySelector(".config-sub-var-ui input[name='clientIP']").value;
 		let clientPort = el.querySelector(".config-sub-var-ui input[name='clientPort']").value;
 
 		newUDPClients[clientKey] = {
@@ -88,25 +131,25 @@ class ConfigTab extends React.Component{
 	
 	saveConfig(){
 		let newList = Object.assign(this.state);
-		delete newList["_tabOptions"];
-		console.log(newList);
+		for(let item in newList){
+			if(item.startsWith("_")){
+				delete newList[item];
+			}
+		}
+		
 		const requestOptions = {
 			method: 'POST',
 			headers: {'Content-Type': 'application/json', 'Accept':'application/json'},
 			body: JSON.stringify(newList)
 		};
-		console.log(requestOptions);
+		
 		fetch('/saveConfig', requestOptions)
 		.then(response => response.json())
 		.then(data => {
-			if(data.status == "SAVE SUCCESS"){
-				document.querySelector("#saveStatusText").textContent = "Config has saved! Restart Spooder to take effect.";
-				setTimeout(()=>{
-					document.querySelector("#saveStatusText").textContent = "";
-				}, 5000)
-			}else{
-				document.querySelector("#saveStatusText").textContent = "Error: "+data.status;
-			}
+			document.querySelector("#saveStatusText").textContent = data.status;
+			setTimeout(()=>{
+				document.querySelector("#saveStatusText").textContent = "";
+			}, 5000)
 		});
 	}
 
@@ -120,7 +163,6 @@ class ConfigTab extends React.Component{
 		delete newUDPClients[subvarname];
 		
 		this.setState(Object.assign(this.state, {"network":Object.assign(this.state.network,{udp_clients:newUDPClients})}));
-
 	}
 
 	setDefaultTabs(e){
@@ -150,7 +192,6 @@ class ConfigTab extends React.Component{
 		body:JSON.stringify({backupName:backupName})})
 		.then(async response => {
 			let newSettingsBackups = await response.json();
-			console.log(newSettingsBackups);
 			this.brFinish("backupSettings", newSettingsBackups.newbackups);
 		});
 
@@ -166,7 +207,6 @@ class ConfigTab extends React.Component{
 		body:JSON.stringify({backupName:backupName})})
 		.then(async response => {
 			let newSettingsBackups = await response.json();
-			console.log(newSettingsBackups);
 			this.brFinish("backupPlugins", newSettingsBackups.newbackups);
 		});
 		this.setState(Object.assign(this.state, {_brstatus:newStatus}));
@@ -220,7 +260,7 @@ class ConfigTab extends React.Component{
 			eventsub:document.querySelector(".restore-settings-checkboxes #restoreEventsub").checked,
 			oauth:document.querySelector(".restore-settings-checkboxes #restoreOauth").checked,
 			"osc-tunnels":document.querySelector(".restore-settings-checkboxes #restoreTunnels").checked,
-			"mod-blacklist":document.querySelector(".restore-settings-checkboxes #restoreBlacklist").checked
+			"mod":document.querySelector(".restore-settings-checkboxes #restoreBlacklist").checked
 		};
 		
 		newStatus.restoreSettings = true;
@@ -300,7 +340,6 @@ class ConfigTab extends React.Component{
 	async uploadSettingsBackup(e){
 		var fd = new FormData();
 		fd.append('file', e.target.files[0]);
-		//return;
 
 		const requestOptions = {
 			method: 'POST',
@@ -316,7 +355,6 @@ class ConfigTab extends React.Component{
 	async uploadPluginsBackup(e){
 		var fd = new FormData();
 		fd.append('file', e.target.files[0]);
-		//return;
 
 		const requestOptions = {
 			method: 'POST',
@@ -335,8 +373,13 @@ class ConfigTab extends React.Component{
 		this.setState(Object.assign(this.state, {_brstatus:newBackups}))
 	}
 	
+	toggleCustomSpooder(e){
+		let newStatus = Object.assign(this.state._brstatus);
+		newStatus.csExpanded = !newStatus.csExpanded;
+		this.setState(Object.assign(this.state, {_brstatus:newStatus}));
+	}
+
 	render(){
-		console.log(this.state);
 		let sections = [];
 		let table = [];
 
@@ -360,16 +403,32 @@ class ConfigTab extends React.Component{
 				switch(dataType){
 					case 'number':
 					case 'string':
-						let inputType = "text";
-						let copyButton = null;
-						if(ss == "external_http_url" || ss == "external_tcp_url"){
-							inputType = "password";
-							if(ss == "external_http_url"){
-								copyButton = <LinkButton name={ss+"-mod"} text={"Copy Mod URL"} mode="copy" link={this.state[s][ss]+"/mod"} />
+						if(ss == "externalhandle"){
+							table.push(<div className="config-variable"><label>{ss}
+								<select name={ss} sectionname={s} defaultValue={this.state[s][ss]} onChange={this.handleChange}>
+									<option value="ngrok">Ngrok</option>
+									<option value="manual">Enter Manually</option>
+								</select>
+								</label></div>);
+						}else{
+							if(this.state[s]["externalhandle"] != "manual" && (ss == "external_http_url" || ss == "external_tcp_url")){
+								break;
 							}
-						}
+							if(this.state[s]["externalhandle"] != "ngrok" && (ss == "ngrokauthtoken")){
+								break;
+							}
+							let inputType = "text";
+							let copyButton = null;
+							if(ss == "external_http_url" || ss == "external_tcp_url" || ss == "ngrokauthtoken"){
+								inputType = "password";
+								if(ss == "external_http_url" || ss == "ngrokauthtoken"){
+									copyButton = <LinkButton name={ss+"-mod"} text={"Copy Mod URL"} mode="copy" link={this.state[s]["external_http_url"]+"/mod"} />
+								}
+							}
 
-						table.push(<div className="config-variable"><label>{ss}<input type={inputType} name={ss} sectionname={s} defaultValue={this.state[s][ss]} onChange={this.handleChange} /></label>{copyButton}</div>);
+							table.push(<div className="config-variable"><label>{ss}<input type={inputType} name={ss} sectionname={s} defaultValue={this.state[s][ss]} onChange={this.handleChange} /></label>{copyButton}</div>);
+						}
+						
 					break;
 					case 'boolean':
 						
@@ -562,9 +621,58 @@ class ConfigTab extends React.Component{
 		</div>
 	</div>
 </div>:null;
+
+let customSpooder = this.state._brstatus.csExpanded?<div className="custom-spooder-ui">
+	<div className="custom-spooder-inputs">
+		<div className="custom-spooder-pair">Little Eye Left
+			<input type="text" name="littleeyeleft" onChange={this.state._updateCustomSpooder} defaultValue={this.state._customSpooder.littleeyeleft}/>
+			<input type="color" name="littleeyeleft" onChange={this.state._updateCustomSpooder} defaultValue={this.state._customSpooder.colors.littleeyeleft}/>
+		</div>
+		<div className="custom-spooder-pair">Big Eye Left
+			<input type="text" name="bigeyeleft" onChange={this.state._updateCustomSpooder} defaultValue={this.state._customSpooder.bigeyeleft}/>
+			<input type="color" name="bigeyeleft" onChange={this.state._updateCustomSpooder} defaultValue={this.state._customSpooder.colors.bigeyeleft}/>
+		</div>
+		<div className="custom-spooder-pair">Fang Left
+			<input type="text" name="fangleft" onChange={this.state._updateCustomSpooder} defaultValue={this.state._customSpooder.fangleft}/>
+			<input type="color" name="fangleft" onChange={this.state._updateCustomSpooder} defaultValue={this.state._customSpooder.colors.fangleft}/>
+		</div>
+		<div className="custom-spooder-pair">Mouth
+			<input type="text" name="mouth" onChange={this.state._updateCustomSpooder} defaultValue={this.state._customSpooder.mouth}/>
+			<input type="color" name="mouth" onChange={this.state._updateCustomSpooder} defaultValue={this.state._customSpooder.colors.mouth}/>
+		</div>
+		<div className="custom-spooder-pair">Fang Right
+			<input type="text" name="fangright" onChange={this.state._updateCustomSpooder} defaultValue={this.state._customSpooder.fangright}/>
+			<input type="color" name="fangright" onChange={this.state._updateCustomSpooder} defaultValue={this.state._customSpooder.colors.fangright}/>
+		</div>
+		<div className="custom-spooder-pair">Big Eye Right
+			<input type="text" name="bigeyeright" onChange={this.state._updateCustomSpooder} defaultValue={this.state._customSpooder.bigeyeright}/>
+			<input type="color" name="bigeyeright" onChange={this.state._updateCustomSpooder} defaultValue={this.state._customSpooder.colors.bigeyeright}/>
+		</div>
+		<div className="custom-spooder-pair">Little Eye Right
+			<input type="text" name="littleeyeright" onChange={this.state._updateCustomSpooder} defaultValue={this.state._customSpooder.littleeyeright}/>
+			<input type="color" name="littleeyeright" onChange={this.state._updateCustomSpooder} defaultValue={this.state._customSpooder.colors.littleeyeright}/>
+		</div>
+		<div className="custom-spooder-pair">Body Color
+			<input type="color" name="body" onChange={this.state._updateCustomSpooder} defaultValue={this.state._customSpooder.colors.body}/>
+		</div>
+		<div className="custom-spooder-pair">Short Legs Color
+			<input type="color" name="shortlegs" onChange={this.state._updateCustomSpooder} defaultValue={this.state._customSpooder.colors.shortlegs}/>
+		</div>
+		<div className="custom-spooder-pair">Long Legs Color
+			<input type="color" name="longlegs" onChange={this.state._updateCustomSpooder} defaultValue={this.state._customSpooder.colors.longlegs}/>
+		</div>
+	</div>
+	<div className="save-commands"><button type="button" id="saveSpooderButton" className="save-button" onClick={this.state._saveCustomSpooder}>Save</button><div id="spooderSaveStatusText" className="save-status"></div></div>
+</div>:null;
 		
 		return (
 			<form className="config-tab">
+				<div className="non-config-element">
+					<div className="backup-restore-toggle-label" onClick={this.toggleCustomSpooder}>Customize Spooder</div>
+					{customSpooder}
+				</div>
+				<div className="backup-restore-toggle-label" onClick={this.toggleBackupRestore}>Backup/Restore</div>
+				{backupRestore}
 				<div className="non-config-element">
 					<label>Default Tabs<p><br></br>
 						Saved on selection for this browser only
@@ -580,8 +688,6 @@ class ConfigTab extends React.Component{
 				</div>
 				{sections}
 				<div className="save-commands"><button type="button" id="saveCommandsButton" className="save-button" onClick={this.saveConfig}>Save</button><div id="saveStatusText" className="save-status"></div></div>
-				<div className="backup-restore-toggle-label" onClick={this.toggleBackupRestore}>Backup/Restore</div>
-				{backupRestore}
 				
 			</form>
 		);

@@ -2,7 +2,7 @@ import React from 'react';
 import OSC from 'osc-js';
 import './VolumeControl.css';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
-import {faVolumeMute, faVolumeHigh, faEye, faEyeSlash, faPlus, faMinus} from '@fortawesome/free-solid-svg-icons';
+import {faVolumeMute, faVolumeHigh, faArrowCircleLeft, faCheck, faPlus, faMinus} from '@fortawesome/free-solid-svg-icons';
 
 class VolumeControl extends React.Component{
     constructor(props){
@@ -11,6 +11,7 @@ class VolumeControl extends React.Component{
 
         this.state = {
             inputs:{},
+            prevInputs:{},
             meters:{inputs:{}},
             groups:{},
             isReady:false,
@@ -30,6 +31,8 @@ class VolumeControl extends React.Component{
         this.toggleGroupMute = this.toggleGroupMute.bind(this);
         this.expandGroup = this.expandGroup.bind(this);
 
+        this.revertVolume = this.revertVolume.bind(this);
+        this.commitVolume = this.commitVolume.bind(this);
     }
 
     componentDidMount(){
@@ -101,7 +104,7 @@ class VolumeControl extends React.Component{
             newGroups[g].groupMuted = isMuted;
         }
         
-        this.setState(Object.assign(this.state, {inputs:newVolumes, groups:newGroups}));
+        this.setState(Object.assign(this.state, {prevInputs:JSON.parse(JSON.stringify(newVolumes)), inputs:newVolumes, groups:newGroups}));
     }
 
     getVolume(data){
@@ -141,11 +144,26 @@ class VolumeControl extends React.Component{
         this.osc.send(new OSC.Message("/obs/set/input/volume", JSON.stringify({inputName:inputName, value:parseFloat(value)**2})));
     }
 
+    revertVolume(e){
+        let inputName = e.currentTarget.getAttribute("inputname");
+        let newVolumes = Object.assign(this.state.inputs);
+        newVolumes[inputName].volumeData.inputVolumeMul = this.state.prevInputs[inputName].volumeData.inputVolumeMul;
+        this.osc.send(new OSC.Message("/obs/set/input/volume", JSON.stringify({inputName:inputName, value:parseFloat(newVolumes[inputName].volumeData.inputVolumeMul)})));
+        //this.setState(Object.assign(this.state, {inputs:newVolumes}));
+    }
+
+    commitVolume(e){
+        let inputName = e.currentTarget.getAttribute("inputname");
+        let newPrevVolumes = Object.assign(this.state.prevInputs);
+        newPrevVolumes[inputName].volumeData.inputVolumeMul = this.state.inputs[inputName].volumeData.inputVolumeMul;
+        this.setState(Object.assign(this.state, {prevInputs:newPrevVolumes}));
+    }
+
     volumeChanged(data){
         let volumeData = JSON.parse(data.args[0]);
         let newInputs = Object.assign(this.state.inputs);
-        
-        console.log("VOLUME CHANGED", volumeData);
+        newInputs[volumeData.inputName].volumeData.inputVolumeMul = volumeData.inputVolumeMul;
+        this.setState(Object.assign(this.state, {inputs:newInputs}));
     }
 
     muteStateChanged(data){
@@ -166,7 +184,7 @@ class VolumeControl extends React.Component{
                         if(this.state.meters.inputs[meter]?.inputLevelsMul[speaker] && recMeters.inputs[meter]?.inputLevelsMul[speaker]){
                             if(this.state.meters.inputs[meter].inputLevelsMul[speaker].length === recMeters.inputs[meter].inputLevelsMul[speaker].length){
                                 if(recMeters.inputs[meter].inputLevelsMul[speaker][1] < this.state.meters.inputs[meter].inputLevelsMul[speaker][1]){
-                                    recMeters.inputs[meter].inputLevelsMul[speaker][1] = this.state.meters.inputs[meter].inputLevelsMul[speaker][1]-0.005;
+                                    recMeters.inputs[meter].inputLevelsMul[speaker][1] = this.state.meters.inputs[meter].inputLevelsMul[speaker][1]-0.01;
                                     if(recMeters.inputs[meter].inputLevelsMul[speaker][1]<0){recMeters.inputs[meter].inputLevelsMul[speaker][1] = 0}
                                 }
                             }
@@ -262,7 +280,12 @@ class VolumeControl extends React.Component{
                 
                 for(let s in this.state.groups[g].items){
                     if(this.state.groups[g].items[s].sourceName == inputName){
-                        
+                        let volumeRevertButton = null;
+                        let volumeCommitButton = null;
+                        if(this.state.inputs[inputName].volumeData.inputVolumeMul != this.state.prevInputs[inputName].volumeData.inputVolumeMul){
+                            volumeRevertButton = <button inputname={inputName} onClick={this.revertVolume}><FontAwesomeIcon icon={faArrowCircleLeft}/></button>
+                            volumeCommitButton = <button inputname={inputName} onClick={this.commitVolume}><FontAwesomeIcon icon={faCheck}/></button>
+                        }
                         groupNames.push(inputName);
                         groupLevel[g].enabled = true;
                         if(this.state.groups[g].expanded){
@@ -279,9 +302,11 @@ class VolumeControl extends React.Component{
                                             
                                         </div>
                                         <div className="deck-volume-control-slider">
-                                            <input key={inputName+"- Volume - "+Object.keys(this.state.inputs).length} inputname={inputName} onChange={this.setVolume} orient={window.innerWidth<600?"vertical":"vertical"} type="range" min={0} max={1} step={0.01} defaultValue={this.state.inputs[inputName].volumeData.inputVolumeMul!=null?Math.sqrt(this.state.inputs[inputName].volumeData.inputVolumeMul):0}/>
+                                            <input key={inputName+"- Volume - "+Object.keys(this.state.inputs).length} inputname={inputName} onChange={this.setVolume} orient={window.innerWidth<600?"vertical":"vertical"} type="range" min={0} max={1} step={0.01} value={this.state.inputs[inputName].volumeData.inputVolumeMul!=null?Math.sqrt(this.state.inputs[inputName].volumeData.inputVolumeMul):0}/>
                                         </div>
                                         <div className="deck-source-buttons">
+                                            {volumeCommitButton}
+                                            {volumeRevertButton}
                                             <button inputname={inputName} onClick={this.toggleMute}><FontAwesomeIcon icon={this.state.inputs[inputName].volumeMuteData.inputMuted?faVolumeMute:faVolumeHigh}/></button>
                                         </div>
                                     </div>
@@ -307,6 +332,13 @@ class VolumeControl extends React.Component{
             }
             if(!groupNames.includes(inputName)){
                 if(this.state.inputs[inputName] != null){
+                    let volumeRevertButton = null;
+                    let volumeCommitButton = null;
+                    
+                    if(this.state.inputs[inputName].volumeData.inputVolumeMul != this.state.prevInputs[inputName].volumeData.inputVolumeMul){
+                        volumeRevertButton = <button inputname={inputName} onClick={this.revertVolume}><FontAwesomeIcon icon={faArrowCircleLeft}/></button>
+                        volumeCommitButton = <button inputname={inputName} onClick={this.commitVolume}><FontAwesomeIcon icon={faCheck}/></button>
+                    }
                     meterElements.push(
                         <div className="deck-volume-meter" >
                             <div className="deck-volume-meter-label">
@@ -319,9 +351,11 @@ class VolumeControl extends React.Component{
                                     
                                 </div>
                                 <div className="deck-volume-control-slider">
-                                    <input key={inputName+"- Volume - "+Object.keys(this.state.inputs).length} inputname={inputName} onChange={this.setVolume} orient={window.innerWidth<600?"vertical":"vertical"} type="range" min={0} max={1} step={0.01} defaultValue={this.state.inputs[inputName].volumeData.inputVolumeMul!=null?Math.sqrt(this.state.inputs[inputName].volumeData.inputVolumeMul):0}/>
+                                    <input key={inputName+"- Volume - "+Object.keys(this.state.inputs).length} inputname={inputName} onChange={this.setVolume} orient={window.innerWidth<600?"vertical":"vertical"} type="range" min={0} max={1} step={0.01} value={this.state.inputs[inputName].volumeData.inputVolumeMul!=null?Math.sqrt(this.state.inputs[inputName].volumeData.inputVolumeMul):0}/>
                                 </div>
                                 <div className="deck-source-buttons">
+                                    {volumeCommitButton}
+                                    {volumeRevertButton}
                                     <button inputname={inputName} onClick={this.toggleMute}><FontAwesomeIcon icon={this.state.inputs[inputName].volumeMuteData.inputMuted?faVolumeMute:faVolumeHigh}/></button>
                                 </div>
                             </div>
@@ -335,7 +369,8 @@ class VolumeControl extends React.Component{
             //console.log(groupLevel[g]);
             if(!groupLevel[g].enabled){continue;}
             groupElements.push(
-                <div className="deck-volume-meter" >
+                <div className={"deck-volume-group "+(this.state.groups[g].expanded?"expanded":"")}>
+                    <div className="deck-volume-meter" >
                         <div className="deck-volume-meter-label">
                             {this.truncate(g, 16)}
                         </div>
@@ -351,17 +386,18 @@ class VolumeControl extends React.Component{
                             </div>
                         </div>
                     </div>
-            )
-
-            if(this.state.groups[g].expanded){
+                    {this.state.groups[g].expanded?groupItemElements[g]:null}
+                </div>
                 
-                groupElements.push(groupItemElements[g]);
-            }
+            )
         }
 
         return <div className="deck-component deck-volume-control">
-            {groupElements}
-            {meterElements}
+            <label className="deck-component-label">Volume</label>
+            <div className="component-volume-controls">
+                {groupElements}
+                {meterElements}
+            </div>
         </div>;
     }
 }

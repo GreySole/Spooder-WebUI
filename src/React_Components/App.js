@@ -15,6 +15,8 @@ import {SceneController} from './Deck/SceneController.js';
 import {SourceControl} from './Deck/SourceControl.js';
 import {OSCMonitor} from './Deck/OSCMonitor.js';
 
+import BoolSwitch from './UI/BoolSwitch.js';
+
 const queryString = window.location.search;
 const urlParams = new URLSearchParams(queryString);
 
@@ -56,6 +58,17 @@ class App extends React.Component {
 		if(defaultMode == null){
 			defaultMode = "setup";
 		}
+		if(urlParams.get("mode") != null){
+			defaultMode = urlParams.get("mode");
+		}
+		if(urlParams.get("tab") != null){
+			if(defaultMode == "setup"){
+				customSetupTab = urlParams.get("tab");
+			}else if(defaultMode == "deck"){
+				customDeckTab = urlParams.get("tab");
+			}
+		}
+		
 		this.state = {
 			tab:customSetupTab,
 			tabData:null,
@@ -69,21 +82,26 @@ class App extends React.Component {
 			isExternal:window.location.protocol!="http:",
 			obsLoginInfo:{},
 			customSpooder:{
-				mouth:"ω",
-				bigEyeLeft:"o",
-				littleEyeLeft:"º",
-				bigEyeRight:"o",
-				littleEyeRight:"º",
-				color:"cyan"
+				"bigeyeleft": "o",
+				"bigeyeright": "o",
+				"littleeyeleft": "º",
+				"littleeyeright": "º",
+				"fangleft": " ",
+				"fangright": " ",
+				"mouth": "\u03c9",
+				"colors": {
+					"bigeyeleft": "white",
+					"bigeyeright": "white",
+					"littleeyeleft": "white",
+					"littleeyeright": "white",
+					"fangleft": "white",
+					"fangright": "white",
+					"mouth": "white",
+					"shortlegs":"white",
+					"longlegs":"white",
+					"body":"white"
+				}
 			}
-			/*spooderAnimationInterval:setInterval(()=>{
-				document.querySelector(".App-title").innerText = String.raw`/╲/\( º - ω - º )/\╱\
-					`;
-				setTimeout(()=>{
-					document.querySelector(".App-title").innerText = String.raw`/╲/\( ºo ω oº )/\╱\
-					`;
-				}, 150)
-			},5000)*/
 		};
 		
 	}
@@ -100,6 +118,9 @@ class App extends React.Component {
 	deckToggle = this.deckToggle.bind(this);
 	handleObsInput = this.handleObsInput.bind(this);
 	connectOBS = this.connectOBS.bind(this);
+	stayHere = this.stayHere.bind(this);
+	updateCustomSpooder = this.updateCustomSpooder.bind(this);
+	saveCustomSpooder = this.saveCustomSpooder.bind(this);
 
 	componentDidMount(){
 		this.getServerState()
@@ -113,7 +134,11 @@ class App extends React.Component {
 				osc = new OSC({plugin: new OSC.WebsocketClientPlugin({host:serverData.osc.host,port:serverData.osc.port,secure:false})});
 				this.initOSC();
 			}
-			this.setState(Object.assign(this.state, {"host":hostPort}));
+			let newSpooder = Object.assign(this.state.customSpooder);
+			Object.assign(newSpooder.colors, serverData.themes.spooderpet.colors);
+			delete serverData.themes.spooderpet.colors;
+			Object.assign(newSpooder, serverData.themes.spooderpet);
+			this.setState(Object.assign(this.state, {"host":hostPort, "customSpooder":newSpooder}));
 			if(this.state.mode == "setup"){
 				this.setTabContent(this.state.tab);
 			}else if(this.state.mode == "deck"){
@@ -124,10 +149,6 @@ class App extends React.Component {
 		.catch(err => console.log(err))
 		
 	}
-
-	/*componentWillUnmount(){
-		clearInterval(this.state.spooderAnimationInterval);
-	}*/
 	
 	initOSC(){
 		console.log("OPENING OSC");
@@ -171,6 +192,25 @@ class App extends React.Component {
 		for(let t in theme){
 			document.documentElement.style.setProperty(t, theme[t]);
 		}
+	}
+
+	stayHere(e){
+		if(e.currentTarget.checked == true){
+			console.log("STAYING");
+			let urlState = {"mode":this.state.mode};
+			if(this.state.mode == "setup"){
+				urlState.tab = this.state.tab;
+			}else if(this.state.mode == "deck"){
+				urlState.tab = this.state.decktab;
+			}
+			if (history.pushState) {
+				var newurl = window.location.protocol + "//" + window.location.host + window.location.pathname + '?mode='+urlState.mode+"&tab="+urlState.tab;
+			}
+		}else{
+			
+			var newurl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+		}
+		window.history.pushState({path:newurl},'',newurl);
 	}
 	
 	selectTab(tab){
@@ -273,12 +313,13 @@ class App extends React.Component {
 		if(response.status !== 200){
 			throw Error(body.message);
 		}
-
+		
 		this.setState(Object.assign(this.state, {
 			tabData:{
-				commandData:commandData,
+				commandData:{events:commandData.events,groups:commandData.groups},
 				udpClients:udpClients,
-				plugins:plugins
+				plugins:commandData.plugins,
+				obs:commandData.obs
 			},
 			"tab":"commands", "navOpen":false
 		}));
@@ -386,6 +427,34 @@ class App extends React.Component {
 		}
 		//console.log(response);
 	}
+
+	updateCustomSpooder(e){
+		console.log("UPDATE", e.currentTarget.name, e.currentTarget.type, e.currentTarget.value);
+		let newSpooder = Object.assign(this.state.customSpooder);
+		if(e.currentTarget.type == "text"){
+			newSpooder[e.currentTarget.name] = e.currentTarget.value;
+		}else if(e.target.type == "color"){
+			newSpooder.colors[e.currentTarget.name] = e.currentTarget.value;
+		}
+		this.setState(Object.assign(this.state, {customSpooder:newSpooder}))
+	}
+
+	saveCustomSpooder(e){
+		let newSpooder = Object.assign(this.state.customSpooder);
+		const requestOptions = {
+			method: 'POST',
+			headers: {'Content-Type': 'application/json', 'Accept':'application/json'},
+			body: JSON.stringify(newSpooder)
+		};
+		fetch('/saveCustomSpooder', requestOptions)
+		.then(response => response.json())
+		.then(data => {
+			document.querySelector("#spooderSaveStatusText").textContent = data.status;
+			setTimeout(()=>{
+				document.querySelector("#spooderSaveStatusText").textContent = "";
+			}, 5000)
+		});
+	}
 	
 	render(){
 
@@ -404,10 +473,10 @@ class App extends React.Component {
 			let tabData = this.state.tabData;
 			switch(this.state.tab){
 				case "commands":
-					tabContent = <EventTable ref={this.commandRef} data={tabData.commandData.events} groups={tabData.commandData.groups} _udpClients={tabData.udpClients} _plugins={tabData.plugins} />;
+					tabContent = <EventTable ref={this.commandRef} data={tabData.commandData.events} groups={tabData.commandData.groups} _udpClients={tabData.udpClients} _plugins={tabData.plugins} _obs={tabData.obs} />;
 				break;
 				case "config":
-					tabContent = <ConfigTab ref={this.configRef} _taboptions={{setup:this.state.tabOptions,deck:this.state.deckTabOptions}} data={tabData.configData} />;
+					tabContent = <ConfigTab ref={this.configRef} _taboptions={{setup:this.state.tabOptions,deck:this.state.deckTabOptions}} _customSpooder={Object.assign(this.state.customSpooder)} data={tabData.configData} updateCustomSpooder={this.updateCustomSpooder} saveCustomSpooder={this.saveCustomSpooder} />;
 				break;
 				case "plugins":
 					tabContent = <PluginTab ref={this.pluginRef} data={tabData.pluginData} _udpClients={tabData.udpClients} />;
@@ -451,10 +520,10 @@ class App extends React.Component {
 			if(this.state.decktab == "obs"){
 				if(this.state.oscConnected && this.state.obsConnected){
 					appContent = <div className="App-content deck">
-						<label className="deck-component-label">Output</label><OutputController osc={osc} />
-						<label className="deck-component-label">Scenes</label><SceneController osc={osc} />
-						<label className="deck-component-label">Sources</label><SourceControl osc={osc} />
-						<label className="deck-component-label">Volume</label><VolumeControl osc={osc} />
+						<OutputController osc={osc} />
+						<SceneController osc={osc} />
+						<SourceControl osc={osc} />
+						<VolumeControl osc={osc} />
 					</div>;
 				}else{
 					
@@ -521,11 +590,10 @@ class App extends React.Component {
 			
 		}
 		let loginInfo = <div className="login-buttons">
-							<a href={"https://id.twitch.tv/oauth2/authorize?client_id="+clientID+"&redirect_uri=http://localhost:"+hostPort+"/handle&response_type=code&scope=chat:read chat:edit channel:read:goals bits:read channel:read:subscriptions moderation:read channel:read:redemptions channel:read:polls channel:read:predictions channel:read:hype_train"}>Authorize</a>
+							<a href={"https://id.twitch.tv/oauth2/authorize?client_id="+clientID+"&redirect_uri=http://localhost:"+hostPort+"/handle&response_type=code&scope=chat:read chat:edit whispers:read whispers:edit channel:read:goals bits:read channel:read:subscriptions moderation:read channel:read:redemptions channel:read:polls channel:read:predictions channel:read:hype_train"}>Authorize</a>
 							<a href={"/revoke"}>Revoke</a>
 						</div>;
 
-		
 		return <div className="App">
 					<div className={"navigation-menu "+(this.state.navOpen?"open":"")}>
 						<div className="deck-mode-button">
@@ -533,11 +601,9 @@ class App extends React.Component {
 						</div>
 						{navigationTabs}
 						<div className="chat-actions">
-							<label>Chat</label>
-							<button type="button" onClick={this.restartChat}>Restart Chat</button>
-							<label>Switch Channel</label>
-							<input name="channel" type="text"/>
-							<button type="button" onClick={this.connectChatChannel}>Connect</button>
+							<label style={{display:"flex", alignItems:"center"}}>Stay Here <BoolSwitch name="stayhere" onChange={this.stayHere} checked={(urlParams.get("mode")!=null&&urlParams.get("tab")!=null)} /></label>
+							<label>Chat <button type="button" onClick={this.restartChat}>Restart Chat</button></label>
+							<label>Switch Channel <input name="channel" type="text"/> <button type="button" onClick={this.connectChatChannel}>Connect</button></label>
 						</div>
 						<div className="login">
 							<div className="account-info">{username}</div>
@@ -548,25 +614,25 @@ class App extends React.Component {
 						<div className="top-header" onClick={this.navigationClick}>
 							<div className="navigation-open-button" ><FontAwesomeIcon icon={faBars} size="2x" /></div>
 							<h1 className="App-title">
-								<span>/</span>
-								<span>╲</span>
-								<span>/</span>
-								<span>\</span>
-								<span>(</span>
+								<span style={{color:this.state.customSpooder.colors.longlegs}}>/</span>
+								<span style={{color:this.state.customSpooder.colors.longlegs}}>╲</span>
+								<span style={{color:this.state.customSpooder.colors.shortlegs}}>/</span>
+								<span style={{color:this.state.customSpooder.colors.shortlegs}}>\</span>
+								<span style={{color:this.state.customSpooder.colors.body}}>(</span>
 								<span> </span>
-								<span>{this.state.customSpooder.littleEyeLeft}</span>
-								<span>{this.state.customSpooder.bigEyeLeft}</span>
+								<span style={{color:this.state.customSpooder.colors.littleeyeleft}}>{this.state.customSpooder.littleeyeleft}</span>
+								<span style={{color:this.state.customSpooder.colors.bigeyeleft}}>{this.state.customSpooder.bigeyeleft}</span>
+								<span style={{color:this.state.customSpooder.colors.fangleft}}>{this.state.customSpooder.fangleft}</span>
+								<span style={{color:this.state.customSpooder.colors.mouth}}>{this.state.customSpooder.mouth}</span>
+								<span style={{color:this.state.customSpooder.colors.fangright}}>{this.state.customSpooder.fangright}</span>
+								<span style={{color:this.state.customSpooder.colors.bigeyeright}}>{this.state.customSpooder.bigeyeright}</span>
+								<span style={{color:this.state.customSpooder.colors.littleeyeright}}>{this.state.customSpooder.littleeyeleft}</span>
 								<span> </span>
-								<span>{this.state.customSpooder.mouth}</span>
-								<span> </span>
-								<span>{this.state.customSpooder.bigEyeRight}</span>
-								<span>{this.state.customSpooder.littleEyeRight}</span>
-								<span> </span>
-								<span>)</span>
-								<span>/</span>
-								<span>\</span>
-								<span>╱</span>
-								<span>\</span>
+								<span style={{color:this.state.customSpooder.colors.body}}>)</span>
+								<span style={{color:this.state.customSpooder.colors.shortlegs}}>/</span>
+								<span style={{color:this.state.customSpooder.colors.shortlegs}}>\</span>
+								<span style={{color:this.state.customSpooder.colors.longlegs}}>╱</span>
+								<span style={{color:this.state.customSpooder.colors.longlegs}}>\</span>
 							</h1>
 						</div>
 						

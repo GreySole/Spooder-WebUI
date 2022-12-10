@@ -1,4 +1,5 @@
 import React, { createRef } from 'react';
+import CodeEditor from '@uiw/react-textarea-code-editor';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {faTrash, faAward, faCommentDots, faNetworkWired, faCaretDown, faCaretUp} from '@fortawesome/free-solid-svg-icons';
 import BoolSwitch from '../UI/BoolSwitch.js';
@@ -429,17 +430,21 @@ class EventTable extends React.Component{
 		e.preventDefault();
 		let parentEl = e.target.closest(".command-props");
 		let responseEl = parentEl.querySelector("[name='message']");
+		let outputEl = parentEl.querySelector(".response-code-output");
+		let inputEl = parentEl.querySelector(".response-code-input");
+		let inputMessage = inputEl.value==""?"TestMessage":inputEl.value;
 		let responseScript = responseEl.value;
 
 		//Usually event.username is the uncapitalized version of a username.
 		//Spooder replaces this with the capitalized version in runCommands()
-		let testEvent = {  timestamp: "2022-05-05T17:06:31.505Z",
+		let testEvent = {  
+			timestamp: "2022-05-05T17:06:31.505Z",
 			command: 'PRIVMSG',
 			event: 'PRIVMSG',
 			channel: '#testchannel',
-			username: 'TestChannel',
-			isSelf: false,
-			message: '!dice',
+			username: 'testchannel',
+			displayName: 'TestChannel',
+			message: inputMessage,
 			tags: {
 			  badgeInfo: 'subscriber/1',
 			  badges: { broadcaster: true, subscriber: 0 },
@@ -469,12 +474,14 @@ class EventTable extends React.Component{
 			let responseFunct = eval("async () => { let event = "+JSON.stringify(testEvent)+"; let extra= "+JSON.stringify(testEvent)+"; "+responseScript.replace(/\n/g, "")+"}");
 			let response = await responseFunct();
 			console.log("SCRIPT RAN SUCCESSFULLY:",response);
-			window.setClass(responseEl, "verified", true);
-			window.setClass(responseEl, "failed", false);
+			outputEl.textContent = response;
+			window.setClass(outputEl, "verified", true);
+			window.setClass(outputEl, "failed", false);
 		}catch(e){
 			console.log("SCRIPT FAILED", e);
-			window.setClass(responseEl, "verified", false);
-			window.setClass(responseEl, "failed", true);
+			outputEl.textContent = e;
+			window.setClass(outputEl, "verified", false);
+			window.setClass(outputEl, "failed", true);
 		}
 		
 		
@@ -781,9 +788,14 @@ class EventTable extends React.Component{
 				switch(eventCommands[c].type){
 					case 'response':
 						element = <div className="command-props response">
-							<label>
+							<label className="response-code-ui">
 								Message:
-								<textarea name="message" key={s} value={eventCommands[c].message} onChange={this.handleChange} placeholder="Write your response script in JS here. You can access the sender name and tags with 'event.username and event.tags' be sure to end the script with 'return <string>' without quotes." ></textarea>
+								<CodeEditor className="response-code-editor" name="message" language="js" key={s} 
+								value={eventCommands[c].message} 
+								onChange={this.handleChange}
+								placeholder="return 'Hello '+event.displayName"/>
+								<input className="response-code-input" type="text" placeholder="Input text"/>
+								<div className="response-code-output"></div>
 								<div className="verify-message"><button className="verify-message-button save-button" onClick={this.verifyResponseScript}>Verify Script</button></div>
 							</label>
 							<label>

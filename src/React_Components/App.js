@@ -626,7 +626,7 @@ class App extends React.Component {
 								<span style={{color:this.state.customSpooder.colors.mouth}}>{this.state.customSpooder.mouth}</span>
 								<span style={{color:this.state.customSpooder.colors.fangright}}>{this.state.customSpooder.fangright}</span>
 								<span style={{color:this.state.customSpooder.colors.bigeyeright}}>{this.state.customSpooder.bigeyeright}</span>
-								<span style={{color:this.state.customSpooder.colors.littleeyeright}}>{this.state.customSpooder.littleeyeleft}</span>
+								<span style={{color:this.state.customSpooder.colors.littleeyeright}}>{this.state.customSpooder.littleeyeright}</span>
 								<span> </span>
 								<span style={{color:this.state.customSpooder.colors.body}}>)</span>
 								<span style={{color:this.state.customSpooder.colors.shortlegs}}>/</span>

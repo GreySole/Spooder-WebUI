@@ -35,7 +35,7 @@
 }
 
 .plugin-entry-subtitle{
-    margin-left:10px;
+    padding:10px;
     font-size:18px;
 }
 
@@ -272,6 +272,11 @@
 
 @media screen and (max-width: 600px){
     .plugin-entry-ui{
+        display:flex;
+        flex-flow:column;
+    }
+
+    .plugin-entry-title{
         display:flex;
         flex-flow:column;
     }

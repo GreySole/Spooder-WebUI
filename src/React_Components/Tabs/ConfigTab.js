@@ -624,41 +624,41 @@ class ConfigTab extends React.Component{
 
 let customSpooder = this.state._brstatus.csExpanded?<div className="custom-spooder-ui">
 	<div className="custom-spooder-inputs">
-		<div className="custom-spooder-pair">Little Eye Left
+		<div className="custom-spooder-pair"><div className="custom-spooder-label">Little Eye Left</div>
 			<input type="text" name="littleeyeleft" onChange={this.state._updateCustomSpooder} defaultValue={this.state._customSpooder.littleeyeleft}/>
 			<input type="color" name="littleeyeleft" onChange={this.state._updateCustomSpooder} defaultValue={this.state._customSpooder.colors.littleeyeleft}/>
 		</div>
-		<div className="custom-spooder-pair">Big Eye Left
+		<div className="custom-spooder-pair"><div className="custom-spooder-label">Big Eye Left</div>
 			<input type="text" name="bigeyeleft" onChange={this.state._updateCustomSpooder} defaultValue={this.state._customSpooder.bigeyeleft}/>
 			<input type="color" name="bigeyeleft" onChange={this.state._updateCustomSpooder} defaultValue={this.state._customSpooder.colors.bigeyeleft}/>
 		</div>
-		<div className="custom-spooder-pair">Fang Left
+		<div className="custom-spooder-pair"><div className="custom-spooder-label">Fang Left</div>
 			<input type="text" name="fangleft" onChange={this.state._updateCustomSpooder} defaultValue={this.state._customSpooder.fangleft}/>
 			<input type="color" name="fangleft" onChange={this.state._updateCustomSpooder} defaultValue={this.state._customSpooder.colors.fangleft}/>
 		</div>
-		<div className="custom-spooder-pair">Mouth
+		<div className="custom-spooder-pair"><div className="custom-spooder-label">Mouth</div>
 			<input type="text" name="mouth" onChange={this.state._updateCustomSpooder} defaultValue={this.state._customSpooder.mouth}/>
 			<input type="color" name="mouth" onChange={this.state._updateCustomSpooder} defaultValue={this.state._customSpooder.colors.mouth}/>
 		</div>
-		<div className="custom-spooder-pair">Fang Right
+		<div className="custom-spooder-pair"><div className="custom-spooder-label">Fang Right</div>
 			<input type="text" name="fangright" onChange={this.state._updateCustomSpooder} defaultValue={this.state._customSpooder.fangright}/>
 			<input type="color" name="fangright" onChange={this.state._updateCustomSpooder} defaultValue={this.state._customSpooder.colors.fangright}/>
 		</div>
-		<div className="custom-spooder-pair">Big Eye Right
+		<div className="custom-spooder-pair"><div className="custom-spooder-label">Big Eye Right</div>
 			<input type="text" name="bigeyeright" onChange={this.state._updateCustomSpooder} defaultValue={this.state._customSpooder.bigeyeright}/>
 			<input type="color" name="bigeyeright" onChange={this.state._updateCustomSpooder} defaultValue={this.state._customSpooder.colors.bigeyeright}/>
 		</div>
-		<div className="custom-spooder-pair">Little Eye Right
+		<div className="custom-spooder-pair"><div className="custom-spooder-label">Little Eye Right</div>
 			<input type="text" name="littleeyeright" onChange={this.state._updateCustomSpooder} defaultValue={this.state._customSpooder.littleeyeright}/>
 			<input type="color" name="littleeyeright" onChange={this.state._updateCustomSpooder} defaultValue={this.state._customSpooder.colors.littleeyeright}/>
 		</div>
-		<div className="custom-spooder-pair">Body Color
+		<div className="custom-spooder-pair"><div className="custom-spooder-label">Body Color</div>
 			<input type="color" name="body" onChange={this.state._updateCustomSpooder} defaultValue={this.state._customSpooder.colors.body}/>
 		</div>
-		<div className="custom-spooder-pair">Short Legs Color
+		<div className="custom-spooder-pair"><div className="custom-spooder-label">Short Legs Color</div>
 			<input type="color" name="shortlegs" onChange={this.state._updateCustomSpooder} defaultValue={this.state._customSpooder.colors.shortlegs}/>
 		</div>
-		<div className="custom-spooder-pair">Long Legs Color
+		<div className="custom-spooder-pair"><div className="custom-spooder-label">Long Legs Color</div>
 			<input type="color" name="longlegs" onChange={this.state._updateCustomSpooder} defaultValue={this.state._customSpooder.colors.longlegs}/>
 		</div>
 	</div>

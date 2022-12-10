@@ -114,7 +114,29 @@ option{
 	align-items:center;
 	margin-top:10px;
 	margin-bottom:10px;
-	
+}
+
+.command-props.response{
+	display:flex;
+	flex-flow:column;
+	align-items:flex-start;
+}
+
+.response-code-ui{
+	display:flex;
+	flex-flow:column;
+}
+
+.response-code-editor{
+	font-size: 18px;
+	min-width:300px;
+	max-width:90vw;
+	margin:10px;
+}
+
+.response-code-output{
+	padding:5px;
+	margin:5px;
 }
 
 .command-arrows{
@@ -235,11 +257,11 @@ option{
 }
 
 .verified{
-	border: green 5px solid;
+	border: green 2px solid;
 }
 
 .failed{
-	border: red 5px solid;
+	border: red 2px solid;
 }
 
 @media screen and (max-width: 600px) {

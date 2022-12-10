@@ -61,6 +61,9 @@
 .custom-spooder-inputs{
     display:flex;
     flex-flow:row;
+    width:100%;
+    overflow-x:auto;
+    justify-content: space-between;
 }
 
 .custom-spooder-ui input[type=text]{
@@ -70,7 +73,16 @@
 }
 
 .custom-spooder-pair{
+    width:200px;
     padding:5px;
+    display:flex;
+    flex-flow:column;
+    align-items:center;
+}
+
+.custom-spooder-label{
+    word-break: keep-all;
+    white-space:nowrap;
 }
 
 .active-subs{

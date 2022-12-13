@@ -325,7 +325,7 @@ class EventSubTab extends React.Component{
 												<BoolSwitch eventname={event} name="chat-enabled" checked={events[event].chat.enabled} onChange={this.handleChange}/></div>
 												
 												<label className={"response "+(events[event].chat.enabled?"":"hidden")}>Message:
-												<CodeEditor className="response-code-editor" name="message" language="js" key={s} 
+												<CodeEditor eventname={event} className="response-code-editor" name="chat-message" language="js" key={s} 
 													value={events[event].chat.message} onChange={this.handleChange} placeholder="return 'Hello '+event.displayName"/>
 													<div className="response-code-output"></div>
 													<div className="verify-message"><button className="verify-message-button save-button" onClick={this.verifyResponseScript}>Verify Script</button></div>

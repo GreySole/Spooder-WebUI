@@ -538,6 +538,8 @@ class EventTable extends React.Component{
 			Then you can authorize your bot account as the main token and keep the broadcaster token on file.");
 		}
 
+		if(rewardsRaw.data==null){return;}
+
 		let rewards = rewardsRaw.data.sort((a,b)=>{
 			if(a.title.toUpperCase()>b.title.toUpperCase()){
 				return 1;

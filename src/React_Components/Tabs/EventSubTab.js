@@ -1,4 +1,5 @@
 import React from 'react';
+import CodeEditor from '@uiw/react-textarea-code-editor';
 import BoolSwitch from '../UI/BoolSwitch.js';
 
 var _udpClients = {};
@@ -55,12 +56,15 @@ class EventSubTab extends React.Component{
 		}
 	}
 
-	verifyResponseScript(e){
+	async verifyResponseScript(e){
 		e.preventDefault();
 		let parentEl = e.target.closest(".config-variable-ui");
-		let responseEl = parentEl.querySelector("[name='chat-message']");
+		let responseEl = parentEl.querySelector("[name='message']");
+		let outputEl = parentEl.querySelector(".response-code-output");
 		let responseScript = responseEl.value;
 
+		//Usually event.username is the uncapitalized version of a username.
+		//Spooder replaces this with the capitalized version in runCommands()
 		let testEvent = {
 			user_id: '14764422',
 			user_login: 'testFromUser',
@@ -72,19 +76,20 @@ class EventSubTab extends React.Component{
 		  };
 
 		try{
-			let responseFunct = eval("() => { let event = "+JSON.stringify(testEvent)+"; "+responseScript.replace(/\n/g, "")+"}");
-			let response = responseFunct();
+			let responseFunct = eval("async () => { let event = "+JSON.stringify(testEvent)+"; let extra= "+JSON.stringify(testEvent)+"; "+responseScript.replace(/\n/g, "")+"}");
+			let response = await responseFunct();
 			console.log("SCRIPT RAN SUCCESSFULLY:",response);
-			window.setClass(responseEl, "verified", true);
-			window.setClass(responseEl, "failed", false);
+			outputEl.textContent = response;
+			window.setClass(outputEl, "verified", true);
+			window.setClass(outputEl, "failed", false);
 		}catch(e){
 			console.log("SCRIPT FAILED", e);
-			window.setClass(responseEl, "verified", false);
-			window.setClass(responseEl, "failed", true);
+			outputEl.textContent = e;
+			window.setClass(outputEl, "verified", false);
+			window.setClass(outputEl, "failed", true);
 		}
 		
 		
-		console.log(responseScript);
 	}
 	
 	saveEventSubs(){
@@ -320,7 +325,9 @@ class EventSubTab extends React.Component{
 												<BoolSwitch eventname={event} name="chat-enabled" checked={events[event].chat.enabled} onChange={this.handleChange}/></div>
 												
 												<label className={"response "+(events[event].chat.enabled?"":"hidden")}>Message:
-													<textarea type="text" eventname={event} name="chat-message" defaultValue={events[event].chat.message} placeholder="Write a response script in JS and return the final string. The event object is included in the script." onChange={this.handleChange}></textarea>
+												<CodeEditor className="response-code-editor" name="message" language="js" key={s} 
+													value={events[event].chat.message} onChange={this.handleChange} placeholder="return 'Hello '+event.displayName"/>
+													<div className="response-code-output"></div>
 													<div className="verify-message"><button className="verify-message-button save-button" onClick={this.verifyResponseScript}>Verify Script</button></div>
 												</label>
 												

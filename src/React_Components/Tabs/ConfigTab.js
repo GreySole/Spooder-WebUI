@@ -260,7 +260,9 @@ class ConfigTab extends React.Component{
 			eventsub:document.querySelector(".restore-settings-checkboxes #restoreEventsub").checked,
 			oauth:document.querySelector(".restore-settings-checkboxes #restoreOauth").checked,
 			"osc-tunnels":document.querySelector(".restore-settings-checkboxes #restoreTunnels").checked,
-			"mod":document.querySelector(".restore-settings-checkboxes #restoreBlacklist").checked
+			"mod-blacklist":document.querySelector(".restore-settings-checkboxes #restoreBlacklist").checked,
+			"mod":document.querySelector(".restore-settings-checkboxes #restoreModData").checked,
+			"themes":document.querySelector(".restore-settings-checkboxes #restoreThemes").checked
 		};
 		
 		newStatus.restoreSettings = true;
@@ -594,8 +596,14 @@ class ConfigTab extends React.Component{
 					<label>OSC Tunnels
 						<input id="restoreTunnels" type="checkbox" name="osc-tunnels" defaultChecked/>
 					</label>
+					<label>Mod Data
+						<input id="restoreModData" type="checkbox" name="mod" defaultChecked/>
+					</label>
 					<label>Mod Blacklist
 						<input id="restoreBlacklist" type="checkbox" name="mod-blacklist" defaultChecked/>
+					</label>
+					<label>Themes
+						<input id="restoreThemes" type="checkbox" name="themes" defaultChecked/>
 					</label>
 					
 				</div>

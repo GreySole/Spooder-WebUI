@@ -167,6 +167,24 @@
 
 .config-variable-ui .response{
     display:flex;
+    flex-flow:column;
+    max-width:50vw;
+}
+
+.config-variable-ui .response-code-ui{
+	display:flex;
+	flex-flow:column;
+}
+
+.config-variable-ui .response-code-editor{
+	font-size: 18px;
+	min-width:300px;
+	margin:10px;
+}
+
+.config-variable-ui .response-code-output{
+	padding:5px;
+	margin:5px;
 }
 
 .config-variable-ui.software{

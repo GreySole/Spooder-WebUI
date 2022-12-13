@@ -538,7 +538,16 @@ class EventTable extends React.Component{
 			Then you can authorize your bot account as the main token and keep the broadcaster token on file.");
 		}
 
-		let rewards = rewardsRaw.data;
+		let rewards = rewardsRaw.data.sort((a,b)=>{
+			if(a.title.toUpperCase()>b.title.toUpperCase()){
+				return 1;
+			}else if(a.title.toUpperCase()<b.title.toUpperCase()){
+				return -1;
+			}else{
+				return 0;
+			}
+		});
+
 		let newState = Object.assign(this.state);
 		newState._rewards = rewards;
 		this.setState(newState);
@@ -597,7 +606,7 @@ class EventTable extends React.Component{
 
 		let trashButton = <FontAwesomeIcon icon={faTrash} size="lg" className="delete-button" onClick={this.deleteCommand} />;
 
-		var groups = this.state.groups;
+		var groups = this.state.groups.sort();
 		let groupObjects = [];
 
 		let groupOptions = [];
@@ -657,11 +666,11 @@ class EventTable extends React.Component{
 
 			let chatTrigger = <label triggertype="chat" className="event-trigger">
 								Chat:
-								<label>
+								<label className="label-switch">
 									Enabled:
 									<BoolSwitch name="enabled" checked={eventTriggers.chat.enabled} onChange={this.handleChange}/>
 								</label>
-								<label>
+								<label className="label-switch">
 									Search and Match in Message:
 									<BoolSwitch name="search" checked={eventTriggers.chat.search} onChange={this.handleChange}/>
 								</label>
@@ -676,7 +685,7 @@ class EventTable extends React.Component{
 			if(eventTriggers.osc?.type=="double"){
 				oscTrigger = <label triggertype="osc" className="event-trigger">
 				OSC:
-					<label>
+					<label className="label-switch">
 						Enabled:
 						<BoolSwitch name="enabled" checked={eventTriggers.osc?.enabled} onChange={this.handleChange}/>
 					</label>
@@ -732,7 +741,7 @@ class EventTable extends React.Component{
 			}else{
 				oscTrigger = <label triggertype="osc" className="event-trigger">
 				OSC:
-					<label>
+					<label className="label-switch">
 						Enabled:
 						<BoolSwitch name="enabled" checked={eventTriggers.osc?.enabled} onChange={this.handleChange}/>
 					</label>
@@ -897,7 +906,6 @@ class EventTable extends React.Component{
 
 						let sceneItemOptions = [];
 						for(let si in this.state._obs.sceneItems[eventCommands[c].scene]?.sceneItems){
-							console.log(this.state._obs.sceneItems[eventCommands[c].scene].sceneItems[si])
 							sceneItemOptions.push(
 								<option value={this.state._obs.sceneItems[eventCommands[c].scene].sceneItems[si].sceneItemId}>
 									{this.state._obs.sceneItems[eventCommands[c].scene].sceneItems[si].sourceName}

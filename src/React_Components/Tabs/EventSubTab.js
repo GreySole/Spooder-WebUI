@@ -59,7 +59,7 @@ class EventSubTab extends React.Component{
 	async verifyResponseScript(e){
 		e.preventDefault();
 		let parentEl = e.target.closest(".config-variable-ui");
-		let responseEl = parentEl.querySelector("[name='message']");
+		let responseEl = parentEl.querySelector("[name='chat-message']");
 		let outputEl = parentEl.querySelector(".response-code-output");
 		let responseScript = responseEl.value;
 

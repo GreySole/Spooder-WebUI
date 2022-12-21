@@ -406,8 +406,10 @@ class App extends React.Component {
 
 	async connectChatChannel(e){
 		let channel = document.querySelector(".chat-actions input[name=channel]").value;
+		let leaveMessage =document.querySelector(".chat-actions input[name=leavemessage]").value;
+		let joinMessage =document.querySelector(".chat-actions input[name=joinmessage]").value;
 
-		const response = await fetch("/chat_channel?channel="+channel).then(response => response.json());
+		const response = await fetch("/chat_channel?channel="+channel+"&leavemessage="+leaveMessage+"&joinmessage="+joinMessage).then(response => response.json());
 		//console.log(response);
 		if(response.status == "SUCCESS"){
 			e.target.innerText = "Done!";
@@ -603,7 +605,11 @@ class App extends React.Component {
 						<div className="chat-actions">
 							<label style={{display:"flex", alignItems:"center"}}>Stay Here <BoolSwitch name="stayhere" onChange={this.stayHere} checked={(urlParams.get("mode")!=null&&urlParams.get("tab")!=null)} /></label>
 							<label>Chat <button type="button" onClick={this.restartChat}>Restart Chat</button></label>
-							<label>Switch Channel <input name="channel" type="text"/> <button type="button" onClick={this.connectChatChannel}>Connect</button></label>
+							<label>Switch Channel <input name="channel" type="text" placeholder="Twitch channel name"/> 
+								<input name="leavemessage" type="text" placeholder="Say to your chat before leaving"/> 
+								<input name="joinmessage" type="text" placeholder="Introduce the bot after joining"/> 
+								<button type="button" onClick={this.connectChatChannel}>Connect</button>
+							</label>
 						</div>
 						<div className="login">
 							<div className="account-info">{username}</div>

@@ -166,7 +166,7 @@ input::placeholder {
 .chat-actions input{
     margin:10px;
     width:300px;
-    font-size:24px;
+    font-size:18px;
 }
 
 .chat-actions button{

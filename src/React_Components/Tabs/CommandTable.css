@@ -1,5 +1,9 @@
 /*CHAT COMMANDS TAB*/
 
+.event-container{
+	margin:5px;
+}
+
 .add-command:not(.hidden){
 	display:flex;
 	flex-flow: row;
@@ -31,6 +35,37 @@
 	margin-left:10px;
 	color:var(--text-color);
 	background-color:var(--field-color);
+	padding:5px;
+}
+
+.event-search{
+	display:flex;
+	flex-flow:row;
+	margin-left:5px;
+	margin:10px;
+	width:100px;
+}
+
+.event-search-bar{
+	font-size:18px;
+	padding:5px;
+	padding-left:30px;
+}
+
+.event-search-icon{
+	position:absolute;
+	color:black;
+	margin-left:5px;
+	margin-top:5px;
+}
+
+.event-key-input{
+	font-size:18px;
+	padding:5px;
+}
+
+.group-name-input{
+	font-size:18px;
 	padding:5px;
 }
 
@@ -201,7 +236,6 @@ option{
 
 .command-props label{
 	display:flex;
-	align-items:flex-start;
 }
 
 .command-element input,

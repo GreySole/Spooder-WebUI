@@ -1,7 +1,7 @@
 import React, { createRef } from 'react';
 import CodeEditor from '@uiw/react-textarea-code-editor';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
-import {faTrash, faAward, faCommentDots, faNetworkWired, faCaretDown, faCaretUp} from '@fortawesome/free-solid-svg-icons';
+import {faTrash, faAward, faCommentDots, faNetworkWired, faCaretDown, faCaretUp, faMagnifyingGlass, faCross, faCancel, faX} from '@fortawesome/free-solid-svg-icons';
 import BoolSwitch from '../UI/BoolSwitch.js';
 
 class EventTable extends React.Component{
@@ -59,10 +59,13 @@ class EventTable extends React.Component{
 		this.state._udpClients = props._udpClients;
 		this.state._plugins = props._plugins;
 		this.state._obs = props._obs;
+		this.state._searchtext = "";
 		
 		this.handleChange = this.handleChange.bind(this);
 		this.addCommand = this.addCommand.bind(this);
 		this.addEvent = this.addEvent.bind(this);
+		this.enterAddEvent = this.enterAddEvent.bind(this);
+		this.enterAddGroup = this.enterAddGroup.bind(this);
 		this.addGroup = this.addGroup.bind(this);
 		this.saveCommands = this.saveCommands.bind(this);
 		this.deleteCommand = this.deleteCommand.bind(this);
@@ -70,6 +73,7 @@ class EventTable extends React.Component{
 		this.deleteGroup = this.deleteGroup.bind(this);
 		this.getCustomRewards = this.getCustomRewards.bind(this);
 		this.checkEventTaken = this.checkEventTaken.bind(this);
+		this.searchText = this.searchText.bind(this);
 
 		this.arrangeCommands = this.arrangeCommands.bind(this);
 		this.checkCommandConflicts = this.checkCommandConflicts.bind(this);
@@ -158,6 +162,8 @@ class EventTable extends React.Component{
 	componentDidMount(){
 		this.getCustomRewards();
 	}
+
+	
 	
 	handleChange(e){
 		let eventName = e.target.closest(".command-element").id;
@@ -201,16 +207,30 @@ class EventTable extends React.Component{
 		this.setState(Object.assign(this.state,{events:newState}));
 	}
 
+	enterAddGroup(e){
+		if(e.key == "Enter"){
+			this.addGroup(e);
+		}
+	}
+
 	addGroup(e){
 		let newGroup = e.target.closest(".add-command-actions").querySelector("[name='groupname']").value;
+		if(this.state.groups.includes(newGroup)){return;}
 
 		let newGroups = Object.assign(this.state.groups);
 		newGroups.push(newGroup);
 		this.setState(Object.assign(this.state,{groups:newGroups}));
 	}
 
+	enterAddEvent(e){
+		if(e.key == "Enter"){
+			this.addEvent(e);
+		}
+	}
+
 	addEvent(e){
-		let newKey = e.currentTarget.previousElementSibling.value;
+		let newKey = e.currentTarget.parentElement.querySelector("#eventkey").value;
+		if(this.state.events[newKey] != null){return;}
 		let eventGroup = e.currentTarget.getAttribute("groupname");
 
 		let newEvent = {
@@ -487,6 +507,10 @@ class EventTable extends React.Component{
 		
 	}
 
+	searchText(e){
+		this.setState(Object.assign(this.state, {_searchtext:e.target.value}))
+	}
+
 	checkEventTaken(e){
 		e.target.value = e.target.value.replace(/[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/,"").replace(" ", "_");
 		if(Object.keys(this.state.events).includes(e.target.value)){
@@ -628,11 +652,14 @@ class EventTable extends React.Component{
 
 			let s = propKeys[p];
 
-			if(s.startsWith("_")){continue;}
-
 			let thisEvent = this.state.events;
 
 			let eventName = thisEvent[s].name;
+
+			if(s.startsWith("_")){continue;}
+			if(this.state._searchtext!="" && !s.startsWith(this.state._searchtext) && !eventName.startsWith(this.state._searchtext)){continue;}
+
+			
 			let eventDesc = thisEvent[s].description;
 
 			let groupName = thisEvent[s].group;
@@ -649,7 +676,7 @@ class EventTable extends React.Component{
 				redemptionTrigger = this.state._rewards.length > 0 ? 
 				<label triggertype="redemption" className="event-trigger">
 					Redemption:
-					<label>
+					<label className="label-switch">
 						Enabled:
 						<BoolSwitch name="enabled" checked={eventTriggers.redemption.enabled} onChange={this.handleChange}/>
 					</label>
@@ -659,7 +686,7 @@ class EventTable extends React.Component{
 							{rewardOptions}
 						</select>
 					</label>
-					<label>
+					<label className="label-switch">
 						Override Approval (Refundable):
 						<BoolSwitch name="override" checked={eventTriggers.redemption.override} onChange={this.handleChange}/>
 					</label>
@@ -1027,12 +1054,14 @@ class EventTable extends React.Component{
 						</div>;
 					break;
 					case "mod":
-						let mduration = eventCommands[c].etype=="timed" ? <label>
+						let mduration = eventCommands[c].etype=="timed"? <label>
 																		Duration (Seconds):
 																		<input type="number" name="duration" key={s} value={eventCommands[c].duration} onChange={this.handleChange} />
 																	</label>:null;
 						let targetField = null;
 						let targetOptions = [<option value="all">All</option>];
+						let targetType = null;
+						let handleType = null;
 						if(eventCommands[c].targettype == "event"){
 							let sortedKeys = Object.keys(this.state.events).sort();
 							
@@ -1052,6 +1081,26 @@ class EventTable extends React.Component{
 								</select>
 							</label>;
 						}
+
+						if(eventCommands[c].function != "commercial"){
+							targetType = <label>
+											Target Type:
+											<select name="targettype" key={s} value={eventCommands[c].targettype} onChange={this.handleChange}>
+												<option value="all">Everything</option>
+												<option value="event">Event</option>
+												<option value="plugin">Plugin</option>
+											</select>
+										</label>;
+							handleType = <label>
+											Handle Type:
+											<select name="etype" key={s} value={eventCommands[c].etype} onChange={this.handleChange}>
+												<option value="toggle">Toggle</option>
+												<option value="timed">Timed</option>
+											</select>
+										</label>;
+						}
+
+						
 						element = <div className="command-props software">
 							<h3>
 								Moderation chat commands are already built into Spooder. This is mainly so you can hook an OSC trigger for quick moderation actions.
@@ -1064,22 +1113,9 @@ class EventTable extends React.Component{
 									<option value="stop">Stop Event</option>
 								</select>
 							</label>
-							<label>
-								Target Type:
-								<select name="targettype" key={s} value={eventCommands[c].targettype} onChange={this.handleChange}>
-									<option value="all">Everything</option>
-									<option value="event">Event</option>
-									<option value="plugin">Plugin</option>
-								</select>
-							</label>
+							{targetType}
 							{targetField}
-							<label>
-								Handle Type:
-								<select name="etype" key={s} value={eventCommands[c].etype} onChange={this.handleChange}>
-									<option value="toggle">Toggle</option>
-									<option value="timed">Timed</option>
-								</select>
-							</label>
+							{handleType}
 							{mduration}
 							<label>
 								Delay (Milliseconds):
@@ -1237,17 +1273,20 @@ class EventTable extends React.Component{
 
 		let groupKeys = Object.keys(groupObjects).sort();
 
+		let searchEnabled = this.state._searchtext != "";
+
 		for(let go in groupKeys){
+			if(searchEnabled==true && groupObjects[groupKeys[go]].length==0){continue;}
 			groupElements.push(
 				<div className="command-group" >
-					<div className="command-group-label" onClick={this.toggleGroup}>
+					<div className={"command-group-label"+(searchEnabled?" expanded":"")} onClick={this.toggleGroup}>
 						{groupKeys[go]}
 						
 					</div>
-					<div className="command-group-content hidden">
+					<div className={"command-group-content"+(searchEnabled?"":" hidden")}>
 						<div className="command-group-actions" onClick={(e)=>{e.stopPropagation()}}>
 							<div>
-								<input type="text" id="eventkey" placeholder="Event name" onInput={this.checkEventTaken} />
+								<input type="text" className="event-key-input" id="eventkey" placeholder="Event name" groupname={groupKeys[go]} onInput={this.checkEventTaken} onKeyDown={this.enterAddEvent} />
 								<button type="button" id="addEventButton" groupname={groupKeys[go]} className="add-button" onClick={this.addEvent}>Add</button>
 							</div>
 							<div className="delete-event-div">
@@ -1262,6 +1301,10 @@ class EventTable extends React.Component{
 		
 		return (
 			<form className="event-table">
+				<div className="event-search">
+					<FontAwesomeIcon icon={faMagnifyingGlass} className="event-search-icon" size="lg"/>
+					<input type='search' className="event-search-bar" placeholder="Search Events..." onInput={this.searchText}/>
+				</div>
 				<div className="event-container">
 					{groupElements}
 				</div>
@@ -1270,7 +1313,7 @@ class EventTable extends React.Component{
 						Add Group
 					</label>
 					<div className="add-command-actions">
-							<input type="text" name="groupname" />
+							<input type="text" className="group-name-input" name="groupname" onKeyDown={this.enterAddGroup} />
 							<button type="button" id="addGroupButton" className="add-button" onClick={this.addGroup}>Add</button>
 						</div>
 				</div>

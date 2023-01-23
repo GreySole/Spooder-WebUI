@@ -8,7 +8,6 @@ class OSCTunnelTab extends React.Component{
 	constructor(props){
 		super(props);
 		this.state = Object.assign(props.data);
-		console.log(this.state);
 		this.handleChange = this.handleChange.bind(this);
 		this.handleAddOSCVar = this.handleAddOSCVar.bind(this);
 		this.saveTunnels = this.saveTunnels.bind(this);
@@ -68,7 +67,6 @@ class OSCTunnelTab extends React.Component{
 	}
 
 	deleteOSCVar(e){
-		console.log(e.currentTarget);
 		let el = e.currentTarget.closest(".config-variable");
 
 		let varname = el.getAttribute("varname");
@@ -81,7 +79,6 @@ class OSCTunnelTab extends React.Component{
 	
 	
 	render(){
-		console.log(this.state);
 		let table = [];
 
 		let oscTrashButton = <FontAwesomeIcon icon={faTrash} size="lg" className="delete-button" onClick={this.deleteOSCVar} />;
@@ -95,7 +92,6 @@ class OSCTunnelTab extends React.Component{
 		table = [];
 		for(let s in tunnels){
 			
-			console.log(s);
 			//for(let ss in tunnels[s]){
 				table.push(<div className="config-variable" varname={s}>
 								

@@ -3,6 +3,7 @@ global.$ = (selector) => {
 }
 
 global.setClass = (el, classname, bool) => {
+	if(bool==null){bool = true;}
 	if(bool){
 		el.classList.add(classname);
 	}else{

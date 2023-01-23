@@ -284,17 +284,16 @@ class App extends React.Component {
 	
 	loadConfigData = async () => {
 		const response = await fetch("/server_config");
-		const configDataRaw = await response.json();
-		const configData = JSON.parse(configDataRaw.express);
-		
-		var body = configData;
+		const configData = await response.json();
 
 		if(response.status !== 200){
 			throw Error(body.message);
 		}
 		this.setState(Object.assign(this.state, {
 			tabData:{
-				configData:configData
+				config:configData.config,
+				discord:configData.discord,
+				backups:configData.backups
 			},
 			"tab":"config", "navOpen":false
 		}));
@@ -431,7 +430,7 @@ class App extends React.Component {
 	}
 
 	updateCustomSpooder(e){
-		console.log("UPDATE", e.currentTarget.name, e.currentTarget.type, e.currentTarget.value);
+		
 		let newSpooder = Object.assign(this.state.customSpooder);
 		if(e.currentTarget.type == "text"){
 			newSpooder[e.currentTarget.name] = e.currentTarget.value;
@@ -478,7 +477,7 @@ class App extends React.Component {
 					tabContent = <EventTable ref={this.commandRef} data={tabData.commandData.events} groups={tabData.commandData.groups} _udpClients={tabData.udpClients} _plugins={tabData.plugins} _obs={tabData.obs} />;
 				break;
 				case "config":
-					tabContent = <ConfigTab ref={this.configRef} _taboptions={{setup:this.state.tabOptions,deck:this.state.deckTabOptions}} _customSpooder={Object.assign(this.state.customSpooder)} data={tabData.configData} updateCustomSpooder={this.updateCustomSpooder} saveCustomSpooder={this.saveCustomSpooder} />;
+					tabContent = <ConfigTab ref={this.configRef} _taboptions={{setup:this.state.tabOptions,deck:this.state.deckTabOptions}} _customSpooder={Object.assign(this.state.customSpooder)} data={tabData} updateCustomSpooder={this.updateCustomSpooder} saveCustomSpooder={this.saveCustomSpooder} />;
 				break;
 				case "plugins":
 					tabContent = <PluginTab ref={this.pluginRef} data={tabData.pluginData} _udpClients={tabData.udpClients} />;
@@ -487,7 +486,7 @@ class App extends React.Component {
 					tabContent = <OSCTunnelTab ref={this.oscTunnelRef} data={tabData.tunnelData} _udpClients={tabData.udpClients} />;
 				break;
 				case "eventsub":
-					tabContent = <EventSubTab ref={this.eventSubRef} data={tabData.eventData} _udpClients={tabData.udpClients} _plugins={tabData.plugins} />;
+					tabContent = <EventSubTab ref={this.eventSubRef} data={tabData.eventData} _udpClients={tabData.udpClients} _plugins={tabData.plugins} _sevents={tabData.spooderevents} />;
 				break;
 				/*case "theme":
 					tabContent = <ThemeTab data={tabData.data} />;
@@ -591,8 +590,63 @@ class App extends React.Component {
 			</div>;
 			
 		}
+		let scopes = [
+		 'channel:moderate',
+		 'chat:read',
+		 'chat:edit', 
+		 'whispers:read', 
+		 'whispers:edit', 
+		 'analytics:read:extensions', 
+		 'analytics:read:games', 
+		 'bits:read', 
+		 'channel:edit:commercial', 
+		 'channel:manage:broadcast', 
+		 'channel:read:charity', 
+		 'channel:manage:extensions', 
+		 'channel:manage:moderators', 
+		 'channel:manage:polls', 
+		 'channel:manage:predictions', 
+		 'channel:manage:raids', 
+		 'channel:manage:redemptions', 
+		 'channel:manage:schedule', 
+		 'channel:manage:videos', 
+		 'channel:read:editors', 
+		 'channel:read:goals', 
+		 'channel:read:hype_train', 
+		 'channel:read:polls', 
+		 'channel:read:predictions', 
+		 'channel:read:redemptions', 
+		 'channel:read:stream_key', 
+		 'channel:read:subscriptions', 
+		 'channel:read:vips', 
+		 'channel:manage:vips', 
+		 'clips:edit', 
+		 'moderation:read', 
+		 'moderator:manage:announcements', 
+		 'moderator:manage:automod',
+		 'moderator:read:automod_settings', 
+		 'moderator:manage:automod_settings', 
+		 'moderator:manage:banned_users', 
+		 'moderator:read:blocked_terms',
+		 'moderator:manage:chat_messages',
+		 'moderator:read:chat_settings',
+		 'moderator:manage:chat_settings',
+		 'moderator:read:chatters',
+		 'moderator:read:shield_mode',
+		 'moderator:manage:shield_mode',
+		 'user:edit',
+		 'user:edit:follows',
+		 'user:manage:blocked_users',
+		 'user:read:blocked_users',
+		 'user:read:broadcast',
+		 'user:manage:chat_color',
+		 'user:read:email',
+		 'user:read:follows',
+		 'user:read:subscriptions',
+		 'user:manage:whispers'
+		];
 		let loginInfo = <div className="login-buttons">
-							<a href={"https://id.twitch.tv/oauth2/authorize?client_id="+clientID+"&redirect_uri=http://localhost:"+hostPort+"/handle&response_type=code&scope=chat:read chat:edit whispers:read whispers:edit channel:read:goals bits:read channel:read:subscriptions moderation:read channel:read:redemptions channel:read:polls channel:read:predictions channel:read:hype_train"}>Authorize</a>
+							<a href={"https://id.twitch.tv/oauth2/authorize?client_id="+clientID+"&redirect_uri=http://localhost:"+hostPort+"/handle&response_type=code&scope="+scopes.join(" ")}>Authorize</a>
 							<a href={"/revoke"}>Revoke</a>
 						</div>;
 

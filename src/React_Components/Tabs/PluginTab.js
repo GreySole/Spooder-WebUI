@@ -11,13 +11,11 @@ window.settingsFrame = function(){
 class PluginTab extends React.Component {
 	constructor(props) {
 		super(props);
-		this.state = Object.assign(props.data);
+		this.state = Object.assign({},props.data);
 		this.state["_udpClients"] = props._udpClients;
 		this.state["_openSettings"] = null;
 		this.state["_openAssets"] = null;
 		this.state["_assetFilePreview"] = null;
-
-		console.log("Plugin Data", props.data);
 
 		this.hiddenFileInput = React.createRef();
 		this.hiddenAssetInput = React.createRef();
@@ -28,6 +26,9 @@ class PluginTab extends React.Component {
 		this.fillUDPFields = this.fillUDPFields.bind(this);
 		this.deleteAsset = this.deleteAsset.bind(this);
 		this.selectAsset = this.selectAsset.bind(this);
+
+		this.deletePlugin = this.deletePlugin.bind(this);
+		this.installNewPlugin = this.installNewPlugin.bind(this);
 	}
 
 	audioPreviewRef = React.createRef();
@@ -65,7 +66,7 @@ class PluginTab extends React.Component {
 				if(format != "*" && format != ""){
 					let astring = assets[a];
 					if(extensions[format] == null){
-						console.log(astring.substring(astring.lastIndexOf(".")));
+						//console.log(astring.substring(astring.lastIndexOf(".")));
 						if(format.includes(astring.substring(astring.lastIndexOf(".")))){
 							options.push(astring);
 						}
@@ -111,7 +112,6 @@ class PluginTab extends React.Component {
 		
 			var s = this.state._openSettings;
 			let settingsForm = document.querySelector("#"+s+" .settings-form");
-			console.log("S", s);
 			if(document.querySelector("#"+s+"SettingsForm")?.tagName == "IFRAME"){
 				
 				return;
@@ -132,7 +132,6 @@ class PluginTab extends React.Component {
 							let newSubForm = subform.cloneNode(true);
 							newSubForm.setAttribute("subname",sss);
 							let newSubFormNames = newSubForm.querySelectorAll("[subvar]");
-							console.log(sss);
 							for(let i=0; i<newSubFormNames.length; i++){
 								if(newSubFormNames[i].getAttribute("subvar") == "keyname"){
 									newSubForm.querySelector("[subvar="+newSubFormNames[i].getAttribute("subvar")+"]").value = sss;
@@ -304,7 +303,7 @@ class PluginTab extends React.Component {
 		this.setState(newState);
 	}
 
-	reloadPlugins = async () => {
+	reloadPlugins = async (newplugin) => {
 		const response = await fetch("/plugins");
 		const pluginDataRaw = await response.json();
 
@@ -314,7 +313,17 @@ class PluginTab extends React.Component {
 		newState["_openSettings"] = null;
 		newState["_openAssets"] = null;
 		newState["_assetFilePreview"] = null;
-		this.setState(newState);
+		if(newplugin){
+			this.setState(newState,()=>{
+
+				window.setClass(document.querySelector("#"+newplugin), "new");
+				document.querySelector("#"+newplugin).scrollIntoViewIfNeeded();
+
+			});
+		}else{
+			this.setState(newState);
+		}
+		
 	}
 
 	installNewPlugin = async (e) => {
@@ -327,10 +336,15 @@ class PluginTab extends React.Component {
 			method: 'POST',
 			body: fd
 		};
-		await fetch('/install_plugin', requestOptions)
+		let installStatus = await fetch('/install_plugin', requestOptions)
 			.then(response => response.json());
 
-		this.reloadPlugins();
+		if(installStatus.status == false){
+			alert("Installation failed: "+installStatus.message);
+			return;
+		}
+
+		this.reloadPlugins(installStatus.plugin);
 	}
 
 	pluginSettings = (e) => {
@@ -397,13 +411,12 @@ class PluginTab extends React.Component {
 		this.setState({ [pluginName]: thisPlugin });
 	}
 
-	deletePlugin = async (e) => {
+	deletePlugin = (e) => {
+		
 		let confirmation = window.confirm("Are you sure you want to delete this plugin?");
 		if (confirmation == false) { return; }
-
-		let currentPlugins = {};
-		Object.assign(this.currentPlugins, this.state);
-
+		
+		let currentPlugins = {...this.state};
 		let pluginID = e.target.closest(".plugin-entry").id;
 
 		const requestOptions = {
@@ -412,12 +425,15 @@ class PluginTab extends React.Component {
 			body: JSON.stringify({ "pluginName": pluginID })
 		}
 
-		let saveStatus = await fetch('/delete_plugin', requestOptions)
-			.then(response => response.json());
-		if (saveStatus.status == "SUCCESS") {
-			delete currentPlugins[pluginID];
-			this.setState(Object.assign(this.state, { "plugins": currentPlugins }));
-		}
+		fetch('/delete_plugin', requestOptions)
+			.then(response => response.json())
+			.then(data=>{
+				if (data.status == "SUCCESS") {
+					currentPlugins[pluginID] = null;
+					this.setState(currentPlugins);
+				}
+			})
+		
 	}
 
 	renderSettings(name, sForm) {
@@ -546,10 +562,11 @@ class PluginTab extends React.Component {
 	}
 
 	render() {
-
 		let pluginList = [];
-		for (let p in this.state) {
-			if(p.startsWith("_")){continue;}
+		let sortedPluginKeys = Object.keys(this.state).sort();
+		for (let sp in sortedPluginKeys) {
+			let p = sortedPluginKeys[sp];
+			if(p.startsWith("_") || this.state[p] == null){continue;}
 			let pluginLinks = [];
 			if(this.state[p].hasOverlay){
 				pluginLinks.push(
@@ -560,7 +577,7 @@ class PluginTab extends React.Component {
 				pluginLinks.push(<LinkButton name={p+"-utility"} text={"Open Utility"} mode="newtab" link={window.location.origin+"/utility/"+p} />);
 			}
 			pluginList.push(
-				<div className="plugin-entry" id={p} key={p}>
+				<div className="plugin-entry" id={p}>
 					<div className="plugin-entry-ui">
 						<div className="plugin-entry-icon">
 							<img src={window.location.origin + "/icons/"+p+".png"} onError={this.imgError} />

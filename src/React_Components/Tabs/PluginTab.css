@@ -5,6 +5,23 @@
     border-bottom:solid 2px var(--border-settings-color);
 }
 
+@keyframes newglow{
+    0%{
+        background-color:transparent;
+    }
+    50%{
+        background-color:var(--button-save-color);
+    }
+    0%{
+        background-color:transparent;
+    }
+}
+
+.new{
+    animation-name:newglow;
+    animation-duration:2s;
+}
+
 .settings-form-container,
 .asset-container{
     background-color: var(--tab-inactive-color);
@@ -16,7 +33,13 @@
 }
 
 .plugin-entry{
-    border-bottom: solid 2px var(--border-color)
+    border-bottom: solid 2px var(--border-color);
+    padding-top:15px;
+    padding-bottom:15px;
+}
+
+.plugin-entry-links .link-button{
+    margin-left:10px;
 }
 
 .plugin-entry-ui {
@@ -24,10 +47,12 @@
     flex-flow: row;
     align-items: center;
     font-size: 36px;
-    margin: 15px;
+    margin-left: 15px;
+    margin-right: 15px;
 }
 
 .plugin-entry-title{
+    margin-left:10px;
     font-size: 36px;
     display:flex;
     flex-flow:row;

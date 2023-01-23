@@ -4,11 +4,10 @@ import BoolSwitch from '../UI/BoolSwitch.js';
 
 var _udpClients = {};
 var _plugins = [];
+var _reoccuringMessageCount = 0;
 var authMessageHidden = false;
 
 class EventSubTab extends React.Component{
-
-	
 
 	constructor(props){
 		super(props);
@@ -18,9 +17,21 @@ class EventSubTab extends React.Component{
 		}
 		if(this.state.events == null){
 			this.state.events = {};
+		}else{
+			for(let event in this.state.events){
+				for(let dCommand in this.defaultEvent){
+					if(this.state.events[event][dCommand] == null){
+						this.state.events[event][dCommand] = this.defaultEvent[dCommand];
+					}
+				}
+			}
 		}
+
+		console.log("EVENTS", this.state);
+
 		_udpClients = Object.assign(props._udpClients);
 		_plugins = Object.assign(props._plugins);
+		_reoccuringMessageCount = 0;
 		authMessageHidden = localStorage.getItem("authMessageHidden")!=null?localStorage.getItem("authMessageHidden"):false;
 		
 		this.handleChange = this.handleChange.bind(this);
@@ -28,12 +39,18 @@ class EventSubTab extends React.Component{
 		this.getEventSubs();
 	}
 
+	defaultEvent = {
+		"chat":{enabled:false, message:""},
+		"tcp":{enabled:false, address:"", value:""},
+		"plugin":{enabled:false, pluginname:"", eventname:""},
+		"udp":{enabled:false, dest:-1, address:"", value:"", duration:1000},
+		"spooderevent":{enabled:false, eventname:""}
+	}
+
 	componentDidMount(){
 		window.setClass(document.querySelector("#authMessage"), "hidden", authMessageHidden);
 	}
 
-	
-	
 	handleChange(s){
 		
 		let name = s.target.name.split("-");
@@ -60,6 +77,7 @@ class EventSubTab extends React.Component{
 		e.preventDefault();
 		let parentEl = e.target.closest(".config-variable-ui");
 		let responseEl = parentEl.querySelector("[name='chat-message']");
+		if(responseEl == null){ responseEl = parentEl.querySelector("[name='chat-reoccuringmessage']");}
 		let outputEl = parentEl.querySelector(".response-code-output");
 		let responseScript = responseEl.value;
 
@@ -76,9 +94,10 @@ class EventSubTab extends React.Component{
 		  };
 
 		try{
-			let responseFunct = eval("async () => { let event = "+JSON.stringify(testEvent)+"; let extra= "+JSON.stringify(testEvent)+"; "+responseScript.replace(/\n/g, "")+"}");
+			let responseFunct = eval("async () => { let event = "+JSON.stringify(testEvent)+"; let extra= "+JSON.stringify(testEvent)+"; let count = "+JSON.stringify(_reoccuringMessageCount)+"; "+responseScript.replace(/\n/g, "")+"}");
 			let response = await responseFunct();
 			console.log("SCRIPT RAN SUCCESSFULLY:",response);
+			_reoccuringMessageCount++;
 			outputEl.textContent = response;
 			window.setClass(outputEl, "verified", true);
 			window.setClass(outputEl, "failed", false);
@@ -131,7 +150,34 @@ class EventSubTab extends React.Component{
 			
 		}
 
-		this.setState(Object.assign(this.state, {"eventsub":newEventState}));
+		let events = Object.assign({},this.state.events);
+		let defaultEvent = this.defaultEvent;
+
+		for(let event in newEventState){
+			
+			let subTable = [];
+			for(let sub in eventsubs[event]){
+				let conditionTable = [];
+				for(let c in eventsubs[event][sub].condition){
+					conditionTable.push(<label>{c}: {eventsubs[event][sub].condition[c]}</label>);
+				}
+				subTable.push(
+					<div>{event}<div className="stack-div">
+						<div>ID: {eventsubs[event][sub].id}</div>
+						<div>Conditions: {conditionTable}</div>
+						<div className={eventsubs[event][sub].transport.callback==this.state["callback_url"]+"/webhooks/callback"? "good":"error"}>Callback: {eventsubs[event][sub].transport.callback==this.state["callback_url"]+"/webhooks/callback"?"OK":"DOESN'T MATCH"}</div>
+						</div><button type="button" className="event-sub-delete-button" onClick={this.deleteEventSub} subid={eventsubs[event][sub].id}>DELETE</button></div>
+				);
+			}
+			if(typeof events[event] == "undefined"){
+				events[event] = Object.assign({},defaultEvent);
+			}
+
+			for(let dCommand in defaultEvent){
+				if(events[event][dCommand] == null){Object.assign({},defaultEvent[dCommand])}
+			}
+		}
+		this.setState(Object.assign(this.state, {"eventsub":newEventState, "events":events}));
 	}
 
 	initEventSub = async(e) => {
@@ -218,6 +264,16 @@ class EventSubTab extends React.Component{
 			}
 		}
 
+		let spooderEventOptions = [];
+
+		if(Object.keys(this.state.spooderevents).length > 0){
+			for(let e in this.state.spooderevents){
+				spooderEventOptions.push(
+					<option value={this.state.spooderevents[e]}>{this.state.spooderevents[e]}</option>
+				)
+			}
+		}
+
 		table.push(<div className="stack-div">
 						<label id="authMessage">
 							Some eventsubs don't require a specific scope to authorize, but those that do require the broadcaster to be authorized on this app.
@@ -290,7 +346,7 @@ class EventSubTab extends React.Component{
 					case 'eventsub':
 						
 						let eventsubs = this.state.eventsub;
-						let events = Object.assign(this.state.events);
+						let events = Object.assign({},this.state.events);
 
 						for(let event in eventsubs){
 							
@@ -308,30 +364,36 @@ class EventSubTab extends React.Component{
 										</div><button type="button" className="event-sub-delete-button" onClick={this.deleteEventSub} subid={eventsubs[event][sub].id}>DELETE</button></div>
 								);
 							}
-							if(typeof events[event] == "undefined"){
-								events[event] = {
-									"chat":{enabled:false, message:""},
-									"tcp":{enabled:false, address:"", value:""},
-									"plugin":{enabled:false, pluginname:"", eventname:""},
-									"udp":{enabled:false, dest:-1, address:"", value:""}
-								}
-							}
+							
+							let reoccuringMessage = event=="stream.online"?<div className="config-variable-ui">
+								<label className={"reoccuringmessage response "+(events[event].chat.enabled?"":"hidden")}>
+								<div className="toggle-label" style={{display:"flex", "flex-flow":"column", "align-items":"flex-start"}}>Reoccuring Message:
+									<CodeEditor eventname={event} className="response-code-editor" name="chat-reoccuringmessage" language="js" key={s} 
+									value={events[event].chat.reoccuringmessage} onChange={this.handleChange} placeholder="return 'This occured '+count+' times!'"/>
+									<div className="response-code-output"></div>
+									<div className="verify-message"><button className="verify-message-button save-button" onClick={this.verifyResponseScript}>Verify Script</button></div>
+									<label>Interval (Minutes):
+										<input type="number" eventname={event} name="chat-interval" defaultValue={events[event].chat.interval} onChange={this.handleChange}/>
+									</label>
+								</div>
+							</label></div>:null;
 
 							table.push(<div className="eventsub-variable">
-											
-											<div className="">
-												<label className="event-label">{event}</label>
-												<div className="config-variable-ui tooltip"><div className="toggle-label">Say in chat
-												<BoolSwitch eventname={event} name="chat-enabled" checked={events[event].chat.enabled} onChange={this.handleChange}/></div>
-												
-												<label className={"response "+(events[event].chat.enabled?"":"hidden")}>Message:
-												<CodeEditor eventname={event} className="response-code-editor" name="chat-message" language="js" key={s} 
-													value={events[event].chat.message} onChange={this.handleChange} placeholder="return 'Hello '+event.displayName"/>
-													<div className="response-code-output"></div>
-													<div className="verify-message"><button className="verify-message-button save-button" onClick={this.verifyResponseScript}>Verify Script</button></div>
-												</label>
-												
+												<div className="">
+													<label className="event-label">{event}</label>
+													<div className="config-variable-ui tooltip"><div className="toggle-label">Say in chat
+														<BoolSwitch eventname={event} name="chat-enabled" checked={events[event]?.chat.enabled} onChange={this.handleChange}/>
+													</div>
+													
+													<label className={"response "+(events[event].chat.enabled?"":"hidden")}>Message:
+														<CodeEditor eventname={event} className="response-code-editor" name="chat-message" language="js" key={s} 
+														value={events[event].chat.message} onChange={this.handleChange} placeholder="return 'Hello '+event.displayName"/>
+														<div className="response-code-output"></div>
+														<div className="verify-message"><button className="verify-message-button save-button" onClick={this.verifyResponseScript}>Verify Script</button></div>
+													</label>
 												</div>
+
+												{reoccuringMessage}
 
 												<div className="config-variable-ui tooltip"><label className="toggle-label">Send event to overlay
 												<BoolSwitch eventname={event} name="tcp-enabled" checked={events[event].tcp.enabled} onChange={this.handleChange}/>
@@ -376,6 +438,18 @@ class EventSubTab extends React.Component{
 													<label className={events[event].udp.enabled?"":"hidden"}>Duration (Milliseconds):
 														<input type="number" eventname={event} name="udp-duration" defaultValue={events[event].udp.duration} onChange={this.handleChange}/>
 													</label>
+												</div>
+
+												<div className="config-variable-ui tooltip"><label className="toggle-label">Trigger Spooder event
+												<BoolSwitch eventname={event} name="spooderevent-enabled" checked={events[event].spooderevent.enabled} onChange={this.handleChange}/>
+												<span className="tooltiptext">Trigger an event set in the Events tab.</span></label>
+													<label className={events[event].spooderevent.enabled?"":"hidden"}>Event Name:
+														<select name="spooderevent-eventname" data-key={event} eventname={event} defaultValue={events[event].spooderevent.eventname} onChange={this.handleChange}>
+															<option value={-1}>Select an event</option>
+																{spooderEventOptions}
+														</select>
+													</label>
+													
 												</div>
 											</div>
 											<div className="active-subs">Active subs

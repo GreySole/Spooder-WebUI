@@ -10,6 +10,7 @@ class ConfigTab extends React.Component{
 		this.state = Object.assign(props.data.config);
 		this.state["_tabOptions"] = Object.assign(props._taboptions);
 		this.state["_brstatus"] = {
+			discordExpanded:false,
 			csExpanded:false,
 			brExpanded:false,
 			backupSettings:false,
@@ -17,7 +18,7 @@ class ConfigTab extends React.Component{
 			restoreSettings:false,
 			restorePlugins:false
 		};
-		this.state["_backups"] = Object.assign(props.data.backup);
+		this.state["_backups"] = Object.assign(props.data.backups);
 		this.state["_saveCustomSpooder"] = props.saveCustomSpooder;
 		this.state["_updateCustomSpooder"] = props.updateCustomSpooder;
 		let cSpooder = Object.assign(props._customSpooder);
@@ -25,12 +26,16 @@ class ConfigTab extends React.Component{
 			cSpooder.colors[c] = tinycolor(cSpooder.colors[c]).toHexString();
 		}
 		this.state["_customSpooder"] = cSpooder;
+		this.state["_discord"] = props.data.discord;
 		this.handleChange = this.handleChange.bind(this);
+		this.handleDiscordChange = this.handleDiscordChange.bind(this);
 		this.saveConfig = this.saveConfig.bind(this);
+		this.saveDiscord = this.saveDiscord.bind(this);
 		this.deleteUDPClient = this.deleteUDPClient.bind(this);
 		this.addSubVar = this.addSubVar.bind(this);
 		this.setDefaultTabs = this.setDefaultTabs.bind(this);
 
+		this.toggleDiscord = this.toggleDiscord.bind(this);
 		this.toggleBackupRestore = this.toggleBackupRestore.bind(this);
 		this.backupSettings = this.backupSettings.bind(this);
 		this.backupPlugins = this.backupPlugins.bind(this);
@@ -106,6 +111,24 @@ class ConfigTab extends React.Component{
 		}
 		this.setState(Object.assign(this.state,{[section]:newSection}));
 	}
+
+	handleDiscordChange(s){
+		let name = s.target.name;
+		let newDiscord = Object.assign(this.state._discord);
+		if(name.includes("-")){
+			name = name.split("-");
+			if(newDiscord[name[0]] == null){newDiscord[name[0]] = {}}
+			if(s.target.type == "checkbox"){
+				newDiscord[name[0]][name[1]] = s.target.checked;
+			}else{
+				newDiscord[name[0]][name[1]] = s.target.value;
+			}
+			
+		}else{
+			newDiscord[name] = s.target.value;
+		}
+		this.setState(Object.assign(this.state, {_discord:newDiscord}))
+	}
 	
 	addSubVar(e){
 		
@@ -127,6 +150,26 @@ class ConfigTab extends React.Component{
 		};
 		
 		this.setState(Object.assign(this.state, {"network":Object.assign(this.state.network,{udp_clients:newUDPClients})}));
+	}
+
+	saveDiscord(){
+		let newDiscord = Object.assign(this.state._discord);
+		delete newDiscord["guilds"];
+		
+		const requestOptions = {
+			method: 'POST',
+			headers: {'Content-Type': 'application/json', 'Accept':'application/json'},
+			body: JSON.stringify(newDiscord)
+		};
+		
+		fetch('/saveDiscordConfig', requestOptions)
+		.then(response => response.json())
+		.then(data => {
+			document.querySelector("#discordSaveStatusText").textContent = data.status;
+			setTimeout(()=>{
+				document.querySelector("#discordSaveStatusText").textContent = "";
+			}, 5000)
+		});
 	}
 	
 	saveConfig(){
@@ -369,6 +412,11 @@ class ConfigTab extends React.Component{
 		this.setState(Object.assign(this.state, {_backups:newBackups}));
 	}
 
+	toggleDiscord(e){
+		let newDiscord = Object.assign(this.state._brstatus);
+		newDiscord.discordExpanded = !newDiscord.discordExpanded;
+		this.setState(Object.assign(this.state, {_brstatus:newDiscord}));
+	}
 	toggleBackupRestore(e){
 		let newBackups = Object.assign(this.state._brstatus);
 		newBackups.brExpanded = !newBackups.brExpanded;
@@ -485,7 +533,7 @@ class ConfigTab extends React.Component{
 												</div>
 											</div>
 						table.push(<div varname={ss} sectionname={s} className="config-variable sub-section"><label>{ss} {subTable}
-						<div className="config-variable add">{addSubVarForm}</div></label>
+							<div className="config-variable add">{addSubVarForm}</div></label>
 						</div>);
 						
 					break;
@@ -543,6 +591,62 @@ class ConfigTab extends React.Component{
 		);
 	}
 
+	let guildOptions = [<option value={null}>Select Guild</option>];
+	let channelOptions = [<option value={null}>Select Channel</option>];
+	if(this.state._discord.autosendngrok?.enabled){
+		if(this.state._discord.guilds != null){
+			for(let g in this.state._discord.guilds){
+				guildOptions.push(
+					<option value={g}>{this.state._discord.guilds[g].name}</option>
+				)
+			}
+		}
+	}
+
+	if(this.state._discord.autosendngrok?.enabled){
+		if(this.state._discord.autosendngrok.destguild != null){
+			for(let c in this.state._discord.guilds[this.state._discord.autosendngrok.destguild].channels){
+				channelOptions.push(
+					<option value={c}>{this.state._discord.guilds[this.state._discord.autosendngrok.destguild].channels[c].name}</option>
+				)
+			}
+		}
+	}
+
+	let autoNgrokFields = this.state._discord.guilds != null?<div className="config-variable">
+		<label>
+			Server
+			<select name="autosendngrok-destguild" value={this.state._discord.autosendngrok?.destguild} onChange={this.handleDiscordChange}>
+				{guildOptions}
+			</select>
+		</label>
+		<label>
+			Channel
+			<select name="autosendngrok-destchannel" value={this.state._discord.autosendngrok?.destchannel} onChange={this.handleDiscordChange}>
+				{channelOptions}
+			</select>
+		</label>
+	</div>:null;
+
+	let discord = this.state._brstatus.discordExpanded==true?<div className="config-discord">
+		<div className="config-variable">
+			<label>
+				Bot token
+				<input type="password" value={this.state._discord.token} onChange={this.handleDiscordChange}/>
+			</label>
+		</div>
+		{this.state._discord.guilds!=null?<div className="config-variable">
+			<label>
+				Send Mod UI Link to Channel on Startup
+				<BoolSwitch name="autosendngrok-enabled" checked={this.state._discord.autosendngrok?.enabled} onChange={this.handleDiscordChange}/>
+			</label>
+		</div>:<div class="config-variable">
+				Discord isn't logged in. Input your bot token and invite the bot to your server to assign a channel to auto send Ngrok links.
+			</div>}
+		{autoNgrokFields}
+		<div className="save-commands"><button type="button" id="saveDiscordButton" className="save-button" onClick={this.saveDiscord}>Save</button><div id="discordSaveStatusText" className="save-status"></div></div>
+	</div>:null;
+	
 	let backupRestore = this.state._brstatus.brExpanded==true?<div className="config-backup-restore">
 	<div className="backup-actions"><label className="backup-section-label">Backup</label>
 		<div className="backup-action-button">
@@ -675,6 +779,10 @@ let customSpooder = this.state._brstatus.csExpanded?<div className="custom-spood
 		
 		return (
 			<form className="config-tab">
+				<div className="non-config-element">
+					<div className="backup-restore-toggle-label" onClick={this.toggleDiscord}>Discord Settings</div>
+					{discord}
+				</div>
 				<div className="non-config-element">
 					<div className="backup-restore-toggle-label" onClick={this.toggleCustomSpooder}>Customize Spooder</div>
 					{customSpooder}

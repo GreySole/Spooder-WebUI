@@ -27,8 +27,6 @@ class EventSubTab extends React.Component{
 			}
 		}
 
-		console.log("EVENTS", this.state);
-
 		_udpClients = Object.assign(props._udpClients);
 		_plugins = Object.assign(props._plugins);
 		_reoccuringMessageCount = 0;
@@ -36,6 +34,7 @@ class EventSubTab extends React.Component{
 		
 		this.handleChange = this.handleChange.bind(this);
 		this.saveEventSubs = this.saveEventSubs.bind(this);
+		this.getEventSubs = this.getEventSubs.bind(this);
 		this.getEventSubs();
 	}
 
@@ -120,7 +119,7 @@ class EventSubTab extends React.Component{
 			headers: {'Content-Type': 'application/json', 'Accept':'application/json'},
 			body: JSON.stringify(newList)
 		};
-		fetch('/saveEventSubs', requestOptions)
+		fetch('/twitch/saveEventSubs', requestOptions)
 		.then(response => response.json())
 		.then(data => {
 			if(data.status == "SAVE SUCCESS"){
@@ -136,7 +135,7 @@ class EventSubTab extends React.Component{
 
 	getEventSubs = async() => {
 
-		let eventsubsRaw = await fetch('/get_eventsub')
+		let eventsubsRaw = await fetch('/twitch/get_eventsubs_by_user')
 		.then(response => response.json());
 		let eventsubs = eventsubsRaw.data;
 		
@@ -165,7 +164,7 @@ class EventSubTab extends React.Component{
 					<div>{event}<div className="stack-div">
 						<div>ID: {eventsubs[event][sub].id}</div>
 						<div>Conditions: {conditionTable}</div>
-						<div className={eventsubs[event][sub].transport.callback==this.state["callback_url"]+"/webhooks/callback"? "good":"error"}>Callback: {eventsubs[event][sub].transport.callback==this.state["callback_url"]+"/webhooks/callback"?"OK":"DOESN'T MATCH"}</div>
+						<div className={eventsubs[event][sub].transport.callback==this.state["callback_url"]+"/webhooks/eventsub"? "good":"error"}>Callback: {eventsubs[event][sub].transport.callback==this.state["callback_url"]+"/webhooks/eventsub"?"OK":"DOESN'T MATCH"}</div>
 						</div><button type="button" className="event-sub-delete-button" onClick={this.deleteEventSub} subid={eventsubs[event][sub].id}>DELETE</button></div>
 				);
 			}
@@ -183,7 +182,7 @@ class EventSubTab extends React.Component{
 	initEventSub = async(e) => {
 		let eventType = document.querySelector("#event-sub-add select").value;
 		if(eventType == null){return;}
-		let eventSub = await fetch('/init_followsub?type='+eventType)
+		let eventSub = await fetch('/twitch/init_eventsub?type='+eventType)
 		.then(response => response.json());
 		document.querySelector("#eventSubAddStatus").textContent = eventSub.status;
 		setTimeout(function(){
@@ -194,7 +193,7 @@ class EventSubTab extends React.Component{
 
 	deleteEventSub = async(e) => {
 		e.preventDefault();
-		let followSub = await fetch('/delete_eventsub?id='+e.target.getAttribute("subid"))
+		let followSub = await fetch('/twitch/delete_eventsub?id='+e.target.getAttribute("subid"))
 		.then(response => response.json());
 
 		this.getEventSubs();
@@ -204,7 +203,7 @@ class EventSubTab extends React.Component{
 		let confirmation = window.confirm("This will store your current oauth as broadcaster. This will not overwrite your current oauth. Ok?");
 		if (confirmation == false) { return; }
 		
-		let saveStatus = await fetch('/save_auth_to_broadcaster')
+		let saveStatus = await fetch('/twitch/save_auth_to_broadcaster')
 		.then(response => response.json());
 		
 		console.log("DONE", saveStatus);
@@ -214,7 +213,7 @@ class EventSubTab extends React.Component{
 		let confirmation = window.confirm("This will revoke your broadcaster oauth. Your chat oauth will be preserved. Ok?");
 		if (confirmation == false) { return; }
 
-		let saveStatus = await fetch('/revoke?broadcaster=true')
+		let saveStatus = await fetch('/twitch/revoke?broadcaster=true')
 		.then(response => response.json());
 		
 		console.log("DONE", saveStatus);
@@ -224,7 +223,7 @@ class EventSubTab extends React.Component{
 		let confirmation = window.confirm("This will delete and add fresh subscriptions without affecting your settings. Ok?");
 		if(confirmation == false){return;}
 
-		let refreshStatus = await fetch('/refresh_eventsubs')
+		let refreshStatus = await fetch('/twitch/refresh_eventsubs')
 		.then(response => response.json());
 
 		this.getEventSubs();
@@ -360,7 +359,7 @@ class EventSubTab extends React.Component{
 									<div>{event}<div className="stack-div">
 										<div>ID: {eventsubs[event][sub].id}</div>
 										<div>Conditions: {conditionTable}</div>
-										<div className={eventsubs[event][sub].transport.callback==this.state["callback_url"]+"/webhooks/callback"? "good":"error"}>Callback: {eventsubs[event][sub].transport.callback==this.state["callback_url"]+"/webhooks/callback"?"OK":"DOESN'T MATCH"}</div>
+										<div className={eventsubs[event][sub].transport.callback==this.state["callback_url"]+"/webhooks/eventsub"? "good":"error"}>Callback: {eventsubs[event][sub].transport.callback==this.state["callback_url"]+"/webhooks/eventsub"?"OK":"DOESN'T MATCH"}</div>
 										</div><button type="button" className="event-sub-delete-button" onClick={this.deleteEventSub} subid={eventsubs[event][sub].id}>DELETE</button></div>
 								);
 							}

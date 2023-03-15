@@ -1,0 +1,146 @@
+.share-tab-create-element{
+    margin-left:15px;
+}
+
+.share-entry{
+    display:flex;
+    flex-flow:row;
+    padding:10px;
+    border-bottom: solid var(--border-color) 2px;
+}
+
+.share-entry-info{
+    display:flex;
+    flex-flow:column;
+    width:100%;
+}
+
+.share-entry-user{
+    display:flex;
+    align-items:center;
+    width:100%;
+}
+
+.share-entry-user-info{
+    width:75%;
+    margin-left:10px;
+    display:flex;
+    flex-flow:column;
+    align-self:flex-start;
+}
+
+.share-discord-form{
+    display:flex;
+    flex-flow:row;
+    align-items:center;
+    margin-left:15px;
+}
+
+.share-discord-form input{
+    font-size:12px;
+    height:20px;
+}
+
+.share-discord-label{
+    font-size:16px;
+    font-style:italic;
+    margin-left:15px;
+}
+
+.share-entry-label{
+    font-size:24px;
+}
+
+.share-entry-user-info label{
+    margin:5px;
+}
+
+.share-entry-user-info input{
+    width:100%;
+}
+
+.share-entry-user-name{
+    display:flex;
+    flex-flow:row;
+    align-items:center;
+    font-size:36px;
+}
+
+.share-entry-user-name .label{
+    display:flex;
+    align-items:center;
+}
+
+.share-entry-user-name .link-button{
+    margin-left: 10px;
+}
+
+.share-entry-content-overview{
+    display:flex;
+    flex-flow:row;
+}
+
+.share-entry-commands,
+.share-entry-plugins{
+    display:flex;
+    flex-flow:column;
+    width:50%;
+}
+
+.share-entry-commands label,
+.share-entry-plugins label{
+    font-size:24px;
+}
+
+.share-entry-actions{
+    display:flex;
+    flex-flow:column;
+    align-items:center;
+    width:25%;
+    justify-content: space-between;
+}
+
+.toggle-grid{
+    display:grid;
+    grid-template-columns: repeat(7, 110px);
+    padding:15px;
+}
+
+.toggle-grid-element{
+    display:flex;
+    flex-flow:column;
+    align-items:center;
+    padding:5px;
+    margin:5px;
+    border-radius:5px;
+    aspect-ratio:1.5;
+    justify-content:space-evenly;
+    word-break: break-all;
+    cursor:pointer;
+    user-select:none;
+    background-color:var(--button-delete-color);
+}
+
+.toggle-grid-element.selected{
+    background-color:var(--button-save-color);
+}
+
+@media screen and (max-width:800px) {
+    .toggle-grid{
+        grid-template-columns: repeat(5, 20%);
+    }
+
+    .share-entry-content{
+        flex-flow:column;
+    }
+}
+
+@media screen and (max-width:600px){
+    .toggle-grid{
+        grid-template-columns: repeat(4, 25%);
+    }
+    .share-entry-user-name{
+        flex-flow:column;
+        font-size:24px;
+    }
+}

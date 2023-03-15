@@ -75,7 +75,8 @@
 }
 
 .output-controller-stream,
-.output-controller-record{
+.output-controller-record,
+.output-controller-settings{
     display:flex;
     flex-flow:row;
     align-items:center;
@@ -88,6 +89,21 @@
     flex-flow:column;
     align-items:left;
     font-size:24px;
+}
+
+.output-settings-container label{
+    display:flex;
+    flex-flow:column;
+    align-items:flex-start;
+    margin:5px;
+}
+
+.output-settings-container .boolswitch{
+    margin-left:15px;
+}
+
+.output-settings-container .delete-button{
+    font-size:18px;
 }
 
 @media screen and (max-width:600px){

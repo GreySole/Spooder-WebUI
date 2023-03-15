@@ -1,8 +1,13 @@
 import React from 'react';
 import './PluginTab.css';
+import '../PluginSettings/SettingsForm.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCog, faTrash, faPlusCircle, faUpload, faSync, faSpider, faFile, faDownload } from '@fortawesome/free-solid-svg-icons';
+import { faCog, faTrash, faPlusCircle, faUpload, faSync, faSpider, 
+	faFile, faDownload, faFileImport, faCircleInfo, faArrowLeft, faHouse, faArrowUp,
+	faFolder,  faVolumeHigh, faImage, faCircleNotch, faTriangleExclamation} from '@fortawesome/free-solid-svg-icons';
 import LinkButton from "../UI/LinkButton.js";
+import SettingsForm from "../PluginSettings/SettingsForm.js";
+import path from 'path-browserify';
 
 window.settingsFrame = function(){
 	return;
@@ -11,24 +16,39 @@ window.settingsFrame = function(){
 class PluginTab extends React.Component {
 	constructor(props) {
 		super(props);
-		this.state = Object.assign({},props.data);
+		this.osc = props.osc;
+		this.state = {};
+		this.state["plugins"] = Object.assign({},props.data);
 		this.state["_udpClients"] = props._udpClients;
 		this.state["_openSettings"] = null;
 		this.state["_openAssets"] = null;
+		this.state["_openInfo"] = null;
 		this.state["_assetFilePreview"] = null;
+		this.state["_openCreate"] = {
+			isOpen:false,
+			pluginname:"",
+			author:"",
+			description:""
+		};
+		this.state["_fileProgressStatus"] = {};
+		this.state["_fileProgressListeners"]= {};
 
 		this.hiddenFileInput = React.createRef();
 		this.hiddenAssetInput = React.createRef();
 		this.onPluginChange = this.onPluginChange.bind(this);
 		this.renderSettings = this.renderSettings.bind(this);
-		this.onSettingsFormSubmit = this.onSettingsFormSubmit.bind(this);
-		this.fillAssetFields = this.fillAssetFields.bind(this);
-		this.fillUDPFields = this.fillUDPFields.bind(this);
+		//this.onSettingsFormSubmit = this.onSettingsFormSubmit.bind(this);
 		this.deleteAsset = this.deleteAsset.bind(this);
 		this.selectAsset = this.selectAsset.bind(this);
 
 		this.deletePlugin = this.deletePlugin.bind(this);
 		this.installNewPlugin = this.installNewPlugin.bind(this);
+
+		this.onCreateFormInput = this.onCreateFormInput.bind(this);
+		this.openCreatePlugin = this.openCreatePlugin.bind(this);
+		this.createPlugin = this.createPlugin.bind(this);
+
+		this.browseFolder = this.browseFolder.bind(this);
 	}
 
 	audioPreviewRef = React.createRef();
@@ -43,251 +63,54 @@ class PluginTab extends React.Component {
 	}
 
 	refreshPlugins = async() => {
-		let rStatus = await fetch('/refresh_plugins', {method:"POST", body:""})
+		let rStatus = await fetch('/refresh_plugins')
 		.then(response=>response.json());
-		
+		this.reloadPlugins();
 		document.querySelector(".plugin-element .save-status").textContent = rStatus.status;
 		setTimeout(()=>{
 			document.querySelector(".plugin-element .save-status").textContent = "";
 		}, 5000);
 	}
 
-	fillAssetFields(entryID){
-		var state = this.state;
-		let assetFields = document.querySelectorAll("#"+entryID+" [assetselect]");
-
-		assetFields.forEach(assetF =>{
-			let format = assetF.getAttribute("assetselect");
-			let assets = state[entryID]["assets"];
-			let options = [];
-			let extensions = window.mediaExtensions;
-
-			for(let a in assets){
-				if(format != "*" && format != ""){
-					let astring = assets[a];
-					if(extensions[format] == null){
-						//console.log(astring.substring(astring.lastIndexOf(".")));
-						if(format.includes(astring.substring(astring.lastIndexOf(".")))){
-							options.push(astring);
-						}
-					}else{
-						if(extensions[format].includes(astring.substring(astring.lastIndexOf(".")))){
-							options.push(astring);
-						}
-					}
-					
-				}else{
-					options.push(assets[a]);
-				}
-			}
-			let optionHTML = "<option value=''>None</option>";
-			for(let o in options){
-				optionHTML += "<option>"+options[o]+"</option>";
-			}
+	componentDidMount(){
+		let newListeners = Object.assign(this.state._fileProgressListeners);
+		newListeners.progress = this.osc.on("/frontend/plugin/install/progress", (message) => {
+			let progressObj = JSON.parse(message.args[0]);
 			
-			assetF.innerHTML = optionHTML;
+			let newPlugins = Object.assign({}, this.state.plugins);
+			console.log("PROGRESS", progressObj);
+			newPlugins[progressObj.pluginName] = Object.assign(newPlugins[progressObj.pluginName], {
+				status:progressObj.status,
+				message:progressObj.message
+			});
+			this.setState(Object.assign(this.state, {plugins:newPlugins}));
 		});
-		
+
+		newListeners.complete = this.osc.on("/frontend/plugin/install/complete", (message) => {
+			let progressObj = JSON.parse(message.args[0]);
+			console.log("COMPLETE", progressObj);
+			let newPlugins = Object.assign({}, this.state.plugins);
+			newPlugins[progressObj.pluginName] = Object.assign(newPlugins[progressObj.pluginName], {
+				status:progressObj.status,
+				message:progressObj.message
+			});
+			this.setState(Object.assign(this.state, {plugins:newPlugins}), 
+			()=>{this.reloadPlugins(progressObj.pluginName)});
+		});
+		this.setState(Object.assign(this.state, {_fileProgressListeners:newListeners}));
 	}
 
-	fillUDPFields(entryID){
-		let udpFields = document.querySelectorAll("#"+entryID+" [udpselect]");
-		let udpClients = this.state._udpClients;
-		udpFields.forEach(udpF => {
-
-			let optionHTML = "<option value='-1'>Disabled</option><option value='-2'>All</option>";
-			for(let c in udpClients){
-				optionHTML += "<option value='"+c+"'>"+c+"</option>";
-			}
-			
-			udpF.innerHTML = optionHTML;
-		});
+	componentWillUnmount(){
+		this.osc.off("/frontend/plugin/install/progress", this.state._fileProgressListeners.progress);
+		this.osc.off("/frontend/plugin/install/complete", this.state._fileProgressListeners.complete);
 	}
 
 	componentDidUpdate() {
-		this.handleSettingsForms();
-	}
-
-	handleSettingsForms(){
-		
-			var s = this.state._openSettings;
-			let settingsForm = document.querySelector("#"+s+" .settings-form");
-			if(document.querySelector("#"+s+"SettingsForm")?.tagName == "IFRAME"){
-				
-				return;
-			}
-			this.fillAssetFields(s);
-			this.fillUDPFields(s);
-			
-			if(settingsForm != null){
-				settingsForm.onsubmit = this.onSettingsFormSubmit;
-				let settings = this.state[s]["settings"];
-				for(let ss in settings){
-					if(settings[ss] instanceof Object){
-						let subform = settingsForm.querySelector("[subname="+ss+"-form] .subform-container");
-						let subformArray = [];
-						let subsettings = settings[ss];
-						
-						for(let sss in subsettings){
-							let newSubForm = subform.cloneNode(true);
-							newSubForm.setAttribute("subname",sss);
-							let newSubFormNames = newSubForm.querySelectorAll("[subvar]");
-							for(let i=0; i<newSubFormNames.length; i++){
-								if(newSubFormNames[i].getAttribute("subvar") == "keyname"){
-									newSubForm.querySelector("[subvar="+newSubFormNames[i].getAttribute("subvar")+"]").value = sss;
-								}else{
-									/*if(subsettings[sss][newSubFormNames[i].getAttribute("subvar")] instanceof Object){
-										console.log("SUBFIELD", subsettings[sss][newSubFormNames[i].getAttribute("subvar")]);
-										let thisSubvar = newSubFormNames[i].getAttribute("subvar");
-										let subfield = newSubFormNames[i].querySelector(".subfield-container");
-										for(let ssss in subsettings[sss][thisSubvar]){
-											let newSubfield = subfield.cloneNode(true);
-											let newSubfieldNames = newSubfield.querySelectorAll("[subfieldvar]");
-											for(let j=0; j<newSubfieldNames.length; j++){
-												if(newSubfieldNames[j].getAttribute("subfieldvar") == "keyname"){
-													newSubfieldNames[j].value = ssss;
-												}else{
-													if(newSubfieldNames[j].type == "checkbox"){
-														newSubfieldNames[j].checked = subsettings[sss][thisSubvar][ssss];
-													}else{
-														newSubfieldNames[j].value = subsettings[sss][thisSubvar][ssss];
-													}
-												}
-											}
-											
-											
-											newSubFormNames[i].append(newSubfield);
-										}
-										subfield.style.display = "none";
-										if(newSubFormNames[i].querySelector(".add-button") != null){
-											newSubFormNames[i].querySelector(".add-button").onclick = () => {
-												let addSubfield = subfield.cloneNode(true);
-												addSubfield.style.display = "";
-												newSubFormNames[i].append(addSubfield);
-											}
-										}
-									}else{
-										if(newSubFormNames[i].type == "checkbox"){
-											newSubFormNames[i].checked = subsettings[sss][newSubFormNames[i].getAttribute("subvar")];
-										}else{
-											newSubFormNames[i].value = subsettings[sss][newSubFormNames[i].getAttribute("subvar")];
-										}
-									}*/
-
-									if(newSubFormNames[i].type == "checkbox"){
-										newSubFormNames[i].checked = subsettings[sss][newSubFormNames[i].getAttribute("subvar")];
-									}else{
-										newSubFormNames[i].value = subsettings[sss][newSubFormNames[i].getAttribute("subvar")];
-									}
-									
-								}
-							}
-							subformArray.push(newSubForm);
-						}
-						subform.style.display = "none";
-						
-						var subformCont = settingsForm.querySelector("[subname="+ss+"-form]");
-						for(let sa in subformArray){
-							subformCont.appendChild(subformArray[sa]);
-						}
-						settingsForm.querySelectorAll("[varname="+ss+"] .add-button").forEach((e,i)=>{
-							e.onclick = function(){
-								let thisSubform = settingsForm.querySelector("[subname="+ss+"-form]");
-								let newSubForm = subform.cloneNode(true);
-								newSubForm.style.display = "";
-								newSubForm.setAttribute("subname", "newcommand");
-								if(newSubForm.querySelector(".delete-button") != null){
-									newSubForm.querySelector(".delete-button").onclick = function(){this.closest(".subform-container").remove()}
-								}
-								
-								if(newSubForm.querySelector(".add-button") != null){
-									newSubForm.querySelector(".add-button").onclick = () => {
-										let addSubfield = subfield.cloneNode(true);
-										addSubfield.style.display = "";
-										newSubForm.append(addSubfield);
-									}
-								}
-								thisSubform.appendChild(newSubForm);
-								thisSubform.scrollLeft = thisSubform.scrollWidth;
-							}
-							
-						});
-						
-						settingsForm.querySelectorAll(".subform-container .delete-button:not(.subfield)").forEach((e,i) => {
-							e.onclick = function(){e.closest(".subform-container").remove();}
-						});
-
-						settingsForm.querySelectorAll(".subfield-container .delete-button").forEach((e,i) => {
-							e.onclick = function(){e.closest(".subfield-container").remove();}
-						});
-					}else{
-						if(settingsForm.querySelector("[name="+ss+"]") != null){
-							if(settingsForm.querySelector("[name="+ss+"]").type == "checkbox"){
-								settingsForm.querySelector("[name="+ss+"]").checked = settings[ss];
-							}else{
-								settingsForm.querySelector("[name="+ss+"]").value = settings[ss];
-							}
-						}
-					}
-					
-				}
-			}
-	}
-
-	async onSettingsFormSubmit(e){
-		e.preventDefault();
-		let pluginName = e.target.closest(".settings-form-html").getAttribute("pluginname");
-		let inputs = document.querySelectorAll("#"+pluginName+"SettingsForm .settings-form [name]");
-		let subforms = document.querySelectorAll("#"+pluginName+"SettingsForm .settings-subform");
-		
-		let newSettings = Object.assign(this.state[pluginName].settings);
-		for(let i=0; i<inputs.length; i++){
-			let varname = inputs[i].getAttribute("name");
-			newSettings[varname] = inputs[i].value;
-			if(inputs[i].type == "checkbox"){
-				newSettings[varname] = inputs[i].checked;
-			}
-		}
-		for(let s in subforms){
-			if(typeof subforms[s] != "object"){continue;}
-			let varname = subforms[s].getAttribute("varname");
-			newSettings[varname] = {};
-			let elements = subforms[s].querySelectorAll(".subform-container[subname]");
-			for(let e in elements){
-				if(typeof elements[e] != "object"){continue;}
-				let commandName = elements[e].querySelector("[subvar='keyname']").value;
-				let command = {};
-				let subvars = elements[e].querySelectorAll("[subvar]:not([subvar='keyname'])");
-				
-				for(let sv in subvars){
-					if(typeof subvars[sv] != "object"){continue;}
-					if(subvars[sv].getAttribute("subvar") == commandName){continue;}
-					if(subvars[sv].type == "checkbox"){
-						command[subvars[sv].getAttribute("subvar")] = subvars[sv].checked;
-					}else{
-						command[subvars[sv].getAttribute("subvar")] = subvars[sv].value;
-					}
-				}
-				newSettings[varname][commandName] = command;
-			}
-		}
-		
-		const requestOptions = {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-			body: JSON.stringify({ "pluginName": pluginName, "settings": newSettings })
-		}
-
-		let saveStatus = await fetch('/save_plugin', requestOptions)
-			.then(response => response.json());
-		document.querySelector("#" + pluginName + " .save-status").textContent = "Plugin saved!";
-		setTimeout(function () {
-			document.querySelector("#" + pluginName + " .save-status").textContent = "";
-		}, 3000);
+		//this.handleSettingsForms();
 	}
 
 	uploadPluginAsset = async (e) => {
-		let pluginName = e.target.getAttribute("plugin-name");
+		let assetPath = path.join(this.state._openAssets, this.state.plugins[this.state._openAssets].assetBrowserPath);
 		var fd = new FormData();
 		fd.append('file', e.target.files[0]);
 
@@ -295,20 +118,22 @@ class PluginTab extends React.Component {
 			method: 'POST',
 			body: fd
 		};
-		let uploadReq = await fetch('/upload_plugin_asset/'+pluginName, requestOptions)
+		let uploadReq = await fetch('/upload_plugin_asset/'+assetPath, requestOptions)
 			.then(response => response.json());
-		let newState = Object.assign(this.state);
+		let newState = Object.assign(this.state.plugins);
 		
-		newState[pluginName]["assets"] = uploadReq["newAssets"];
-		this.setState(newState);
+		newState[this.state._openAssets]["assets"] = uploadReq["newAssets"];
+		this.setState(Object.assign(this.state, {plugins:newState}));
 	}
 
 	reloadPlugins = async (newplugin) => {
+		console.log("RELOADING PLUGINS");
 		const response = await fetch("/plugins");
 		const pluginDataRaw = await response.json();
 
 		let newState = {};
-		newState = Object.assign(pluginDataRaw);
+		newState = Object.assign(this.state);
+		newState["plugins"] = pluginDataRaw;
 		newState["_udpClients"] = this.state._udpClients;
 		newState["_openSettings"] = null;
 		newState["_openAssets"] = null;
@@ -323,7 +148,6 @@ class PluginTab extends React.Component {
 		}else{
 			this.setState(newState);
 		}
-		
 	}
 
 	installNewPlugin = async (e) => {
@@ -332,19 +156,58 @@ class PluginTab extends React.Component {
 		fd.append('file', e.target.files[0]);
 		//return;
 
+		let internalName = e.target.files[0].name.split(".")[0].toLowerCase().replaceAll(/[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/g,"").replaceAll(" ","_");
+		let renameCount = 1;
+		if(this.state.plugins[internalName] != null){
+			while(this.state.plugins[internalName+renameCount] != null){
+				if(this.state.plugins[internalName+renameCount] == null){
+					internalName += renameCount;
+					break;
+				}else{
+					renameCount++;
+				}
+			}
+			if(this.state.plugins[internalName+renameCount] == null){
+				internalName+=renameCount;
+			}
+		}
+		fd.append("internalName", internalName);
 		const requestOptions = {
 			method: 'POST',
 			body: fd
 		};
-		let installStatus = await fetch('/install_plugin', requestOptions)
-			.then(response => response.json());
+		let installStatus = fetch('/install_plugin', requestOptions)
+			.then(response => response.json())
+			.then(data =>{
+				if(data.status == false){
+					alert("Installation failed: "+installStatus.message);
+					return;
+				}
+			})
 
-		if(installStatus.status == false){
-			alert("Installation failed: "+installStatus.message);
-			return;
+		
+
+		let newPlugins = Object.assign({}, this.state.plugins);
+		newPlugins[internalName] = {
+			name: internalName,
+			status:"start",
+			message:"installing..."
+		};
+		this.setState(Object.assign(this.state, {plugins:newPlugins}),()=>{
+			document.querySelector("#"+internalName).scrollIntoViewIfNeeded();
+		});
+	}
+
+	pluginInfo = (e) => {
+		let plugin = e.target.closest(".plugin-entry").id;
+		
+		if(plugin == this.state._openInfo){
+			this.setState(Object.assign(this.state, {"_openInfo":null}));
+		}else{
+			this.setState(Object.assign(this.state, {"_openSettings":null, "_openAssets":null, "_openInfo":plugin}),()=>{
+				document.querySelector("#"+plugin).scrollIntoViewIfNeeded();
+			});
 		}
-
-		this.reloadPlugins(installStatus.plugin);
 	}
 
 	pluginSettings = (e) => {
@@ -352,7 +215,9 @@ class PluginTab extends React.Component {
 		if(plugin == this.state._openSettings){
 			this.setState(Object.assign(this.state, {"_openSettings":null}));
 		}else{
-			this.setState(Object.assign(this.state, {"_openSettings":plugin, "_openAssets":null}));
+			this.setState(Object.assign(this.state, {"_openSettings":plugin, "_openAssets":null, "_openInfo":null}),()=>{
+				document.querySelector("#"+plugin).scrollIntoViewIfNeeded();
+			});
 		}
 	}
 
@@ -361,26 +226,25 @@ class PluginTab extends React.Component {
 		if(plugin == this.state._openAssets){
 			this.setState(Object.assign(this.state, {"_openAssets":null}));
 		}else{
-			this.setState(Object.assign(this.state, {"_openAssets":plugin, "_openSettings":null}));
+			this.setState(Object.assign(this.state, {"_openAssets":plugin, "_openSettings":null, "_openInfo":null}),()=>{
+				document.querySelector("#"+plugin).scrollIntoViewIfNeeded();
+			});
 		}
 	}
 
-	savePlugin = async (e) => {
-		let pluginID = e.target.closest(".plugin-entry").id;
-		let pluginSettings = Object.assign(this.state[pluginID].settings);
-
+	savePlugin = async (pluginName, newData) => {
 		
 		const requestOptions = {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-			body: JSON.stringify({ "pluginName": pluginID, "settings": pluginSettings })
+			body: JSON.stringify({ "pluginName": pluginName, "settings": newData })
 		}
 
 		let saveStatus = await fetch('/save_plugin', requestOptions)
 			.then(response => response.json());
-		document.querySelector("#" + pluginID + " .save-status").textContent = "Plugin saved!";
+		document.querySelector("#" + pluginName + " .save-status").textContent = "Plugin saved!";
 		setTimeout(function () {
-			document.querySelector("#" + pluginID + " .save-status").textContent = "";
+			document.querySelector("#" + pluginName + " .save-status").textContent = "";
 		}, 3000);
 	}
 
@@ -393,7 +257,6 @@ class PluginTab extends React.Component {
 		}
 
 		let pluginFile = await fetch('/export_plugin/'+pluginID);
-		console.log(pluginFile);
 
 	}
 
@@ -406,18 +269,21 @@ class PluginTab extends React.Component {
 			window.setClass(e.target.parentElement, "checked", varval);
 		}
 
-		let thisPlugin = Object.assign(this.state)[pluginName];
+		let thisPlugin = Object.assign(this.state.plugins)[pluginName];
 		thisPlugin.settings[varname] = varval;
 		this.setState({ [pluginName]: thisPlugin });
 	}
 
 	deletePlugin = (e) => {
 		
-		let confirmation = window.confirm("Are you sure you want to delete this plugin?");
+		let pluginEl = e.target.closest(".plugin-entry");
+		pluginEl.classList.add("deleting");
+		let pluginID = pluginEl.id;
+		let confirmation = window.confirm("Are you sure you want to delete "+pluginID+"?");
 		if (confirmation == false) { return; }
 		
-		let currentPlugins = {...this.state};
-		let pluginID = e.target.closest(".plugin-entry").id;
+		let currentPlugins = {...this.state.plugins};
+		
 
 		const requestOptions = {
 			method: 'POST',
@@ -429,8 +295,11 @@ class PluginTab extends React.Component {
 			.then(response => response.json())
 			.then(data=>{
 				if (data.status == "SUCCESS") {
-					currentPlugins[pluginID] = null;
-					this.setState(currentPlugins);
+					pluginEl.classList.add("deleted");
+					pluginEl.addEventListener("animationend", ()=>{
+						currentPlugins[pluginID] = null;
+						this.setState(Object.assign(this.state, {plugins:currentPlugins}));
+					})
 				}
 			})
 		
@@ -444,7 +313,7 @@ class PluginTab extends React.Component {
 
 				window.settingsFrame = () => {
 					console.log("SENDING SETTINGS");
-					let thisSettings = Object.assign(this.state[this.state._openSettings]["settings"]);
+					let thisSettings = Object.assign(this.state.plugins[this.state._openSettings]["settings"]);
 					let udpClients = this.state._udpClients;
 					let assets = this.state[this.state._openSettings]["assets"];
 					thisSettings.isSettings = true;
@@ -457,10 +326,10 @@ class PluginTab extends React.Component {
 					
 				</iframe>;
 			}else{
-				return <div className='settings-form-container'>
-					<div id={name+"SettingsForm"} className='settings-form-html' pluginname={name} dangerouslySetInnerHTML={{__html:sForm}}></div>
-					<div className="save-div"><button type="submit" form="settingsForm" className="save-button">Save</button><div className="save-status"></div></div>
-				</div>
+
+				sForm.udpClients = this.state._udpClients;
+				let values = this.state.plugins[this.state._openSettings]["settings"]!=null?this.state.plugins[this.state._openSettings]["settings"]:{};
+				return <SettingsForm pluginName={name} data={sForm} saveSettings={this.savePlugin} values={Object.assign(values)}/>
 			}
 		}else{
 			return null;
@@ -473,23 +342,23 @@ class PluginTab extends React.Component {
 
 		let assetName = e.target.closest(".asset-entry").id;
 
-		let newState = Object.assign(this.state);
-		newState._assetFilePreview = assetName;
+		
+		let assetFilePreview = path.join(this.state.plugins[this.state._openAssets].assetBrowserPath, assetName);
 		if(window.getMediaType(assetName) == "sound"){
-			this.setState(newState,function(){
+			this.setState(Object.assign(this.state, {_assetFilePreview:assetFilePreview}),function(){
 				this.audioPreviewRef.current.pause();
 				this.audioPreviewRef.current.load();
 		   });
 			
 		}else{
-			this.setState(newState);
+			this.setState(Object.assign(this.state, {_assetFilePreview:assetFilePreview}));
 		}
 		
 	}
 
 	async deleteAsset(e){
-		let pluginName = e.target.closest(".plugin-entry").id;
-		let assetName = document.querySelector("#"+pluginName+" .asset-entry.selected").id;
+		let pluginName = this.state._openAssets;
+		let assetName = this.state._assetFilePreview;
 
 		const requestOptions = {
 			method: 'POST',
@@ -500,22 +369,87 @@ class PluginTab extends React.Component {
 		let deleteReq = await fetch('/delete_plugin_asset', requestOptions)
 			.then(response => response.json());
 		if (deleteReq.status == "SUCCESS") {
-			let thisPlugin = Object.assign(this.state[pluginName]);
-			thisPlugin.assets = deleteReq.newAssets;
-			this.setState(Object.assign(this.state, { [pluginName]: thisPlugin }));
+			let newPlugins = Object.assign(this.state.plugins);
+			newPlugins[pluginName].assets = deleteReq.newAssets;
+			this.setState(Object.assign(this.state, { plugins: newPlugins , _assetFilePreview:null}));
 		}
+	}
+
+	async browseFolder(e){
+		let folderPath = "";
+		if(typeof e == "string"){
+			if(e == "/"){
+				folderPath = "/";
+			}else{
+				folderPath = path.join(this.state.plugins[this.state._openAssets].assetBrowserPath,e);
+			}
+			
+		}else if(e == null){
+			folderPath = path.join(this.state.plugins[this.state._openAssets].assetBrowserPath);
+		}else{
+			folderPath = path.join(this.state.plugins[this.state._openAssets].assetBrowserPath,e.currentTarget.id);
+		}
+		this.getAssets(this.state._openAssets, folderPath);
+	}
+
+	getAssets(name, folderPath){
+		fetch("/browse_plugin_assets", {
+			method:"POST",
+			headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+			body: JSON.stringify({ pluginname:name, folder:folderPath })
+		})
+		.then(response => response.json())
+		.then(data => {
+			if(data.status == "ok"){
+				let newPlugins = Object.assign({}, this.state.plugins);
+				newPlugins[name].assetBrowserPath = folderPath;
+				newPlugins[name].assets = data.dirs.sort((a,b)=>{
+					const assetA = a.toUpperCase();
+					const assetB = b.toUpperCase();
+		
+					if(assetA<assetB){
+						return -1;
+					}
+		
+					if(assetB>assetA){
+						return 1
+					}
+		
+					return 0;
+				});
+				this.setState(Object.assign(this.state, {plugins:newPlugins}));
+			}
+		})
+		.catch(error => {
+		})
 	}
 
 	renderAssetManager(name){
 		let isOpen = name == this.state._openAssets;
-
-		let pluginAssets = this.state[name].assets;
-
+		if(!isOpen){return null;}
+		if(this.state.plugins[name].assets == null){
+			this.getAssets(name, this.state.plugins[name].assetBrowserPath);
+			return null;
+		}
+		
 		if(isOpen){
+			let pluginAssets = this.state.plugins[name].assets;
 			let fileTable = [];
+			let folderTable = [];
 			for(let p in pluginAssets){
+				let fileType = window.getMediaType(pluginAssets[p]);
+				if(fileType == null){
+					folderTable.push(
+						<div className="asset-entry" key={pluginAssets[p]} id={pluginAssets[p]} onClick={this.selectAsset} onDoubleClick={this.browseFolder}><FontAwesomeIcon icon={faFolder} />{pluginAssets[p]}</div>
+					);
+					continue;
+				}else if(fileType == "image"){
+					fileType = <FontAwesomeIcon icon={faImage} />
+				}else if(fileType == "sound"){
+					fileType = <FontAwesomeIcon icon={faVolumeHigh} />
+				}
 				fileTable.push(
-					<div className="asset-entry" id={pluginAssets[p]} onClick={this.selectAsset}>{pluginAssets[p]}</div>
+					<div className="asset-entry" key={pluginAssets[p]} id={pluginAssets[p]} onClick={this.selectAsset}>{fileType}{pluginAssets[p]}</div>
 				);
 			}
 
@@ -523,16 +457,25 @@ class PluginTab extends React.Component {
 			let previewAudio = null;
 			if(this.state._assetFilePreview != null){
 				if(window.getMediaType(this.state._assetFilePreview) == "sound"){
-					previewAudio = this.state[name].path+"/assets/"+this.state._assetFilePreview
+					previewAudio = path.join(this.state.plugins[name].assetPath,this.state._assetFilePreview);
 				}else{
-					previewHTML = window.getMediaHTML(this.state[name].path+"/assets/"+this.state._assetFilePreview);
+					previewHTML = window.getMediaHTML(path.join(this.state.plugins[name].assetPath,this.state._assetFilePreview));
 				}
-				
 			}
 
 			return <div className="asset-container">
+					<div className="asset-buttons">
+						<button className="asset-button upload"><FontAwesomeIcon icon={faArrowLeft} size="lg"/></button>
+						<button className="asset-button" onClick={()=>{this.browseFolder("..")}}><FontAwesomeIcon icon={faArrowUp} size="lg" /></button>
+						<button className="asset-button" onClick={()=>{this.browseFolder("/")}}><FontAwesomeIcon icon={faHouse} size="lg" /></button>
+						<button className="asset-button refresh" onClick={()=>{this.browseFolder(null)}}><FontAwesomeIcon icon={faSync} size="lg" /></button>
+					</div>
+					<div className="asset-folder-text">
+						{this.state.plugins[name].assetBrowserPath}
+					</div>
 					<div className="asset-select">
 						<div className="asset-fileselect">
+							{folderTable}
 							{fileTable}
 						</div>
 						<div className="asset-preview">
@@ -556,65 +499,275 @@ class PluginTab extends React.Component {
 		}
 	}
 
+	renderInfoView(name){
+		let isOpen = name == this.state._openInfo;
+		
+		if(isOpen){
+			let dependenciesElements = null;
+			let dependenciesElement = null;
+			if(Object.keys(this.state.plugins[name].dependencies).length>0){
+				dependenciesElements = [];
+				for(let d in this.state.plugins[name].dependencies){
+					dependenciesElements.push(
+						<div className="info-dependencies-entry">
+							{d}:{this.state.plugins[name].dependencies[d]}
+						</div>
+					)
+				}
+				dependenciesElement = <div className="info-dependencies">
+										<label>Dependencies</label>
+										{dependenciesElements}
+										<div><label><button type="button" className="add-button" onClick={()=>this.reinstallPlugin(name)}>Reinstall Dependencies</button></label></div>
+									</div>;
+			}else{
+				dependenciesElement = <div className="info-dependencies">
+					<label>Dependencies</label>
+					None
+				</div>;
+			}
+			return <div className="info-container">
+				
+				<div className="info-description">
+					<label>Description</label>
+					{this.state.plugins[name].description}
+				</div>
+				{dependenciesElement}
+				<div className="info-actions">
+					
+				</div>
+			</div>
+		}else{
+			return null;
+		}
+	}
+
 	imgError(el){
 		el.preventDefault();
 		window.setClass(el.target.closest(".plugin-entry-icon"), "default", true);
 	}
 
+	openCreatePlugin(){
+		let newOpenCreate = Object.assign(this.state._openCreate);
+		newOpenCreate.isOpen = !newOpenCreate.isOpen;
+		this.setState(Object.assign(this.state, {_openCreate:newOpenCreate}));
+	}
+
+	createPlugin(e){
+		
+		e.preventDefault();
+
+		let internalName = this.state._openCreate.pluginname.toLowerCase().replaceAll(/[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/g,"").replaceAll(" ","_");
+		let renameCount = 1;
+		if(this.state.plugins[internalName] != null){
+			while(this.state.plugins[internalName+renameCount] != null){
+				if(this.state.plugins[internalName+renameCount] == null){
+					internalName += renameCount;
+					break;
+				}else{
+					renameCount++;
+				}
+			}
+			if(this.state.plugins[internalName+renameCount] == null){
+				internalName+=renameCount;
+			}
+		}
+		
+		
+		fetch("/create_plugin", {
+			method:"POST",
+			headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+			body:JSON.stringify({
+				internalName:internalName,
+				pluginName: this.state._openCreate.pluginname,
+				author:this.state._openCreate.author,
+				description:this.state._openCreate.description
+			})
+		}).then(async data=>{
+			let json = await data.json();
+			if(json.status == "error"){
+				console.log(json.error);
+				return;
+			}
+		});
+		
+		let newPlugins = Object.assign({}, this.state.plugins);
+		newPlugins[internalName] = {
+			name: this.state._openCreate.pluginname,
+			author:this.state._openCreate.author,
+			description:this.state._openCreate.description,
+			status:"start",
+			message:"installing..."
+		};
+		
+		let newOpenCreate = {
+			isOpen:false,
+			pluginname:"",
+			author:"",
+			description:""
+		}
+		this.setState(Object.assign(this.state, {plugins:newPlugins, _openCreate:newOpenCreate}),()=>{
+			document.querySelector("#"+internalName).scrollIntoViewIfNeeded();
+		});
+	}
+
+	async reinstallPlugin(name){
+
+		fetch("/reinstall_plugin?pluginname="+name)
+		.then(response => response.json())
+		.then(data =>{
+			if(data.status == "ok"){
+				this.reloadPlugins();
+			}
+		});
+		let newPlugins = Object.assign({}, this.state.plugins);
+		newPlugins[name].status = "reinstall";
+		newPlugins[name].message = "Reinstalling dependencies...";
+		this.setState(Object.assign(this.state, {plugins:this.state.plugins}));
+	}
+
+	onCreateFormInput(e){
+		let newOpenCreate = Object.assign(this.state._openCreate);
+		newOpenCreate[e.target.name] = e.target.value;
+		this.setState(Object.assign(this.state, {_openCreate:newOpenCreate}));
+	}
+
 	render() {
 		let pluginList = [];
-		let sortedPluginKeys = Object.keys(this.state).sort();
-		for (let sp in sortedPluginKeys) {
-			let p = sortedPluginKeys[sp];
-			if(p.startsWith("_") || this.state[p] == null){continue;}
-			let pluginLinks = [];
-			if(this.state[p].hasOverlay){
-				pluginLinks.push(
-					<LinkButton name={p+"-overlay"} text={"Copy Overlay URL"} mode="copy" link={window.location.origin+"/overlay/"+p} />
-				)
-			}
-			if(this.state[p].hasUtility){
-				pluginLinks.push(<LinkButton name={p+"-utility"} text={"Open Utility"} mode="newtab" link={window.location.origin+"/utility/"+p} />);
-			}
+		let sortedPluginKeys = Object.keys(this.state.plugins).sort();
+		if(sortedPluginKeys.length == 0){
 			pluginList.push(
-				<div className="plugin-entry" id={p}>
-					<div className="plugin-entry-ui">
-						<div className="plugin-entry-icon">
-							<img src={window.location.origin + "/icons/"+p+".png"} onError={this.imgError} />
-							<FontAwesomeIcon icon={faSpider} size="lg" className="plugin-default-icon"/>
-						</div>
-						<div className="plugin-entry-info">
-							<div className="plugin-entry-title">{this.state[p].name}<div className="plugin-entry-subtitle">{this.state[p].version+" by "+this.state[p].author}</div></div>
-							<div className="plugin-entry-links">
-								{pluginLinks}
+			<div className="no-plugins-div">
+				<h1>No plugins yet, get an Alert Toaster!</h1>
+				<p>
+					Alert Toaster has slide in alerts for Spooder, Twitch, and any plugin that calls /spooder/alert on OSC.
+					Get an alert when someone triggers a chat command or get alerts when something crashes on Spooder...including Spooder itself.
+				</p>
+					<LinkButton mode="newtab" text="Get the Latest Release" link={"https://github.com/GreySole/Spooder-AlertToaster/releases/tag/v2.0"} />
+			</div>
+			)
+		}else{
+			for (let sp in sortedPluginKeys) {
+				let p = sortedPluginKeys[sp];
+				if(p.startsWith("_") || this.state.plugins[p] == null){continue;}
+				let pluginLinks = [];
+				if(this.state.plugins[p].hasOverlay){
+					pluginLinks.push(
+						<LinkButton name={p+"-overlay"} text={"Copy Overlay URL"} mode="copy" link={window.location.origin+"/overlay/"+p} />
+					)
+				}
+				if(this.state.plugins[p].hasUtility){
+					pluginLinks.push(<LinkButton name={p+"-utility"} text={"Open Utility"} mode="newtab" link={window.location.origin+"/utility/"+p} />);
+				}
+				if(this.state.plugins[p].status){
+					if(this.state.plugins[p].status == "failed"){
+						pluginList.push(
+							<div className="plugin-entry" key={p} id={p}>
+								<div className="plugin-entry-ui">
+									<div className="plugin-entry-icon">
+										<FontAwesomeIcon className="plugin-status-icon" icon={faTriangleExclamation} size="lg"/>
+									</div>
+									<div className="plugin-entry-info">
+										<div className="plugin-entry-title">{this.state.plugins[p].name}<div className="plugin-entry-subtitle">{"by "+this.state.plugins[p].author}</div></div>
+										<div className="plugin-entry-subtitle">
+											{this.state.plugins[p].message}
+										</div>
+									</div>
+									<div className="plugin-button-ui">
+										<div className="plugin-button info" onClick={this.pluginInfo}><FontAwesomeIcon icon={faCircleInfo} size="lg" /></div>
+										<div className="plugin-button delete" onClick={this.deletePlugin}><FontAwesomeIcon icon={faTrash} size="lg" /></div>
+									</div>
+								</div>
+								<div className="plugin-info-view">
+									{this.renderInfoView(p)}
+								</div>
+							</div>
+						);
+					}else{
+						pluginList.push(
+							<div className="plugin-entry" key={p} id={p}>
+								<div className="plugin-entry-ui">
+									<div className="plugin-entry-icon spinning">
+										<FontAwesomeIcon className="plugin-status-icon" icon={faCircleNotch} size="lg"/>
+									</div>
+									<div className="plugin-entry-info">
+										<div className="plugin-entry-title">{this.state.plugins[p].name}<div className="plugin-entry-subtitle">{"by "+this.state.plugins[p].author}</div></div>
+										<div className="plugin-entry-subtitle">
+											{this.state.plugins[p].message}
+										</div>
+									</div>
+									
+								</div>
+							</div>
+						);
+					}
+					
+	
+				}else{
+					pluginList.push(
+						<div className="plugin-entry" key={p} id={p}>
+							<div className="plugin-entry-ui">
+								<div className="plugin-entry-icon">
+									<img src={window.location.origin + "/icons/"+p+".png"} onError={this.imgError} />
+									<FontAwesomeIcon icon={faSpider} size="lg" className="plugin-default-icon"/>
+								</div>
+								<div className="plugin-entry-info">
+									<div className="plugin-entry-title">{this.state.plugins[p].name}<div className="plugin-entry-subtitle">{this.state.plugins[p].version+" by "+this.state.plugins[p].author}</div></div>
+									<div className="plugin-entry-links">
+										{pluginLinks}
+									</div>
+								</div>
+								<div className="plugin-button-ui">
+									<div className="plugin-button info" onClick={this.pluginInfo}><FontAwesomeIcon icon={faCircleInfo} size="lg" /></div>
+									<div className="plugin-button settings" onClick={this.pluginSettings}><FontAwesomeIcon icon={faCog} size="lg" /></div>
+									<div className="plugin-button upload" onClick={this.pluginAssets}><FontAwesomeIcon icon={faFile} size="lg" plugin-name={p} /></div>
+									<a className="link-override" href={"/export_plugin/"+p} download={p+".zip"}><div className="plugin-button export"><FontAwesomeIcon icon={faDownload} size="lg" plugin-name={p} /></div></a>
+									<div className="plugin-button delete" onClick={this.deletePlugin}><FontAwesomeIcon icon={faTrash} size="lg" /></div>
+									<input type='file' id='input-file' plugin-name={p} onChange={this.uploadPluginAsset} style={{ display: 'none' }} />
+								</div>
+							</div>
+							<div className="plugin-info-view">
+								{this.renderInfoView(p)}
+							</div>
+							<div className="plugin-entry-settings">
+								{this.renderSettings(p, this.state.plugins[p].hasExternalSettingsPage?null:this.state.plugins[p]['settings-form'])}
+							</div>
+							<div className="plugin-asset-manager">
+								{this.renderAssetManager(p)}
 							</div>
 						</div>
-						<div className="plugin-button-ui">
-							<div className="plugin-button settings" onClick={this.pluginSettings}><FontAwesomeIcon icon={faCog} size="lg" /></div>
-							<div className="plugin-button upload" onClick={this.pluginAssets}><FontAwesomeIcon icon={faFile} size="lg" plugin-name={p} /></div>
-							<a className="link-override" href={"/export_plugin/"+p} download={p+".zip"}><div className="plugin-button export"><FontAwesomeIcon icon={faDownload} size="lg" plugin-name={p} /></div></a>
-							<div className="plugin-button delete" onClick={this.deletePlugin}><FontAwesomeIcon icon={faTrash} size="lg" /></div>
-							<input type='file' id='input-file' plugin-name={p} onChange={this.uploadPluginAsset} style={{ display: 'none' }} />
-						</div>
-					</div>
-					<div className="plugin-entry-settings">
-						{this.renderSettings(p, this.state[p].hasExternalSettingsPage?null:this.state[p]['settings-form'])}
-					</div>
-					<div className="plugin-asset-manager">
-						{this.renderAssetManager(p)}
-					</div>
-				</div>
-			);
+					);
+				}
+			}
 		}
+		
+
+		let createPlugin = this.state._openCreate.isOpen?<div className="plugin-create-element">
+			<form onSubmit={this.createPlugin}>
+				<label>Name
+					<input type="text" name='pluginname' onChange={this.onCreateFormInput}/>
+				</label>
+				<label>Author
+					<input type="text" name='author' onChange={this.onCreateFormInput}/>
+				</label>
+				<label>Description
+					<input type="text" name='description' onChange={this.onCreateFormInput}/>
+				</label>
+				<button type="submit" id="createPluginButton" className="save-button">Create</button>
+			</form>
+		</div>:null;
 
 		return (<div className="plugin-element">
 			<div className="plugin-install-button">
+				<label>
+					<button onClick={this.openCreatePlugin}>Create Plugin <FontAwesomeIcon icon={faPlusCircle} size="lg" /></button>
+				</label>
 				<label htmlFor='input-file'>
-					<button onClick={this.handleFileClick}>Install New Plugin <FontAwesomeIcon icon={faPlusCircle} size="lg" /></button>
+					<button onClick={this.handleFileClick}>Install Plugin <FontAwesomeIcon icon={faFileImport} size="lg" /></button>
 				</label>
 				<div className="save-div"><button onClick={this.refreshPlugins}>Refresh Plugins <FontAwesomeIcon icon={faSync} size="lg" /></button><div className="save-status"></div></div>
 				<input type='file' id='input-file' ref={this.hiddenFileInput} onChange={this.installNewPlugin} style={{ display: 'none' }} />
 			</div>
+			{createPlugin}
 			<div className="plugin-list">{pluginList}</div></div>);
 	}
 }

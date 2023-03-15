@@ -4,10 +4,11 @@ import {ConfigTab} from './Tabs/ConfigTab.js';
 import {PluginTab} from './Tabs/PluginTab.js';
 import {OSCTunnelTab} from './Tabs/OSCTunnelTab.js';
 import {EventSubTab} from './Tabs/EventSubTab.js';
+import {ShareTab} from './Tabs/ShareTab.js';
 import {ThemeTab} from './Tabs/ThemeTab.js';
 import OSC from 'osc-js';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
-import {faBars, faArrowRight} from '@fortawesome/free-solid-svg-icons';
+import {faBars, faArrowRight, faPlay, faStop} from '@fortawesome/free-solid-svg-icons';
 
 import {VolumeControl} from './Deck/VolumeControl.js';
 import { OutputController } from './Deck/OutputController.js';
@@ -75,7 +76,7 @@ class App extends React.Component {
 			decktab:customDeckTab,
 			navOpen:false,
 			mode:defaultMode,
-			tabOptions:{"commands":"Events", "plugins":"Plugins", "osctunnels":"OSC Tunnels", "eventsub":"EventSub", "config":"Config"},
+			tabOptions:{"commands":"Events", "plugins":"Plugins", "osctunnels":"Tunnels", "eventsub":"EventSub", "sharing":"Sharing","config":"Config"},
 			deckTabOptions:{"obs":"OBS Remote", "osc":"OSC Monitor", "mod":"Mod UI"},
 			oscConnected: false,
 			obsConnected: 0,
@@ -121,6 +122,8 @@ class App extends React.Component {
 	stayHere = this.stayHere.bind(this);
 	updateCustomSpooder = this.updateCustomSpooder.bind(this);
 	saveCustomSpooder = this.saveCustomSpooder.bind(this);
+	activateShare = this.activateShare.bind(this);
+	deactivateShare = this.deactivateShare.bind(this);
 
 	componentDidMount(){
 		this.getServerState()
@@ -138,7 +141,17 @@ class App extends React.Component {
 			Object.assign(newSpooder.colors, serverData.themes.spooderpet.colors);
 			delete serverData.themes.spooderpet.colors;
 			Object.assign(newSpooder, serverData.themes.spooderpet);
-			this.setState(Object.assign(this.state, {"host":hostPort, "customSpooder":newSpooder}));
+			let shares = {};
+			//console.log(serverData.shares);
+			for(let s in serverData.shares){
+				if(serverData.activeShares.includes("#"+serverData.shares[s])){
+					shares[serverData.shares[s]] = true;
+				}else{
+					shares[serverData.shares[s]] = false;
+				}
+			}
+			console.log(shares);
+			this.setState(Object.assign(this.state, {"host":hostPort, "customSpooder":newSpooder, "shares":shares}));
 			if(this.state.mode == "setup"){
 				this.setTabContent(this.state.tab);
 			}else if(this.state.mode == "deck"){
@@ -171,6 +184,16 @@ class App extends React.Component {
 		osc.on('/obs/get/obslogininfo', (message) => {
 			let obsLoginInfo = JSON.parse(message.args[0]);
 			this.setState(Object.assign(this.state, {"obsLoginInfo":obsLoginInfo}));
+		});
+		osc.on('/share/activate', (message)=>{
+			let newShares = Object.assign({}, this.state.shares);
+			newShares[message.args[0]] = true;
+			this.setState(Object.assign(this.state, {"shares":newShares}));
+		})
+		osc.on('/share/deactivate', (message)=>{
+			let newShares = Object.assign({}, this.state.shares);
+			newShares[message.args[0]] = false;
+			this.setState(Object.assign(this.state, {"shares":newShares}));
 		})
 		osc.open();
 	}
@@ -238,6 +261,9 @@ class App extends React.Component {
 				case "eventsub":
 					this.loadEventSubData();
 				break;
+				case "sharing":
+					this.loadShares();
+				break;
 				case 'theme':
 					this.loadThemeData();
 				break;
@@ -265,6 +291,23 @@ class App extends React.Component {
 		}));
 		return <Monitor ref={this.monitorRef}/>;
 	}
+
+	loadShares = async () =>{
+		const response = await fetch("/shares");
+		const shareDataRaw = await response.json();
+		if(response.status !== 200){
+			throw Error("Error: "+response.status);
+		}
+		this.setState(Object.assign(this.state, {
+			tabData:{
+				shareData:shareDataRaw.shareData,
+				activeShares:shareDataRaw.activeShares,
+				chatCommands:shareDataRaw.commandData,
+				activePlugins:shareDataRaw.activePlugins
+			},
+			"tab":"sharing", "navOpen":false
+		}));
+	}
 	
 	loadPlugins = async () => {
 		const response = await fetch("/plugins");
@@ -286,13 +329,17 @@ class App extends React.Component {
 		const response = await fetch("/server_config");
 		const configData = await response.json();
 
+		const discordResponse = await fetch("/discord/config");
+		const discordData = await discordResponse.json();
+
+		console.log("DISCORD DATA", discordData);
 		if(response.status !== 200){
 			throw Error(body.message);
 		}
 		this.setState(Object.assign(this.state, {
 			tabData:{
 				config:configData.config,
-				discord:configData.discord,
+				discord:discordData,
 				backups:configData.backups
 			},
 			"tab":"config", "navOpen":false
@@ -343,7 +390,7 @@ class App extends React.Component {
 	}
 
 	loadEventSubData = async () => {
-		const response = await fetch("/eventsubs");
+		const response = await fetch("/twitch/eventsubs");
 		const eventData = await response.json();
 		
 		if(response.status !== 200){
@@ -408,7 +455,7 @@ class App extends React.Component {
 		let leaveMessage =document.querySelector(".chat-actions input[name=leavemessage]").value;
 		let joinMessage =document.querySelector(".chat-actions input[name=joinmessage]").value;
 
-		const response = await fetch("/chat_channel?channel="+channel+"&leavemessage="+leaveMessage+"&joinmessage="+joinMessage).then(response => response.json());
+		const response = await fetch("/twitch/chat_channel?channel="+channel+"&leavemessage="+leaveMessage+"&joinmessage="+joinMessage).then(response => response.json());
 		//console.log(response);
 		if(response.status == "SUCCESS"){
 			e.target.innerText = "Done!";
@@ -419,11 +466,23 @@ class App extends React.Component {
 	}
 
 	async restartChat(e){
-		const response = await fetch("/chat_restart").then(response => response.json());
+		const response = await fetch("/twitch/chat_restart").then(response => response.json());
 		if(response.status == "SUCCESS"){
 			e.target.innerText = "Done!";
 			setTimeout(()=>{
 				e.target.innerText = "Restart Chat";
+			}, 3000);
+		}
+		//console.log(response);
+	}
+
+	async refreshPlugins(e){
+		const response = await fetch("/refresh_plugins").then(response => response.json());
+		console.log(response);
+		if(response.status == "Refresh Success!"){
+			e.target.innerText = "Done!";
+			setTimeout(()=>{
+				e.target.innerText = "Refresh Plugins";
 			}, 3000);
 		}
 		//console.log(response);
@@ -456,6 +515,52 @@ class App extends React.Component {
 			}, 5000)
 		});
 	}
+
+	activateShare(e){
+        let shareUser = e.currentTarget.name;
+        fetch("/setShare", {
+            method:"POST",
+            headers:{
+                "Content-Type": "application/json"
+            },
+            body:JSON.stringify({
+                shareuser:shareUser,
+                enabled:true,
+                message:null
+            })
+        })
+        .then(response=>response.json())
+        .then(data=>{
+            if(data.status == "ok"){
+                let newShares = Object.assign({}, this.state.shares);
+				newShares[shareUser] = true;
+				this.setState(Object.assign(this.state, {"shares":newShares}));
+            }
+        });
+    }
+
+    deactivateShare(e){
+		let shareUser = e.currentTarget.name;
+        fetch("/setShare", {
+            method:"POST",
+            headers:{
+                "Content-Type": "application/json"
+            },
+            body:JSON.stringify({
+                shareuser:shareUser,
+                enabled:false,
+                message:null
+            })
+        })
+        .then(response=>response.json())
+        .then(data=>{
+            if(data.status == "ok"){
+                let newShares = Object.assign({}, this.state.shares);
+				newShares[shareUser] = false;
+				this.setState(Object.assign(this.state, {"shares":newShares}));
+            }
+        })
+    }
 	
 	render(){
 
@@ -480,10 +585,13 @@ class App extends React.Component {
 					tabContent = <ConfigTab ref={this.configRef} _taboptions={{setup:this.state.tabOptions,deck:this.state.deckTabOptions}} _customSpooder={Object.assign(this.state.customSpooder)} data={tabData} updateCustomSpooder={this.updateCustomSpooder} saveCustomSpooder={this.saveCustomSpooder} />;
 				break;
 				case "plugins":
-					tabContent = <PluginTab ref={this.pluginRef} data={tabData.pluginData} _udpClients={tabData.udpClients} />;
+					tabContent = <PluginTab ref={this.pluginRef} data={tabData.pluginData} osc={osc} _udpClients={tabData.udpClients} />;
 				break;
 				case "osctunnels":
 					tabContent = <OSCTunnelTab ref={this.oscTunnelRef} data={tabData.tunnelData} _udpClients={tabData.udpClients} />;
+				break;
+				case "sharing":
+					tabContent = <ShareTab shares={tabData.shareData} activeShares={tabData.activeShares} chatCommands={tabData.chatCommands} activePlugins={tabData.activePlugins} />
 				break;
 				case "eventsub":
 					tabContent = <EventSubTab ref={this.eventSubRef} data={tabData.eventData} _udpClients={tabData.udpClients} _plugins={tabData.plugins} _sevents={tabData.spooderevents} />;
@@ -546,7 +654,7 @@ class App extends React.Component {
 							<label>Remember
 								<input name="remember" onInput={this.handleObsInput} type="checkbox"/>
 							</label>
-							<button type="button" onClick={this.connectOBS}>Connect</button>
+							<button type="button" className="save-button" onClick={this.connectOBS}>Connect</button>
 						</div>;
 						
 						appContent = <div className="App-content deck">
@@ -646,9 +754,23 @@ class App extends React.Component {
 		 'user:manage:whispers'
 		];
 		let loginInfo = <div className="login-buttons">
-							<a href={"https://id.twitch.tv/oauth2/authorize?client_id="+clientID+"&redirect_uri=http://localhost:"+hostPort+"/handle&response_type=code&scope="+scopes.join(" ")}>Authorize</a>
-							<a href={"/revoke"}>Revoke</a>
+							<a href={"https://id.twitch.tv/oauth2/authorize?client_id="+clientID+"&redirect_uri=http://localhost:"+hostPort+"/twitch/authorize&response_type=code&scope="+scopes.join(" ")}>Authorize</a>
+							<a href={"/twitch/revoke"}>Revoke</a>
 						</div>;
+		let shareElements = [];
+
+		for(let s in this.state.shares){
+			shareElements.push(
+				<div className="nav-share-entry" key={s}>
+					<label>{s}</label>
+					<button name={s}
+					className={"nav-share-button "+(this.state.shares[s]==false?"save-button":"delete-button")} 
+					onClick={this.state.shares[s]==false?this.activateShare:this.deactivateShare}>
+						<FontAwesomeIcon icon={this.state.shares[s]==false?faPlay:faStop} size="lg"/>
+					</button>
+				</div>
+			)
+		}
 
 		return <div className="App">
 					<div className={"navigation-menu "+(this.state.navOpen?"open":"")}>
@@ -657,13 +779,12 @@ class App extends React.Component {
 						</div>
 						{navigationTabs}
 						<div className="chat-actions">
-							<label style={{display:"flex", alignItems:"center"}}>Stay Here <BoolSwitch name="stayhere" onChange={this.stayHere} checked={(urlParams.get("mode")!=null&&urlParams.get("tab")!=null)} /></label>
-							<label>Chat <button type="button" onClick={this.restartChat}>Restart Chat</button></label>
-							<label>Switch Channel <input name="channel" type="text" placeholder="Twitch channel name"/> 
-								<input name="leavemessage" type="text" placeholder="Say to your chat before leaving"/> 
-								<input name="joinmessage" type="text" placeholder="Introduce the bot after joining"/> 
-								<button type="button" onClick={this.connectChatChannel}>Connect</button>
-							</label>
+							<div style={{display:"flex", alignItems:"center"}}>Stay Here <BoolSwitch name="stayhere" onChange={this.stayHere} checked={(urlParams.get("mode")!=null&&urlParams.get("tab")!=null)} /></div>
+							<div>Plugins <button type="button" className="nav-restart-chat-button" onClick={this.refreshPlugins}>Refresh Plugins</button></div>
+							<div>Chat <button type="button" className="nav-restart-chat-button" onClick={this.restartChat}>Restart Chat</button></div>
+							<div>Shares
+								<div className="nav-share-container">{shareElements}</div>
+							</div>
 						</div>
 						<div className="login">
 							<div className="account-info">{username}</div>

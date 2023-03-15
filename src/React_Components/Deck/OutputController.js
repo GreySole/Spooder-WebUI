@@ -1,8 +1,9 @@
 import React from 'react';
 import OSC from 'osc-js';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
-import {faCircle, faStream, faSignal, faPause, faPlay} from '@fortawesome/free-solid-svg-icons';
+import {faCircle, faStream, faCog, faPause, faPlay} from '@fortawesome/free-solid-svg-icons';
 import './OutputController.css';
+import BoolSwitch from '../UI/BoolSwitch.js';
 
 class OutputController extends React.Component{
     constructor(props){
@@ -13,7 +14,9 @@ class OutputController extends React.Component{
             isReady:false,
             oscSubIDs:null,
             streamStatus:{},
-            recordStatus:{}
+            recordStatus:{},
+            openSettings:false,
+            settings:{}
         };
 
         this.toggleStream = this.toggleStream.bind(this);
@@ -23,12 +26,17 @@ class OutputController extends React.Component{
         this.streamStateChanged = this.streamStateChanged.bind(this);
         this.getStatus = this.getStatus.bind(this);
         this.activateInterval = this.activateInterval.bind(this);
+        this.openSettings = this.openSettings.bind(this);
+        this.getSettings = this.getSettings.bind(this);
+        this.saveSettings = this.saveSettings.bind(this);
+        this.closeSettings = this.closeSettings.bind(this);
+        this.onSettingChange = this.onSettingChange.bind(this);
     }
 
     statusInterval = null;
 
     componentDidMount(){
-        
+        this.getSettings();
         this.setState(Object.assign(this.state, {
             isReady:true,
             oscSubIDs:{
@@ -50,6 +58,26 @@ class OutputController extends React.Component{
         this.osc.send(new OSC.Message("/obs/status/interval", 0));
     }
 
+    getSettings(){
+        fetch("/obs/get_output_settings")
+        .then(response => response.json())
+        .then(data=>{
+            let newSettings = Object.assign(this.state.settings, data);
+            this.setState(Object.assign(this.state, {settings:newSettings}));
+        })
+    }
+
+    saveSettings(){
+        fetch("/obs/save_output_settings", {
+            method:"POST",
+            headers: {'Content-Type': 'application/json', 'Accept':'application/json'},
+            body:JSON.stringify(Object.assign({}, this.state.settings))
+        }).then(response => response.json())
+        .then(data=>{
+            this.setState(Object.assign(this.state, {openSettings:false}));
+        })
+    }
+
     activateInterval(){
         this.osc.send(new OSC.Message("/obs/status/interval", 1));
     }
@@ -61,7 +89,6 @@ class OutputController extends React.Component{
             this.osc.send(new OSC.Message("/obs/status/interval", 1));
         }
         this.setState(Object.assign(this.state, {streamStatus:statusData.stream, recordStatus:statusData.record}));
-        
     }
 
     toggleStream(){
@@ -106,6 +133,21 @@ class OutputController extends React.Component{
         return Math.round(bytes / Math.pow(1024, i), 2) + ' ' + sizes[i];
     }
 
+    openSettings(){
+        this.setState(Object.assign(this.state, {openSettings:true}));
+    }
+
+    closeSettings(){
+        this.getSettings();
+        this.setState(Object.assign(this.state, {openSettings:false}));
+    }
+
+    onSettingChange(e){
+        let newSettings = Object.assign({}, this.state.settings);
+        newSettings[e.target.name] = e.target.checked;
+        this.setState(Object.assign(this.state, {settings:newSettings}));
+    }
+
     render(){
 
         let streamStatusEl = null;
@@ -130,29 +172,58 @@ class OutputController extends React.Component{
                                     <label>Pause</label>
                                     <FontAwesomeIcon icon={this.state.recordStatus.outputPaused?faPlay:faPause} size="2x"/>
                                 </div>;
+        let content = null;
 
-        return <div className="deck-component deck-output-controller">
-            <label className="deck-component-label">Output</label>
-            <div className="output-controller-buttons">
-                <div className="output-controller-stream">
-                    <div onClick={this.toggleStream} className={"output-controller-button "+(this.state.streamStatus?.outputActive?"streaming ":"")+(this.state.streamStatus?.outputReconnecting?"reconnecting":"")}>
-                        <label>Stream</label>
-                        <FontAwesomeIcon icon={faStream} size="2x"/>
-                    </div>
-                    {streamStatusEl}
-                </div>
-                <div className="output-controller-record">
-                    <div className="controller-record-buttons">
-                        <div onClick={this.toggleRecord} className={"output-controller-button "+(this.state.recordStatus?.outputActive?"recording ":"")+(this.state.recordStatus?.outputPaused?"paused":"")}>
-                            <label>Record</label>
-                            <FontAwesomeIcon icon={faCircle} size="2x"/>
-                        </div>
-                        {this.state.recordStatus.outputActive||this.state.recordStatus.outputPaused?recordPauseButton:null}
-                    </div>
-                    {recordStatusEl}
+        if(this.state.openSettings){
+            content = <div className="deck-component deck-output-controller">
+                <div className="output-settings-container">
+                    <label>Set recording file to stream name (excludes special characters and takes the left side of |)
+                        <BoolSwitch name="recordRename" checked={this.state.settings.recordRename} onChange={this.onSettingChange}/>
+                    </label>
+                    <label>Alert chat on consistant frame drops and recovery
+                        <BoolSwitch name="frameDropAlert" checked={this.state.settings.frameDropAlert} onChange={this.onSettingChange}/>
+                    </label>
+                    <label>Alert chat on disconnection and recovery
+                        <BoolSwitch name="disconnectAlert" checked={this.state.settings.disconnectAlert} onChange={this.onSettingChange}/>
+                    </label>
+                    <button className="save-button" onClick={this.saveSettings}>Save</button>
+                    <button className="delete-button" onClick={this.closeSettings}>Cancel</button>
                 </div>
             </div>
-        </div>
+        }else{
+            content = <div className="deck-component deck-output-controller">
+                        <label className="deck-component-label">Output</label>
+                        <div className="output-controller-buttons">
+                            <div className="output-controller-stream">
+                                <div onClick={this.toggleStream} className={"output-controller-button "+(this.state.streamStatus?.outputActive?"streaming ":"")+(this.state.streamStatus?.outputReconnecting?"reconnecting":"")}>
+                                    <label>Stream</label>
+                                    <FontAwesomeIcon icon={faStream} size="2x"/>
+                                </div>
+                                {streamStatusEl}
+                            </div>
+                            <div className="output-controller-record">
+                                <div className="controller-record-buttons">
+                                    <div onClick={this.toggleRecord} className={"output-controller-button "+(this.state.recordStatus?.outputActive?"recording ":"")+(this.state.recordStatus?.outputPaused?"paused":"")}>
+                                        <label>Record</label>
+                                        <FontAwesomeIcon icon={faCircle} size="2x"/>
+                                    </div>
+                                    {this.state.recordStatus.outputActive||this.state.recordStatus.outputPaused?recordPauseButton:null}
+                                </div>
+                                {recordStatusEl}
+                            </div>
+                            <div className="output-controller-settings">
+                                
+                                <div onClick={this.openSettings} className={"output-controller-button"}>
+                                    <label>Settings</label>
+                                    <FontAwesomeIcon icon={faCog} size="2x"/>
+                                </div>
+                            </div>
+                        </div>
+                        
+                    </div>;
+        }
+
+        return content;
     }
 }
 

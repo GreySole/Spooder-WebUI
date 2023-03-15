@@ -551,7 +551,7 @@ class EventTable extends React.Component{
 	}
 
 	async getCustomRewards(){
-		let rewardsRaw = await fetch('/get_channelpoint_rewards')
+		let rewardsRaw = await fetch('/twitch/get_channelpoint_rewards')
 		.then(response => response.json());
 
 		if(rewardsRaw.message == 'OAuth token is missing'){
@@ -890,6 +890,7 @@ class EventTable extends React.Component{
 								Event Type:
 								<select name="etype" key={s} value={eventCommands[c].etype} onChange={this.handleChange}>
 									<option value="timed">Timed</option>
+									<option value="button-press">Button Press</option>
 									<option value="oneshot">One Shot</option>
 								</select>
 							</label>

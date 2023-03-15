@@ -9,7 +9,8 @@ class LinkButton extends React.Component{
             name:props.name,
             text:props.text,
             link:props.link,
-            mode:props.mode
+            mode:props.mode,
+            iconOnly:props.iconOnly
         };
 
         this.clickLink = this.clickLink.bind(this);
@@ -77,7 +78,7 @@ class LinkButton extends React.Component{
         }
         return <div className="link-button">
             
-            <button id={"linkButton-"+this.state.name} className={"link-button-button "+this.state.mode+" "} type="button" onClick={this.clickLink}>{this.state.text} <FontAwesomeIcon icon={iconLink} size="lg" /></button>
+            <button id={"linkButton-"+this.state.name} className={"link-button-button "+this.state.mode+" "+(this.state.iconOnly?"icononly":"")} type="button" onClick={this.clickLink}>{this.state.text} <FontAwesomeIcon icon={iconLink} size="lg" /></button>
         </div>;
     }
 }

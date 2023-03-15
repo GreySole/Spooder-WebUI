@@ -31,13 +31,14 @@ global.radioClass = (classname, selector, selected) => {
 }
 
 global.mediaExtensions = {
-	image:[".jpg",".jpeg",".png", ".tif", ".webp", ".svg", ".gif"],
-	sound:[".wav",".mp3",".aiff", ".ogg"],
-	video:[".mp4", ".webm"]
+	image:[".jpg",".jpeg",".png", ".tif", ".webp", ".svg", ".gif", ".xbm", ".jfif", ".ico", ".svgz", ".bmp", ".pjp", ".apng", ".pjpeg", ".avif"],
+	sound:[".wav",".mp3",".aiff", ".ogg", ".opus", ".flac", ".webm", ".weba", ".m4a", ".oga", ".mid", ".aiff", ".wma", ".au"],
+	audio:[".wav",".mp3",".aiff", ".ogg", ".opus", ".flac", ".webm", ".weba", ".m4a", ".oga", ".mid", ".aiff", ".wma", ".au"],
+	video:[".mp4", ".webm", ".ogm", ".wmv", ".mpg", ".ogv", ".mov", ".asx", ".mpeg", ".m4v", ".avi"]
 }
 
 global.getMediaHTML = (filePath) =>{
-
+	
 	switch(window.getMediaType(filePath)){
 		case 'image':
 			return <img src={filePath} />
@@ -54,11 +55,14 @@ global.getMediaHTML = (filePath) =>{
 }
 
 global.getMediaType = (file) => {
+	
 	for(let type in window.mediaExtensions){
 		for(let ext in window.mediaExtensions[type]){
 			if(file.toLowerCase().endsWith(window.mediaExtensions[type][ext])){
+				
 				return type;
 			}
 		}
 	}
+	return null;
 }

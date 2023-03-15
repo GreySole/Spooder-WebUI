@@ -16,7 +16,8 @@ class ConfigTab extends React.Component{
 			backupSettings:false,
 			backupPlugins:false,
 			restoreSettings:false,
-			restorePlugins:false
+			restorePlugins:false,
+			everythingChecked:true
 		};
 		this.state["_backups"] = Object.assign(props.data.backups);
 		this.state["_saveCustomSpooder"] = props.saveCustomSpooder;
@@ -26,8 +27,20 @@ class ConfigTab extends React.Component{
 			cSpooder.colors[c] = tinycolor(cSpooder.colors[c]).toHexString();
 		}
 		this.state["_customSpooder"] = cSpooder;
-		this.state["_discord"] = props.data.discord;
+		this.state["_discord"] = props.data.discord.config!=null?props.data.discord:{
+			config:{
+				token:"",
+				clientId:"",
+				autosendngrok:{
+					enabled:false,
+					destguild:"",
+					destchannel:""
+				}
+			},
+			guilds:{}
+		};
 		this.handleChange = this.handleChange.bind(this);
+		this.handleUDPChange = this.handleUDPChange.bind(this);
 		this.handleDiscordChange = this.handleDiscordChange.bind(this);
 		this.saveConfig = this.saveConfig.bind(this);
 		this.saveDiscord = this.saveDiscord.bind(this);
@@ -55,6 +68,7 @@ class ConfigTab extends React.Component{
 		this.uploadPluginsBackup = this.uploadPluginsBackup.bind(this);
 
 		this.toggleCustomSpooder = this.toggleCustomSpooder.bind(this);
+		this.restoreEverythingClick = this.restoreEverythingClick.bind(this);
 
 		for(let cs in this.configStructure){
 			if(this.state[cs] == null){
@@ -112,6 +126,15 @@ class ConfigTab extends React.Component{
 		this.setState(Object.assign(this.state,{[section]:newSection}));
 	}
 
+	handleUDPChange(s){
+		let name = s.target.name;
+		let parent = s.target.closest(".config-sub-var");
+		let section = parent.getAttribute("sectionname");
+		let newSection = Object.assign(this.state[section]);
+		newSection[parent.getAttribute("varname")][parent.getAttribute("subvarname")][name] = s.target.value;
+		this.setState(Object.assign(this.state,{[section]:newSection}));
+	}
+
 	handleDiscordChange(s){
 		let name = s.target.name;
 		let newDiscord = Object.assign(this.state._discord);
@@ -162,7 +185,7 @@ class ConfigTab extends React.Component{
 			body: JSON.stringify(newDiscord)
 		};
 		
-		fetch('/saveDiscordConfig', requestOptions)
+		fetch('/discord/saveDiscordConfig', requestOptions)
 		.then(response => response.json())
 		.then(data => {
 			document.querySelector("#discordSaveStatusText").textContent = data.status;
@@ -298,14 +321,17 @@ class ConfigTab extends React.Component{
 		let restoreFileName = document.querySelector(".restore-settings-div select").value;
 		let newStatus = Object.assign(this.state._brstatus);
 		let restoreSelections = {
-			config:document.querySelector(".restore-settings-checkboxes #restoreConfig").checked,
-			commands:document.querySelector(".restore-settings-checkboxes #restoreEvents").checked,
-			eventsub:document.querySelector(".restore-settings-checkboxes #restoreEventsub").checked,
-			oauth:document.querySelector(".restore-settings-checkboxes #restoreOauth").checked,
-			"osc-tunnels":document.querySelector(".restore-settings-checkboxes #restoreTunnels").checked,
-			"mod-blacklist":document.querySelector(".restore-settings-checkboxes #restoreBlacklist").checked,
-			"mod":document.querySelector(".restore-settings-checkboxes #restoreModData").checked,
-			"themes":document.querySelector(".restore-settings-checkboxes #restoreThemes").checked
+			everything:this.state._brstatus.everythingChecked,
+			config:document.querySelector(".restore-settings-checkboxes #restoreConfig")?.checked,
+			commands:document.querySelector(".restore-settings-checkboxes #restoreEvents")?.checked,
+			eventsub:document.querySelector(".restore-settings-checkboxes #restoreEventsub")?.checked,
+			oauth:document.querySelector(".restore-settings-checkboxes #restoreOauth")?.checked,
+			"osc-tunnels":document.querySelector(".restore-settings-checkboxes #restoreTunnels")?.checked,
+			"eventstorage":document.querySelector(".restore-settings-checkboxes #restoreEventStorage")?.checked,
+			"shares":document.querySelector(".restore-settings-checkboxes #restoreShares")?.checked,
+			"mod-blacklist":document.querySelector(".restore-settings-checkboxes #restoreBlacklist")?.checked,
+			"mod":document.querySelector(".restore-settings-checkboxes #restoreModData")?.checked,
+			"themes":document.querySelector(".restore-settings-checkboxes #restoreThemes")?.checked
 		};
 		
 		newStatus.restoreSettings = true;
@@ -429,6 +455,12 @@ class ConfigTab extends React.Component{
 		this.setState(Object.assign(this.state, {_brstatus:newStatus}));
 	}
 
+	restoreEverythingClick(e){
+		let newStatus = Object.assign(this.state._brstatus);
+		newStatus.everythingChecked = !newStatus.everythingChecked;
+		this.setState(Object.assign(this.state, {_brstatus:newStatus}));
+	}
+
 	render(){
 		let sections = [];
 		let table = [];
@@ -501,13 +533,13 @@ class ConfigTab extends React.Component{
 										{c}
 									</label>
 									<label>Name:
-										<input name="clientName" type="text" defaultValue={this.state[s][ss][c]['name']} placeholder="Name of client" onChange={this.handleChange} />
+										<input name="name" type="text" defaultValue={this.state[s][ss][c]['name']} placeholder="Name of client" onChange={this.handleUDPChange} />
 									</label>
 									<label>IP:
-										<input name="clientIP" type="text" defaultValue={this.state[s][ss][c]['ip']} placeholder="IP address to send to" onChange={this.handleChange} />
+										<input name="ip" type="text" defaultValue={this.state[s][ss][c]['ip']} placeholder="IP address to send to" onChange={this.handleUDPChange} />
 									</label>
 									<label>Port:
-										<input name="clientPort" type="text" defaultValue={this.state[s][ss][c]['port']} placeholder="IP port to send to" onChange={this.handleChange} />
+										<input name="port" type="text" defaultValue={this.state[s][ss][c]['port']} placeholder="IP port to send to" onChange={this.handleUDPChange} />
 									</label>
 								</div>
 							</div>);
@@ -593,22 +625,23 @@ class ConfigTab extends React.Component{
 
 	let guildOptions = [<option value={null}>Select Guild</option>];
 	let channelOptions = [<option value={null}>Select Channel</option>];
-	if(this.state._discord.autosendngrok?.enabled){
-		if(this.state._discord.guilds != null){
+	
+	if(this.state._discord.guilds != null){
+		if(this.state._discord.config.autosendngrok?.enabled){
 			for(let g in this.state._discord.guilds){
 				guildOptions.push(
 					<option value={g}>{this.state._discord.guilds[g].name}</option>
 				)
 			}
 		}
-	}
-
-	if(this.state._discord.autosendngrok?.enabled){
-		if(this.state._discord.autosendngrok.destguild != null){
-			for(let c in this.state._discord.guilds[this.state._discord.autosendngrok.destguild].channels){
-				channelOptions.push(
-					<option value={c}>{this.state._discord.guilds[this.state._discord.autosendngrok.destguild].channels[c].name}</option>
-				)
+	
+		if(this.state._discord.config.autosendngrok?.enabled){
+			if(this.state._discord.config.autosendngrok.destguild != null){
+				for(let c in this.state._discord.guilds[this.state._discord.config.autosendngrok.destguild].channels){
+					channelOptions.push(
+						<option value={c}>{this.state._discord.guilds[this.state._discord.config.autosendngrok.destguild].channels[c].name}</option>
+					)
+				}
 			}
 		}
 	}
@@ -616,13 +649,13 @@ class ConfigTab extends React.Component{
 	let autoNgrokFields = this.state._discord.guilds != null?<div className="config-variable">
 		<label>
 			Server
-			<select name="autosendngrok-destguild" value={this.state._discord.autosendngrok?.destguild} onChange={this.handleDiscordChange}>
+			<select name="autosendngrok-destguild" value={this.state._discord.config.autosendngrok?.destguild} onChange={this.handleDiscordChange}>
 				{guildOptions}
 			</select>
 		</label>
 		<label>
 			Channel
-			<select name="autosendngrok-destchannel" value={this.state._discord.autosendngrok?.destchannel} onChange={this.handleDiscordChange}>
+			<select name="autosendngrok-destchannel" value={this.state._discord.config.autosendngrok?.destchannel} onChange={this.handleDiscordChange}>
 				{channelOptions}
 			</select>
 		</label>
@@ -632,13 +665,13 @@ class ConfigTab extends React.Component{
 		<div className="config-variable">
 			<label>
 				Bot token
-				<input type="password" value={this.state._discord.token} onChange={this.handleDiscordChange}/>
+				<input type="password" defaultValue={this.state._discord.config.token} onChange={this.handleDiscordChange}/>
 			</label>
 		</div>
 		{this.state._discord.guilds!=null?<div className="config-variable">
 			<label>
 				Send Mod UI Link to Channel on Startup
-				<BoolSwitch name="autosendngrok-enabled" checked={this.state._discord.autosendngrok?.enabled} onChange={this.handleDiscordChange}/>
+				<BoolSwitch name="autosendngrok-enabled" checked={this.state._discord.config.autosendngrok?.enabled} onChange={this.handleDiscordChange}/>
 			</label>
 		</div>:<div class="config-variable">
 				Discord isn't logged in. Input your bot token and invite the bot to your server to assign a channel to auto send Ngrok links.
@@ -646,6 +679,48 @@ class ConfigTab extends React.Component{
 		{autoNgrokFields}
 		<div className="save-commands"><button type="button" id="saveDiscordButton" className="save-button" onClick={this.saveDiscord}>Save</button><div id="discordSaveStatusText" className="save-status"></div></div>
 	</div>:null;
+
+	let everythingChecked = this.state._brstatus.everythingChecked==true?
+	<div className="restore-settings-checkboxes">
+				<label>Everything
+					<input id="restoreEverything" type="checkbox" name="everything" onChange={this.restoreEverythingClick} defaultChecked={this.state._brstatus.everythingChecked}/>
+				</label>
+			</div>:
+			<div className="restore-settings-checkboxes">
+			<label>Everything
+				<input id="restoreEverything" type="checkbox" name="everything" onChange={this.restoreEverythingClick}/>
+			</label>
+			<label>Config
+				<input id="restoreConfig" type="checkbox" name="config" defaultChecked/>
+			</label>
+			<label>Events
+				<input id="restoreEvents" type="checkbox" name="commands" defaultChecked/>
+			</label>
+			<label>EventSub
+				<input id="restoreEventsub" type="checkbox" name="eventsub" defaultChecked/>
+			</label>
+			<label>oAuth
+				<input id="restoreOauth" type="checkbox" name="oauth"/>
+			</label>
+			<label>OSC Tunnels
+				<input id="restoreTunnels" type="checkbox" name="osc-tunnels" defaultChecked/>
+			</label>
+			<label>Mod Data
+				<input id="restoreModData" type="checkbox" name="mod" defaultChecked/>
+			</label>
+			<label>Mod Blacklist
+				<input id="restoreBlacklist" type="checkbox" name="mod-blacklist" defaultChecked/>
+			</label>
+			<label>Event Storage
+				<input id="restoreEventStorage" type="checkbox" name="eventstorage" defaultChecked/>
+			</label>
+			<label>Shares
+				<input id="restoreShares" type="checkbox" name="shares" defaultChecked/>
+			</label>
+			<label>Themes
+				<input id="restoreThemes" type="checkbox" name="themes" defaultChecked/>
+			</label>
+		</div>
 	
 	let backupRestore = this.state._brstatus.brExpanded==true?<div className="config-backup-restore">
 	<div className="backup-actions"><label className="backup-section-label">Backup</label>
@@ -684,33 +759,7 @@ class ConfigTab extends React.Component{
 				</div>
 				
 			</div>
-			<div className="restore-settings-checkboxes">
-					<label>Config
-						<input id="restoreConfig" type="checkbox" name="config" defaultChecked/>
-					</label>
-					<label>Events
-						<input id="restoreEvents" type="checkbox" name="commands" defaultChecked/>
-					</label>
-					<label>EventSub
-						<input id="restoreEventsub" type="checkbox" name="eventsub" defaultChecked/>
-					</label>
-					<label>oAuth
-						<input id="restoreOauth" type="checkbox" name="oauth"/>
-					</label>
-					<label>OSC Tunnels
-						<input id="restoreTunnels" type="checkbox" name="osc-tunnels" defaultChecked/>
-					</label>
-					<label>Mod Data
-						<input id="restoreModData" type="checkbox" name="mod" defaultChecked/>
-					</label>
-					<label>Mod Blacklist
-						<input id="restoreBlacklist" type="checkbox" name="mod-blacklist" defaultChecked/>
-					</label>
-					<label>Themes
-						<input id="restoreThemes" type="checkbox" name="themes" defaultChecked/>
-					</label>
-					
-				</div>
+			{everythingChecked}
 			<div className="restore-settings-button">
 				<button type="button" className="link-button-button" onClick={this.restoreSettings}>Restore Settings</button>
 			</div>

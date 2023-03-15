@@ -1,4 +1,4 @@
-.settings-form{
+.settings-form-element{
     display:flex;
     flex-flow:column;
     border-top:solid 2px var(--border-settings-color);
@@ -17,9 +17,29 @@
     }
 }
 
+@keyframes deleted{
+    0%{
+        clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%);
+    }
+    100%{
+        clip-path: polygon(0% 0%, 0% 0%, 0% 100%, 0% 100%);
+    }
+}
+
 .new{
     animation-name:newglow;
     animation-duration:2s;
+}
+
+.deleting{
+    background-color:var(--button-delete-color);
+    transition: background-color 1s;
+}
+
+.deleted{
+    animation-name:deleted;
+    animation-delay: 0.5s;
+    animation-duration:0.5s;
 }
 
 .settings-form-container,
@@ -28,7 +48,8 @@
     
 }
 
-.plugin-entry-settings .settings-form{
+.plugin-entry-settings{
+    margin-top:10px;
     padding:10px;
 }
 
@@ -42,6 +63,15 @@
     margin-left:10px;
 }
 
+.info-description,
+.info-dependencies,
+.info-actions{
+    padding:5px;
+    margin:5px;
+    display:flex;
+    flex-flow:column;
+}
+
 .plugin-entry-ui {
     display: flex;
     flex-flow: row;
@@ -53,6 +83,7 @@
 
 .plugin-entry-title{
     margin-left:10px;
+    margin-bottom:5px;
     font-size: 36px;
     display:flex;
     flex-flow:row;
@@ -85,7 +116,7 @@
 
 .plugin-entry-settings label,
 .boolswitch-div {
-    margin: 10px;
+    margin: 5px;
 }
 
 .plugin-entry-settings input {
@@ -101,7 +132,7 @@
     display:none;
 }
 
-.plugin-entry-icon.default .plugin-default-icon{
+.plugin-entry-icon.default .plugin-default-icon, .plugin-status-icon{
     display:block;
     width:75px;
     height:75px;
@@ -119,6 +150,19 @@
 .plugin-button-ui{
     display:flex;
     margin-left:auto;
+}
+.plugin-create-element{
+    display:flex;
+}
+.plugin-create-element label{
+    margin:5px;
+}
+.plugin-create-element input{
+    margin-left:5px;
+}
+.plugin-create-element form{
+    display:flex;
+    flex-flow:column;
 }
 
 .plugin-button,
@@ -156,10 +200,14 @@
     background-color:var(--button-delete-color);
 }
 
+
 .plugin-button.settings{
     background-color:var(--button-color);
+}
+
+.plugin-button.info{
+    background-color:var(--button-color);
     border-radius: 10px 0 0 10px;
-    
 }
 
 .plugin-button.delete{
@@ -174,25 +222,12 @@
     
 }
 
+.asset-button.refresh{
+    border-radius: 0 10px 10px 0;
+}
+
 .plugin-button.export a{
     color:var(--text-color);
-}
-
-.settings-subform .subform-container{
-    
-    display:flex;
-    flex-flow:column;
-    border-right: 1px solid var(--border-color);
-}
-
-.settings-subform{
-    margin-top:15px;
-}
-
-.subform{
-    display:flex;
-    overflow-x:overlay;
-    padding-bottom:10px;
 }
 
 .plugin-install-button{
@@ -214,6 +249,7 @@
 }
 
 .asset-container{
+    margin-top:10px;
     padding-top:15px;
     padding-bottom:15px;
     border-top:solid 2px var(--button-color);
@@ -221,11 +257,20 @@
     height:50%;
 }
 
+.asset-folder-text{
+    font-size:24px;
+    margin:5px;
+}
+
 .asset-entry{
     background-color:var(--asset-entry-color);
     padding:15px;
     user-select: none;
     cursor: pointer;
+}
+
+.asset-entry svg{
+    margin-right:10px;
 }
 
 .asset-entry:hover{
@@ -293,6 +338,25 @@
     display: flex;
     flex-flow: row;
     align-items: center;
+}
+
+.spinning{
+    color: var(--button-save-color);
+    animation-name:spin;
+    animation-duration:2s;
+    animation-iteration-count: infinite;
+    animation-timing-function: linear;
+}
+
+@keyframes spin{
+    0%{
+        filter:hue-rotate(0deg);
+        transform:rotate(0deg);
+    }
+    100%{
+        filter:hue-rotate(360deg);
+        transform:rotate(360deg);
+    }
 }
 
 @media screen and (max-width: 600px){

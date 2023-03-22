@@ -13,11 +13,12 @@ class SettingsForm extends React.Component{
         let defaults = newProps.data.defaults;
         for(let d in defaults){
             if(values[d] == null){
-                if(typeof defaults[d] == "object"){
+                if(typeof defaults[d] == "object" && !Array.isArray(defaults[d])){
                     values[d] = {};
+                }else if(typeof defaults[d] == "object" && Array.isArray(defaults[d])){
+                    values[d] = [];
                 }else{
                     values[d] = defaults[d];
-                    
                 }
             }
             if(Array.isArray(defaults[d]) && !Array.isArray(values[d])){
@@ -34,6 +35,8 @@ class SettingsForm extends React.Component{
             values:newProps.values,
             keynameChanges:{},
             assets:{},
+            discord:{},
+            obs:{},
             udpClients:newProps.data.udpClients,
             saveSettings:newProps.saveSettings
         };
@@ -48,6 +51,8 @@ class SettingsForm extends React.Component{
 
     componentDidMount(){
         this.getAssets(this.state.options?.folder);
+        this.getOBSChannels();
+        this.getDiscordChannels();
     }
 
     onInputChange(newData){
@@ -67,7 +72,9 @@ class SettingsForm extends React.Component{
             newValues[newData.inputName] = newData.value;
         }
         
-        this.setState(Object.assign(this.state, {values:newValues, keynameChanges:nameChanges}));
+        this.setState(Object.assign(this.state, {values:newValues, keynameChanges:nameChanges}),()=>{
+            document.body.scrollLeft = 0;
+        });
     }
 
     getGlobalValue(varname){
@@ -130,7 +137,7 @@ class SettingsForm extends React.Component{
     }
 
     onAddForm(subform, newKey, newForm){
-        console.log(subform, newKey, newForm);
+        //console.log(subform, newKey, newForm);
         let newValues = Object.assign({}, this.state.values);
         newValues[subform][newKey] = newForm;
         this.setState(Object.assign(this.state, {values:newValues}),
@@ -146,13 +153,35 @@ class SettingsForm extends React.Component{
         this.setState(Object.assign(this.state, {values:newValues}));
     }
 
+    getOBSChannels(){
+        fetch("/obs/get_scenes")
+        .then(response => response.json())
+        .then(data => {
+            this.setState(Object.assign(this.state, {obs:data}));
+        })
+        .catch(e=>{
+            console.log(e);
+        })
+    }
+
+    getDiscordChannels(){
+        fetch("/discord/get_channels")
+        .then(response => response.json())
+        .then(data => {
+            this.setState(Object.assign(this.state, {discord:data}));
+        })
+        .catch(e=>{
+            console.log(e);
+        })
+    }
+
     render(){
         let elements = this.state.form;
         let inputTable = [];
         for(let e in elements){
             if(elements[e].type == "subform"){
-                console.log(this.state.defaults[e], e);
-                inputTable.push(<PluginSubform key={this.state.assets!=null?e+Object.keys(this.state.assets).length:e}
+                //console.log(this.state.defaults[e], e);
+                inputTable.push(<PluginSubform key={this.state.assets!=null?e+Object.keys(this.state.assets).length+":"+Object.keys(this.state.discord).length+":"+Object.keys(this.state.obs).length:e}
                     keyname={e} 
                     pluginName={this.state.pluginName}
                     form={elements[e].form} 
@@ -161,6 +190,8 @@ class SettingsForm extends React.Component{
                     value={this.state.values[e]} 
                     udpClients={this.state.udpClients}
                     assets={this.state.assets}
+                    discord={this.state.discord}
+                    obs={this.state.obs}
                     onChange={this.onInputChange}
                     onAddForm={this.onAddForm}
                     onRemoveForm={this.onRemoveForm}
@@ -174,7 +205,7 @@ class SettingsForm extends React.Component{
                     }
                 }
                 
-                inputTable.push(<PluginInput key={this.state.assets!=null?e+Object.keys(this.state.assets).length:e}
+                inputTable.push(<PluginInput key={this.state.assets!=null?e+Object.keys(this.state.assets).length+":"+Object.keys(this.state.discord).length+":"+Object.keys(this.state.obs).length:e}
                     keyname={e} 
                     pluginName={this.state.pluginName}
                     type={elements[e].type}
@@ -185,12 +216,13 @@ class SettingsForm extends React.Component{
                     multi={elements[e]["multi-select"]} 
                     udpClients={this.state.udpClients}
                     assets={this.state.assets}
+                    discord={this.state.discord}
+                    obs={this.state.obs}
                     onChange={this.onInputChange}
                     getGlobalValue={this.getGlobalValue}/>);
             }
             
         }
-        
         return <div className="settings-form-element">
                 {inputTable}
                 <div className="save-div"><button className='save-button' onClick={this.saveSettings}>Save</button><div className="save-status"></div></div>
@@ -215,7 +247,6 @@ class PluginSubform extends React.Component{
                         values[v][d] = {};
                     }else{
                         values[v][d] = defaults[d];
-                        
                     }
                 }
                 if(Array.isArray(defaults[d]) && !Array.isArray(values[v][d]) && typeof values[v][d] != "object"){
@@ -282,9 +313,10 @@ class PluginSubform extends React.Component{
     }
 
     render(){
+        
         let subElements = this.state.value;
         let form = this.state.form;
-        
+        //console.log("RENDER SUBFORM", subElements, form, this.state.default);
         let subClones = [];
         for(let se in subElements){
             
@@ -298,7 +330,7 @@ class PluginSubform extends React.Component{
                         if(typeof variable == "string"){variable = "'"+variable+"'"}
                         let value = form[fe].showif.value;
                         if(typeof value == "string"){value = "'"+value+"'"}
-                        console.log("SHOW IF",""+variable+this.translateCondition(form[fe].showif.condition)+value, value);
+                        //console.log("SHOW IF",""+variable+this.translateCondition(form[fe].showif.condition)+value, value);
                         if(!eval(""+variable+this.translateCondition(form[fe].showif.condition)+value)){
                             //console.log("HIDE", se);
                             continue;
@@ -321,7 +353,7 @@ class PluginSubform extends React.Component{
                 }
                 //console.log(this.state.default);
                 subInputs.push(
-                        <PluginInput key={this.state.keyname+fe+Object.keys(this.state.assets).length+Object.keys(this.state.value).length} keyname={fe} subname={se}
+                        <PluginInput key={this.state.keyname+fe+Object.keys(this.state.assets).length+Object.keys(this.state.value).length+Object.keys(this.state.discord).length+Object.keys(this.state.obs).length} keyname={fe} subname={se}
                         pluginName={this.state.pluginName}
                         type={form[fe].type} 
                         label={form[fe].label} 
@@ -331,6 +363,8 @@ class PluginSubform extends React.Component{
                         multi={form[fe]["multi-select"]} 
                         udpClients={this.state.udpClients}
                         assets={this.state.assets}
+                        discord={this.state.discord}
+                        obs={this.state.obs}
                         onChange={this.onChanged}/>
                 )
             }
@@ -341,6 +375,7 @@ class PluginSubform extends React.Component{
                 </div>
             )
         }
+        //console.log("RETURNING SUB CLONES", subClones);
         return <div id={this.state.keyname+"-subform"} className="settings-subform">
             <label className="settings-subform-label">{this.state.label}</label>
                 <div key={this.state.keyname} className="settings-subform-clones">{subClones}</div>
@@ -354,25 +389,44 @@ class PluginInput extends React.Component{
         super(props);
         this.state = Object.assign({},props);
         this.state._selects = {};
-
+        
         if(this.state.multi == true){
             if(typeof this.state.value == 'object'
+            && this.state.type != "discord"
+            && this.state.type != "obs"
             && !Array.isArray(this.state.value)){
-                this.state.value = Object.values(this.state.value);
+                if(this.state.value == null){
+                    this.state.value = [];
+                }else{
+                    this.state.value = Object.values(this.state.value);
+                }
+                
+            }else if(typeof this.state.value == 'object'
+            && (this.state.type == "discord" || this.state.type == "obs")
+            && !Array.isArray(this.state.value)){
+                this.state.value = [this.state.value];
             }
+        }else if(this.state.type == "discord" && this.state.value == null){
+            this.state.value = {
+                guild:"",
+                channel:""
+            };
         }
+
         this.onChanged = this.onChanged.bind(this);
         this.onMultiChanged = this.onMultiChanged.bind(this);
         this.getInput = this.getInput.bind(this);
         this.addMultiInput = this.addMultiInput.bind(this);
         this.removeMultiInput = this.removeMultiInput.bind(this);
-        
     }
 
     onChanged(e){
         let newVal = null;
         if(e.target.type=="checkbox"){
             newVal = e.target.checked;
+        }else if((this.state.type == "discord" || this.state.type == "obs") && !this.state.multi){
+            newVal = Object.assign({}, this.state.value);
+            newVal[e.target.name] = e.target.value;
         }else{
             newVal = e.target.value;
         }
@@ -380,15 +434,26 @@ class PluginInput extends React.Component{
         if(this.state.options?.jsonfriendly == true){
             e.target.value = newVal.replace(/[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/,"").replace(" ", "_");
         }
+        console.log("NEW VAL", newVal)
         this.state.onChange({inputName:this.state.keyname, subname:this.state.subname, value:newVal});
         this.setState(Object.assign(this.state, {value:newVal}));
     }
 
     onMultiChanged(e){
         let newSelects = Object.assign(this.state._selects);
-        //console.log(e.target.value, e.target.name);
-        newSelects[e.target.name] = e.target.value;
-        this.setState(Object.assign(this.state, {_multi:newSelects}));
+        console.log(e.target.value, e.target.name);
+        
+        if(this.state.type == "discord" || this.state.type == "obs"){
+            if(newSelects[this.state.keyname] == null){
+                 newSelects[this.state.keyname] = {};
+            }
+            let newObjSelect = Object.assign(newSelects[this.state.keyname]);
+            newObjSelect[e.target.name] = e.target.value;
+            newSelects[this.state.keyname] = newObjSelect;
+        }else{
+            newSelects[e.target.name] = e.target.value;
+        }
+        this.setState(Object.assign(this.state, {_selects:newSelects}));
     }
 
     handleAssetUploadClick = e => {
@@ -430,7 +495,9 @@ class PluginInput extends React.Component{
         let changeCB = this.state.multi?this.onMultiChanged:this.onChanged;
         if(this.state.multi == true){
             let defaultVal = this.state.default==null?null:this.state.default[0];
-            value = defaultVal;
+            if(value == null){
+                value = defaultVal;
+            }
         }else{
             //console.log(this.state.value, this.state.default);
             if(this.state.value == null){
@@ -461,30 +528,30 @@ class PluginInput extends React.Component{
                     )
                 }
                 
-                input = <select name={this.state.keyname} defaultValue={value} value={this.state._selects[this.state.keyname]} onChange={changeCB}>
+                input = <select key={this.state.keyname} name={this.state.keyname} defaultValue={value} value={this.state._selects[this.state.keyname]} onChange={changeCB}>
                             {options}
                         </select>
             break;
             case "range":
                 input = <label>
-                        <input type={type} min={this.state.options?.min} max={this.state.options?.max} step={this.state.options?.step} name={this.state.keyname} defaultValue={value} onChange={changeCB}/>
+                        <input key={this.state.keyname} type={type} min={this.state.options?.min} max={this.state.options?.max} step={this.state.options?.step} name={this.state.keyname} defaultValue={value} onChange={changeCB}/>
                         {value}
                     </label>;
             break;
             case "code":
-                input = <CodeEditor className="response-code-editor" name={this.state.keyname} language="js" 
+                input = <CodeEditor key={this.state.keyname} className="response-code-editor" name={this.state.keyname} language="js" 
                 value={value} 
                 onChange={changeCB}
                 placeholder="return 'Hello '+event.displayName"/>
             break;
             case "keyname":
-                input = <label><input type={type} name={this.state.keyname} defaultValue={value} onChange={changeCB}/></label>;
+                input = <label key={this.state.keyname}><input type={type} name={this.state.keyname} defaultValue={value} onChange={changeCB}/></label>;
             break;
             case "asset":
                 let assets = this.getAssetOptions(this.state.options?.assetType, this.state.options?.folder);
                 let assetType = this.state.options?.assetType!=null?this.state.options.assetType+"/*":"*";
                 
-                input = <label name={this.state.keyname} htmlFor={'input-file-'+this.state.keyname} >
+                input = <label key={this.state.keyname} name={this.state.keyname} htmlFor={'input-file-'+this.state.keyname} >
                             <select name={this.state.keyname} defaultValue={value} onChange={changeCB}>{assets}</select>
                             <button className="settings-form-asset-upload" onClick={this.handleAssetUploadClick}><FontAwesomeIcon icon={faFileImport} size="lg" /></button>
                             <input type='file' id={'input-file-'+this.state.keyname} name={this.state.keyname} accept={assetType} onChange={this.uploadAsset} style={{ display: 'none' }} />
@@ -502,21 +569,137 @@ class PluginInput extends React.Component{
                         <option value={u}>{this.state.udpClients[u].name}</option>
                     )
                 }
-                input = <label>
+                input = <label key={this.state.keyname}>
                     <select name={this.state.keyname} onChange={changeCB}>
                         {udpOptions}
                     </select>
                 </label>
             break;
+            case "obs":
+                console.log(this.state.obs);
+                let sceneOptions = [<option value={-1}>Select Scene</option>];
+                let itemOptions = [<option value={-1}>Select Item</option>];
+                let obsVal = this.state.value!=null?this.state.value:{
+                    scene:-1,
+                    item:-1
+                };
+
+                if(Object.keys(this.state.obs).length > 0){
+                    for(let d in this.state.obs.scenes){
+                        sceneOptions.push(
+                            <option value={d}>{this.state.obs.scenes[d].sceneName}</option>
+                        );
+                    }
+    
+                    if(this.state.multi == true){
+                        let obsSelect = this.state._selects[this.state.keyname];
+                        if(obsSelect != null){
+                            if(obsSelect.scene != ""){
+                                for(let c in this.state.obs.sceneItems[obsSelect.scene]){
+                                    itemOptions.push(
+                                        <option value={this.state.obs.sceneItems[obsSelect.scene][c].sceneItemId}>{this.state.obs.sceneItems[obsSelect.scene][c].sourceName}</option>
+                                    );
+                                }
+                            }
+                        }
+                        
+                    }else{
+                        if(obsVal.scene != -1){
+                            for(let c in this.state.obs.sceneItems[obsVal.scene]){
+                                itemOptions.push(
+                                    <option value={this.state.obs.sceneItems[obsVal.scene][c].sceneItemId}>{this.state.obs.sceneItems[obsVal.scene][c].sourceName}</option>
+                                );
+                            }
+                        }
+                    }
+                    
+                    console.log(this.state._selects);
+                    input = <label key={this.state.keyname+sceneOptions.length+itemOptions.length+JSON.stringify(this.state._selects)}>
+                        <select name="scene" defaultValue={obsVal.scene} value={this.state._selects[this.state.keyname]?.["scene"]} onChange={changeCB}>
+                            {sceneOptions}
+                        </select>
+                        <select name="item" defaultValue={obsVal.item} value={this.state._selects[this.state.keyname]?.["item"]} onChange={changeCB}>
+                            {itemOptions}
+                        </select>
+                    </label>;
+                }else{
+                    input = <label key={this.state.keyname+sceneOptions.length+itemOptions.length}>
+                        No scenes found. Connect OBS to assign a scene item.
+                    </label>;
+                }
+            break;
+            case "discord":
+                //console.log(this.state.discord);
+                let guildOptions = [<option value={""}>Select Guild</option>];
+                let channelOptions = [<option value={""}>Select Channel</option>];
+                let discordVal = this.state.value!=null?this.state.value:{
+                    guild:"",
+                    channel:""
+                }
+                if(Object.keys(this.state.discord).length > 0){
+                    for(let d in this.state.discord){
+                        guildOptions.push(
+                            <option value={d}>{this.state.discord[d].name}</option>
+                        );
+                        
+                    }
+    
+                    if(this.state.multi == true){
+                        let discordSelect = this.state._selects[this.state.keyname];
+                        if(discordSelect != null){
+                            if(discordSelect.guild != ""){
+                                for(let c in this.state.discord[discordSelect.guild].channels){
+                                    channelOptions.push(
+                                        <option value={c}>{this.state.discord[discordSelect.guild].channels[c].name}</option>
+                                    );
+                                }
+                            }
+                        }
+                        
+                    }else{
+                        if(discordVal.guild != "" && this.state.discord[discordVal.guild] != null){
+                            for(let c in this.state.discord[discordVal.guild].channels){
+                                channelOptions.push(
+                                    <option value={c}>{this.state.discord[discordVal.guild].channels[c].name}</option>
+                                );
+                            }
+                        }
+                    }
+                    
+                    console.log(this.state._selects);
+                    input = <label key={this.state.keyname+guildOptions.length+channelOptions.length+JSON.stringify(this.state._selects)}>
+                        <select name="guild" defaultValue={discordVal.guild} value={this.state._selects[this.state.keyname]?.["guild"]} onChange={changeCB}>
+                            {guildOptions}
+                        </select>
+                        <select name="channel" defaultValue={discordVal.channel} value={this.state._selects[this.state.keyname]?.["channel"]} onChange={changeCB}>
+                            {channelOptions}
+                        </select>
+                    </label>;
+                }else{
+                    input = <label key={this.state.keyname+guildOptions.length+channelOptions.length}>
+                        No guilds found. Invite your Spooder to a Discord server to assign a channel.
+                    </label>;
+                }
+                
+                //onMultiChanged
+                
+            break;
             default:
-                input = <input type={type} name={this.state.keyname} defaultValue={value} onChange={changeCB}/>;
+                input = <input key={this.state.keyname} type={type} name={this.state.keyname} defaultValue={value} onChange={changeCB}/>;
         }
         return input;
     }
 
-    addMultiInput(newval){
-        let newValues = [...this.state.value];
-        newValues.push(newval);
+    addMultiInput(newVal){
+        let newValues = this.state.value!=null?[...this.state.value]:[];
+        
+        console.log(newVal, newValues);
+        if(typeof newVal == "object" && !Array.isArray(newVal)){
+            newValues.push(Object.assign({}, newVal));
+        }else{
+            newValues.push(newVal);
+        }
+        
         //console.log("NEW VALUES", newValues);
         let e = {
             target:{
@@ -595,14 +778,6 @@ class PluginInput extends React.Component{
         return optionHTML;
 	}
 
-    getOBSOptions(){
-        
-    }
-
-    getDiscordOptions(){
-
-    }
-
     render(){
         let label = <label>{this.state.label}</label>;
         
@@ -612,11 +787,20 @@ class PluginInput extends React.Component{
             let input = this.getInput(this.state.type, defaultVal);
             let varContainer = [];
             for(let v in this.state.value){
-                varContainer.push(
-                    <div className="settings-form-var-button" key={v} index={v} onClick={()=>this.removeMultiInput(v)}>
-                        {this.state.value[v]}
-                    </div>
-                )
+                if(this.state.type == "discord" || this.state.type =="obs"){
+                    varContainer.push(
+                        <div className="settings-form-var-button" key={v} index={v} onClick={()=>this.removeMultiInput(v)}>
+                            {Object.values(this.state.value[v]).join(", ")}
+                        </div>
+                    )
+                }else{
+                    varContainer.push(
+                        <div className="settings-form-var-button" key={v} index={v} onClick={()=>this.removeMultiInput(v)}>
+                            {this.state.value[v]}
+                        </div>
+                    )
+                }
+                
             }
             
             //console.log("INPUT VALUE", input.props);
@@ -625,7 +809,7 @@ class PluginInput extends React.Component{
                 <div className="settings-form-multi-input">
                     <div className="settings-form-multi-ui">
                         {input}
-                        <button className="settings-form-multi-add" type="button" onClick={()=>this.addMultiInput(this.state._selects[input.props.name])}><FontAwesomeIcon icon={faPlus}/></button>
+                        <button className="settings-form-multi-add" type="button" onClick={()=>this.addMultiInput(this.state._selects[this.state.keyname])}><FontAwesomeIcon icon={faPlus}/></button>
                     </div>
                     <div className="settings-form-var-container">
                         {varContainer}

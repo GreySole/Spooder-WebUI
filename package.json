@@ -1,6 +1,6 @@
 {
   "name": "spooder-webui",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "Web interface for Spooder",
   "main": "spooder.js",
   "scripts": {

@@ -8,7 +8,6 @@ class BoolSwitch extends React.Component{
     }
 
     toggleSwitch = (e) =>{
-		
         console.log("TOGGLE SWITCH");
         
         let thisSwitch = e.target.closest(".boolswitch");

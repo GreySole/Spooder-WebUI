@@ -48,6 +48,19 @@
     
 }
 
+.no-plugins-div{
+    padding:15px;
+}
+
+.no-plugins-div h1{
+    font-size:24px;
+    margin-bottom:5px;
+}
+
+.no-plugins-div p{
+    margin-bottom:5px;
+}
+
 .plugin-entry-settings{
     margin-top:10px;
     padding:10px;

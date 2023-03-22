@@ -642,7 +642,7 @@ class PluginTab extends React.Component {
 					Alert Toaster has slide in alerts for Spooder, Twitch, and any plugin that calls /spooder/alert on OSC.
 					Get an alert when someone triggers a chat command or get alerts when something crashes on Spooder...including Spooder itself.
 				</p>
-					<LinkButton mode="newtab" text="Get the Latest Release" link={"https://github.com/GreySole/Spooder-AlertToaster/releases/tag/v2.0"} />
+					<LinkButton mode="newtab" text="Get the Latest Release" link={"https://github.com/GreySole/Spooder-AlertToaster/releases/tag/latest"} />
 			</div>
 			)
 		}else{

@@ -66,6 +66,7 @@
     flex-flow:row;
     width:100%;
     overflow-x:auto;
+    box-sizing:border-box;
 }
 
 .settings-subform-label{

@@ -511,8 +511,8 @@ class PluginInput extends React.Component{
         switch(type){
             case "boolean":
             case "checkbox":
-                //input = <input type="checkbox" name={this.state.keyname} defaultChecked={value} onChange={changeCB}/>
-                input = <BoolSwitch name={this.state.keyname} checked={value} onChange={changeCB} />
+                input = <input type="checkbox" name={this.state.keyname} defaultChecked={value} onChange={changeCB}/>
+                //input = <BoolSwitch name={this.state.keyname} checked={value} onChange={changeCB} />
             break;
             case "select":
                 

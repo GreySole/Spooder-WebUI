@@ -64,7 +64,6 @@
 
 body {
     overflow-y:overlay;
-    overflow-x:hidden;
     background-color: var(--bg-color);
     color: var(--text-color);
 }

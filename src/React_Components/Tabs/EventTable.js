@@ -81,7 +81,7 @@ class EventTable extends React.Component{
 		this.dragItem = createRef();
 		this.dragOverItem = createRef();
 		
-		
+		this.verifyResponseScript = this.verifyResponseScript.bind(this);
 	}
 
 	eventStructure = {
@@ -454,6 +454,7 @@ class EventTable extends React.Component{
 		let inputEl = parentEl.querySelector(".response-code-input");
 		let inputMessage = inputEl.value==""?"TestMessage":inputEl.value;
 		let responseScript = responseEl.value;
+		let eventData = this.state.events[e.currentTarget.getAttribute("eventname")];
 
 		//Usually event.username is the uncapitalized version of a username.
 		//Spooder replaces this with the capitalized version in runCommands()
@@ -488,23 +489,32 @@ class EventTable extends React.Component{
 			  isModerator: false
 			}
 		  }
-		  
-
+		
 		try{
-			let responseFunct = eval("async () => { let event = "+JSON.stringify(testEvent)+"; let extra= "+JSON.stringify(testEvent)+"; "+responseScript.replace(/\n/g, "")+"}");
-			let response = await responseFunct();
-			console.log("SCRIPT RAN SUCCESSFULLY:",response);
-			outputEl.textContent = response;
-			window.setClass(outputEl, "verified", true);
-			window.setClass(outputEl, "failed", false);
+			let response = await fetch("/verifyResponseScript", {
+				method:"POST",
+				headers: {'Content-Type': 'application/json', 'Accept':'application/json'},
+				body:JSON.stringify({
+					event:eventData,
+					message:testEvent,
+					script:responseScript
+				})
+			}).then(response => response.json());
+			if(response.status == "ok"){
+				console.log("SCRIPT RAN SUCCESSFULLY:",response);
+				outputEl.textContent = response.response;
+				window.setClass(outputEl, "verified", true);
+				window.setClass(outputEl, "failed", false);
+			}else{
+				console.log("SCRIPT FAILED", response.response);
+				outputEl.textContent = response.response;
+				window.setClass(outputEl, "verified", false);
+				window.setClass(outputEl, "failed", true);
+			}
+			
 		}catch(e){
-			console.log("SCRIPT FAILED", e);
-			outputEl.textContent = e;
-			window.setClass(outputEl, "verified", false);
-			window.setClass(outputEl, "failed", true);
+			console.log(e);
 		}
-		
-		
 	}
 
 	searchText(e){
@@ -834,7 +844,7 @@ class EventTable extends React.Component{
 								placeholder="return 'Hello '+event.displayName"/>
 								<input className="response-code-input" type="text" placeholder="Input text"/>
 								<div className="response-code-output"></div>
-								<div className="verify-message"><button className="verify-message-button save-button" onClick={this.verifyResponseScript}>Verify Script</button></div>
+								<div className="verify-message"><button className="verify-message-button save-button" eventname={s} onClick={this.verifyResponseScript}>Verify Script</button></div>
 							</label>
 							<label>
 								Delay (Milliseconds):

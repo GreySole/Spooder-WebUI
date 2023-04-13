@@ -155,22 +155,34 @@ class PluginTab extends React.Component {
 		var fd = new FormData();
 		fd.append('file', e.target.files[0]);
 		//return;
-
 		let internalName = e.target.files[0].name.split(".")[0].toLowerCase().replaceAll(/[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/g,"").replaceAll(" ","_");
-		let renameCount = 1;
 		if(this.state.plugins[internalName] != null){
-			while(this.state.plugins[internalName+renameCount] != null){
-				if(this.state.plugins[internalName+renameCount] == null){
-					internalName += renameCount;
-					break;
-				}else{
-					renameCount++;
+			let overwrite = confirm("The plugin: "+internalName+" already exists. Do you want to overwrite it?");
+			let rename = null;
+			if(overwrite == false){
+				rename = confirm("Would you rather install another copy of this plugin?");
+			}
+			if(overwrite == false && rename == false){
+				return;
+			}else if(overwrite == false && rename == true){
+				let renameCount = 1;
+				if(this.state.plugins[internalName] != null){
+					while(this.state.plugins[internalName+renameCount] != null){
+						if(this.state.plugins[internalName+renameCount] == null){
+							internalName += renameCount;
+							break;
+						}else{
+							renameCount++;
+						}
+					}
+					if(this.state.plugins[internalName+renameCount] == null){
+						internalName+=renameCount;
+					}
 				}
 			}
-			if(this.state.plugins[internalName+renameCount] == null){
-				internalName+=renameCount;
-			}
 		}
+		
+		
 		fd.append("internalName", internalName);
 		const requestOptions = {
 			method: 'POST',

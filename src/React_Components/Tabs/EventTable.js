@@ -95,7 +95,11 @@ class EventTable extends React.Component{
 			chat:{
 				enabled:false,
 				search:false,
-				command:""
+				command:"",
+				vip:false,
+				mod:false,
+				sub:false,
+				broadcaster:false,
 			},
 			redemption:{
 				enabled:false,
@@ -683,13 +687,8 @@ class EventTable extends React.Component{
 			let eventTriggers = thisEvent[s].triggers;
 			let redemptionTrigger = null;
 			if(this.state._rewards != null){
-				redemptionTrigger = this.state._rewards.length > 0 ? 
+				let redemptionContent = eventTriggers.redemption.enabled == true ? 
 				<label triggertype="redemption" className="event-trigger">
-					Redemption:
-					<label className="label-switch">
-						Enabled:
-						<BoolSwitch name="enabled" checked={eventTriggers.redemption.enabled} onChange={this.handleChange}/>
-					</label>
 					<label>
 						Reward:
 						<select name="id" value={eventTriggers.redemption.id} onChange={this.handleChange}>
@@ -701,13 +700,32 @@ class EventTable extends React.Component{
 						<BoolSwitch name="override" checked={eventTriggers.redemption.override} onChange={this.handleChange}/>
 					</label>
 				</label>:null;
+				redemptionTrigger = <div triggertype="redemption">
+					<label className="label-switch">
+						Redemption:
+						<BoolSwitch name="enabled" checked={eventTriggers.redemption.enabled} onChange={this.handleChange}/>
+					</label>
+					{redemptionContent}
+				</div>;
+				
 			}
 
-			let chatTrigger = <label triggertype="chat" className="event-trigger">
-								Chat:
+			let chatContent = eventTriggers.chat.enabled == true ?<label triggertype="chat" className="event-trigger">
 								<label className="label-switch">
-									Enabled:
-									<BoolSwitch name="enabled" checked={eventTriggers.chat.enabled} onChange={this.handleChange}/>
+									Broadcaster Only:
+									<BoolSwitch name="broadcaster" checked={eventTriggers.chat.broadcaster} onChange={this.handleChange}/>
+								</label>
+								<label className="label-switch">
+									Mod Only:
+									<BoolSwitch name="mod" checked={eventTriggers.chat.mod} onChange={this.handleChange}/>
+								</label>
+								<label className="label-switch">
+									Subscriber Only:
+									<BoolSwitch name="sub" checked={eventTriggers.chat.sub} onChange={this.handleChange}/>
+								</label>
+								<label className="label-switch">
+									VIP Only:
+									<BoolSwitch name="vip" checked={eventTriggers.chat.vip} onChange={this.handleChange}/>
 								</label>
 								<label className="label-switch">
 									Search and Match in Message:
@@ -717,17 +735,22 @@ class EventTable extends React.Component{
 									Command:
 									<input type="text" name="command" value={eventTriggers.chat.command} onChange={this.handleChange} />
 								</label>
-							</label>
+							</label>:null;
+			let chatTrigger = <div triggertype="chat">
+				
+				<label className="label-switch">
+					Chat:
+					<BoolSwitch name="enabled" checked={eventTriggers.chat.enabled} onChange={this.handleChange}/>
+				</label>
+				{chatContent}
+			</div>
 
 			let oscTrigger = null;
-
-			if(eventTriggers.osc?.type=="double"){
-				oscTrigger = <label triggertype="osc" className="event-trigger">
-				OSC:
-					<label className="label-switch">
-						Enabled:
-						<BoolSwitch name="enabled" checked={eventTriggers.osc?.enabled} onChange={this.handleChange}/>
-					</label>
+			let oscContent = null;
+			
+			if(eventTriggers.osc?.type=="double" && eventTriggers.osc?.enabled == true){
+				oscContent = <label triggertype="osc" className="event-trigger">
+				
 					<label>
 						Handle:
 						<select name="handletype" value={eventTriggers.osc?.handletype} onChange={this.handleChange}>
@@ -776,14 +799,9 @@ class EventTable extends React.Component{
 						Value 2:
 						<input type="number" name="value2" value={eventTriggers.osc?.value2} onChange={this.handleChange}/>
 					</label>
-			</label>;
-			}else{
-				oscTrigger = <label triggertype="osc" className="event-trigger">
-				OSC:
-					<label className="label-switch">
-						Enabled:
-						<BoolSwitch name="enabled" checked={eventTriggers.osc?.enabled} onChange={this.handleChange}/>
-					</label>
+				</label>;
+			}else if(eventTriggers.osc?.enabled == true){
+				oscContent = <label triggertype="osc" className="event-trigger">
 					<label>
 						Handle:
 						<select name="handletype" value={eventTriggers.osc?.handletype} onChange={this.handleChange}>
@@ -817,10 +835,16 @@ class EventTable extends React.Component{
 						Value:
 						<input type="number" name="value" value={eventTriggers.osc?.value} onChange={this.handleChange}/>
 					</label>
-			</label>;
+				</label>;
 			}
 			
-			
+			oscTrigger = <div triggertype="osc">
+				<label className="label-switch">
+					OSC:
+					<BoolSwitch name="enabled" checked={eventTriggers.osc?.enabled} onChange={this.handleChange}/>
+				</label>
+				{oscContent}
+			</div>
 			
 			let triggerElement = <div className="command-props triggers">
 									{chatTrigger}

@@ -320,6 +320,10 @@ class EventSubTab extends React.Component{
 							<option value="channel.prediction.progress">Prediction Progress</option>
 							<option value="channel.prediction.lock">Prediction Lock</option>
 							<option value="channel.prediction.end">Prediction End</option>
+							<option value="channel.charity_campaign.donate">Charity Donate</option>
+							<option value="channel.charity_campaign.start">Charity Start</option>
+							<option value="channel.charity_campaign.progress">Charity Progress</option>
+							<option value="channel.charity_campaign.stop">Charity Stop</option>
 							<option value="drop.entitlement.grant">Drop Entitlement Grant</option>
 							<option value="extension.bits_transaction.create">Extension Bits Transaction Create</option>
 							<option value="channel.goal.begin">Goal Begin</option>

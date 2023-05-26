@@ -1,6 +1,6 @@
 {
   "name": "spooder-webui",
-  "version": "0.4.2",
+  "version": "0.4.5",
   "description": "Web interface for Spooder",
   "main": "spooder.js",
   "scripts": {
@@ -14,7 +14,7 @@
     "@fortawesome/free-solid-svg-icons": "^6.1.1",
     "@fortawesome/react-fontawesome": "^0.1.18",
     "@uiw/react-textarea-code-editor": "^2.0.6",
-    "@xzdarcy/react-timeline-editor": "^0.1.8",
+    "@xzdarcy/react-timeline-editor": "^0.1.9",
     "obs-websocket-js": "^5.0.0-beta.2",
     "osc-js": "^2.3.2",
     "path-browserify": "^1.0.1",

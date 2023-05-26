@@ -577,6 +577,7 @@ class PluginInput extends React.Component{
             break;
             case "obs":
                 console.log(this.state.obs);
+                
                 let sceneOptions = [<option value={-1}>Select Scene</option>];
                 let itemOptions = [<option value={-1}>Select Item</option>];
                 let obsVal = this.state.value!=null?this.state.value:{
@@ -787,10 +788,19 @@ class PluginInput extends React.Component{
             let input = this.getInput(this.state.type, defaultVal);
             let varContainer = [];
             for(let v in this.state.value){
-                if(this.state.type == "discord" || this.state.type =="obs"){
+                if(this.state.type == "discord"){
+                    console.log(this.state.value[v], this.state);
                     varContainer.push(
                         <div className="settings-form-var-button" key={v} index={v} onClick={()=>this.removeMultiInput(v)}>
-                            {Object.values(this.state.value[v]).join(", ")}
+                            { this.state.discord[this.state.value[v].guild] != null?
+                            this.state.discord?.[this.state.value[v].guild].name+" -> "+this.state.discord?.[this.state.value[v].guild].channels[this.state.value[v].channel].name:Object.values(this.state.value[v]).join(", ")}
+                        </div>
+                    )
+                }else if(this.state.type == "obs"){
+                    varContainer.push(
+                        <div className="settings-form-var-button" key={v} index={v} onClick={()=>this.removeMultiInput(v)}>
+                            { this.state.obs.scenes != null?
+                            this.state.obs.scenes[this.state.value[v].scene].sceneName+" -> "+this.state.obs.sceneItems[this.state.value[v].scene][this.state.value[v].item].sourceName:Object.values(this.state.value[v]).join(", ")}
                         </div>
                     )
                 }else{

@@ -1,3 +1,20 @@
+.timeline-editor-action .prompt{
+	text-align:center;
+	font-size:18px;
+	display: flex;
+	flex-flow:column;
+    align-items: center;
+}
+
+.timeline-editor-action .prompt label{
+	display:none;
+}
+
+.timeline-editor-action-effect-nottimed .timeline-editor-action-left-stretch,
+.timeline-editor-action-effect-nottimed .timeline-editor-action-right-stretch{
+	display:none;
+}
+
 /*CHAT COMMANDS TAB*/
 
 .event-container{

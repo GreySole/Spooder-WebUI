@@ -1,7 +1,10 @@
 import React, { createRef } from 'react';
 import CodeEditor from '@uiw/react-textarea-code-editor';
+import { Timeline, TimelineRow } from '@xzdarcy/react-timeline-editor' ;
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
-import {faTrash, faAward, faCommentDots, faNetworkWired, faCaretDown, faCaretUp, faMagnifyingGlass, faCross, faCancel, faX} from '@fortawesome/free-solid-svg-icons';
+import {faTrash, faAward, faCommentDots, faNetworkWired, faCaretDown, faCaretUp, faMagnifyingGlass, faCross, faCancel, faX, faLock, faPlug} from '@fortawesome/free-solid-svg-icons';
+import discordIcon from "../../icons/discord.svg";
+import obsIcon from "../../icons/obs.svg";
 import BoolSwitch from '../UI/BoolSwitch.js';
 
 class EventTable extends React.Component{
@@ -39,6 +42,7 @@ class EventTable extends React.Component{
 						for(let co in this.eventStructure[ev][this.state.events[e][ev][c].type]){
 							if(this.state.events[e][ev][c][co] == null){
 								this.state.events[e][ev][c][co] = this.eventStructure[ev][this.state.events[e][ev][c].type][co];
+								
 							}
 						}
 					}
@@ -58,8 +62,14 @@ class EventTable extends React.Component{
 		}
 		this.state._udpClients = props._udpClients;
 		this.state._plugins = props._plugins;
-		this.state._obs = props._obs;
 		this.state._searchtext = "";
+		this.state._eventexpands = {};
+		this.state._zooms = {};
+		for(let e in this.state.events){
+			this.state._eventexpands[e] = false;
+			this.state._zooms[e] = 1;
+		}
+		
 		
 		this.handleChange = this.handleChange.bind(this);
 		this.addCommand = this.addCommand.bind(this);
@@ -72,8 +82,11 @@ class EventTable extends React.Component{
 		this.deleteEvent = this.deleteEvent.bind(this);
 		this.deleteGroup = this.deleteGroup.bind(this);
 		this.getCustomRewards = this.getCustomRewards.bind(this);
+		this.getOBSChannels = this.getOBSChannels.bind(this)
 		this.checkEventTaken = this.checkEventTaken.bind(this);
 		this.searchText = this.searchText.bind(this);
+		this.zoomTimeline = this.zoomTimeline.bind(this);
+		this.onUpdateTimeline = this.onUpdateTimeline.bind(this);
 
 		this.arrangeCommands = this.arrangeCommands.bind(this);
 		this.checkCommandConflicts = this.checkCommandConflicts.bind(this);
@@ -165,9 +178,14 @@ class EventTable extends React.Component{
 
 	componentDidMount(){
 		this.getCustomRewards();
+		this.getOBSChannels();
 	}
 
-	
+	zoomTimeline(e){
+		let newZooms = Object.assign({}, this.state._zooms);
+		newZooms[e.target.name] = e.target.value;
+		this.setState(Object.assign(this.state, {_zooms:newZooms}));
+	}
 	
 	handleChange(e){
 		let eventName = e.target.closest(".command-element").id;
@@ -337,9 +355,9 @@ class EventTable extends React.Component{
 			}
 		}
 		//let eventElements = document.querySelectorAll(".command-element");
-		for(let e in newEvents){
+		/*for(let e in newEvents){
 			newEvents[e].group = document.querySelector("#"+e+" [name='group']").value;
-		}
+		}*/
 
 		let newList = {
 			"events":newEvents,
@@ -401,15 +419,19 @@ class EventTable extends React.Component{
 		}
 	}
 	
-	toggleProps(e){
+	toggleProps(eventkey){
+
+		let newExpands = Object.assign({}, this.state._eventexpands);
+		newExpands[eventkey] = !newExpands[eventkey];
+		this.setState(Object.assign(this.state, {_eventexpands:newExpands}));
 		
-		let topElement = e.currentTarget.closest(".command-element");
+		/*let topElement = e.currentTarget.closest(".command-element");
 		let middleElement = topElement.querySelector(".command-key");
 		let element = topElement.querySelector(".command-section");
 
 		window.toggleClass(topElement, "expanded");
 		window.toggleClass(middleElement, "expanded");
-		window.toggleClass(element, "hidden");
+		window.toggleClass(element, "hidden");*/
 	}
 
 	toggleGroup(e){
@@ -593,6 +615,17 @@ class EventTable extends React.Component{
 		this.setState(newState);
 	}
 
+	getOBSChannels(){
+        fetch("/obs/get_scenes")
+        .then(response => response.json())
+        .then(data => {
+            this.setState(Object.assign(this.state, {_obs:data}));
+        })
+        .catch(e=>{
+            console.log(e);
+        })
+    }
+
 	arrangeCommands(e){
 		let eventName = e.currentTarget.closest(".command-element").id;
 		let direction = e.currentTarget.getAttribute("direction");
@@ -607,6 +640,17 @@ class EventTable extends React.Component{
 		}
 
 		this.setState(Object.assign(this.state, {events:newEvents}))
+	}
+
+	onUpdateTimeline(frames){
+		let newEvents = Object.assign({},this.state.events);
+		for(let t in frames){
+			
+			newEvents[frames[t].actions[0].eventname].commands[frames[t].actions[0].commandindex].delay = Math.floor(frames[t].actions[0].start*1000);
+			newEvents[frames[t].actions[0].eventname].commands[frames[t].actions[0].commandindex].duration = (Math.round((frames[t].actions[0].end-(frames[t].actions[0].start)) / 0.05) * 0.05).toFixed(2);
+		}
+		
+		this.setState(Object.assign(this.state, {events:newEvents}));
 	}
 	
 	render(){
@@ -663,7 +707,7 @@ class EventTable extends React.Component{
 		});
 
 		for(let p in propKeys){
-
+			
 			let s = propKeys[p];
 
 			let thisEvent = this.state.events;
@@ -685,6 +729,38 @@ class EventTable extends React.Component{
 			let cooldownNotification = thisEvent[s].cooldownnotification;
 
 			let eventTriggers = thisEvent[s].triggers;
+
+			let triggerIcons = [];
+			if(eventTriggers.chat.enabled){
+				triggerIcons.push(
+					<FontAwesomeIcon icon={faCommentDots} />
+				);
+			}
+
+			if(eventTriggers.redemption.enabled){
+				triggerIcons.push(
+					<FontAwesomeIcon icon={faAward} />
+				)
+			}
+
+			if(eventTriggers.osc?.enabled){
+				triggerIcons.push(
+					<FontAwesomeIcon icon={faNetworkWired} />
+				)
+			}
+
+			if(this.state._eventexpands[s] == false){
+				let eventElement = <div className={"command-element "+(this.state._eventexpands[s]==true?"expanded":"")} key={s} id={s}>
+					<div className={"command-key "+(this.state._eventexpands[s]==true?"expanded":"")} onClick={()=>this.toggleProps(s)}>
+						<label>
+							<h1>{eventName}{triggerIcons}</h1>
+						</label>
+					</div>
+				</div>
+				groupObjects[groupName].push(eventElement);
+				continue;
+			}
+
 			let redemptionTrigger = null;
 			if(this.state._rewards != null){
 				let redemptionContent = eventTriggers.redemption.enabled == true ? 
@@ -748,7 +824,26 @@ class EventTable extends React.Component{
 			let oscTrigger = null;
 			let oscContent = null;
 			
-			if(eventTriggers.osc?.type=="double" && eventTriggers.osc?.enabled == true){
+			if(eventTriggers.osc?.handletype=="search" && eventTriggers.osc?.enabled == true){
+				oscContent = <label triggertype="osc" className="event-trigger">
+					<label>
+						Handle:
+						<select name="handletype" value={eventTriggers.osc?.handletype} onChange={this.handleChange}>
+							<option value='trigger'>Trigger</option>
+							<option value='toggle'>Toggle</option>
+							<option value='search'>Search String</option>
+						</select>
+					</label>
+					<label>
+						Address:
+						<input type="text" name="address" value={eventTriggers.osc?.address} onChange={this.handleChange} />
+					</label>
+					<label>
+						Value:
+						<input type="text" name="value" value={eventTriggers.osc?.value} onChange={this.handleChange}/>
+					</label>
+				</label>;
+			}else if(eventTriggers.osc?.type=="double" && eventTriggers.osc?.enabled == true){
 				oscContent = <label triggertype="osc" className="event-trigger">
 				
 					<label>
@@ -756,6 +851,7 @@ class EventTable extends React.Component{
 						<select name="handletype" value={eventTriggers.osc?.handletype} onChange={this.handleChange}>
 							<option value='trigger'>Trigger</option>
 							<option value='toggle'>Toggle</option>
+							<option value='search'>Search String</option>
 						</select>
 					</label>
 					<label>
@@ -800,13 +896,14 @@ class EventTable extends React.Component{
 						<input type="number" name="value2" value={eventTriggers.osc?.value2} onChange={this.handleChange}/>
 					</label>
 				</label>;
-			}else if(eventTriggers.osc?.enabled == true){
+			}else if(eventTriggers.osc?.type=="single" && eventTriggers.osc?.enabled == true){
 				oscContent = <label triggertype="osc" className="event-trigger">
 					<label>
 						Handle:
 						<select name="handletype" value={eventTriggers.osc?.handletype} onChange={this.handleChange}>
 							<option value='trigger'>Trigger</option>
 							<option value='toggle'>Toggle</option>
+							<option value='search'>Search String</option>
 						</select>
 					</label>
 					<label>
@@ -854,8 +951,52 @@ class EventTable extends React.Component{
 
 			let eventCommands = thisEvent[s].commands;
 			let commandElements = [];
+			let timelineData = [];
+			let timelineEffectData = {};
+			let maxDuration = 1;
 
 			for(let c in eventCommands){
+
+				if(typeof eventCommands[c].delay == "string"){console.log("PARSE DEL"); eventCommands[c].delay=parseInt(eventCommands[c].delay)}
+				if(typeof eventCommands[c].duration == "string"){console.log("PARSE DUR"); eventCommands[c].duration=parseFloat(eventCommands[c].duration)}
+
+				maxDuration = Math.max(eventCommands[c].delay/1000,eventCommands[c].duration);
+				if(isNaN(maxDuration)){
+					maxDuration = 1;
+				}
+
+				let id = eventCommands[c].type+"-"+c;
+				if(eventCommands[c].type=="software"){
+					id=eventCommands[c].address+"-"+eventCommands[c].valueOn+"|"+eventCommands[c].valueOff;
+				}else if(eventCommands[c].type == "obs" || eventCommands[c].type == "mod" ){
+					id=eventCommands[c].function;
+				}
+				
+				timelineData.push({
+					id:c,
+					actions:[{
+						id:id,
+						start:eventCommands[c].delay/1000,
+						end:eventCommands[c].etype=="timed"
+						?(eventCommands[c].delay/1000)+eventCommands[c].duration:(eventCommands[c].delay/1000)+1,
+						eventname:s,
+						eventtype:eventCommands[c].type,
+						commandindex:c,
+						effectId:eventCommands[c].etype=="timed"?"timed":"nottimed"
+					}]
+				});
+
+				timelineEffectData = {
+					"timed":{
+						id:"timed",
+						name:"Timed"
+					},
+					"nottimed":{
+						id:"nottimed",
+						name:"nottimed"
+					}
+				}
+
 				let element = null;
 				switch(eventCommands[c].type){
 					case 'response':
@@ -940,6 +1081,7 @@ class EventTable extends React.Component{
 						</div>;
 					break;
 					case "obs":
+						console.log(this.state);
 						if(Object.keys(this.state._obs).length == 0){
 							element = <div className="command-props software">
 								<label>OBS not connected. Connect to OBS remote in Deck Mode and refresh. Saving now will not affect any settings in place.</label>
@@ -1192,7 +1334,8 @@ class EventTable extends React.Component{
 
 				
 				commandElements.push(
-					<div className="command-fields" key={c} commandindex={c}  onDragEnter={this.dragEnterCommand} onDragEnd={this.dropCommand}>
+					<div className="command-fields" key={c} commandindex={c} >
+						
 						{commandArrows}
 						<label>
 							{typeLabel}
@@ -1202,7 +1345,6 @@ class EventTable extends React.Component{
 						<div className="command-actions">
 							{trashButton}
 						</div>
-						
 					</div>
 				);
 			}
@@ -1225,32 +1367,14 @@ class EventTable extends React.Component{
 					</div>
 				</div>;
 
-			let triggerIcons = [];
-			if(eventTriggers.chat.enabled){
-				triggerIcons.push(
-					<FontAwesomeIcon icon={faCommentDots} />
-				);
-			}
-
-			if(eventTriggers.redemption.enabled){
-				triggerIcons.push(
-					<FontAwesomeIcon icon={faAward} />
-				)
-			}
-
-			if(eventTriggers.osc?.enabled){
-				triggerIcons.push(
-					<FontAwesomeIcon icon={faNetworkWired} />
-				)
-			}
-
-			let eventElement = <div className="command-element" key={s} id={s}>
-									<div className="command-key" onClick={this.toggleProps}>
+			let timelineZoom = <input name={s} type="range" min={1} max={120} defaultValue={this.state._zooms[s]==null?maxDuration:this.state._zooms[s]} style={{width:"70%"}} onChange={this.zoomTimeline}/>;
+			let eventElement = <div className={"command-element "+(this.state._eventexpands[s]==true?"expanded":"")} key={s} id={s}>
+									<div className={"command-key "+(this.state._eventexpands[s]==true?"expanded":"")} onClick={()=>this.toggleProps(s)}>
 										<label>
 											<h1>{eventName}{triggerIcons}</h1>
 										</label>
 									</div>
-									<div className="command-section hidden">
+									<div className={"command-section "+(this.state._eventexpands[s]==false?"hidden":"")}>
 									<label>
 										Internal Name: {s}
 									</label>
@@ -1286,6 +1410,34 @@ class EventTable extends React.Component{
 									</label>
 									<label className="field-section">
 										Commands:
+										<Timeline 
+										key={s+this.state._zooms[s]}
+										style={{width:"75%", height:"200px"}}
+										editorData={timelineData} 
+										effects={timelineEffectData} 
+										onChange={this.onUpdateTimeline} 
+										autoScroll={true} 
+										scale={this.state._zooms[s]==null?maxDuration:this.state._zooms[s]} 
+										dragLine={true}
+										getActionRender={(action, row)=>{
+											//console.log(row);
+											switch(action.eventtype){
+												case "response":
+													return <div className="prompt"><FontAwesomeIcon icon={faCommentDots} size={"2x"}/></div>
+												case "plugin":
+													return <div className="prompt"><FontAwesomeIcon icon={faPlug} size={"lg"}/><label>{action.id}</label></div>
+												case "mod":
+													return <div className="prompt"><FontAwesomeIcon icon={faLock} size={"lg"}/><label>{action.id}</label></div>
+												case "obs":
+													return <div className="prompt"><img width={25} height={25} src={obsIcon}/><label>{action.id}</label></div>
+												case "discord":
+													return <div className="prompt"><img width={25} height={25} src={discordIcon}/><label>{action.id}</label></div>
+												default:
+													return <div className="prompt"><FontAwesomeIcon icon={faNetworkWired} size={"lg"}/><label>{action.id}</label></div>
+											}
+											
+										}}/>
+										{timelineZoom}
 										{commandElements}
 										{addElement}
 									</label>

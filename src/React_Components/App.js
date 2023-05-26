@@ -25,7 +25,7 @@ var username = "NOT LOGGED IN";
 
 var hostIP = window.location.hostname;
 var udpClients = {};
-var plugins = [];
+var plugins = {};
 var hostPort = 3001;
 var clientID = null;
 var osc = null;
@@ -364,8 +364,7 @@ class App extends React.Component {
 			tabData:{
 				commandData:{events:commandData.events,groups:commandData.groups},
 				udpClients:udpClients,
-				plugins:commandData.plugins,
-				obs:commandData.obs
+				plugins:commandData.plugins
 			},
 			"tab":"commands", "navOpen":false
 		}));
@@ -383,7 +382,8 @@ class App extends React.Component {
 		this.setState(Object.assign(this.state, {
 			tabData:{
 				tunnelData:tunnelData,
-				udpClients:udpClients
+				udpClients:udpClients,
+				plugins:plugins
 			},
 			"tab":"osctunnels", "navOpen":false
 		}));
@@ -579,7 +579,7 @@ class App extends React.Component {
 			let tabData = this.state.tabData;
 			switch(this.state.tab){
 				case "commands":
-					tabContent = <EventTable ref={this.commandRef} data={tabData.commandData.events} groups={tabData.commandData.groups} _udpClients={tabData.udpClients} _plugins={tabData.plugins} _obs={tabData.obs} />;
+					tabContent = <EventTable ref={this.commandRef} data={tabData.commandData.events} groups={tabData.commandData.groups} _udpClients={tabData.udpClients} _plugins={tabData.plugins} />;
 				break;
 				case "config":
 					tabContent = <ConfigTab ref={this.configRef} _taboptions={{setup:this.state.tabOptions,deck:this.state.deckTabOptions}} _customSpooder={Object.assign(this.state.customSpooder)} data={tabData} updateCustomSpooder={this.updateCustomSpooder} saveCustomSpooder={this.saveCustomSpooder} />;
@@ -588,7 +588,7 @@ class App extends React.Component {
 					tabContent = <PluginTab ref={this.pluginRef} data={tabData.pluginData} osc={osc} _udpClients={tabData.udpClients} />;
 				break;
 				case "osctunnels":
-					tabContent = <OSCTunnelTab ref={this.oscTunnelRef} data={tabData.tunnelData} _udpClients={tabData.udpClients} />;
+					tabContent = <OSCTunnelTab ref={this.oscTunnelRef} data={tabData.tunnelData} _udpClients={tabData.udpClients} _plugins={tabData.plugins} />;
 				break;
 				case "sharing":
 					tabContent = <ShareTab shares={tabData.shareData} activeShares={tabData.activeShares} chatCommands={tabData.chatCommands} activePlugins={tabData.activePlugins} />

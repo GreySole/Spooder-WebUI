@@ -137,18 +137,18 @@ class ConfigTab extends React.Component{
 
 	handleDiscordChange(s){
 		let name = s.target.name;
-		let newDiscord = Object.assign(this.state._discord);
+		let newDiscord = Object.assign({},this.state._discord);
 		if(name.includes("-")){
 			name = name.split("-");
-			if(newDiscord[name[0]] == null){newDiscord[name[0]] = {}}
+			if(newDiscord.config[name[0]] == null){newDiscord.config[name[0]] = {}}
 			if(s.target.type == "checkbox"){
-				newDiscord[name[0]][name[1]] = s.target.checked;
+				newDiscord.config[name[0]][name[1]] = s.target.checked;
 			}else{
-				newDiscord[name[0]][name[1]] = s.target.value;
+				newDiscord.config[name[0]][name[1]] = s.target.value;
 			}
 			
 		}else{
-			newDiscord[name] = s.target.value;
+			newDiscord.config[name] = s.target.value;
 		}
 		this.setState(Object.assign(this.state, {_discord:newDiscord}))
 	}
@@ -176,7 +176,7 @@ class ConfigTab extends React.Component{
 	}
 
 	saveDiscord(){
-		let newDiscord = Object.assign(this.state._discord);
+		let newDiscord = Object.assign(this.state._discord.config);
 		delete newDiscord["guilds"];
 		
 		const requestOptions = {
@@ -196,7 +196,7 @@ class ConfigTab extends React.Component{
 	}
 	
 	saveConfig(){
-		let newList = Object.assign(this.state);
+		let newList = Object.assign({},this.state);
 		for(let item in newList){
 			if(item.startsWith("_")){
 				delete newList[item];
@@ -623,8 +623,8 @@ class ConfigTab extends React.Component{
 		);
 	}
 
-	let guildOptions = [<option value={null}>Select Guild</option>];
-	let channelOptions = [<option value={null}>Select Channel</option>];
+	let guildOptions = [<option value={""}>Select Guild</option>];
+	let channelOptions = [<option value={""}>Select Channel</option>];
 	
 	if(this.state._discord.guilds != null){
 		if(this.state._discord.config.autosendngrok?.enabled){
@@ -634,9 +634,9 @@ class ConfigTab extends React.Component{
 				)
 			}
 		}
-	
+		
 		if(this.state._discord.config.autosendngrok?.enabled){
-			if(this.state._discord.config.autosendngrok.destguild != null){
+			if(this.state._discord.config.autosendngrok.destguild != null && this.state._discord.config.autosendngrok.destguild != ""){
 				for(let c in this.state._discord.guilds[this.state._discord.config.autosendngrok.destguild].channels){
 					channelOptions.push(
 						<option value={c}>{this.state._discord.guilds[this.state._discord.config.autosendngrok.destguild].channels[c].name}</option>
@@ -645,23 +645,29 @@ class ConfigTab extends React.Component{
 			}
 		}
 	}
-
-	let autoNgrokFields = this.state._discord.guilds != null?<div className="config-variable">
+	
+	let autoNgrokFields = this.state._discord.config.autosendngrok?.enabled != null?<div className="config-variable">
 		<label>
 			Server
-			<select name="autosendngrok-destguild" value={this.state._discord.config.autosendngrok?.destguild} onChange={this.handleDiscordChange}>
+			<select name="autosendngrok-destguild" defaultValue={this.state._discord.config.autosendngrok?.destguild} onChange={this.handleDiscordChange}>
 				{guildOptions}
 			</select>
 		</label>
 		<label>
 			Channel
-			<select name="autosendngrok-destchannel" value={this.state._discord.config.autosendngrok?.destchannel} onChange={this.handleDiscordChange}>
+			<select name="autosendngrok-destchannel" defaultValue={this.state._discord.config.autosendngrok?.destchannel} onChange={this.handleDiscordChange}>
 				{channelOptions}
 			</select>
 		</label>
 	</div>:null;
 
 	let discord = this.state._brstatus.discordExpanded==true?<div className="config-discord">
+		<div className="config-variable">
+			<label>
+				Master User
+				<input type="master" defaultValue={this.state._discord.config.master} onChange={this.handleDiscordChange}/>
+			</label>
+		</div>
 		<div className="config-variable">
 			<label>
 				Bot token

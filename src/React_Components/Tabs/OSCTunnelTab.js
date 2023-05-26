@@ -3,48 +3,61 @@ import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {faTrash} from '@fortawesome/free-solid-svg-icons';
 
 var udpClients = {};
+var plugins = {};
 
 class OSCTunnelTab extends React.Component{
 	constructor(props){
 		super(props);
-		this.state = Object.assign(props.data);
+		this.state ={
+			tunnels:Object.assign({},props.data),
+			addVar:{
+				"handlerFrom":"",
+				"handlerTo":"",
+				"addressFrom":"",
+				"addressTo":"",
+				"clientTo":""
+			}
+		};
+		
 		this.handleChange = this.handleChange.bind(this);
+		this.handleAddOSCVarChange = this.handleAddOSCVarChange.bind(this);
 		this.handleAddOSCVar = this.handleAddOSCVar.bind(this);
 		this.saveTunnels = this.saveTunnels.bind(this);
 		this.deleteOSCVar = this.deleteOSCVar.bind(this);
 		udpClients = Object.assign(props._udpClients);
+		plugins = Object.assign(props._plugins);
 	}
 	
 	handleChange(s){
 		
 		let name = s.target.name;
-		let section = s.target.getAttribute("sectionname");
-		let newSection = Object.assign(this.state[section]);
+		let section = s.target.getAttribute("varname");
+		let newTunnels = Object.assign({}, this.state.tunnels);
 		
-		newSection[s.target.getAttribute("varname")][name] = s.target.value;
-		this.setState(Object.assign(this.state,{[section]:newSection}));
+		newTunnels[section][name] = s.target.value;
+		this.setState(Object.assign(this.state,{tunnels:newTunnels}));
+	}
+
+	handleAddOSCVarChange(s){
+		let newAddVar = Object.assign({}, this.state.addVar);
+		newAddVar[s.target.name] = s.target.value;
+		//console.log(s.target.name);
+		this.setState(Object.assign(this.state, {addVar:newAddVar}));
 	}
 	
 	handleAddOSCVar(){
 		let name = window.$(".add-osc-var [name='name']").value;
-		let handlerFrom = window.$(".add-osc-var [name='handlerFrom']").value;
-		let handlerTo = window.$(".add-osc-var [name='handlerTo']").value;
-		let addressFrom = window.$(".add-osc-var [name='addressFrom']").value;
-		let addressTo = window.$(".add-osc-var [name='addressTo']").value;
 		
-		let newVar = {};
-		newVar = {
-			"handlerFrom":handlerFrom,
-			"handlerTo":handlerTo,
-			"addressFrom":addressFrom,
-			"addressTo":addressTo
-		}
+		let newVar = Object.assign({},this.state.addVar);
+		let newTunnels = Object.assign({}, this.state.tunnels);
+		newTunnels[name] = newVar;
 		
-		this.setState(Object.assign(this.state,{[name]:newVar}));
+		
+		this.setState(Object.assign(this.state,{tunnels:newTunnels}));
 	}
 	
 	saveTunnels(){
-		let newList = Object.assign(this.state);
+		let newList = Object.assign(this.state.tunnels);
 		
 		const requestOptions = {
 			method: 'POST',
@@ -71,16 +84,16 @@ class OSCTunnelTab extends React.Component{
 
 		let varname = el.getAttribute("varname");
 
-		let oscVars = Object.assign(this.state);
+		let oscVars = Object.assign(this.state.tunnels);
 		delete oscVars[varname];
 
-		this.setState(oscVars);
+		this.setState(Object.assign(this.state, {tunnels:oscVars}));
 	}
 	
 	
 	render(){
 		let table = [];
-
+		console.log(this.state);
 		let oscTrashButton = <FontAwesomeIcon icon={faTrash} size="lg" className="delete-button" onClick={this.deleteOSCVar} />;
 
 		let clientTable = [];
@@ -88,33 +101,47 @@ class OSCTunnelTab extends React.Component{
 		for(let u in udpClients){
 			clientTable.push(<option value={u}>{udpClients[u].name}</option>);
 		}
-		var tunnels = this.state;
+
+		let pluginTable = [];
+
+		for(let p in plugins){
+			pluginTable.push(<option value={plugins[p]}>{plugins[p]}</option>);
+		}
+
+		var tunnels = this.state.tunnels;
 		table = [];
 		for(let s in tunnels){
 			
+			let clientElementTo = <select name="clientTo"  varname={s}  defaultValue={tunnels[s]["clientTo"]} onChange={this.handleChange}>
+			{clientTable}
+			</select>;
+			let pluginElementTo = <select name="clientTo"  varname={s}  defaultValue={tunnels[s]["clientTo"]} onChange={this.handleChange}>
+				{pluginTable}
+			</select>;
 			//for(let ss in tunnels[s]){
-				table.push(<div className="config-variable" varname={s}>
+				table.push(<div className="config-variable" key={s} varname={s}>
 								
 								<div className="config-variable-ui">
 									<label>{s}</label>
 									<label>Handler From
 										<select name="handlerFrom" varname={s}  defaultValue={tunnels[s]["handlerFrom"]} onChange={this.handleChange}>
 											<option value="tcp">TCP (Overlays)</option>
-											<option value="udp">UDP Any</option>
-											{clientTable}
+											<option value="udp">UDP</option>
 										</select>
 									</label>
 									<label>Handler To
 										<select name="handlerTo" varname={s} defaultValue={tunnels[s]["handlerTo"]} onChange={this.handleChange}>
 											<option value="tcp">TCP (Overlays)</option>
-											<option value="udp">UDP All</option>
-											{clientTable}
+											<option value="plugin">Plugin</option>
+											<option value="udp">UDP</option>
 										</select>
+										{tunnels[s]["handlerTo"]=="udp"?clientElementTo:null}
+										{tunnels[s]["handlerTo"]=="plugin"?pluginElementTo:null}
 									</label>
 									<label>Address From:
 										<input name="addressFrom" type="text" varname={s}  defaultValue={tunnels[s]["addressFrom"]} placeholder="OSC Address From" onChange={this.handleChange} />
 									</label>
-									<label>AddressTo:
+									<label>Address To:
 										<input name="addressTo" type="text" varname={s}  defaultValue={tunnels[s]["addressTo"]} placeholder="OSC Address To" onChange={this.handleChange} />
 									</label>
 								</div>
@@ -126,25 +153,32 @@ class OSCTunnelTab extends React.Component{
 			//sections.push(<div className="config-element" name={s}><label>{this.state[s]["sectionname"]}</label>{table}</div>);
 		}
 
+		let addClientElementTo = <select name="clientTo" defaultValue={this.state.addVar["clientTo"]} onChange={this.handleAddOSCVarChange}>
+			{clientTable}
+		</select>;
+		let addPluginElementTo = <select name="clientTo" defaultValue={this.state.addVar["clientTo"]} onChange={this.handleAddOSCVarChange}>
+			{pluginTable}
+		</select>;
 		table.push(<div className="add-osc-var">
 				<div className="config-variable">
 					<label>Name:<input type="text" name="name" placeholder="Name" /></label>
 					<label>Handler From
-						<select defaultValue="tcp" name="handlerFrom">
+						<select name="handlerFrom" defaultValue={this.state.addVar["handlerFrom"]} onChange={this.handleAddOSCVarChange}>
 							<option value="tcp">TCP (Overlays)</option>
-							<option value="udp">UDP Any</option>
-							{clientTable}
+							<option value="udp">UDP</option>
 						</select>
 					</label>
 					<label>Handler To
-						<select defaultValue="tcp" name="handlerTo">
+						<select name="handlerTo" defaultValue={this.state.addVar["handlerTo"]} onChange={this.handleAddOSCVarChange}>
 							<option value="tcp">TCP (Overlays)</option>
-							<option value="udp">UDP All</option>
-							{clientTable}
+							<option value="plugin">Plugin</option>
+							<option value="udp">UDP</option>
 						</select>
+						{this.state.addVar["handlerTo"]=="udp"?addClientElementTo:null}
+						{this.state.addVar["handlerTo"]=="plugin"?addPluginElementTo:null}
 					</label>
-					<label>Address From:<input type="text" name="addressFrom" placeholder="OSC Address From" /></label>
-					<label>Address To:<input type="text" name="addressTo" placeholder="OSC Address To" /></label>
+					<label>Address From:<input type="text" name="addressFrom" placeholder="OSC Address From" defaultValue={this.state.addVar["addressFrom"]} onChange={this.handleAddOSCVarChange}/></label>
+					<label>Address To:<input type="text" name="addressTo" placeholder="OSC Address To" defaultValue={this.state.addVar["addressTo"]} onChange={this.handleAddOSCVarChange}/></label>
 				</div>
 				<button type="button" className="add-button" onClick={this.handleAddOSCVar}>Add</button></div>);
 		

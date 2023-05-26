@@ -9,6 +9,7 @@ import './React_Components/Tabs/ConfigTab.css';
 import './React_Components/Tabs/ThemeTab.css';
 import './React_Components/UI/Helpers.js';
 import './React_Components/UI/BoolSwitch.js';
+import { Timeline } from '@xzdarcy/react-timeline-editor' ;
 
 const rootElement = document.getElementById("app");
 const root = createRoot(rootElement);

@@ -35,6 +35,7 @@ class EventSubTab extends React.Component{
 		this.handleChange = this.handleChange.bind(this);
 		this.saveEventSubs = this.saveEventSubs.bind(this);
 		this.getEventSubs = this.getEventSubs.bind(this);
+		this.getDiscordChannels = this.getDiscordChannels.bind(this);
 		this.getEventSubs();
 	}
 
@@ -48,6 +49,7 @@ class EventSubTab extends React.Component{
 
 	componentDidMount(){
 		window.setClass(document.querySelector("#authMessage"), "hidden", authMessageHidden);
+		this.getDiscordChannels();
 	}
 
 	handleChange(s){
@@ -66,6 +68,13 @@ class EventSubTab extends React.Component{
 			this.setState(newConfig);
 		}else{
 			let newEvents = Object.assign(this.state.events);
+			if(name[0] == "discord" && newEvents[eventname][name[0]] == null){
+				newEvents[eventname][name[0]] = {
+					enabled:false,
+					guild:"",
+					channel:""
+				};
+			}
 			newEvents[eventname][name[0]][name[1]] = value;
 
 			this.setState(Object.assign(this.state, {"events":newEvents}));
@@ -109,9 +118,20 @@ class EventSubTab extends React.Component{
 		
 		
 	}
+
+	getDiscordChannels(){
+        fetch("/discord/get_channels")
+        .then(response => response.json())
+        .then(data => {
+            this.setState(Object.assign(this.state, {discord:data}));
+        })
+        .catch(e=>{
+            console.log(e);
+        })
+    }
 	
 	saveEventSubs(){
-		let newList = Object.assign(this.state);
+		let newList = Object.assign({},this.state);
 		delete newList["eventsub"];
 		
 		const requestOptions = {
@@ -381,6 +401,39 @@ class EventSubTab extends React.Component{
 								</div>
 							</label></div>:null;
 
+							let discordAlert = null;
+
+							if(event=="stream.online" && Object.keys(this.state.discord).length > 0){
+								let guildOptions = [<option value={""}>Select Guild</option>];
+                				let channelOptions = [<option value={""}>Select Channel</option>];
+								for(let d in this.state.discord){
+									guildOptions.push(
+										<option value={d}>{this.state.discord[d].name}</option>
+									);
+									
+								}
+
+								for(let c in this.state.discord[this.state.events[event].discord?.guild]?.channels){
+									channelOptions.push(
+										<option value={c}>{this.state.discord[this.state.events[event].discord?.guild]?.channels[c].name}</option>
+									);
+								}
+
+								discordAlert = <div className="config-variable-ui">
+													<label className={"toggle-label"} style={{display:"flex", "flex-flow":"row", "align-items":"center"}}>Send @everyone ping on Discord
+														<BoolSwitch eventname={event} name="discord-enabled" checked={events[event].discord?.enabled} onChange={this.handleChange}/>
+													</label>
+													<div key={this.state.keyname+guildOptions.length+channelOptions.length+JSON.stringify(this.state.discord)} className={(events[event].discord?.enabled?"":"hidden")}>
+														<select eventname={event} name="discord-guild" defaultValue={this.state.events[event].discord?.guild} onChange={this.handleChange}>
+															{guildOptions}
+														</select>
+														<select eventname={event} name="discord-channel" defaultValue={this.state.events[event].discord?.channel} onChange={this.handleChange}>
+															{channelOptions}
+														</select>
+													</div>
+													</div>;
+							}
+
 							table.push(<div className="eventsub-variable">
 												<div className="">
 													<label className="event-label">{event}</label>
@@ -454,11 +507,13 @@ class EventSubTab extends React.Component{
 													</label>
 													
 												</div>
+												{discordAlert}
 											</div>
 											<div className="active-subs">Active subs
 												{subTable}
 											</div>
-										</div>);
+										</div>
+									);
 						}
 						
 						

@@ -5,11 +5,12 @@ import {faTrash, faPlusCircle, faPlay, faStop} from '@fortawesome/free-solid-svg
 import BoolSwitch from '../UI/BoolSwitch.js';
 import ToggleGrid from '../UI/ToggleGrid';
 import LinkButton from '../UI/LinkButton';
+import LoadingCircle from '../UI/LoadingCircle';
 
 class ShareTab extends React.Component{
     constructor(props){
         super(props);
-        this.state = Object.assign({}, props);
+        this.state = {stateLoaded:false}
         this.state.openSettings = {};
         this.state.openCreate = false;
         this.state.openDiscord = false;
@@ -37,13 +38,40 @@ class ShareTab extends React.Component{
     }
 
     componentDidMount(){
-        for(let s in this.state.shares){
-            if(this.state.shares[s].profilepic == null || this.state.shares[s].twitchid == null){
-                this.verifyShareUser(s);
-            }
-            this.verifyAutoShare(s);
-        }
+        fetch("/shares")
+        .then(response => response.json())
+        .then(data => {
+            console.log("SHARE DATA", data);
+            window.addEventListener("keydown", this.keyDown)
+            this.setState(Object.assign(this.state, 
+            {
+                stateLoaded:true,
+                shares:data.shareData,
+                activeShares: data.activeShares ?? [],
+                chatCommands:data.commandData,
+                activePlugins: data.activePlugins
+            }), (()=>{
+                for(let s in this.state.shares){
+                    if(this.state.shares[s].profilepic == null || this.state.shares[s].twitchid == null){
+                        this.verifyShareUser(s);
+                    }
+                    this.verifyAutoShare(s);
+                }
+            }).bind(this));
+        })
     }
+
+    componentWillUnmount(){
+        window.removeEventListener("keydown", this.keyDown)
+    }
+
+    keyDown = e=>{
+		console.log(e);
+		if(e.ctrlKey==true && e.key == 's'){
+			e.preventDefault();
+			this.saveShares();
+		}
+	}
 
     addShareEntry(e){
         e.preventDefault();
@@ -141,6 +169,7 @@ class ShareTab extends React.Component{
 		.then(response => response.json())
 		.then(data => {
 			if(data.status == "ok"){
+                this.props.setToast("SHARES SAVED!", "save");
 				document.querySelector(".save-status").textContent = "Shares are saved!";
 				setTimeout(()=>{
 					document.querySelector(".save-status").textContent = "";
@@ -268,6 +297,9 @@ class ShareTab extends React.Component{
     }
 
     render(){
+        if(this.state.stateLoaded == false){
+			return <LoadingCircle></LoadingCircle>
+		}
         let entries = [];
         for(let s in this.state.shares){
             

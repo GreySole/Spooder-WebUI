@@ -191,6 +191,19 @@ option{
 	margin:5px;
 }
 
+.response-cheatsheet{
+	margin:10px;
+	font-size:16px;
+}
+
+.response-cheatsheet ul{
+	margin:10px;
+}
+
+.response-cheatsheet li{
+	margin:10px;
+}
+
 .command-arrows{
 	display:flex;
 	flex-direction:column;
@@ -221,6 +234,11 @@ option{
 }
 
 .command-props.software{
+	flex-flow:column;
+	align-items:flex-start;
+}
+
+.command-props.plugin{
 	flex-flow:column;
 	align-items:flex-start;
 }

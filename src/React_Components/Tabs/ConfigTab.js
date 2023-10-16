@@ -4,11 +4,15 @@ import {faDownload, faTrash, faUpload} from '@fortawesome/free-solid-svg-icons';
 import BoolSwitch from '../UI/BoolSwitch.js';
 import LinkButton from '../UI/LinkButton.js';
 import tinycolor from 'tinycolor2';
+import LoadingCircle from '../UI/LoadingCircle';
+
 class ConfigTab extends React.Component{
 	constructor(props){
 		super(props);
-		this.state = Object.assign(props.data.config);
-		this.state["_tabOptions"] = Object.assign(props._taboptions);
+		this.state = {
+			stateLoaded:false
+		};
+		this.state["_tabOptions"] = props.parentState.tabOptions;
 		this.state["_brstatus"] = {
 			discordExpanded:false,
 			csExpanded:false,
@@ -19,36 +23,22 @@ class ConfigTab extends React.Component{
 			restorePlugins:false,
 			everythingChecked:true
 		};
-		this.state["_backups"] = Object.assign(props.data.backups);
+		this.state["_backups"] = {};
 		this.state["_saveCustomSpooder"] = props.saveCustomSpooder;
 		this.state["_updateCustomSpooder"] = props.updateCustomSpooder;
-		let cSpooder = Object.assign(props._customSpooder);
+		let cSpooder = Object.assign(props.parentState.customSpooder);
 		for(let c in cSpooder.colors){
 			cSpooder.colors[c] = tinycolor(cSpooder.colors[c]).toHexString();
 		}
 		this.state["_customSpooder"] = cSpooder;
-		this.state["_discord"] = props.data.discord.config!=null?props.data.discord:{
-			config:{
-				token:"",
-				clientId:"",
-				autosendngrok:{
-					enabled:false,
-					destguild:"",
-					destchannel:""
-				}
-			},
-			guilds:{}
-		};
+		
 		this.handleChange = this.handleChange.bind(this);
 		this.handleUDPChange = this.handleUDPChange.bind(this);
-		this.handleDiscordChange = this.handleDiscordChange.bind(this);
 		this.saveConfig = this.saveConfig.bind(this);
-		this.saveDiscord = this.saveDiscord.bind(this);
 		this.deleteUDPClient = this.deleteUDPClient.bind(this);
 		this.addSubVar = this.addSubVar.bind(this);
 		this.setDefaultTabs = this.setDefaultTabs.bind(this);
 
-		this.toggleDiscord = this.toggleDiscord.bind(this);
 		this.toggleBackupRestore = this.toggleBackupRestore.bind(this);
 		this.backupSettings = this.backupSettings.bind(this);
 		this.backupPlugins = this.backupPlugins.bind(this);
@@ -85,16 +75,12 @@ class ConfigTab extends React.Component{
 
 	configStructure = {
 		"bot":{
-			"sectionname":"Bot Settings",
+			"owner_name":"",
 			"bot_name":"",
 			"help_command":"",
 			"introduction":"I'm a Spooder connected to the stream ^_^"
 		},
-		"broadcaster":{
-			"sectionname":"Broadcaster",
-			"username":""
-		},"network":{
-			"sectionname":"Network",
+		"network":{
 			"host":"",
 			"host_port":3000,
 			"externalhandle":"ngrok",
@@ -104,6 +90,33 @@ class ConfigTab extends React.Component{
 			"udp_clients":{},
 			"osc_udp_port":9000,
 			"osc_tcp_port":3333
+		}
+	}
+
+	componentDidMount(){
+		fetch("/server_config")
+		.then(response => response.json())
+		.then(async data => {
+			console.log(data);
+			window.addEventListener("keydown", this.keyDown)
+			this.setState(Object.assign(this.state, 
+			{
+				stateLoaded:true,
+				config:data.config,
+				_backups:data.backups
+			}));
+		})
+	}
+
+	componentWillUnmount(){
+		window.removeEventListener("keydown", this.keyDown)
+	}
+
+	keyDown = e=>{
+		console.log(e);
+		if(e.ctrlKey==true && e.key == 's'){
+			e.preventDefault();
+			this.saveConfig();
 		}
 	}
 	
@@ -130,27 +143,9 @@ class ConfigTab extends React.Component{
 		let name = s.target.name;
 		let parent = s.target.closest(".config-sub-var");
 		let section = parent.getAttribute("sectionname");
-		let newSection = Object.assign(this.state[section]);
+		let newSection = Object.assign(this.state.config[section]);
 		newSection[parent.getAttribute("varname")][parent.getAttribute("subvarname")][name] = s.target.value;
 		this.setState(Object.assign(this.state,{[section]:newSection}));
-	}
-
-	handleDiscordChange(s){
-		let name = s.target.name;
-		let newDiscord = Object.assign({},this.state._discord);
-		if(name.includes("-")){
-			name = name.split("-");
-			if(newDiscord.config[name[0]] == null){newDiscord.config[name[0]] = {}}
-			if(s.target.type == "checkbox"){
-				newDiscord.config[name[0]][name[1]] = s.target.checked;
-			}else{
-				newDiscord.config[name[0]][name[1]] = s.target.value;
-			}
-			
-		}else{
-			newDiscord.config[name] = s.target.value;
-		}
-		this.setState(Object.assign(this.state, {_discord:newDiscord}))
 	}
 	
 	addSubVar(e){
@@ -174,29 +169,9 @@ class ConfigTab extends React.Component{
 		
 		this.setState(Object.assign(this.state, {"network":Object.assign(this.state.network,{udp_clients:newUDPClients})}));
 	}
-
-	saveDiscord(){
-		let newDiscord = Object.assign(this.state._discord.config);
-		delete newDiscord["guilds"];
-		
-		const requestOptions = {
-			method: 'POST',
-			headers: {'Content-Type': 'application/json', 'Accept':'application/json'},
-			body: JSON.stringify(newDiscord)
-		};
-		
-		fetch('/discord/saveDiscordConfig', requestOptions)
-		.then(response => response.json())
-		.then(data => {
-			document.querySelector("#discordSaveStatusText").textContent = data.status;
-			setTimeout(()=>{
-				document.querySelector("#discordSaveStatusText").textContent = "";
-			}, 5000)
-		});
-	}
 	
 	saveConfig(){
-		let newList = Object.assign({},this.state);
+		let newList = Object.assign({},this.state.config);
 		for(let item in newList){
 			if(item.startsWith("_")){
 				delete newList[item];
@@ -438,11 +413,6 @@ class ConfigTab extends React.Component{
 		this.setState(Object.assign(this.state, {_backups:newBackups}));
 	}
 
-	toggleDiscord(e){
-		let newDiscord = Object.assign(this.state._brstatus);
-		newDiscord.discordExpanded = !newDiscord.discordExpanded;
-		this.setState(Object.assign(this.state, {_brstatus:newDiscord}));
-	}
 	toggleBackupRestore(e){
 		let newBackups = Object.assign(this.state._brstatus);
 		newBackups.brExpanded = !newBackups.brExpanded;
@@ -462,6 +432,9 @@ class ConfigTab extends React.Component{
 	}
 
 	render(){
+		if(this.state.stateLoaded == false){
+			return <LoadingCircle></LoadingCircle>
+		}
 		let sections = [];
 		let table = [];
 
@@ -474,29 +447,29 @@ class ConfigTab extends React.Component{
 			clientTable.push(<option value={u}>{udpClients[u].name}</option>);
 		}
 		
-		for(let s in this.state){
+		for(let s in this.state.config){
 			if(s.startsWith("_")){continue;}
 			table = [];
-			//console.log(s);
-			for(let ss in this.state[s]){
+			
+			for(let ss in this.state.config[s]){
 				if(ss=="sectionname"){continue;}
-				let dataType = typeof this.state[s][ss];
+				let dataType = typeof this.state.config[s][ss];
 
 				switch(dataType){
 					case 'number':
 					case 'string':
 						if(ss == "externalhandle"){
 							table.push(<div className="config-variable"><label>{ss}
-								<select name={ss} sectionname={s} defaultValue={this.state[s][ss]} onChange={this.handleChange}>
+								<select name={ss} sectionname={s} defaultValue={this.state.config[s][ss]} onChange={this.handleChange}>
 									<option value="ngrok">Ngrok</option>
 									<option value="manual">Enter Manually</option>
 								</select>
 								</label></div>);
 						}else{
-							if(this.state[s]["externalhandle"] != "manual" && (ss == "external_http_url" || ss == "external_tcp_url")){
+							if(this.state.config[s]["externalhandle"] != "manual" && (ss == "external_http_url" || ss == "external_tcp_url")){
 								break;
 							}
-							if(this.state[s]["externalhandle"] != "ngrok" && (ss == "ngrokauthtoken")){
+							if(this.state.config[s]["externalhandle"] != "ngrok" && (ss == "ngrokauthtoken")){
 								break;
 							}
 							let inputType = "text";
@@ -504,25 +477,25 @@ class ConfigTab extends React.Component{
 							if(ss == "external_http_url" || ss == "external_tcp_url" || ss == "ngrokauthtoken"){
 								inputType = "password";
 								if(ss == "external_http_url" || ss == "ngrokauthtoken"){
-									copyButton = <LinkButton name={ss+"-mod"} text={"Copy Mod URL"} mode="copy" link={this.state[s]["external_http_url"]+"/mod"} />
+									copyButton = <LinkButton name={ss+"-mod"} text={"Copy Mod URL"} mode="copy" link={this.state.config[s]["external_http_url"]+"/mod"} />
 								}
 							}
 
-							table.push(<div className="config-variable"><label>{ss}<input type={inputType} name={ss} sectionname={s} defaultValue={this.state[s][ss]} onChange={this.handleChange} /></label>{copyButton}</div>);
+							table.push(<div className="config-variable"><label>{ss}<input type={inputType} name={ss} sectionname={s} defaultValue={this.state.config[s][ss]} onChange={this.handleChange} /></label>{copyButton}</div>);
 						}
 						
 					break;
 					case 'boolean':
 						
 						table.push(<div className="config-variable"><label>{ss}</label>
-						<BoolSwitch name="obs-remember" sectionname={s} checked={this.state[s][ss]} onChange={this.handleChange} />
-						<label className={this.state[s][ss]?"boolswitch checked":"boolswitch"}><input type="checkbox" name={ss} sectionname={s} defaultChecked={this.state[s][ss]} onChange={this.handleChange}/>
+						<BoolSwitch name="obs-remember" sectionname={s} checked={this.state.config[s][ss]} onChange={this.handleChange} />
+						<label className={this.state.config[s][ss]?"boolswitch checked":"boolswitch"}><input type="checkbox" name={ss} sectionname={s} defaultChecked={this.state.config[s][ss]} onChange={this.handleChange}/>
 						<div></div></label></div>);
 						break;
 					case 'object':
 						let subTable = [];
 						//console.log(this.state);
-						for(let c in this.state[s][ss]){
+						for(let c in this.state.config[s][ss]){
 							
 							subTable.push(<div className="config-sub-var" sectionname={s} varname={ss} subvarname={c}>
 								<div className="config-sub-var-buttons">
@@ -533,13 +506,13 @@ class ConfigTab extends React.Component{
 										{c}
 									</label>
 									<label>Name:
-										<input name="name" type="text" defaultValue={this.state[s][ss][c]['name']} placeholder="Name of client" onChange={this.handleUDPChange} />
+										<input name="name" type="text" defaultValue={this.state.config[s][ss][c]['name']} placeholder="Name of client" onChange={this.handleUDPChange} />
 									</label>
 									<label>IP:
-										<input name="ip" type="text" defaultValue={this.state[s][ss][c]['ip']} placeholder="IP address to send to" onChange={this.handleUDPChange} />
+										<input name="ip" type="text" defaultValue={this.state.config[s][ss][c]['ip']} placeholder="IP address to send to" onChange={this.handleUDPChange} />
 									</label>
 									<label>Port:
-										<input name="port" type="text" defaultValue={this.state[s][ss][c]['port']} placeholder="IP port to send to" onChange={this.handleUDPChange} />
+										<input name="port" type="text" defaultValue={this.state.config[s][ss][c]['port']} placeholder="IP port to send to" onChange={this.handleUDPChange} />
 									</label>
 								</div>
 							</div>);
@@ -571,7 +544,7 @@ class ConfigTab extends React.Component{
 					break;
 				}
 			}
-			sections.push(<div className="config-element" name={s}><label>{this.state[s]["sectionname"]}</label>{table}</div>);
+			sections.push(<div className="config-element" name={s}><label>{this.state.config[s]["sectionname"]}</label>{table}</div>);
 		}
 
 		
@@ -622,69 +595,6 @@ class ConfigTab extends React.Component{
 			<option>{this.state._backups.plugins[rp]}</option>
 		);
 	}
-
-	let guildOptions = [<option value={""}>Select Guild</option>];
-	let channelOptions = [<option value={""}>Select Channel</option>];
-	
-	if(this.state._discord.guilds != null){
-		if(this.state._discord.config.autosendngrok?.enabled){
-			for(let g in this.state._discord.guilds){
-				guildOptions.push(
-					<option value={g}>{this.state._discord.guilds[g].name}</option>
-				)
-			}
-		}
-		
-		if(this.state._discord.config.autosendngrok?.enabled){
-			if(this.state._discord.config.autosendngrok.destguild != null && this.state._discord.config.autosendngrok.destguild != ""){
-				for(let c in this.state._discord.guilds[this.state._discord.config.autosendngrok.destguild].channels){
-					channelOptions.push(
-						<option value={c}>{this.state._discord.guilds[this.state._discord.config.autosendngrok.destguild].channels[c].name}</option>
-					)
-				}
-			}
-		}
-	}
-	
-	let autoNgrokFields = this.state._discord.config.autosendngrok?.enabled != null?<div className="config-variable">
-		<label>
-			Server
-			<select name="autosendngrok-destguild" defaultValue={this.state._discord.config.autosendngrok?.destguild} onChange={this.handleDiscordChange}>
-				{guildOptions}
-			</select>
-		</label>
-		<label>
-			Channel
-			<select name="autosendngrok-destchannel" defaultValue={this.state._discord.config.autosendngrok?.destchannel} onChange={this.handleDiscordChange}>
-				{channelOptions}
-			</select>
-		</label>
-	</div>:null;
-
-	let discord = this.state._brstatus.discordExpanded==true?<div className="config-discord">
-		<div className="config-variable">
-			<label>
-				Master User
-				<input type="master" defaultValue={this.state._discord.config.master} onChange={this.handleDiscordChange}/>
-			</label>
-		</div>
-		<div className="config-variable">
-			<label>
-				Bot token
-				<input type="password" defaultValue={this.state._discord.config.token} onChange={this.handleDiscordChange}/>
-			</label>
-		</div>
-		{this.state._discord.guilds!=null?<div className="config-variable">
-			<label>
-				Send Mod UI Link to Channel on Startup
-				<BoolSwitch name="autosendngrok-enabled" checked={this.state._discord.config.autosendngrok?.enabled} onChange={this.handleDiscordChange}/>
-			</label>
-		</div>:<div class="config-variable">
-				Discord isn't logged in. Input your bot token and invite the bot to your server to assign a channel to auto send Ngrok links.
-			</div>}
-		{autoNgrokFields}
-		<div className="save-commands"><button type="button" id="saveDiscordButton" className="save-button" onClick={this.saveDiscord}>Save</button><div id="discordSaveStatusText" className="save-status"></div></div>
-	</div>:null;
 
 	let everythingChecked = this.state._brstatus.everythingChecked==true?
 	<div className="restore-settings-checkboxes">
@@ -791,42 +701,57 @@ class ConfigTab extends React.Component{
 
 let customSpooder = this.state._brstatus.csExpanded?<div className="custom-spooder-ui">
 	<div className="custom-spooder-inputs">
+		<div className="custom-spooder-pair"><div className="custom-spooder-label">Long Leg Left</div>
+			<input type="text" name="longlegleft" onChange={this.state._updateCustomSpooder} defaultValue={this.props.parentState.themes.spooderpet.longlegleft}/>
+			<input type="color" name="longlegleft" onChange={this.state._updateCustomSpooder} defaultValue={this.props.parentState.themes.spooderpet.colors.longlegleft}/>
+		</div>
+		<div className="custom-spooder-pair"><div className="custom-spooder-label">Short Leg Left</div>
+			<input type="text" name="shortlegleft" onChange={this.state._updateCustomSpooder} defaultValue={this.props.parentState.themes.spooderpet.shortlegleft}/>
+			<input type="color" name="shortlegleft" onChange={this.state._updateCustomSpooder} defaultValue={this.props.parentState.themes.spooderpet.colors.shortlegleft}/>
+		</div>
+		<div className="custom-spooder-pair"><div className="custom-spooder-label">Body Left</div>
+			<input type="text" name="bodyleft" onChange={this.state._updateCustomSpooder} defaultValue={this.props.parentState.themes.spooderpet.bodyleft}/>
+			<input type="color" name="bodyleft" onChange={this.state._updateCustomSpooder} defaultValue={this.props.parentState.themes.spooderpet.colors.bodyleft}/>
+		</div>
 		<div className="custom-spooder-pair"><div className="custom-spooder-label">Little Eye Left</div>
-			<input type="text" name="littleeyeleft" onChange={this.state._updateCustomSpooder} defaultValue={this.state._customSpooder.littleeyeleft}/>
-			<input type="color" name="littleeyeleft" onChange={this.state._updateCustomSpooder} defaultValue={this.state._customSpooder.colors.littleeyeleft}/>
+			<input type="text" name="littleeyeleft" onChange={this.state._updateCustomSpooder} defaultValue={this.props.parentState.themes.spooderpet.littleeyeleft}/>
+			<input type="color" name="littleeyeleft" onChange={this.state._updateCustomSpooder} defaultValue={this.props.parentState.themes.spooderpet.colors.littleeyeleft}/>
 		</div>
 		<div className="custom-spooder-pair"><div className="custom-spooder-label">Big Eye Left</div>
-			<input type="text" name="bigeyeleft" onChange={this.state._updateCustomSpooder} defaultValue={this.state._customSpooder.bigeyeleft}/>
-			<input type="color" name="bigeyeleft" onChange={this.state._updateCustomSpooder} defaultValue={this.state._customSpooder.colors.bigeyeleft}/>
+			<input type="text" name="bigeyeleft" onChange={this.state._updateCustomSpooder} defaultValue={this.props.parentState.themes.spooderpet.bigeyeleft}/>
+			<input type="color" name="bigeyeleft" onChange={this.state._updateCustomSpooder} defaultValue={this.props.parentState.themes.spooderpet.colors.bigeyeleft}/>
 		</div>
 		<div className="custom-spooder-pair"><div className="custom-spooder-label">Fang Left</div>
-			<input type="text" name="fangleft" onChange={this.state._updateCustomSpooder} defaultValue={this.state._customSpooder.fangleft}/>
-			<input type="color" name="fangleft" onChange={this.state._updateCustomSpooder} defaultValue={this.state._customSpooder.colors.fangleft}/>
+			<input type="text" name="fangleft" onChange={this.state._updateCustomSpooder} defaultValue={this.props.parentState.themes.spooderpet.fangleft}/>
+			<input type="color" name="fangleft" onChange={this.state._updateCustomSpooder} defaultValue={this.props.parentState.themes.spooderpet.colors.fangleft}/>
 		</div>
 		<div className="custom-spooder-pair"><div className="custom-spooder-label">Mouth</div>
-			<input type="text" name="mouth" onChange={this.state._updateCustomSpooder} defaultValue={this.state._customSpooder.mouth}/>
-			<input type="color" name="mouth" onChange={this.state._updateCustomSpooder} defaultValue={this.state._customSpooder.colors.mouth}/>
+			<input type="text" name="mouth" onChange={this.state._updateCustomSpooder} defaultValue={this.props.parentState.themes.spooderpet.mouth}/>
+			<input type="color" name="mouth" onChange={this.state._updateCustomSpooder} defaultValue={this.props.parentState.themes.spooderpet.colors.mouth}/>
 		</div>
 		<div className="custom-spooder-pair"><div className="custom-spooder-label">Fang Right</div>
-			<input type="text" name="fangright" onChange={this.state._updateCustomSpooder} defaultValue={this.state._customSpooder.fangright}/>
-			<input type="color" name="fangright" onChange={this.state._updateCustomSpooder} defaultValue={this.state._customSpooder.colors.fangright}/>
+			<input type="text" name="fangright" onChange={this.state._updateCustomSpooder} defaultValue={this.props.parentState.themes.spooderpet.fangright}/>
+			<input type="color" name="fangright" onChange={this.state._updateCustomSpooder} defaultValue={this.props.parentState.themes.spooderpet.colors.fangright}/>
 		</div>
 		<div className="custom-spooder-pair"><div className="custom-spooder-label">Big Eye Right</div>
-			<input type="text" name="bigeyeright" onChange={this.state._updateCustomSpooder} defaultValue={this.state._customSpooder.bigeyeright}/>
-			<input type="color" name="bigeyeright" onChange={this.state._updateCustomSpooder} defaultValue={this.state._customSpooder.colors.bigeyeright}/>
+			<input type="text" name="bigeyeright" onChange={this.state._updateCustomSpooder} defaultValue={this.props.parentState.themes.spooderpet.bigeyeright}/>
+			<input type="color" name="bigeyeright" onChange={this.state._updateCustomSpooder} defaultValue={this.props.parentState.themes.spooderpet.colors.bigeyeright}/>
 		</div>
 		<div className="custom-spooder-pair"><div className="custom-spooder-label">Little Eye Right</div>
-			<input type="text" name="littleeyeright" onChange={this.state._updateCustomSpooder} defaultValue={this.state._customSpooder.littleeyeright}/>
-			<input type="color" name="littleeyeright" onChange={this.state._updateCustomSpooder} defaultValue={this.state._customSpooder.colors.littleeyeright}/>
+			<input type="text" name="littleeyeright" onChange={this.state._updateCustomSpooder} defaultValue={this.props.parentState.themes.spooderpet.littleeyeright}/>
+			<input type="color" name="littleeyeright" onChange={this.state._updateCustomSpooder} defaultValue={this.props.parentState.themes.spooderpet.colors.littleeyeright}/>
 		</div>
-		<div className="custom-spooder-pair"><div className="custom-spooder-label">Body Color</div>
-			<input type="color" name="body" onChange={this.state._updateCustomSpooder} defaultValue={this.state._customSpooder.colors.body}/>
+		<div className="custom-spooder-pair"><div className="custom-spooder-label">Body Right</div>
+			<input type="text" name="bodyright" onChange={this.state._updateCustomSpooder} defaultValue={this.props.parentState.themes.spooderpet.bodyright}/>
+			<input type="color" name="bodyright" onChange={this.state._updateCustomSpooder} defaultValue={this.props.parentState.themes.spooderpet.colors.bodyright}/>
 		</div>
-		<div className="custom-spooder-pair"><div className="custom-spooder-label">Short Legs Color</div>
-			<input type="color" name="shortlegs" onChange={this.state._updateCustomSpooder} defaultValue={this.state._customSpooder.colors.shortlegs}/>
+		<div className="custom-spooder-pair"><div className="custom-spooder-label">Short Leg Right</div>
+			<input type="text" name="shortlegright" onChange={this.state._updateCustomSpooder} defaultValue={this.props.parentState.themes.spooderpet.shortlegright}/>
+			<input type="color" name="shortlegright" onChange={this.state._updateCustomSpooder} defaultValue={this.props.parentState.themes.spooderpet.colors.shortlegright}/>
 		</div>
-		<div className="custom-spooder-pair"><div className="custom-spooder-label">Long Legs Color</div>
-			<input type="color" name="longlegs" onChange={this.state._updateCustomSpooder} defaultValue={this.state._customSpooder.colors.longlegs}/>
+		<div className="custom-spooder-pair"><div className="custom-spooder-label">Long Leg Right</div>
+			<input type="text" name="longlegright" onChange={this.state._updateCustomSpooder} defaultValue={this.props.parentState.themes.spooderpet.longlegright}/>
+			<input type="color" name="longlegright" onChange={this.state._updateCustomSpooder} defaultValue={this.props.parentState.themes.spooderpet.colors.longlegright}/>
 		</div>
 	</div>
 	<div className="save-commands"><button type="button" id="saveSpooderButton" className="save-button" onClick={this.state._saveCustomSpooder}>Save</button><div id="spooderSaveStatusText" className="save-status"></div></div>
@@ -834,10 +759,6 @@ let customSpooder = this.state._brstatus.csExpanded?<div className="custom-spood
 		
 		return (
 			<form className="config-tab">
-				<div className="non-config-element">
-					<div className="backup-restore-toggle-label" onClick={this.toggleDiscord}>Discord Settings</div>
-					{discord}
-				</div>
 				<div className="non-config-element">
 					<div className="backup-restore-toggle-label" onClick={this.toggleCustomSpooder}>Customize Spooder</div>
 					{customSpooder}

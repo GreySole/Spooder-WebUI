@@ -3,8 +3,9 @@ import {EventTable} from './Tabs/EventTable.js';
 import {ConfigTab} from './Tabs/ConfigTab.js';
 import {PluginTab} from './Tabs/PluginTab.js';
 import {OSCTunnelTab} from './Tabs/OSCTunnelTab.js';
-import {EventSubTab} from './Tabs/EventSubTab.js';
+import {TwitchTab} from './Tabs/TwitchTab.js';
 import {ShareTab} from './Tabs/ShareTab.js';
+import {UserTab} from './Tabs/UserTab.js';
 import {ThemeTab} from './Tabs/ThemeTab.js';
 import OSC from 'osc-js';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
@@ -17,22 +18,12 @@ import {SourceControl} from './Deck/SourceControl.js';
 import {OSCMonitor} from './Deck/OSCMonitor.js';
 
 import BoolSwitch from './UI/BoolSwitch.js';
+import { DiscordTab } from './Tabs/DiscordTab.js';
 
 const queryString = window.location.search;
 const urlParams = new URLSearchParams(queryString);
 
-var username = "NOT LOGGED IN";
-
-var hostIP = window.location.hostname;
-var udpClients = {};
-var plugins = {};
-var hostPort = 3001;
-var clientID = null;
 var osc = null;
-
-if(urlParams.get("host") != null){
-	hostIP = urlParams.get("host");
-}
 
 window.sendOSC = (address, value) => {
 	if(osc != null){
@@ -45,41 +36,41 @@ class App extends React.Component {
 	constructor(props){
 		super(props);
 		let defaultTabs = localStorage.getItem("defaulttabs");
-		let customSetupTab = localStorage.getItem("customsetuptab");
-		let customDeckTab = localStorage.getItem("customdecktab");
-		let defaultMode = localStorage.getItem("defaultmode");
+		let customSetupTab = localStorage.getItem("customtab");
 		if(defaultTabs == null){
 			defaultTabs = "nodefault";
 			customSetupTab = "commands";
-			customDeckTab = "osc";
 		}else if(defaultTabs != "nodefault"){
 			if(customSetupTab == null){customSetupTab = "commands"}
-			if(customDeckTab == null){customDeckTab = "osc"}
 		}
-		if(defaultMode == null){
-			defaultMode = "setup";
-		}
-		if(urlParams.get("mode") != null){
-			defaultMode = urlParams.get("mode");
-		}
+		
 		if(urlParams.get("tab") != null){
-			if(defaultMode == "setup"){
-				customSetupTab = urlParams.get("tab");
-			}else if(defaultMode == "deck"){
-				customDeckTab = urlParams.get("tab");
-			}
+			customSetupTab = urlParams.get("tab");
 		}
 		
 		this.state = {
+			stateLoaded:false,
 			tab:customSetupTab,
 			tabData:null,
-			decktab:customDeckTab,
 			navOpen:false,
-			mode:defaultMode,
-			tabOptions:{"commands":"Events", "plugins":"Plugins", "osctunnels":"Tunnels", "eventsub":"EventSub", "sharing":"Sharing","config":"Config"},
-			deckTabOptions:{"obs":"OBS Remote", "osc":"OSC Monitor", "mod":"Mod UI"},
+			tabOptions:{
+				"commands":"Events",
+				"plugins":"Plugins",
+				"osctunnels":"Tunnels", 
+				"twitch":"Twitch",
+				"discord":"Discord",
+				"users":"Users",
+				"sharing":"Sharing",
+				"config":"Config",
+			},
+			deckTabOptions:{
+				"obs":"OBS Remote",
+				"osc":"OSC Monitor",
+				"mod":"Mod UI"
+			},
 			oscConnected: false,
 			obsConnected: 0,
+			toastText:"",
 			isExternal:window.location.protocol!="http:",
 			obsLoginInfo:{},
 			customSpooder:{
@@ -102,16 +93,13 @@ class App extends React.Component {
 					"longlegs":"white",
 					"body":"white"
 				}
-			}
+			},
+			udp_clients:{},
+			plugins:[],
+			
 		};
 		
 	}
-	
-	commandRef = React.createRef();
-	configRef = React.createRef();
-	pluginRef = React.createRef();
-	oscTunnelRef = React.createRef();
-	eventSubRef = React.createRef();
 	
 	selectTab = this.selectTab.bind(this);
 	setTabContent = this.setTabContent.bind(this);
@@ -124,39 +112,33 @@ class App extends React.Component {
 	saveCustomSpooder = this.saveCustomSpooder.bind(this);
 	activateShare = this.activateShare.bind(this);
 	deactivateShare = this.deactivateShare.bind(this);
+	setToast = this.setToast.bind(this);
 
 	componentDidMount(){
 		this.getServerState()
 		.then((data)=>{
 			let serverData = data;
-			hostPort = serverData.host.port;
-			clientID = serverData.clientID;
-			udpClients = serverData.osc["udp_clients"];
-			plugins = serverData.osc["plugins"];
 			if(osc == null){
-				osc = new OSC({plugin: new OSC.WebsocketClientPlugin({host:serverData.osc.host,port:serverData.osc.port,secure:false})});
+				osc = new OSC({plugin: new OSC.WebsocketClientPlugin({host:serverData.host,port:serverData.port,secure:false})});
 				this.initOSC();
 			}
-			let newSpooder = Object.assign(this.state.customSpooder);
-			Object.assign(newSpooder.colors, serverData.themes.spooderpet.colors);
-			delete serverData.themes.spooderpet.colors;
-			Object.assign(newSpooder, serverData.themes.spooderpet);
+			
 			let shares = {};
-			//console.log(serverData.shares);
+			console.log("SERVER",serverData);
 			for(let s in serverData.shares){
-				if(serverData.activeShares.includes("#"+serverData.shares[s])){
-					shares[serverData.shares[s]] = true;
-				}else{
-					shares[serverData.shares[s]] = false;
+				if(serverData.activeShares != null){
+					if(serverData.activeShares.includes("#"+serverData.shares[s])){
+						shares[serverData.shares[s]] = true;
+					}else{
+						shares[serverData.shares[s]] = false;
+					}
 				}
 			}
-			console.log(shares);
-			this.setState(Object.assign(this.state, {"host":hostPort, "customSpooder":newSpooder, "shares":shares}));
-			if(this.state.mode == "setup"){
-				this.setTabContent(this.state.tab);
-			}else if(this.state.mode == "deck"){
-				this.setTabContent(this.state.decktab);
-			}
+			serverData.shares = shares;
+			serverData.stateLoaded = true;
+			
+			this.setState(Object.assign(this.state, serverData));
+			this.setTabContent(this.state.tab);
 			
 		})
 		.catch(err => console.log(err))
@@ -201,13 +183,6 @@ class App extends React.Component {
 	getServerState = async () => {
 		const response = await fetch("/server_state");
 		const serverStateRaw = await response.json();
-		if(serverStateRaw.user != null &&
-			serverStateRaw.user != ""){
-				username = serverStateRaw.user;
-			}
-		
-		hostPort = serverStateRaw.host.port;
-		clientID = serverStateRaw.clientID;
 		return serverStateRaw;
 	}
 
@@ -220,14 +195,10 @@ class App extends React.Component {
 	stayHere(e){
 		if(e.currentTarget.checked == true){
 			console.log("STAYING");
-			let urlState = {"mode":this.state.mode};
-			if(this.state.mode == "setup"){
-				urlState.tab = this.state.tab;
-			}else if(this.state.mode == "deck"){
-				urlState.tab = this.state.decktab;
-			}
+			let urlState = {};
+			urlState.tab = this.state.tab;
 			if (history.pushState) {
-				var newurl = window.location.protocol + "//" + window.location.host + window.location.pathname + '?mode='+urlState.mode+"&tab="+urlState.tab;
+				var newurl = window.location.protocol + "//" + window.location.host + window.location.pathname + "?tab="+urlState.tab;
 			}
 		}else{
 			
@@ -241,179 +212,13 @@ class App extends React.Component {
 	}
 	
 	setTabContent(tab){
-		if(this.state.mode == "setup"){
-			switch(tab){
-				case "monitor":
-					this.loadMonitor();
-				break;
-				case "commands":
-					this.loadCommandData();
-				break;
-				case "config":
-					this.loadConfigData();
-				break;
-				case "plugins":
-					this.loadPlugins();
-				break;
-				case "osctunnels":
-					this.loadOSCTunnelData();
-				break;
-				case "eventsub":
-					this.loadEventSubData();
-				break;
-				case "sharing":
-					this.loadShares();
-				break;
-				case 'theme':
-					this.loadThemeData();
-				break;
-			}
-		}else if(this.state.mode == "deck"){
-			this.setState(Object.assign(this.state, {
-				decktab:tab,
-				navOpen:false
-			}));
-		}
-
+		this.setState(Object.assign(this.state, {
+			"tab":tab, "navOpen":false
+		}));
 		if(localStorage.getItem("defaulttabs") == "rememberlast"){
-			localStorage.setItem("defaultmode", this.state.mode);
-			if(this.state.mode == "setup"){
-				localStorage.setItem("customsetuptab", tab);
-			}else{
-				localStorage.setItem("customdecktab", tab);
-			}
+			localStorage.setItem("customtab", tab);
 		}
-	}
-	
-	loadMonitor = () => {
-		this.setState(Object.assign(this.state, {
-			tabData:{}
-		}));
-		return <Monitor ref={this.monitorRef}/>;
-	}
-
-	loadShares = async () =>{
-		const response = await fetch("/shares");
-		const shareDataRaw = await response.json();
-		if(response.status !== 200){
-			throw Error("Error: "+response.status);
-		}
-		this.setState(Object.assign(this.state, {
-			tabData:{
-				shareData:shareDataRaw.shareData,
-				activeShares:shareDataRaw.activeShares,
-				chatCommands:shareDataRaw.commandData,
-				activePlugins:shareDataRaw.activePlugins
-			},
-			"tab":"sharing", "navOpen":false
-		}));
-	}
-	
-	loadPlugins = async () => {
-		const response = await fetch("/plugins");
-		const pluginDataRaw = await response.json();
-
-		if(response.status !== 200){
-			throw Error("Error: "+response.status);
-		}
-		this.setState(Object.assign(this.state, {
-			tabData:{
-				pluginData:pluginDataRaw,
-				udpClients:udpClients
-			},
-			"tab":"plugins", "navOpen":false
-		}));
-	}
-	
-	loadConfigData = async () => {
-		const response = await fetch("/server_config");
-		const configData = await response.json();
-
-		const discordResponse = await fetch("/discord/config");
-		const discordData = await discordResponse.json();
-
-		console.log("DISCORD DATA", discordData);
-		if(response.status !== 200){
-			throw Error(body.message);
-		}
-		this.setState(Object.assign(this.state, {
-			tabData:{
-				config:configData.config,
-				discord:discordData,
-				backups:configData.backups
-			},
-			"tab":"config", "navOpen":false
-		}));
-	}
-	
-	loadConfigData = this.loadConfigData.bind(this);
-	
-	
-	loadCommandData = async () => {
-		const response = await fetch("/command_table");
-		const commandDataRaw = await response.json();
-		const commandData = JSON.parse(commandDataRaw.express);
-		
-		var body = commandData;
-
-		if(response.status !== 200){
-			throw Error(body.message);
-		}
-		
-		this.setState(Object.assign(this.state, {
-			tabData:{
-				commandData:{events:commandData.events,groups:commandData.groups},
-				udpClients:udpClients,
-				plugins:commandData.plugins
-			},
-			"tab":"commands", "navOpen":false
-		}));
-	}
-	
-	loadCommandData = this.loadCommandData.bind(this);
-
-	loadOSCTunnelData = async () => {
-		const response = await fetch("/osc_tunnels");
-		const tunnelData = await response.json();
-		if(response.status !== 200){
-			throw Error(tunnelData);
-		}
-		
-		this.setState(Object.assign(this.state, {
-			tabData:{
-				tunnelData:tunnelData,
-				udpClients:udpClients,
-				plugins:plugins
-			},
-			"tab":"osctunnels", "navOpen":false
-		}));
-	}
-
-	loadEventSubData = async () => {
-		const response = await fetch("/twitch/eventsubs");
-		const eventData = await response.json();
-		
-		if(response.status !== 200){
-			throw Error(eventData);
-		}
-		
-		this.setState(Object.assign(this.state, {
-			tabData:{
-				eventData:eventData,
-				udpClients:udpClients,
-				plugins:plugins
-			},
-			"tab":"eventsub", "navOpen":false
-		}));
-	}
-
-	loadThemeData = async() => {
-		this.setState(Object.assign(this.state, {
-			tabData:{
-				data:{}
-			},
-			"tab":"theme", "navOpen":false
-		}));
+		return;
 	}
 
 	navigationClick(e){
@@ -489,14 +294,14 @@ class App extends React.Component {
 	}
 
 	updateCustomSpooder(e){
-		
-		let newSpooder = Object.assign(this.state.customSpooder);
+		console.log("UPDATE SPOODER");
+		let newSpooder = Object.assign(this.state.themes);
 		if(e.currentTarget.type == "text"){
-			newSpooder[e.currentTarget.name] = e.currentTarget.value;
+			newSpooder.spooderpet[e.currentTarget.name] = e.currentTarget.value;
 		}else if(e.target.type == "color"){
-			newSpooder.colors[e.currentTarget.name] = e.currentTarget.value;
+			newSpooder.spooderpet.colors[e.currentTarget.name] = e.currentTarget.value;
 		}
-		this.setState(Object.assign(this.state, {customSpooder:newSpooder}))
+		this.setState(Object.assign(this.state, {themes:newSpooder}))
 	}
 
 	saveCustomSpooder(e){
@@ -561,74 +366,68 @@ class App extends React.Component {
             }
         })
     }
+
+	setToast(txt, tClass, dur){
+		if(dur == null){dur = 3000;}
+		setTimeout(()=>{
+			this.setState(Object.assign(this.state, {toastText:"", toastClass:""}));
+		}, dur);
+		this.setState(Object.assign(this.state, {toastText:txt, toastClass:tClass}));
+	}
 	
 	render(){
 
 		if(this.state.isExternal){
 			return <div className="App">
 				<div className="locals-only">
-					<h1 className="App-title">/╲/\( ºx ω xº )/\╱\</h1>
+					<h1 className="App-title">/╲/\( º^ ω ^º; )/\╱\</h1>
 					<h1>Sorry, locals only</h1>
 				</div>
 			</div>
 		}
 
-		let tabContent = null;
-
-		if(this.state.tabData){
-			let tabData = this.state.tabData;
-			switch(this.state.tab){
-				case "commands":
-					tabContent = <EventTable ref={this.commandRef} data={tabData.commandData.events} groups={tabData.commandData.groups} _udpClients={tabData.udpClients} _plugins={tabData.plugins} />;
-				break;
-				case "config":
-					tabContent = <ConfigTab ref={this.configRef} _taboptions={{setup:this.state.tabOptions,deck:this.state.deckTabOptions}} _customSpooder={Object.assign(this.state.customSpooder)} data={tabData} updateCustomSpooder={this.updateCustomSpooder} saveCustomSpooder={this.saveCustomSpooder} />;
-				break;
-				case "plugins":
-					tabContent = <PluginTab ref={this.pluginRef} data={tabData.pluginData} osc={osc} _udpClients={tabData.udpClients} />;
-				break;
-				case "osctunnels":
-					tabContent = <OSCTunnelTab ref={this.oscTunnelRef} data={tabData.tunnelData} _udpClients={tabData.udpClients} _plugins={tabData.plugins} />;
-				break;
-				case "sharing":
-					tabContent = <ShareTab shares={tabData.shareData} activeShares={tabData.activeShares} chatCommands={tabData.chatCommands} activePlugins={tabData.activePlugins} />
-				break;
-				case "eventsub":
-					tabContent = <EventSubTab ref={this.eventSubRef} data={tabData.eventData} _udpClients={tabData.udpClients} _plugins={tabData.plugins} _sevents={tabData.spooderevents} />;
-				break;
-				/*case "theme":
-					tabContent = <ThemeTab data={tabData.data} />;
-				break;*/
-			}
+		if(this.state.stateLoaded == false){
+			return <div className="App">
+				<div className="locals-only">
+					<h1 className="App-title">/╲/\( ºO ω Oº )/\╱\</h1>
+					<h1>Loading...</h1>
+				</div>
+			</div>
 		}
 
-		let appContent = null;
-		let navigationTabs = null;
-
-		if(this.state.mode == "setup"){
-			let tabButtons = [];
-			for(let t in this.state.tabOptions){
-				let tabName = this.state.tabOptions[t];
-				tabButtons.push(
-					<button type="button" name={t} className={"tab-button "+(this.state.tab==t?"selected":"")} onClick={()=>this.selectTab(t)}>{tabName}</button>
-				);
-			}
-			navigationTabs = <div className="navigation-tabs-mobile">
-									{tabButtons}
-							</div>;
-
-			appContent = <div className="App-content setup">
-							<div className="navigation-tabs">
-								{this.state.mode=="setup"?tabButtons:null}
-							</div>
-							<div id="tabContent">
-								{tabContent}
-							</div>
-						</div>;
-		}else if(this.state.mode == "deck"){
-			if(this.state.decktab == "obs"){
+		let tabContent = null;
+		let appMode = "setup";
+		
+		switch(this.state.tab){
+			case "commands":
+				tabContent = <EventTable parentState={this.state} setToast={this.setToast} />;
+				break;
+			case "config":
+				tabContent = <ConfigTab parentState={this.state} setToast={this.setToast}  osc={osc} updateCustomSpooder={this.updateCustomSpooder} saveCustomSpooder={this.saveCustomSpooder} />;
+				break;
+			case "plugins":
+				tabContent = <PluginTab parentState={this.state} setToast={this.setToast}  osc={osc}/>;
+				break;
+			case "osctunnels":
+				tabContent = <OSCTunnelTab parentState={this.state} setToast={this.setToast}  />;
+				break;
+			case "sharing":
+				tabContent = <ShareTab parentState={this.state} setToast={this.setToast}  />;
+				break;
+			case "discord":
+				tabContent = <DiscordTab parentState={this.state} setToast={this.setToast} />;
+				break;
+			case "twitch":
+				tabContent = <TwitchTab parentState={this.state} setToast={this.setToast}  />;
+				break;
+			case "users":
+				tabContent = <UserTab parentState={this.state} setToast={this.setToast}  />;
+				break;
+			case "obs":
+				appMode = "deck";
 				if(this.state.oscConnected && this.state.obsConnected){
-					appContent = <div className="App-content deck">
+					
+					tabContent = <div className="App-content deck">
 						<OutputController osc={osc} />
 						<SceneController osc={osc} />
 						<SourceControl osc={osc} />
@@ -637,7 +436,7 @@ class App extends React.Component {
 				}else{
 					
 					if(!this.state.oscConnected){
-						appContent = 
+						tabContent = 
 						<h1>Hold on...we're connecting to OSC</h1>
 					}else if(!this.state.obsConnected){
 						let obsLoginEl = null;
@@ -657,7 +456,7 @@ class App extends React.Component {
 							<button type="button" className="save-button" onClick={this.connectOBS}>Connect</button>
 						</div>;
 						
-						appContent = <div className="App-content deck">
+						tabContent = <div className="App-content deck">
 							<h1 style={{fontSize:"24px"}}>OBS not connected!</h1><br></br>
 							<p>OBS is connected by Spooder itself. So only one connect is needed for all your Web UI clients.
 								Check 'Remember' to save this info on file and Spooder will automatically attempt to connect to OBS
@@ -668,97 +467,71 @@ class App extends React.Component {
 						
 					}
 				}
-			}else if(this.state.decktab == "osc"){
+				break;
+			case "osc":
+				appMode = "deck";
 				if(!this.state.oscConnected){
-					appContent = 
+					tabContent = 
 					<h1>Hold on...we're connecting to OSC</h1>
 				}else{
-					appContent = <div className="App-content">
+					tabContent = <div className="App-content deck">
 					<OSCMonitor osc={osc} />
 				</div>
 				}
-				
-			}else if(this.state.decktab == "mod"){
-				appContent = <div className="App-content">
+				break;
+			case "mod":
+				appMode = "deck";
+				tabContent = <div className="App-content deck">
 					<iframe id="ModUIViewer" src="/mod"/>
 				</div>
-			}
-
-			
-			let tabButtons = [];
-			for(let t in this.state.deckTabOptions){
-				let tabName = this.state.deckTabOptions[t];
-				tabButtons.push(
-					<button type="button" name={t} className={"tab-button "+(this.state.tab==t?"selected":"")} onClick={()=>this.selectTab(t)}>{tabName}</button>
-				);
-			}
-
-			navigationTabs = <div className="navigation-tabs-mobile">
-				{tabButtons}
-			</div>;
-			
+				break;
+			/*case "theme":
+				tabContent = <ThemeTab data={tabData.data} />;
+			break;*/
 		}
-		let scopes = [
-		 'channel:moderate',
-		 'chat:read',
-		 'chat:edit', 
-		 'whispers:read', 
-		 'whispers:edit', 
-		 'analytics:read:extensions', 
-		 'analytics:read:games', 
-		 'bits:read', 
-		 'channel:edit:commercial', 
-		 'channel:manage:broadcast', 
-		 'channel:read:charity', 
-		 'channel:manage:extensions', 
-		 'channel:manage:moderators', 
-		 'channel:manage:polls', 
-		 'channel:manage:predictions', 
-		 'channel:manage:raids', 
-		 'channel:manage:redemptions', 
-		 'channel:manage:schedule', 
-		 'channel:manage:videos', 
-		 'channel:read:editors', 
-		 'channel:read:goals', 
-		 'channel:read:hype_train', 
-		 'channel:read:polls', 
-		 'channel:read:predictions', 
-		 'channel:read:redemptions', 
-		 'channel:read:stream_key', 
-		 'channel:read:subscriptions', 
-		 'channel:read:vips', 
-		 'channel:manage:vips', 
-		 'clips:edit', 
-		 'moderation:read', 
-		 'moderator:manage:announcements', 
-		 'moderator:manage:automod',
-		 'moderator:read:automod_settings', 
-		 'moderator:manage:automod_settings', 
-		 'moderator:manage:banned_users', 
-		 'moderator:read:blocked_terms',
-		 'moderator:manage:chat_messages',
-		 'moderator:read:chat_settings',
-		 'moderator:manage:chat_settings',
-		 'moderator:read:chatters',
-		 'moderator:read:followers',
-		 'moderator:read:shield_mode',
-		 'moderator:manage:shield_mode',
-		 'user:edit',
-		 'user:manage:blocked_users',
-		 'user:read:blocked_users',
-		 'user:read:broadcast',
-		 'user:manage:chat_color',
-		 'user:read:email',
-		 'user:read:follows',
-		 'user:read:subscriptions',
-		 'user:manage:whispers'
-		];
-		let loginInfo = <div className="login-buttons">
-							<a href={"https://id.twitch.tv/oauth2/authorize?client_id="+clientID+"&redirect_uri=http://localhost:"+hostPort+"/twitch/authorize&response_type=code&scope="+scopes.join(" ")}>Authorize</a>
-							<a href={"/twitch/revoke"}>Revoke</a>
-						</div>;
-		let shareElements = [];
 
+		let appContent = null;
+		let navigationTabs = null;
+
+		let tabButtons = [];
+		for(let t in this.state.tabOptions){
+			let tabName = this.state.tabOptions[t];
+			tabButtons.push(
+				<button type="button" name={t} className={"tab-button "+(this.state.tab==t?"selected":"")} onClick={()=>this.selectTab(t)}>{tabName}</button>
+			);
+		}
+		let deckButtons = [];
+		for(let d in this.state.deckTabOptions){
+			let tabName = this.state.deckTabOptions[d];
+			deckButtons.push(
+				<button type="button" name={d} className={"tab-button "+(this.state.tab==d?"selected":"")} onClick={()=>this.selectTab(d)}>{tabName}</button>
+			);
+		}
+		navigationTabs = <div className="navigation-tabs-mobile">
+								<div className="navigation-tab-group">
+									<label>Setup</label>
+									<div className="navigation-buttons">
+										{tabButtons}
+									</div>
+								</div>
+								
+								<div className="navigation-tab-group">
+									<label>Deck</label>
+									<div className="navigation-buttons">
+										{deckButtons}
+									</div>
+								</div>
+						</div>;
+
+		appContent = <div className={"App-content "+appMode}>
+						<div className="navigation-tabs">
+							{tabButtons}
+						</div>
+						<div id="tabContent">
+							{tabContent}
+						</div>
+					</div>;
+		let shareElements = [];
 		for(let s in this.state.shares){
 			shareElements.push(
 				<div className="nav-share-entry" key={s}>
@@ -771,49 +544,39 @@ class App extends React.Component {
 				</div>
 			)
 		}
-
+		
 		return <div className="App">
 					<div className={"navigation-menu "+(this.state.navOpen?"open":"")}>
-						<div className="deck-mode-button">
-							<button type="button" onClick={this.deckToggle} ><FontAwesomeIcon icon={faArrowRight}/> {this.state.mode=="deck"?"Setup Mode":"Deck Mode"}</button>
-						</div>
 						{navigationTabs}
 						<div className="chat-actions">
-							<div style={{display:"flex", alignItems:"center"}}>Stay Here <BoolSwitch name="stayhere" onChange={this.stayHere} checked={(urlParams.get("mode")!=null&&urlParams.get("tab")!=null)} /></div>
+							<div style={{display:"flex", alignItems:"center"}}>Stay Here <BoolSwitch name="stayhere" onChange={this.stayHere} checked={(urlParams.get("tab")!=null)} /></div>
 							<div>Plugins <button type="button" className="nav-restart-chat-button" onClick={this.refreshPlugins}>Refresh Plugins</button></div>
 							<div>Chat <button type="button" className="nav-restart-chat-button" onClick={this.restartChat}>Restart Chat</button></div>
 							<div>Shares
 								<div className="nav-share-container">{shareElements}</div>
 							</div>
 						</div>
-						<div className="login">
-							<div className="account-info">{username}</div>
-							{window.location.hostname=="localhost"?loginInfo:"Authorizing and Revoking only works on localhost"}
-						</div>
 					</div>
 					<div className="App-header">
-						<div className="top-header" onClick={this.navigationClick}>
+						<div className={"top-header "+this.state.toastClass} onClick={this.navigationClick}>
 							<div className="navigation-open-button" ><FontAwesomeIcon icon={faBars} size="2x" /></div>
+							<div className="toast-text">{this.state.toastText}</div>
 							<h1 className="App-title">
-								<span style={{color:this.state.customSpooder.colors.longlegs}}>/</span>
-								<span style={{color:this.state.customSpooder.colors.longlegs}}>╲</span>
-								<span style={{color:this.state.customSpooder.colors.shortlegs}}>/</span>
-								<span style={{color:this.state.customSpooder.colors.shortlegs}}>\</span>
-								<span style={{color:this.state.customSpooder.colors.body}}>(</span>
+								<span style={{color:this.state.themes.spooderpet.colors.longlegleft}}>{this.state.themes.spooderpet.longlegleft}</span>
+								<span style={{color:this.state.themes.spooderpet.colors.shortlegleft}}>{this.state.themes.spooderpet.shortlegleft}</span>
+								<span style={{color:this.state.themes.spooderpet.colors.bodyleft}}>{this.state.themes.spooderpet.bodyleft}</span>
 								<span> </span>
-								<span style={{color:this.state.customSpooder.colors.littleeyeleft}}>{this.state.customSpooder.littleeyeleft}</span>
-								<span style={{color:this.state.customSpooder.colors.bigeyeleft}}>{this.state.customSpooder.bigeyeleft}</span>
-								<span style={{color:this.state.customSpooder.colors.fangleft}}>{this.state.customSpooder.fangleft}</span>
-								<span style={{color:this.state.customSpooder.colors.mouth}}>{this.state.customSpooder.mouth}</span>
-								<span style={{color:this.state.customSpooder.colors.fangright}}>{this.state.customSpooder.fangright}</span>
-								<span style={{color:this.state.customSpooder.colors.bigeyeright}}>{this.state.customSpooder.bigeyeright}</span>
-								<span style={{color:this.state.customSpooder.colors.littleeyeright}}>{this.state.customSpooder.littleeyeright}</span>
+								<span style={{color:this.state.themes.spooderpet.colors.littleeyeleft}}>{this.state.themes.spooderpet.littleeyeleft}</span>
+								<span style={{color:this.state.themes.spooderpet.colors.bigeyeleft}}>{this.state.themes.spooderpet.bigeyeleft}</span>
+								<span style={{color:this.state.themes.spooderpet.colors.fangleft}}>{this.state.themes.spooderpet.fangleft}</span>
+								<span style={{color:this.state.themes.spooderpet.colors.mouth}}>{this.state.themes.spooderpet.mouth}</span>
+								<span style={{color:this.state.themes.spooderpet.colors.fangright}}>{this.state.themes.spooderpet.fangright}</span>
+								<span style={{color:this.state.themes.spooderpet.colors.bigeyeright}}>{this.state.themes.spooderpet.bigeyeright}</span>
+								<span style={{color:this.state.themes.spooderpet.colors.littleeyeright}}>{this.state.themes.spooderpet.littleeyeright}</span>
 								<span> </span>
-								<span style={{color:this.state.customSpooder.colors.body}}>)</span>
-								<span style={{color:this.state.customSpooder.colors.shortlegs}}>/</span>
-								<span style={{color:this.state.customSpooder.colors.shortlegs}}>\</span>
-								<span style={{color:this.state.customSpooder.colors.longlegs}}>╱</span>
-								<span style={{color:this.state.customSpooder.colors.longlegs}}>\</span>
+								<span style={{color:this.state.themes.spooderpet.colors.bodyright}}>{this.state.themes.spooderpet.bodyright}</span>
+								<span style={{color:this.state.themes.spooderpet.colors.shortlegright}}>{this.state.themes.spooderpet.shortlegright}</span>
+								<span style={{color:this.state.themes.spooderpet.colors.longlegright}}>{this.state.themes.spooderpet.longlegright}</span>
 							</h1>
 						</div>
 						

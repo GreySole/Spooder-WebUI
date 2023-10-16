@@ -8,7 +8,6 @@ class BoolSwitch extends React.Component{
     }
 
     toggleSwitch = (e) =>{
-        console.log("TOGGLE SWITCH");
         
         let thisSwitch = e.target.closest(".boolswitch");
         
@@ -21,7 +20,7 @@ class BoolSwitch extends React.Component{
     }
 
     render(){
-        return <label className={this.state.checked?"boolswitch checked":"boolswitch"}><input type="checkbox" name={this.state.name} eventname={this.state.eventname} defaultChecked={this.state.checked} onChange={this.toggleSwitch}/>
+        return <label className={this.state.checked?"boolswitch checked":"boolswitch"}><input type="checkbox" name={this.state.name} value={this.state.value} eventname={this.state.eventname} defaultChecked={this.state.checked} onChange={this.toggleSwitch}/>
         <div></div></label>;
     }
 }

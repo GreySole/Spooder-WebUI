@@ -1,0 +1,18 @@
+.twitchmanage-form{
+    display:flex;
+    flex-flow:row;
+}
+
+.twitch-bot,
+.twitch-broadcaster{
+    display:flex;
+    flex-flow:column;
+    text-align: center;
+    align-items:center;
+    margin:10px;
+}
+
+.section-header{
+    font-size:36px;
+    margin:10px;
+}

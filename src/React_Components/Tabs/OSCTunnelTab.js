@@ -1,14 +1,15 @@
 import React from 'react';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {faTrash} from '@fortawesome/free-solid-svg-icons';
+import LoadingCircle from '../UI/LoadingCircle';
 
-var udpClients = {};
 var plugins = {};
 
 class OSCTunnelTab extends React.Component{
 	constructor(props){
 		super(props);
 		this.state ={
+			stateLoaded:false,
 			tunnels:Object.assign({},props.data),
 			addVar:{
 				"handlerFrom":"",
@@ -16,7 +17,9 @@ class OSCTunnelTab extends React.Component{
 				"addressFrom":"",
 				"addressTo":"",
 				"clientTo":""
-			}
+			},
+			udpClients:{},
+			plugins:[]
 		};
 		
 		this.handleChange = this.handleChange.bind(this);
@@ -24,8 +27,35 @@ class OSCTunnelTab extends React.Component{
 		this.handleAddOSCVar = this.handleAddOSCVar.bind(this);
 		this.saveTunnels = this.saveTunnels.bind(this);
 		this.deleteOSCVar = this.deleteOSCVar.bind(this);
-		udpClients = Object.assign(props._udpClients);
-		plugins = Object.assign(props._plugins);
+		//udpClients = Object.assign(props._udpClients);
+		//plugins = Object.assign(props._plugins);
+	}
+
+	componentDidMount(){
+		fetch("/osc_tunnels")
+		.then(response => response.json())
+		.then(data => {
+			console.log("TUNNELS", this.props.parentState);
+			window.addEventListener("keydown", this.keyDown)
+			this.setState(Object.assign({}, {
+				stateLoaded:true,
+				tunnels:data,
+				udpClients:this.props.parentState.udp_clients ?? {},
+				plugins:this.props.parentState.plugins ?? []
+			}))
+		})
+	}
+
+	componentWillUnmount(){
+		window.removeEventListener("keydown", this.keyDown)
+	}
+
+	keyDown = e=>{
+		console.log(e);
+		if(e.ctrlKey==true && e.key == 's'){
+			e.preventDefault();
+			this.saveCommands();
+		}
 	}
 	
 	handleChange(s){
@@ -69,6 +99,7 @@ class OSCTunnelTab extends React.Component{
 		.then(response => response.json())
 		.then(data => {
 			if(data.status == "SAVE SUCCESS"){
+				this.props.setToast("TUNNELS SAVED!", "save");
 				document.querySelector("#saveStatusText").textContent = "Save success!";
 				setTimeout(()=>{
 					document.querySelector("#saveStatusText").textContent = "";
@@ -92,20 +123,23 @@ class OSCTunnelTab extends React.Component{
 	
 	
 	render(){
+		if(this.state.stateLoaded == false){
+			return <LoadingCircle></LoadingCircle>
+		}
 		let table = [];
 		console.log(this.state);
 		let oscTrashButton = <FontAwesomeIcon icon={faTrash} size="lg" className="delete-button" onClick={this.deleteOSCVar} />;
 
 		let clientTable = [];
 
-		for(let u in udpClients){
-			clientTable.push(<option value={u}>{udpClients[u].name}</option>);
+		for(let u in this.state.udpClients){
+			clientTable.push(<option value={u}>{this.state.udpClients[u].name}</option>);
 		}
 
 		let pluginTable = [];
 
-		for(let p in plugins){
-			pluginTable.push(<option value={plugins[p]}>{plugins[p]}</option>);
+		for(let p in this.state.plugins){
+			pluginTable.push(<option value={this.state.plugins[p]}>{this.state.plugins[p]}</option>);
 		}
 
 		var tunnels = this.state.tunnels;

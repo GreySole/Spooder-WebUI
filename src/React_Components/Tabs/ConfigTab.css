@@ -6,13 +6,8 @@
 
 .config-variable {
     display: flex;
-    flex-flow: row;
+    flex-flow: column;
     padding: 10px;
-    align-items: center;
-}
-
-.config-variable .link-button{
-    margin-left: 10px;
 }
 
 .link-override{
@@ -39,12 +34,14 @@
 .config-variable select,
 .config-variable label,
 .config-variable textarea,
+.config-variable .link-button,
 .eventsub-variable input,
 .eventsub-variable select,
 .eventsub-variable label,
 .eventsub-variable textarea,
 .active-subs,
 .boolswitch {
+    margin-top:5px;
     margin-left: 10px;
 }
 

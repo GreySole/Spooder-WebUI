@@ -19,10 +19,12 @@
 
 @keyframes deleted{
     0%{
+        max-height:500px;
         clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%);
     }
     100%{
-        clip-path: polygon(0% 0%, 0% 0%, 0% 100%, 0% 100%);
+        max-height:0;
+        clip-path: polygon(0% 0%, 100% 0%, 100% 0%, 0% 0%);
     }
 }
 

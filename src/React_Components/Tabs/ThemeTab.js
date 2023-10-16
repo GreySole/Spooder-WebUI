@@ -1,5 +1,6 @@
 import React from 'react';
 import ColorEditor from '../UI/ColorEditor.js';
+import LoadingCircle from '../UI/LoadingCircle';
 
 var cStyle = getComputedStyle(document.querySelector(":root"));
 class ThemeTab extends React.Component{

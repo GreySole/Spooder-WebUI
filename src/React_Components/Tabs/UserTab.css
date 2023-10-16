@@ -1,0 +1,26 @@
+.user-entry{
+    display:flex;
+    flex-flow:column;
+    border-bottom: 1px solid white;
+    padding:10px;
+}
+
+.user-entry label{
+    margin:5px;
+}
+
+.user-entry label input{
+    margin-left:5px;
+}
+
+.user-section{
+    display:flex;
+    flex-flow:column;
+}
+
+.user-section label{
+    display:flex;
+    flex-flow:row;
+    align-items:center;
+    margin-left:15px;
+}

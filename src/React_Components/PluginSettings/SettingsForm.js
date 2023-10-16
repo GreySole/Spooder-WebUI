@@ -153,6 +153,17 @@ class SettingsForm extends React.Component{
         this.setState(Object.assign(this.state, {values:newValues}));
     }
 
+    getSpooderEvents(){
+        fetch("/command_table")
+        .then(response => response.json())
+        .then(data => {
+            this.setState(Object.assign(this.state, {spooder:{events:data.express.events, groups:data.express.groups}}))
+        })
+        .catch(e=>{
+            console.log(e);
+        })
+    }
+
     getOBSChannels(){
         fetch("/obs/get_scenes")
         .then(response => response.json())
@@ -466,7 +477,7 @@ class PluginInput extends React.Component{
         let pluginName = this.state.pluginName;
         let path = this.state.options?.folder==null?pluginName:pluginName+"/"+this.state.options?.folder;
 		var fd = new FormData();
-        
+        console.log(e.target.files);
 		fd.append('file', e.target.files[0]);
 
 		const requestOptions = {
@@ -479,14 +490,45 @@ class PluginInput extends React.Component{
 		//console.log(uploadReq["newAssets"], newState);
         if(this.state.options?.folder == "" || this.state.options?.folder == null){
             newState["root"] = uploadReq["newAssets"];
+            
         }else{
             newState[this.state.options.folder] = [];
             for(let file in uploadReq["newAssets"]){
                 newState[this.state.options.folder].push(this.state.options?.folder+"/"+uploadReq["newAssets"][file]);
             }
+            
         }
 		
-		this.setState(Object.assign(this.state, {assets:newState}));
+        if(this.state.multi == true){
+            let newSelects = Object.assign({}, this.state._selects);
+            
+            let newAsset = null;
+            if(this.state.options.folder == null){
+                newAsset = e.target.files[0].name;
+            }else{
+                newAsset = this.state.options?.folder+"/"+e.target.files[0].name;
+            }
+            newSelects[this.state.keyname] = newAsset;
+
+            this.setState(Object.assign(this.state, {assets:newState, value:newAsset, _selects:newSelects}),
+            ()=>{
+                e.target.parentElement.querySelector("select[name="+this.state.keyname+"]").value = newAsset;
+            });
+        }else{
+            let newAsset = null;
+            if(this.state.options.folder == null){
+                newAsset = e.target.files[0].name;
+            }else{
+                newAsset = this.state.options?.folder+"/"+e.target.files[0].name;
+            }
+
+            this.setState(Object.assign(this.state, {assets:newState, value:newAsset}),
+            ()=>{
+                
+                e.target.parentElement.querySelector("select[name="+this.state.keyname+"]").value = newAsset;
+                //console.log(e.target.parentElement.querySelector("select").value ,e.target.parentElement.querySelector("select"));
+            });
+        }
     }
 
     getInput(type){
@@ -507,7 +549,7 @@ class PluginInput extends React.Component{
             }
             
         }
-        //console.log("VALUE", this.state.keyname);
+
         switch(type){
             case "boolean":
             case "checkbox":
@@ -550,11 +592,22 @@ class PluginInput extends React.Component{
             case "asset":
                 let assets = this.getAssetOptions(this.state.options?.assetType, this.state.options?.folder);
                 let assetType = this.state.options?.assetType!=null?this.state.options.assetType+"/*":"*";
+
+                if(value==null && this.state.options.required == true){
+                    console.log(this.state.assets);
+                    if(this.state.options.folder != null){
+                        if(this.state.assets[this.state.options.folder]?.[0] != null){
+                            changeCB({target:{value:this.state.assets[this.state.options.folder]?.[0]}});
+                        }
+                    }else{
+                        changeCB({target:{value:this.state.assets[0]}});
+                    }
+                }
                 
-                input = <label key={this.state.keyname} name={this.state.keyname} htmlFor={'input-file-'+this.state.keyname} >
+                input = <label key={this.state.keyname+Object.keys(this.state.assets).length} name={this.state.keyname} htmlFor={'input-file-'+this.state.keyname} >
                             <select name={this.state.keyname} defaultValue={value} onChange={changeCB}>{assets}</select>
                             <button className="settings-form-asset-upload" onClick={this.handleAssetUploadClick}><FontAwesomeIcon icon={faFileImport} size="lg" /></button>
-                            <input type='file' id={'input-file-'+this.state.keyname} name={this.state.keyname} accept={assetType} onChange={this.uploadAsset} style={{ display: 'none' }} />
+                            <input type='file' id={'input-file-'+this.state.keyname} name={this.state.keyname} accept={assetType} onChange={this.uploadAsset.bind(this)} style={{ display: 'none' }} />
                         </label>
             
             break;
@@ -585,30 +638,47 @@ class PluginInput extends React.Component{
                     item:-1
                 };
 
+                let sceneIndex = -1;
+                if(this.state.value!=null){
+                    for(let d in this.state.obs.scenes){
+                        if(this.state.obs.scenes[d].sceneName == this.state.value.scene){
+                            sceneIndex = d;
+                        }
+                    }
+                }
+
                 if(Object.keys(this.state.obs).length > 0){
                     for(let d in this.state.obs.scenes){
                         sceneOptions.push(
-                            <option value={d}>{this.state.obs.scenes[d].sceneName}</option>
+                            <option value={this.state.obs.scenes[d].sceneName}>{this.state.obs.scenes[d].sceneName}</option>
                         );
                     }
     
                     if(this.state.multi == true){
                         let obsSelect = this.state._selects[this.state.keyname];
                         if(obsSelect != null){
-                            if(obsSelect.scene != ""){
-                                for(let c in this.state.obs.sceneItems[obsSelect.scene]){
+                            let selectSceneIndex = -1;
+                            if(obsSelect.scene!=""){
+                                for(let d in this.state.obs.scenes){
+                                    if(this.state.obs.scenes[d].sceneName == obsSelect.scene){
+                                        selectSceneIndex = d;
+                                    }
+                                }
+                            }
+                            if(selectSceneIndex != -1){
+                                for(let c in this.state.obs.sceneItems[selectSceneIndex]){
                                     itemOptions.push(
-                                        <option value={this.state.obs.sceneItems[obsSelect.scene][c].sceneItemId}>{this.state.obs.sceneItems[obsSelect.scene][c].sourceName}</option>
+                                        <option value={this.state.obs.sceneItems[selectSceneIndex][c].sourceName}>{this.state.obs.sceneItems[selectSceneIndex][c].sourceName}</option>
                                     );
                                 }
                             }
                         }
                         
                     }else{
-                        if(obsVal.scene != -1){
-                            for(let c in this.state.obs.sceneItems[obsVal.scene]){
+                        if(sceneIndex != -1){
+                            for(let c in this.state.obs.sceneItems[sceneIndex]){
                                 itemOptions.push(
-                                    <option value={this.state.obs.sceneItems[obsVal.scene][c].sceneItemId}>{this.state.obs.sceneItems[obsVal.scene][c].sourceName}</option>
+                                    <option value={this.state.obs.sceneItems[sceneIndex][c].sourceName}>{this.state.obs.sceneItems[sceneIndex][c].sourceName}</option>
                                 );
                             }
                         }
@@ -799,8 +869,8 @@ class PluginInput extends React.Component{
                 }else if(this.state.type == "obs"){
                     varContainer.push(
                         <div className="settings-form-var-button" key={v} index={v} onClick={()=>this.removeMultiInput(v)}>
-                            { this.state.obs.scenes != null?
-                            this.state.obs.scenes[this.state.value[v].scene].sceneName+" -> "+this.state.obs.sceneItems[this.state.value[v].scene][this.state.value[v].item].sourceName:Object.values(this.state.value[v]).join(", ")}
+                            { 
+                            this.state.value[v].scene+" -> "+this.state.value[v].item}
                         </div>
                     )
                 }else{

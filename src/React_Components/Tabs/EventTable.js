@@ -1180,6 +1180,24 @@ class EventTable extends React.Component{
 																				End Event Name:
 																				<input type="text" key={s} name="stop_eventname" value={eventCommands[c].stop_eventname} onChange={this.handleChange} />
 																			</label>:null;
+
+						/*
+						inputTable.push(<PluginInput key={this.state.assets!=null?e+Object.keys(this.state.assets).length+":"+Object.keys(this.state.discord).length+":"+Object.keys(this.state.obs).length:e}
+									keyname={e} 
+									pluginName={this.state.pluginName}
+									type={elements[e].type}
+									label={elements[e].label}
+									options={elements[e].options}
+									default={this.state.defaults[e]} 
+									value={this.state.values[e]} 
+									multi={elements[e]["multi-select"]} 
+									udpClients={this.state.udpClients}
+									assets={this.state.assets}
+									discord={this.state.discord}
+									obs={this.state.obs}
+									onChange={this.onInputChange}
+									getGlobalValue={this.getGlobalValue}/>);
+						*/
 						element = <div className="command-props plugin">
 							<label>
 								Plugin:

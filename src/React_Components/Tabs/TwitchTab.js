@@ -78,7 +78,7 @@ class TwitchTab extends React.Component{
 		authMessageHidden = localStorage.getItem("authMessageHidden")!=null?localStorage.getItem("authMessageHidden"):false;
 		
 		this.handleChange = this.handleChange.bind(this);
-		this.saveEventSubs = this.saveEventSubs.bind(this);
+		this.saveTwitchConfig = this.saveTwitchConfig.bind(this);
 		this.getEventSubs = this.getEventSubs.bind(this);
 		this.getDiscordChannels = this.getDiscordChannels.bind(this);
 		
@@ -121,31 +121,12 @@ class TwitchTab extends React.Component{
 
 	handleChange(s){
 		
-		let name = s.target.name.split("-");
-		let eventname = s.target.getAttribute("eventname");
+		let name = s.target.name;
 		let value = s.target.value;
 
-		if(s.target.type == "checkbox"){
-			value = s.target.checked;
-		}
-
-		if(!eventname){
-			let newConfig = Object.assign(this.state);
+		let newConfig = Object.assign(this.state);
 			newConfig[name] = value;
 			this.setState(newConfig);
-		}else{
-			let newEvents = Object.assign(this.state.events);
-			if(name[0] == "discord" && newEvents[eventname][name[0]] == null){
-				newEvents[eventname][name[0]] = {
-					enabled:false,
-					guild:"",
-					channel:""
-				};
-			}
-			newEvents[eventname][name[0]][name[1]] = value;
-
-			this.setState(Object.assign(this.state, {"events":newEvents}));
-		}
 	}
 
 	getDiscordChannels(){
@@ -159,16 +140,18 @@ class TwitchTab extends React.Component{
         })
     }
 	
-	saveEventSubs(){
-		let newList = Object.assign({},this.state);
-		delete newList["eventsub"];
+	saveTwitchConfig(){
+		
 		
 		const requestOptions = {
 			method: 'POST',
 			headers: {'Content-Type': 'application/json', 'Accept':'application/json'},
-			body: JSON.stringify(newList)
+			body: JSON.stringify({
+				"client-id":this.state["client-id"],
+				"client-secret":this.state["client-secret"]
+			})
 		};
-		fetch('/twitch/saveEventSubs', requestOptions)
+		fetch('/twitch/saveConfig', requestOptions)
 		.then(response => response.json())
 		.then(data => {
 			if(data.status == "SAVE SUCCESS"){
@@ -329,7 +312,7 @@ class TwitchTab extends React.Component{
 		
 		let chatAuthButton = <a className={window.location.hostname!="localhost"||this.state["client-id"]==null||this.state["client-id"]==""?"disabled":""} 
 		key={this.state["client-id"]+this.state["client-secret"]}
-		href={"https://id.twitch.tv/oauth2/authorize?client_id="+this.state["client-id"]+"&redirect_uri=http://localhost:"+this.state.host_port+"/twitch/authorize&response_type=code&scope="+scopes.join(" ")}><button type="button" className='command-button' disabled={window.location.hostname!="localhost"||this.state["client-id"]==null||this.state["client-id"]==""}>Replace</button></a>;
+		href={"https://id.twitch.tv/oauth2/authorize?client_id="+this.state["client-id"]+"&redirect_uri=http://localhost:"+this.state.host_port+"/twitch/authorize&response_type=code&scope="+scopes.join(" ")}><button type="button" className='command-button' disabled={window.location.hostname!="localhost"||this.state["client-id"]==null||this.state["client-id"]==""}>{this.state["token"] != null ? "Replace" : "Authorize"}</button></a>;
 
 		let chatRevokeButton = <button className='delete-button' onClick={this.revokeBroadcasterAuth}>Revoke</button>
 		let broadCopyButton = <button className='command-button' onClick={this.saveAuthToBroadcaster} disabled={window.location.hostname!="localhost"||this.state["client-id"]==null||this.state["client-id"]==""}>Copy from Chat Bot</button>;
@@ -350,16 +333,22 @@ class TwitchTab extends React.Component{
 				{broadCopyButton}
 			</div>
 			{chatRevokeButton}
-	</div>:null;
+	</div>:<div>Save your ID and Secret before authorizing! {chatAuthButton}</div>;
 		
 		return (
 			<form className="config-tab">
 				<div className="section-header">Auth Management</div>
+				<div className="twitch-credentials">
+					<label>Client ID
+						<input name="client-id" defaultValue={this.state["client-id"]} type="text" placeholder='Client ID' onChange={this.handleChange}/>
+					</label>
+					<label>Client Secret
+						<input name="client-secret" defaultValue={this.state["client-secret"]} type="password" placeholder='Client Secret' onChange={this.handleChange}/>
+					</label>
+					<div className="save-commands"><button type="button" id="convertEventSubsButton" className="save-button" onClick={this.saveTwitchConfig}>Save</button><div id="saveStatusText" className="save-status"></div></div>
+				</div>
 				{twitchManage}
-				<div className="section-header">Eventsub</div>
-				Twitch Events are now integrated in Spooder's event system. Convert your Twitch events to Spooder events.
-				<div className="save-commands"><button type="button" id="convertEventSubsButton" className="save-button" onClick={this.convertEventsToSpooderEvents}>Convert</button><div id="saveStatusText" className="save-status"></div></div>
-				<div className="save-commands"><button type="button" id="cleanupOldEventsubsButton" className="delete-button" onClick={this.cleanupOldEventsubs}>CLEANUP</button><div id="cleanupStatusText" className="save-status"></div></div>
+				
 			</form>
 		);
 	}

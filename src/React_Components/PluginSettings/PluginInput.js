@@ -1,3 +1,4 @@
+import React from 'react';
 import BoolSwitch from '../UI/BoolSwitch.js';
 import CodeEditor from '@uiw/react-textarea-code-editor';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';

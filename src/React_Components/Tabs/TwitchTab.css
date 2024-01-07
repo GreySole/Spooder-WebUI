@@ -3,6 +3,19 @@
     flex-flow:row;
 }
 
+.twitch-credentials{
+    display:flex;
+    flex-flow:column;
+}
+
+.twitch-credentials label{
+    margin:5px;
+}
+
+.twitch-credentials input{
+    margin-left:5px;
+}
+
 .twitch-bot,
 .twitch-broadcaster{
     display:flex;

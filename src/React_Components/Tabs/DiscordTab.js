@@ -99,7 +99,7 @@ class DiscordTab extends React.Component{
             }
         }
         
-        let autoNgrokFields = this.state.config.autosendngrok?.enabled != null?<div className="config-variable">
+        let autoNgrokFields = this.state.config?.autosendngrok?.enabled != null?<div className="config-variable">
                 <label>
                     Server
                     <select name="autosendngrok-destguild" defaultValue={this.state.config.autosendngrok?.destguild} onChange={this.handleDiscordChange}>

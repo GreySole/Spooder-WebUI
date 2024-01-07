@@ -99,7 +99,6 @@ class TwitchTab extends React.Component{
 					}
 				}
 			}
-			console.log(data);
 			data.stateLoaded = true;
 			window.addEventListener("keydown", this.keyDown)
 			this.setState(Object.assign(this.state, data));
@@ -114,7 +113,6 @@ class TwitchTab extends React.Component{
 	}
 
 	keyDown = e=>{
-		console.log(e);
 		if(e.ctrlKey==true && e.key == 's'){
 			e.preventDefault();
 			this.saveEventSubs();
@@ -292,7 +290,6 @@ class TwitchTab extends React.Component{
 		let saveStatus = await fetch('/twitch/save_auth_to_broadcaster')
 		.then(response => response.json());
 		
-		console.log("DONE", saveStatus);
 	}
 
 	async revokeBroadcasterAuth(){
@@ -302,7 +299,6 @@ class TwitchTab extends React.Component{
 		let saveStatus = await fetch('/twitch/revoke')
 		.then(response => response.json());
 		
-		console.log("DONE", saveStatus);
 	}
 
 	async refreshEventSubs(){
@@ -313,7 +309,6 @@ class TwitchTab extends React.Component{
 		.then(response => response.json());
 
 		this.getEventSubs();
-		console.log("EVENTSUBS REFRESHED");
 	}
 
 	hideAuthMessage(e){

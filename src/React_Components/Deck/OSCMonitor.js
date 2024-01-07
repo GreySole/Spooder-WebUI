@@ -114,7 +114,6 @@ class OSCMonitor extends React.Component{
         }else{
             newFilters.push(filter);
         }
-        console.log(newFilters)
         this.setState(Object.assign(this.state, {activeFilters:newFilters}));
     }
 

@@ -7,7 +7,7 @@ class DiscordTab extends React.Component{
     constructor(props){
         super(props);
         this.state = {
-            stateLoaded:false
+            stateLoaded:false,
         }
 
         this.saveDiscord = this.saveDiscord.bind(this);
@@ -17,7 +17,6 @@ class DiscordTab extends React.Component{
         fetch("/discord/config")
         .then(response => response.json())
         .then(data => {
-            console.log("Discord data", data);
             data.stateLoaded = true;
             window.addEventListener("keydown", this.keyDown)
             this.setState(Object.assign(this.state, data));
@@ -29,7 +28,6 @@ class DiscordTab extends React.Component{
     }
 
     keyDown = e=>{
-		console.log(e);
 		if(e.ctrlKey==true && e.key == 's'){
 			e.preventDefault();
 			this.saveDiscord();
@@ -115,21 +113,25 @@ class DiscordTab extends React.Component{
                     </select>
                 </label>
             </div>:null;
+        
+        let loginFields = <>
+                    <div className="config-variable">
+                        <label>
+                            Master User
+                            <input type="master" defaultValue={this.state.config?.master} onChange={this.handleDiscordChange}/>
+                        </label>
+                    </div>
+                    <div className="config-variable">
+                        <label>
+                            Bot token
+                            <input type="password" defaultValue={this.state.config?.token} onChange={this.handleDiscordChange}/>
+                        </label>
+                    </div>
+                </>;
 
-        let discord = <div className="config-discord">
-                <div className="config-variable">
-                    <label>
-                        Master User
-                        <input type="master" defaultValue={this.state.config.master} onChange={this.handleDiscordChange}/>
-                    </label>
-                </div>
-                <div className="config-variable">
-                    <label>
-                        Bot token
-                        <input type="password" defaultValue={this.state.config.token} onChange={this.handleDiscordChange}/>
-                    </label>
-                </div>
-                {this.state.guilds!=null?<div className="config-variable">
+        let configFields = <>
+            {this.state.guilds!=null ?
+            <div className="config-variable">
                     <label>
                         Send Ngrok Link to Channel on Startup
                         <BoolSwitch name="autosendngrok-enabled" checked={this.state.config.autosendngrok?.enabled} onChange={this.handleDiscordChange}/>
@@ -144,8 +146,14 @@ class DiscordTab extends React.Component{
                     </label>
                 </div>:<div class="config-variable">
                         Discord isn't logged in. Input your bot token and invite the bot to your server to assign a channel to auto send Ngrok links.
-                    </div>}
-                {autoNgrokFields}
+            </div>}
+        </>;
+
+        let discord = <div className="config-discord">
+                {this.state.config != null ? "":"Create an app on Discord Developers to make a bot token. Then add your Discord user ID as the master."}
+                {loginFields}
+                {this.state.config != null ? configFields:null}
+                {this.state.config != null ? autoNgrokFields:null}
                 <div className="save-commands"><button type="button" id="saveDiscordButton" className="save-button" onClick={this.saveDiscord}>Save</button><div id="discordSaveStatusText" className="save-status"></div></div>
             </div>;
 

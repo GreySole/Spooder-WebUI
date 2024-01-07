@@ -44,7 +44,8 @@ class EventTable extends React.Component{
 		this.deleteEvent = this.deleteEvent.bind(this);
 		this.deleteGroup = this.deleteGroup.bind(this);
 		this.getCustomRewards = this.getCustomRewards.bind(this);
-		this.getOBSChannels = this.getOBSChannels.bind(this)
+		this.getOBSChannels = this.getOBSChannels.bind(this);
+		this.getDiscordChannels = this.getDiscordChannels.bind(this);
 		this.checkEventTaken = this.checkEventTaken.bind(this);
 		this.searchText = this.searchText.bind(this);
 		this.zoomTimeline = this.zoomTimeline.bind(this);
@@ -150,7 +151,6 @@ class EventTable extends React.Component{
 		.then(data => {
 			
 			let commandData = JSON.parse(data.express);
-			console.log("DATA", commandData, this.props.parentState);
 
 			if(commandData.events != null){
 		
@@ -201,8 +201,6 @@ class EventTable extends React.Component{
 						}
 					}
 				}
-
-				console.log("NEW EVENTS", commandData.events);
 				
 				if(commandData.groups == null){
 					commandData.groups = ['Default'];
@@ -215,22 +213,21 @@ class EventTable extends React.Component{
 					stateLoaded:true,
 					events:commandData.events ?? {}, 
 					groups:commandData.groups ?? [],
-					_udpClients:this.props.parentState.udpClients ?? {},
+					_udpClients:this.props.parentState.udp_clients ?? {},
 					_plugins:commandData.plugins ?? {}
 				}));
 			this.getCustomRewards();
 			this.getOBSChannels();
+			this.getDiscordChannels();
 		})
 		
 	}
 
 	componentWillUnmount(){
-		console.log("Listener removed");
 		window.removeEventListener("keydown", this.keyDown);
 	}
 
 	keyDown = e=>{
-		console.log(e);
 		if(e.ctrlKey==true && e.key == 's'){
 			e.preventDefault();
 			this.saveCommands();
@@ -276,7 +273,12 @@ class EventTable extends React.Component{
 		}else{
 			if(varname.includes("-")){
 				let splitVarname = varname.split("-");
-				newState[eventName][splitVarname[0]][splitVarname[1]] = varVal;
+				if(splitVarname.length == 2){
+					newState[eventName][splitVarname[0]][splitVarname[1]] = varVal;
+				}else if(splitVarname.length == 3){
+					newState[eventName][splitVarname[0]][splitVarname[1]][splitVarname[2]] = varVal;
+				}
+				
 			}else{
 				newState[eventName][varname] = varVal;
 			}
@@ -405,7 +407,6 @@ class EventTable extends React.Component{
 	}
 	
 	saveCommands(){
-		//setToast("Damn, this really worked?", 5000);
 		let newEvents = Object.assign(this.state.events);
 		for(let c in newEvents){
 			for(let n in newEvents[c]){
@@ -414,16 +415,11 @@ class EventTable extends React.Component{
 				}
 			}
 		}
-		//let eventElements = document.querySelectorAll(".command-element");
-		/*for(let e in newEvents){
-			newEvents[e].group = document.querySelector("#"+e+" [name='group']").value;
-		}*/
 
 		let newList = {
 			"events":newEvents,
 			"groups":this.state.groups
 		};
-		console.log(this.props);
 		
 		const requestOptions = {
 			method: 'POST',
@@ -486,14 +482,6 @@ class EventTable extends React.Component{
 		let newExpands = Object.assign({}, this.state._eventexpands);
 		newExpands[eventkey] = !newExpands[eventkey];
 		this.setState(Object.assign(this.state, {_eventexpands:newExpands}));
-		
-		/*let topElement = e.currentTarget.closest(".command-element");
-		let middleElement = topElement.querySelector(".command-key");
-		let element = topElement.querySelector(".command-section");
-
-		window.toggleClass(topElement, "expanded");
-		window.toggleClass(middleElement, "expanded");
-		window.toggleClass(element, "hidden");*/
 	}
 
 	toggleGroup(e){
@@ -682,13 +670,23 @@ class EventTable extends React.Component{
         fetch("/obs/get_scenes")
         .then(response => response.json())
         .then(data => {
-			console.log("OBS", data);
             this.setState(Object.assign(this.state, {_obs:data}));
         })
         .catch(e=>{
             console.log(e);
         })
     }
+
+	getDiscordChannels(){
+        fetch("/discord/get_channels")
+        .then(response => response.json())
+        .then(data => {
+            this.setState(Object.assign(this.state, {_discord:data}));
+        })
+        .catch(e=>{
+            console.log(e);
+        })
+	}
 
 	arrangeCommands(e){
 		let eventName = e.currentTarget.closest(".command-element").id;
@@ -770,7 +768,6 @@ class EventTable extends React.Component{
 		}
 		
 		let udpHostOptions = [];
-		//console.log(this.state._udpClients);
 		if(this.state._udpClients != null){
 			if(Object.keys(this.state._udpClients).length > 0){
 				for(let u in this.state._udpClients){
@@ -1091,8 +1088,8 @@ class EventTable extends React.Component{
 
 			for(let c in eventCommands){
 
-				if(typeof eventCommands[c].delay == "string"){console.log("PARSE DEL"); eventCommands[c].delay=parseInt(eventCommands[c].delay)}
-				if(typeof eventCommands[c].duration == "string"){console.log("PARSE DUR"); eventCommands[c].duration=parseFloat(eventCommands[c].duration)}
+				if(typeof eventCommands[c].delay == "string"){eventCommands[c].delay=parseInt(eventCommands[c].delay)}
+				if(typeof eventCommands[c].duration == "string"){eventCommands[c].duration=parseFloat(eventCommands[c].duration)}
 
 				maxDuration = Math.max(eventCommands[c].delay/1000,eventCommands[c].duration);
 				if(isNaN(maxDuration)){
@@ -1105,14 +1102,17 @@ class EventTable extends React.Component{
 				}else if(eventCommands[c].type == "obs" || eventCommands[c].type == "mod" ){
 					id=eventCommands[c].function;
 				}
+
+				let delay = isNaN(eventCommands[c].delay) ? 0 : eventCommands[c].delay;
+				let duration = isNaN(eventCommands[c].duration) ? 1 : eventCommands[c].duration;
 				
 				timelineData.push({
 					id:c,
 					actions:[{
 						id:id,
-						start:eventCommands[c].delay/1000,
+						start:delay/1000,
 						end:eventCommands[c].etype=="timed"
-						?(eventCommands[c].delay/1000)+eventCommands[c].duration:(eventCommands[c].delay/1000)+1,
+						?(delay/1000)+duration:(delay/1000)+1,
 						eventname:s,
 						eventtype:eventCommands[c].type,
 						commandindex:c,
@@ -1132,7 +1132,7 @@ class EventTable extends React.Component{
 				}
 
 				let element = null;
-				let duration = eventCommands[c].etype=="timed" ? <label>
+				let durationField = eventCommands[c].etype=="timed" ? <label>
 																	Duration (Seconds):
 																	<input type="number" name="duration" key={s} value={eventCommands[c].duration} onChange={this.handleChange} />
 																</label>:null;
@@ -1180,24 +1180,6 @@ class EventTable extends React.Component{
 																				End Event Name:
 																				<input type="text" key={s} name="stop_eventname" value={eventCommands[c].stop_eventname} onChange={this.handleChange} />
 																			</label>:null;
-
-						/*
-						inputTable.push(<PluginInput key={this.state.assets!=null?e+Object.keys(this.state.assets).length+":"+Object.keys(this.state.discord).length+":"+Object.keys(this.state.obs).length:e}
-									keyname={e} 
-									pluginName={this.state.pluginName}
-									type={elements[e].type}
-									label={elements[e].label}
-									options={elements[e].options}
-									default={this.state.defaults[e]} 
-									value={this.state.values[e]} 
-									multi={elements[e]["multi-select"]} 
-									udpClients={this.state.udpClients}
-									assets={this.state.assets}
-									discord={this.state.discord}
-									obs={this.state.obs}
-									onChange={this.onInputChange}
-									getGlobalValue={this.getGlobalValue}/>);
-						*/
 						element = <div className="command-props plugin">
 							<label>
 								Plugin:
@@ -1215,7 +1197,7 @@ class EventTable extends React.Component{
 								<input type="text" key={s} name="eventname" value={eventCommands[c].eventname} onChange={this.handleChange} />
 							</label>
 							{stopEventName}
-							{duration}
+							{durationField}
 							<label>
 								Delay (Milliseconds):
 								<input name="delay" key={s} value={eventCommands[c].delay} type="number" break="anywhere" onChange={this.handleChange} />
@@ -1284,7 +1266,7 @@ class EventTable extends React.Component{
 								</option>
 							);
 						}
-						//console.log("OBS", this.state._obs);
+						
 						let sceneOptions = [];
 						for(let s in this.state._obs.scenes){
 							sceneOptions.push(
@@ -1532,6 +1514,76 @@ class EventTable extends React.Component{
 					</div>
 				);
 			}
+
+			let specialFields = null;
+			if(eventTriggers.twitch.enabled == true && eventTriggers.twitch.type == "stream.online"){
+				let guildOptions = [<option value={""}>Select Guild</option>];
+				let channelOptions = [<option value={""}>Select Channel</option>];
+				for(let d in this.state._discord){
+					guildOptions.push(
+						<option value={d}>{this.state._discord[d].name}</option>
+					);
+					
+				}
+
+				for(let c in this.state._discord[thisEvent[s].special?.discord?.guild]?.channels){
+					channelOptions.push(
+						<option value={c}>{this.state._discord[thisEvent[s].special?.discord?.guild]?.channels[c].name}</option>
+					);
+				}
+				
+				specialFields = <>
+					<div className="config-variable-ui">
+						<label className={"toggle-label"} style={{display:"flex", "flex-flow":"row", "alignItems":"center"}}>Send @everyone ping on Discord
+							<BoolSwitch eventname={thisEvent[s].special?.discord?.enabled} name="special-discord-enabled" checked={thisEvent[s].special?.discord?.enabled} onChange={this.handleChange}/>
+						</label>
+						<div key={this.state.keyname+guildOptions.length+channelOptions.length+JSON.stringify(this.state.discord)} className={(thisEvent[s].special?.discord?.enabled?"":"hidden")}>
+							<select eventname={thisEvent[s].special?.discord?.guild} name="special-discord-guild" defaultValue={thisEvent[s].special?.discord?.guild} onChange={this.handleChange}>
+								{guildOptions}
+							</select>
+							<select eventname={thisEvent[s].special?.discord?.channel} name="special-discord-channel" defaultValue={thisEvent[s].special?.discord?.channel} onChange={this.handleChange}>
+								{channelOptions}
+							</select>
+						</div>
+					</div>
+					<div className="command-props response">
+						<label className="response-code-ui">
+							<span>Reoccuring Message: <FontAwesomeIcon icon={faQuestionCircle} size="lg" onClick={(e)=>window.toggleClass(e.currentTarget.parentElement?.parentElement?.querySelector(".response-cheatsheet"), "hidden")}/></span>
+							<div className="response-cheatsheet hidden">
+								Variables:
+								<ul>
+									<li>event:object - Data that triggered the event.</li>
+									<li>extra:array - Extra event data (Can be search and match words or booleans for locked events/plugins)</li>
+									<li>toUser:string - The second word in a message that's usually a user name.</li>
+									<li>command:array - The message split by whitespace for processing arguments</li>
+								</ul>
+								Functions:
+								<ul>
+									<li>say(txt:string) - Respond on the platform and channel the message originated from.</li>
+									<li>getVar(key:string, defaultVal=0:any) - Get a variable from the event storage that matches the key. Returns default value if not found.</li>
+									<li>setVar(key:string, value:any, save=true:boolean) - Set a variable in the event storage for later. Save will write the event storage to file if true.</li>
+									<li>getSharedVar(eventname:string, key:string, defaultVal=0:any) - Get a variable from another event's storage space.</li>
+									<li>setSharedVar(eventname:string, key:string, value:any, save=true:boolean) - Each event has a storage space with their internal name as the key. This will set a var within a certain event's storage space. Handy for features with multiple commands</li>
+									<li>chooseRandom(choices:array) - Returns a random element from the given array.</li>
+									<li>sanitize(txt:string) - Removes special characters from a given text</li>
+									<li>runEvent(eventName:string) - Run a spooder event. Event data from this event will be passed over.</li>
+								</ul>
+							</div>
+							<CodeEditor className="response-code-editor" name="special-reoccuringmessage-message" language="js" key={s} 
+							value={thisEvent[s].special?.reoccuringmessage?.message} 
+							onChange={this.handleChange}
+							placeholder="return 'Hello '+event.displayName"/>
+							<input className="response-code-input" type="text" placeholder="Input text"/>
+							<div className="response-code-output"></div>
+							<div className="verify-message"><button className="verify-message-button save-button" eventname={s} onKeyDown={((e)=>{if(e.code=="Enter"){this.verifyResponseScript}}).bind(this)} onClick={this.verifyResponseScript}>Verify Script</button></div>
+						</label>
+						<label>
+							Interval (Seconds):
+							<input name="special-reoccuringmessage-interval" key={s} defaultValue={thisEvent[s].special?.reoccuringmessage?.interval} type="number" break="anywhere" onChange={this.handleChange} />
+						</label>
+					</div>
+				</>
+			}
 	
 			let addElement = <div className="add-command">
 					<div className="add-command-fields">
@@ -1604,7 +1656,6 @@ class EventTable extends React.Component{
 										scale={this.state._zooms[s]==null?maxDuration:this.state._zooms[s]} 
 										dragLine={true}
 										getActionRender={(action, row)=>{
-											//console.log(row);
 											switch(action.eventtype){
 												case "response":
 													return <div className="prompt"><FontAwesomeIcon icon={faCommentDots} size={"2x"}/></div>
@@ -1622,6 +1673,7 @@ class EventTable extends React.Component{
 											
 										}}/>
 										{timelineZoom}
+										{specialFields}
 										{commandElements}
 										{addElement}
 									</label>
@@ -1665,7 +1717,7 @@ class EventTable extends React.Component{
 							</div>
 						</div>
 						{groupObjects[groupKeys[go]]}
-						</div>
+					</div>
 				</div>
 			);
 		}

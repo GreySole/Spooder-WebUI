@@ -38,7 +38,7 @@ class ThemeTab extends React.Component{
 
     setTheme(){
         let theme = this.state.currentTheme;
-        //console.log(theme);
+        
         for(let style in theme){
             document.documentElement.style.setProperty(style, theme[style]);
         }

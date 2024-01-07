@@ -9,7 +9,6 @@ class ToggleGrid extends React.Component{
     }
 
     toggleElement(key){
-        console.log(this.state.selected);
         this.state.onToggleChange(this.state.type, key, !this.state.selected.includes(key));
     }
 

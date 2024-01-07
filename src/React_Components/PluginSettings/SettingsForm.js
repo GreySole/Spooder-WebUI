@@ -102,7 +102,6 @@ class SettingsForm extends React.Component{
         })
         .then(data=>data.json())
         .then(data =>{
-            //console.log("ASSETS GET", data);
             this.setState(Object.assign(this.state, {assets:data.dirs}));
         }).catch(e=>{
             console.log(e);
@@ -135,7 +134,6 @@ class SettingsForm extends React.Component{
     }
 
     onAddForm(subform, newKey, newForm){
-        //console.log(subform, newKey, newForm);
         let newValues = Object.assign({}, this.state.values);
         newValues[subform][newKey] = newForm;
         this.setState(Object.assign(this.state, {values:newValues}),
@@ -145,7 +143,6 @@ class SettingsForm extends React.Component{
     }
 
     onRemoveForm(subform, keyname){
-        //console.log(subform, keyname);
         let newValues = Object.assign({}, this.state.values);
         delete newValues[subform][keyname];
         this.setState(Object.assign(this.state, {values:newValues}));
@@ -189,7 +186,6 @@ class SettingsForm extends React.Component{
         let inputTable = [];
         for(let e in elements){
             if(elements[e].type == "subform"){
-                //console.log(this.state.defaults[e], e);
                 inputTable.push(<PluginSubform key={this.state.assets!=null?e+Object.keys(this.state.assets).length+":"+Object.keys(this.state.discord).length+":"+Object.keys(this.state.obs).length:e}
                     keyname={e} 
                     pluginName={this.state.pluginName}

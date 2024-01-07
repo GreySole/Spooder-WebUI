@@ -97,7 +97,6 @@ class ConfigTab extends React.Component{
 		fetch("/server_config")
 		.then(response => response.json())
 		.then(async data => {
-			console.log(data);
 			window.addEventListener("keydown", this.keyDown)
 			this.setState(Object.assign(this.state, 
 			{
@@ -113,7 +112,6 @@ class ConfigTab extends React.Component{
 	}
 
 	keyDown = e=>{
-		console.log(e);
 		if(e.ctrlKey==true && e.key == 's'){
 			e.preventDefault();
 			this.saveConfig();
@@ -494,7 +492,6 @@ class ConfigTab extends React.Component{
 						break;
 					case 'object':
 						let subTable = [];
-						//console.log(this.state);
 						for(let c in this.state.config[s][ss]){
 							
 							subTable.push(<div className="config-sub-var" sectionname={s} varname={ss} subvarname={c}>

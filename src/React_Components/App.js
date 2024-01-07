@@ -124,7 +124,6 @@ class App extends React.Component {
 			}
 			
 			let shares = {};
-			console.log("SERVER",serverData);
 			for(let s in serverData.shares){
 				if(serverData.activeShares != null){
 					if(serverData.activeShares.includes("#"+serverData.shares[s])){
@@ -153,7 +152,6 @@ class App extends React.Component {
 			osc.send(new OSC.Message('/frontend/connect', 1.0));
 		});
 		osc.on('/frontend/*', (message)=>{
-			//console.log("I HEARD SOMETHING", message);
 			if(message.address == "/frontend/connect/success"){
 				this.setState(Object.assign(this.state, {"oscConnected":true}));
 				osc.send(new OSC.Message('/obs/get/obslogininfo', 1.0));
@@ -194,7 +192,6 @@ class App extends React.Component {
 
 	stayHere(e){
 		if(e.currentTarget.checked == true){
-			console.log("STAYING");
 			let urlState = {};
 			urlState.tab = this.state.tab;
 			if (history.pushState) {
@@ -261,7 +258,6 @@ class App extends React.Component {
 		let joinMessage =document.querySelector(".chat-actions input[name=joinmessage]").value;
 
 		const response = await fetch("/twitch/chat_channel?channel="+channel+"&leavemessage="+leaveMessage+"&joinmessage="+joinMessage).then(response => response.json());
-		//console.log(response);
 		if(response.status == "SUCCESS"){
 			e.target.innerText = "Done!";
 			setTimeout(()=>{
@@ -278,7 +274,6 @@ class App extends React.Component {
 				e.target.innerText = "Restart Chat";
 			}, 3000);
 		}
-		//console.log(response);
 	}
 
 	async refreshPlugins(e){
@@ -290,11 +285,9 @@ class App extends React.Component {
 				e.target.innerText = "Refresh Plugins";
 			}, 3000);
 		}
-		//console.log(response);
 	}
 
 	updateCustomSpooder(e){
-		console.log("UPDATE SPOODER");
 		let newSpooder = Object.assign(this.state.themes);
 		if(e.currentTarget.type == "text"){
 			newSpooder.spooderpet[e.currentTarget.name] = e.currentTarget.value;

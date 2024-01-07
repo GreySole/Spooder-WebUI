@@ -68,7 +68,6 @@ class PluginTab extends React.Component {
 
 	handleIconUploadClick = e => {
 		let pluginName = e.currentTarget.getAttribute("plugin-name");
-		console.log(e.currentTarget);
 		document.querySelector("#input-icon[plugin-name='"+pluginName+"']").click();
 	}
 
@@ -138,7 +137,6 @@ class PluginTab extends React.Component {
 	}
 
 	keyDown = e=>{
-		console.log(e);
 		if(e.ctrlKey==true && e.key == 's'){
 			e.preventDefault();
 			this.saveCommands();
@@ -163,7 +161,7 @@ class PluginTab extends React.Component {
 	}
 
 	reloadPlugins = async (newplugin) => {
-		console.log("RELOADING PLUGINS");
+		
 		const response = await fetch("/plugins");
 		const pluginDataRaw = await response.json();
 
@@ -178,7 +176,10 @@ class PluginTab extends React.Component {
 			this.setState(newState,()=>{
 
 				window.setClass(document.querySelector("#"+newplugin), "new");
-				document.querySelector("#"+newplugin).scrollIntoView(true);
+				document.querySelector("#"+newplugin).scrollIntoView({
+					behavior:"smooth",
+					block:"center"
+				});
 
 			});
 		}else{
@@ -242,7 +243,10 @@ class PluginTab extends React.Component {
 			message:"installing..."
 		};
 		this.setState(Object.assign(this.state, {plugins:newPlugins}),()=>{
-			document.querySelector("#"+internalName).scrollIntoView(true);
+			document.querySelector("#"+internalName).scrollIntoView({
+				behavior:"smooth",
+				block:"center"
+			});
 		});
 	}
 
@@ -253,7 +257,10 @@ class PluginTab extends React.Component {
 			this.setState(Object.assign(this.state, {"_openInfo":null}));
 		}else{
 			this.setState(Object.assign(this.state, {"_openSettings":null, "_openAssets":null, "_openInfo":plugin}),()=>{
-				document.querySelector("#"+plugin).scrollIntoView(true);
+				document.querySelector("#"+plugin).scrollIntoView({
+					behavior:"smooth",
+					block:"center"
+				});
 			});
 		}
 	}
@@ -264,7 +271,10 @@ class PluginTab extends React.Component {
 			this.setState(Object.assign(this.state, {"_openSettings":null}));
 		}else{
 			this.setState(Object.assign(this.state, {"_openSettings":plugin, "_openAssets":null, "_openInfo":null}),()=>{
-				document.querySelector("#"+plugin).scrollIntoView(true);
+				document.querySelector("#"+plugin).scrollIntoView({
+					behavior:"smooth",
+					block:"center"
+				});
 			});
 		}
 	}
@@ -275,7 +285,10 @@ class PluginTab extends React.Component {
 			this.setState(Object.assign(this.state, {"_openAssets":null}));
 		}else{
 			this.setState(Object.assign(this.state, {"_openAssets":plugin, "_openSettings":null, "_openInfo":null}),()=>{
-				document.querySelector("#"+plugin).scrollIntoView(true);
+				document.querySelector("#"+plugin).scrollIntoView({
+					behavior:"smooth",
+					block:"center"
+				});
 			});
 		}
 	}
@@ -360,7 +373,6 @@ class PluginTab extends React.Component {
 			if(sForm == null){
 
 				window.settingsFrame = () => {
-					console.log("SENDING SETTINGS");
 					let thisSettings = Object.assign(this.state.plugins[this.state._openSettings]["settings"]);
 					let udpClients = this.state._udpClients;
 					let assets = this.state[this.state._openSettings]["assets"];
@@ -559,7 +571,6 @@ class PluginTab extends React.Component {
 			.then(response => response.json());
 
 			
-		console.log(uploadReq);
 		this.reloadPlugins();
 		/*let newState = Object.assign(this.state.plugins);
 		
@@ -676,7 +687,10 @@ class PluginTab extends React.Component {
 			description:""
 		}
 		this.setState(Object.assign(this.state, {plugins:newPlugins, _openCreate:newOpenCreate}),()=>{
-			document.querySelector("#"+internalName).scrollIntoView(true);
+			document.querySelector("#"+internalName).scrollIntoView({
+				behavior:"smooth",
+				block:"center"
+			});
 		});
 	}
 

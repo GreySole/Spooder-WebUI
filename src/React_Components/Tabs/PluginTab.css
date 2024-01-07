@@ -79,12 +79,18 @@
 }
 
 .info-description,
-.info-dependencies,
-.info-actions{
+.info-dependencies{
     padding:5px;
     margin:5px;
     display:flex;
     flex-flow:column;
+}
+
+.info-actions{
+    padding:5px;
+    margin:5px;
+    display:flex;
+    flex-flow:row;
 }
 
 .plugin-entry-ui {

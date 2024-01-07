@@ -1,8 +1,23 @@
+.users-table{
+    display:flex;
+    flex-flow:column-reverse;
+}
+
+.user-container{
+    display:flex;
+    flex-flow:row;
+    border-bottom: 1px solid white;
+}
+
 .user-entry{
     display:flex;
     flex-flow:column;
-    border-bottom: 1px solid white;
     padding:10px;
+}
+
+.user-actions{
+    display:flex;
+    flex-flow:row;
 }
 
 .user-entry label{

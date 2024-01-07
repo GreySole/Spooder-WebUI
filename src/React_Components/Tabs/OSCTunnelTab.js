@@ -35,7 +35,6 @@ class OSCTunnelTab extends React.Component{
 		fetch("/osc_tunnels")
 		.then(response => response.json())
 		.then(data => {
-			console.log("TUNNELS", this.props.parentState);
 			window.addEventListener("keydown", this.keyDown)
 			this.setState(Object.assign({}, {
 				stateLoaded:true,
@@ -51,7 +50,6 @@ class OSCTunnelTab extends React.Component{
 	}
 
 	keyDown = e=>{
-		console.log(e);
 		if(e.ctrlKey==true && e.key == 's'){
 			e.preventDefault();
 			this.saveCommands();
@@ -71,7 +69,6 @@ class OSCTunnelTab extends React.Component{
 	handleAddOSCVarChange(s){
 		let newAddVar = Object.assign({}, this.state.addVar);
 		newAddVar[s.target.name] = s.target.value;
-		//console.log(s.target.name);
 		this.setState(Object.assign(this.state, {addVar:newAddVar}));
 	}
 	
@@ -127,7 +124,7 @@ class OSCTunnelTab extends React.Component{
 			return <LoadingCircle></LoadingCircle>
 		}
 		let table = [];
-		console.log(this.state);
+		
 		let oscTrashButton = <FontAwesomeIcon icon={faTrash} size="lg" className="delete-button" onClick={this.deleteOSCVar} />;
 
 		let clientTable = [];

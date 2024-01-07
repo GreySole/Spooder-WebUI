@@ -16,7 +16,7 @@ class ShareTab extends React.Component{
         this.state.openDiscord = false;
         this.state.unsavedChanges = false;
         this.state.activeSubs = {};
-        console.log("SHARE STATE", this.state);
+
         this.openShareCommands = this.openShareCommands.bind(this);
         this.openSharePlugins = this.openSharePlugins.bind(this);
         this.closeShare = this.closeShare.bind(this);
@@ -41,7 +41,6 @@ class ShareTab extends React.Component{
         fetch("/shares")
         .then(response => response.json())
         .then(data => {
-            console.log("SHARE DATA", data);
             window.addEventListener("keydown", this.keyDown)
             this.setState(Object.assign(this.state, 
             {
@@ -66,7 +65,6 @@ class ShareTab extends React.Component{
     }
 
     keyDown = e=>{
-		console.log(e);
 		if(e.ctrlKey==true && e.key == 's'){
 			e.preventDefault();
 			this.saveShares();
@@ -75,8 +73,7 @@ class ShareTab extends React.Component{
 
     addShareEntry(e){
         e.preventDefault();
-        console.log(e.target.username);
-        //return;
+        
         let newShareUser = e.target.username.value.toLowerCase();
         this.verifyShareUser(newShareUser)
         .then(userInfo=>{
@@ -159,7 +156,6 @@ class ShareTab extends React.Component{
     }
 
     saveShares(){
-        console.log("SAVE SHARES", this.state.shares);
         const requestOptions = {
 			method: 'POST',
 			headers: {'Content-Type': 'application/json', 'Accept':'application/json'},
@@ -183,7 +179,6 @@ class ShareTab extends React.Component{
     }
 
     onShareChanged(type, key, value){
-        console.log(type, key, value);
         
         let newShares = Object.assign({}, this.state.shares);
         if(value == true){
@@ -199,7 +194,6 @@ class ShareTab extends React.Component{
     onShareMessageChanged(e){
         
         let sharename = e.target.name.split("-");
-        console.log(sharename[0], sharename[1], e.target.value);
         let newShares = Object.assign({}, this.state.shares);
         newShares[sharename[0]][sharename[1]] = e.target.value;
         this.setState(Object.assign(this.state, {shares:newShares}));
@@ -224,13 +218,13 @@ class ShareTab extends React.Component{
         fetch("/twitch/get_eventsubs_by_user?twitchid="+this.state.shares[shareUser].twitchid)
             .then(async data=>{
                 let eventInfo = await data.json();
-                //console.log("EVENTSUBS", shareUser, eventInfo);
+                
                 let newSubs = Object.assign({},this.state.activeSubs);
                 newSubs[shareUser] = {};
                 for(let d in eventInfo.data){
                     newSubs[shareUser][eventInfo.data[d].type] = eventInfo.data[d];
                 }
-                //console.log("NEW SUBS", newSubs);
+                
                 this.setState(Object.assign(this.state, {activeSubs:newSubs}));
             })
     }
@@ -240,7 +234,7 @@ class ShareTab extends React.Component{
             fetch("/verifyShareTarget?shareuser="+shareUser)
             .then(async data=>{
                 let userInfo = await data.json();
-                //console.log("GOT USER INFO", userInfo);
+                
                 let newShares = Object.assign({}, this.state.shares);
                 if(newShares[shareUser] == null){
                     newShares[shareUser] = {
@@ -338,7 +332,6 @@ class ShareTab extends React.Component{
             }
 
             let autoShareEnabled = this.state.activeSubs[s]?.["stream.online"] != null;
-            console.log(s, autoShareEnabled);
             entries.push(
                 <div className="share-entry" key={s}>
                     <div className="share-entry-info">

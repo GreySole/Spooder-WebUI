@@ -167,7 +167,7 @@ class TwitchTab extends React.Component{
 	}
 
 	getEventSubs = async() => {
-
+		console.log("GETTING EVENTSUBS")
 		let eventsubsRaw = await fetch('/twitch/get_eventsubs_by_user')
 		.then(response => response.json());
 		let eventsubs = eventsubsRaw.data;
@@ -209,6 +209,7 @@ class TwitchTab extends React.Component{
 				if(events[event][dCommand] == null){Object.assign({},defaultEvent[dCommand])}
 			}
 		}
+		console.log(newEventState, events);
 		this.setState(Object.assign(this.state, {"eventsub":newEventState, "events":events}));
 	}
 
@@ -218,30 +219,22 @@ class TwitchTab extends React.Component{
 		.then(data => {
 			if(data.status == "ok"){
 				this.props.setToast("Convert complete!", "save");
-				document.querySelector("#saveStatusText").textContent = "Convert complete!";
-				setTimeout(()=>{
-					document.querySelector("#saveStatusText").textContent = "";
-				}, 5000)
 			}else{
-				document.querySelector("#saveStatusText").textContent = "Error: "+data.status;
+				this.props.setToast("Convert failed.", "error");
 			}
 		})
 	}
 
 	cleanupOldEventsubs = () => {
-		let confirmation = window.confirm("This will delete the Twitch files which are no longer used. Be sure to convert your events before cleaning up. Continue?");
+		let confirmation = window.confirm("This will delete the Eventsub file which is no longer used. Continue?");
 		if (confirmation == false) { return; }
 		fetch("/twitch/cleanupOldEventsubs")
 		.then(response => response.json())
 		.then(data => {
 			if(data.status == "ok"){
 				this.props.setToast("Cleanup complete!", "save");
-				document.querySelector("#cleanupStatusText").textContent = "Cleanup complete!";
-				setTimeout(()=>{
-					document.querySelector("#cleanupStatusText").textContent = "";
-				}, 5000)
 			}else{
-				document.querySelector("#cleanupStatusText").textContent = "Error: "+data.status;
+				this.props.setToast("Cleanup failed.", "error");
 			}
 		})
 	}
@@ -334,6 +327,44 @@ class TwitchTab extends React.Component{
 			</div>
 			{chatRevokeButton}
 	</div>:<div>Save your ID and Secret before authorizing! {chatAuthButton}</div>;
+
+	let eventsubs = this.state.eventsub;
+	let subTable = [];
+	for(let event in eventsubs){
+		for(let sub in eventsubs[event]){
+			let conditionTable = [];
+			for(let c in eventsubs[event][sub].condition){
+				conditionTable.push(<label>{c}: {eventsubs[event][sub].condition[c]}</label>)
+			}
+			subTable.push(
+				<div className="flex-row">
+					<div className="stack-div">
+						{event}
+						<div>ID: {eventsubs[event][sub].id}</div>
+						<div>Conditions: {conditionTable}</div>
+						<div className={eventsubs[event][sub].transport.callback==this.state["callback_url"]+"/webhooks/eventsub"? "good":"error"}>Callback: {eventsubs[event][sub].transport.callback==this.state["callback_url"]+"/webhooks/eventsub"?"OK":"DOESN'T MATCH"}</div>
+					</div>
+					<button type="button" className="event-sub-delete-button" onClick={this.deleteEventSub} subid={eventsubs[event][sub].id}>DELETE</button>
+				</div>
+			);
+		}
+	}
+
+	let oldEventSubs = null;
+	if(this.state.oldEventsubFile){
+		oldEventSubs = <div className="stack-div warning">
+			<span>I found an obsolete eventsub.json file in your settings. Eventsubs are now managed by the Events tab in the Twitch trigger. We can convert these events to Spooder events or we can just delete the file.</span>
+			<div className="flex-row">
+				<button type="button" className="command-button" onClick={this.convertEventsToSpooderEvents}>Convert EventSub File</button>
+				<button type="button" className="delete-button" onClick={this.cleanupOldEventsubs}>Delete EventSub File</button>
+			</div>
+		</div>
+	}
+	let eventsubSection = <div className="config-element">
+		<div className="section-header">Eventsubs <button type="button" className="command-button" onClick={this.refreshEventSubs}>Refresh EventSubs</button></div>
+		{oldEventSubs}
+		{subTable}
+	</div>;
 		
 		return (
 			<form className="config-tab">
@@ -348,7 +379,7 @@ class TwitchTab extends React.Component{
 					<div className="save-commands"><button type="button" id="convertEventSubsButton" className="save-button" onClick={this.saveTwitchConfig}>Save</button><div id="saveStatusText" className="save-status"></div></div>
 				</div>
 				{twitchManage}
-				
+				{eventsubSection}
 			</form>
 		);
 	}

@@ -164,6 +164,9 @@ class PluginInput extends React.Component{
                 onChange={changeCB}
                 placeholder="return 'Hello '+event.displayName"/>
             break;
+            case "textarea":
+                input = <textarea key={this.state.keyname} name={this.state.keyname} defaultValue={value} onChange={changeCB}/>;
+            break;
             case "keyname":
                 input = <label key={this.state.keyname}><input type={type} name={this.state.keyname} defaultValue={value} onChange={changeCB}/></label>;
             break;

@@ -30,6 +30,10 @@
     background-color:red;
 }
 
+.warning{
+    background-color:rgb(90, 90, 0);
+}
+
 .config-variable input,
 .config-variable select,
 .config-variable label,
@@ -104,6 +108,13 @@
     display:flex;
     flex-flow:column;
     max-width:600px;
+    padding:10px;
+}
+
+.flex-row{
+    display:flex;
+    flex-flow:row;
+    flex-wrap:wrap;
     padding:10px;
 }
 

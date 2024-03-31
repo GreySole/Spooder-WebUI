@@ -26,6 +26,12 @@ class ConfigTab extends React.Component{
 		this.state["_backups"] = {};
 		this.state["_saveCustomSpooder"] = props.saveCustomSpooder;
 		this.state["_updateCustomSpooder"] = props.updateCustomSpooder;
+		this.state["_addUdpClient"] = {
+			key:"",
+			name:"",
+			ip:"",
+			port:0
+		}
 		let cSpooder = Object.assign(props.parentState.customSpooder);
 		for(let c in cSpooder.colors){
 			cSpooder.colors[c] = tinycolor(cSpooder.colors[c]).toHexString();
@@ -59,18 +65,6 @@ class ConfigTab extends React.Component{
 
 		this.toggleCustomSpooder = this.toggleCustomSpooder.bind(this);
 		this.restoreEverythingClick = this.restoreEverythingClick.bind(this);
-
-		for(let cs in this.configStructure){
-			if(this.state[cs] == null){
-				this.state[cs] = this.configStructure[cs];
-				continue;
-			}
-			for(let css in this.configStructure[cs]){
-				if(this.state[cs][css] == null){
-					this.state[cs][css] = this.configStructure[cs][css];
-				}
-			}
-		}
 	}
 
 	configStructure = {
@@ -98,6 +92,7 @@ class ConfigTab extends React.Component{
 		.then(response => response.json())
 		.then(async data => {
 			window.addEventListener("keydown", this.keyDown)
+			console.log(data);
 			this.setState(Object.assign(this.state, 
 			{
 				stateLoaded:true,
@@ -122,7 +117,7 @@ class ConfigTab extends React.Component{
 		
 		let name = s.target.name;
 		let section = s.target.getAttribute("sectionname");
-		let newSection = Object.assign(this.state[section]);
+		let newSection = Object.assign(this.state.config[section]);
 		
 		if(section != "oscvars"){
 			if(s.target.type == "checkbox"){
@@ -134,7 +129,8 @@ class ConfigTab extends React.Component{
 		}else{
 			newSection[s.target.getAttribute("varname")][name] = s.target.value;
 		}
-		this.setState(Object.assign(this.state,{[section]:newSection}));
+		let newConfig = Object.assign(this.state.config, {[section]:newSection});
+		this.setState(Object.assign(this.state,{config:newConfig}));
 	}
 
 	handleUDPChange(s){
@@ -438,7 +434,7 @@ class ConfigTab extends React.Component{
 
 		let udpTrashButton = <FontAwesomeIcon icon={faTrash} size="lg" onClick={this.deleteUDPClient} />;
 
-		let udpClients = this.state.network.udp_clients;
+		let udpClients = this.state.config.network.udp_clients;
 		let clientTable = [];
 
 		for(let u in udpClients){
@@ -518,16 +514,16 @@ class ConfigTab extends React.Component{
 												
 												<div className="config-sub-var-ui">
 													<label>Key:
-														<input name="clientKey" type="text" placeholder="Key name for storage"  />
+														<input name="add_key" type="text" placeholder="Key name for storage"  onChange={this.handleUDPChange}/>
 													</label>
 													<label>Name:
-														<input name="clientName" type="text" placeholder="Name of client"  />
+														<input name="add_name" type="text" placeholder="Name of client"  onChange={this.handleUDPChange}/>
 													</label>
 													<label>IP:
-														<input name="clientIP" type="text" placeholder="IP address to send to"  />
+														<input name="add_ip" type="text" placeholder="IP address to send to"  onChange={this.handleUDPChange}/>
 													</label>
 													<label>Port:
-														<input name="clientPort" type="text" placeholder="IP port to send to"  />
+														<input name="add_port" type="text" placeholder="IP port to send to"  onChange={this.handleUDPChange}/>
 													</label>
 												</div>
 												<div className="config-sub-var-buttons">

@@ -2,66 +2,28 @@ import React, { createRef } from 'react';
 import CodeEditor from '@uiw/react-textarea-code-editor';
 import { Timeline, TimelineRow } from '@xzdarcy/react-timeline-editor' ;
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
-import {faTrash, faAward, faCommentDots, faNetworkWired, faCaretDown, faCaretUp, faMagnifyingGlass, faCross, faCancel, faX, faLock, faPlug} from '@fortawesome/free-solid-svg-icons';
+import {faTrash, faAward, faCommentDots, faNetworkWired, faCaretDown, faCaretUp, faMagnifyingGlass, faCross, faCancel, faX, faLock, faPlug, faQuestionCircle} from '@fortawesome/free-solid-svg-icons';
 import discordIcon from "../../icons/discord.svg";
 import obsIcon from "../../icons/obs.svg";
 import BoolSwitch from '../UI/BoolSwitch.js';
+import LoadingCircle from '../UI/LoadingCircle';
 
 class EventTable extends React.Component{
 
 	constructor(props){
 		super(props);
-		this.state = {};
+		this.state = {
+			stateLoaded:false
+		};
 		if(props.data == null){
 			this.state.events = {};
 		}else{
 			this.state.events = Object.assign(props.data);
 		}
-		
-		//Auto-fix/upgrade events to current structure
-		for(let e in this.state.events){
-			for(let ev in this.eventStructure){
-				if(ev == "triggers"){
 
-					for(let t in this.eventStructure[ev]){
-						if(this.state.events[e][ev][t] == null){
-							this.state.events[e][ev][t] = this.eventStructure[ev][t];
-						}else{
-							for(let tt in this.eventStructure[ev][t]){
-								if(this.state.events[e][ev][t][tt] == null){
-									this.state.events[e][ev][t][tt] = this.eventStructure[ev][t][tt];
-								}
-							}
-						}
-					}
-
-				}else if(ev == "commands"){
-
-					for(let c in this.state.events[e][ev]){
-						
-						for(let co in this.eventStructure[ev][this.state.events[e][ev][c].type]){
-							if(this.state.events[e][ev][c][co] == null){
-								this.state.events[e][ev][c][co] = this.eventStructure[ev][this.state.events[e][ev][c].type][co];
-								
-							}
-						}
-					}
-
-				}else{
-					if(this.state.events[e][ev] == null){
-						this.state.events[e][ev] = this.eventStructure[ev];
-					}
-				}
-			}
-		}
-		
-		if(props.groups == null){
-			this.state.groups = ['Default'];
-		}else{
-			this.state.groups = props.groups;
-		}
-		this.state._udpClients = props._udpClients;
-		this.state._plugins = props._plugins;
+		this.state._obs = {};
+		this.state._udpClients = {};
+		this.state._plugins = [];
 		this.state._searchtext = "";
 		this.state._eventexpands = {};
 		this.state._zooms = {};
@@ -82,7 +44,8 @@ class EventTable extends React.Component{
 		this.deleteEvent = this.deleteEvent.bind(this);
 		this.deleteGroup = this.deleteGroup.bind(this);
 		this.getCustomRewards = this.getCustomRewards.bind(this);
-		this.getOBSChannels = this.getOBSChannels.bind(this)
+		this.getOBSChannels = this.getOBSChannels.bind(this);
+		this.getDiscordChannels = this.getDiscordChannels.bind(this);
 		this.checkEventTaken = this.checkEventTaken.bind(this);
 		this.searchText = this.searchText.bind(this);
 		this.zoomTimeline = this.zoomTimeline.bind(this);
@@ -114,10 +77,13 @@ class EventTable extends React.Component{
 				sub:false,
 				broadcaster:false,
 			},
-			redemption:{
+			twitch:{
 				enabled:false,
-				reward:"",
-				override:false
+				type:"redeem",
+				reward:{
+					reward:"",
+					override:false
+				}
 			},
 			osc:{
 				enabled:false,
@@ -138,6 +104,9 @@ class EventTable extends React.Component{
 			plugin:{
 				pluginname:"",
 				eventname:"",
+				stop_eventname:"",
+				etype:"oneshot",
+				duration:60,
 				delay:0
 			},
 			software:{
@@ -177,8 +146,92 @@ class EventTable extends React.Component{
 	}
 
 	componentDidMount(){
-		this.getCustomRewards();
-		this.getOBSChannels();
+		fetch("/command_table")
+		.then(response => response.json())
+		.then(data => {
+			
+			let commandData = JSON.parse(data.express);
+
+			if(commandData.events != null){
+		
+				//Auto-fix/upgrade events to current structure
+				for(let e in commandData.events){
+					if(commandData.events[e].triggers["redemption"] != null){
+						commandData.events[e].triggers.twitch = Object.assign({}, {
+							enabled:commandData.events[e].triggers.redemption.enabled,
+							type:"redeem",
+							reward:Object.assign({}, {
+								id:commandData.events[e].triggers.redemption.id,
+								override:commandData.events[e].triggers.redemption.override
+							})
+						});
+						delete commandData.events[e].triggers.redemption;
+					}
+					for(let ev in this.eventStructure){
+						if(ev == "triggers"){
+
+							for(let t in this.eventStructure[ev]){
+								if(commandData.events[e][ev][t] == null){
+									commandData.events[e][ev][t] = this.eventStructure[ev][t];
+								}else{
+									for(let tt in this.eventStructure[ev][t]){
+										if(commandData.events[e][ev][t][tt] == null){
+											commandData.events[e][ev][t][tt] = this.eventStructure[ev][t][tt];
+										}
+									}
+								}
+							}
+
+						}else if(ev == "commands"){
+
+							for(let c in commandData.events[e][ev]){
+								
+								for(let co in this.eventStructure[ev][commandData.events[e][ev][c].type]){
+									if(commandData.events[e][ev][c][co] == null){
+										commandData.events[e][ev][c][co] = this.eventStructure[ev][commandData.events[e][ev][c].type][co];
+										
+									}
+								}
+							}
+
+						}else{
+							if(commandData.events[e][ev] == null){
+								commandData.events[e][ev] = this.eventStructure[ev];
+							}
+						}
+					}
+				}
+				
+				if(commandData.groups == null){
+					commandData.groups = ['Default'];
+				}
+			}
+			
+			window.addEventListener("keydown", this.keyDown)
+			this.setState(Object.assign(this.state, 
+				{
+					stateLoaded:true,
+					events:commandData.events ?? {}, 
+					groups:commandData.groups ?? [],
+					_udpClients:this.props.parentState.udp_clients ?? {},
+					_plugins:commandData.plugins ?? {}
+				}));
+			this.getCustomRewards();
+			this.getOBSChannels();
+			this.getDiscordChannels();
+		})
+		
+	}
+
+	componentWillUnmount(){
+		window.removeEventListener("keydown", this.keyDown);
+	}
+
+	keyDown = e=>{
+		if(e.ctrlKey==true && e.key == 's'){
+			e.preventDefault();
+			this.saveCommands();
+		}
 	}
 
 	zoomTimeline(e){
@@ -193,9 +246,10 @@ class EventTable extends React.Component{
 		let isTrigger = e.target.closest(".command-props.triggers") != null;
 
 		let newState = Object.assign(this.state.events);
+		let varname = e.target.name;
+		let varVal = e.target.type == "checkbox" ? e.target.checked : e.target.value;
 		if(isCommand){
 			let commandIndex = e.target.closest(".command-fields").getAttribute("commandindex");
-			let varname = e.target.name;
 			if(e.target.type == "checkbox"){
 				newState[eventName].commands[commandIndex][varname] = e.target.checked;
 			}else{
@@ -204,26 +258,30 @@ class EventTable extends React.Component{
 			
 		}else if(isTrigger){
 			
-			let varname = e.target.name;
 			let triggerType = e.target.closest("[triggertype]").getAttribute("triggertype");
 			if(newState[eventName].triggers[triggerType] == null){
 				newState[eventName].triggers[triggerType] = {};
 			}
-			
-			if(e.target.type == "checkbox"){
-				newState[eventName].triggers[triggerType][varname] = e.target.checked;
+
+			if(varname.includes("-")){
+				let splitVarname = varname.split("-");
+				newState[eventName].triggers[triggerType][splitVarname[0]][splitVarname[1]] = varVal;
 			}else{
-				newState[eventName].triggers[triggerType][varname] = e.target.value;
+				newState[eventName].triggers[triggerType][varname] = varVal;
 			}
 			
 		}else{
-			let varname = e.target.name;
-			if(e.target.type == "checkbox"){
-				newState[eventName][varname] = e.target.checked;
+			if(varname.includes("-")){
+				let splitVarname = varname.split("-");
+				if(splitVarname.length == 2){
+					newState[eventName][splitVarname[0]][splitVarname[1]] = varVal;
+				}else if(splitVarname.length == 3){
+					newState[eventName][splitVarname[0]][splitVarname[1]][splitVarname[2]] = varVal;
+				}
+				
 			}else{
-				newState[eventName][varname] = e.target.value;
+				newState[eventName][varname] = varVal;
 			}
-			
 		}
 		
 		this.setState(Object.assign(this.state,{events:newState}));
@@ -264,7 +322,7 @@ class EventTable extends React.Component{
 			"cooldownnotification":false,
 			"triggers":{
 				"chat":{"enabled":true, "command":"!"+newKey},
-				"redemption":{"enabled":false, "id":"", override:false},
+				"twitch":{"enabled":false, type:"redeem", reward:{ "id":"", override:false}},
 				"osc":{"enabled":false, "address":"/", "type":"single","condition":"==", "value":0, "condition2":"==", "value2":0}
 			},
 			"commands":[]
@@ -294,6 +352,9 @@ class EventTable extends React.Component{
 					type:"plugin",
 					pluginname:"",
 					eventname:"",
+					etype:"oneshot",
+					stop_eventname:"",
+					duration:60,
 					delay:0
 				};
 			break;
@@ -354,10 +415,6 @@ class EventTable extends React.Component{
 				}
 			}
 		}
-		//let eventElements = document.querySelectorAll(".command-element");
-		/*for(let e in newEvents){
-			newEvents[e].group = document.querySelector("#"+e+" [name='group']").value;
-		}*/
 
 		let newList = {
 			"events":newEvents,
@@ -373,6 +430,7 @@ class EventTable extends React.Component{
 		.then(response => response.json())
 		.then(data => {
 			if(data.status == "SAVE SUCCESS"){
+				this.props.setToast("COMMANDS SAVED!", "save");
 				document.querySelector("#saveStatusText").textContent = "Commands are saved!";
 				setTimeout(()=>{
 					document.querySelector("#saveStatusText").textContent = "";
@@ -424,14 +482,6 @@ class EventTable extends React.Component{
 		let newExpands = Object.assign({}, this.state._eventexpands);
 		newExpands[eventkey] = !newExpands[eventkey];
 		this.setState(Object.assign(this.state, {_eventexpands:newExpands}));
-		
-		/*let topElement = e.currentTarget.closest(".command-element");
-		let middleElement = topElement.querySelector(".command-key");
-		let element = topElement.querySelector(".command-section");
-
-		window.toggleClass(topElement, "expanded");
-		window.toggleClass(middleElement, "expanded");
-		window.toggleClass(element, "hidden");*/
 	}
 
 	toggleGroup(e){
@@ -521,6 +571,7 @@ class EventTable extends React.Component{
 				method:"POST",
 				headers: {'Content-Type': 'application/json', 'Accept':'application/json'},
 				body:JSON.stringify({
+					eventName: e.currentTarget.getAttribute("eventname"),
 					event:eventData,
 					message:testEvent,
 					script:responseScript
@@ -626,6 +677,17 @@ class EventTable extends React.Component{
         })
     }
 
+	getDiscordChannels(){
+        fetch("/discord/get_channels")
+        .then(response => response.json())
+        .then(data => {
+            this.setState(Object.assign(this.state, {_discord:data}));
+        })
+        .catch(e=>{
+            console.log(e);
+        })
+	}
+
 	arrangeCommands(e){
 		let eventName = e.currentTarget.closest(".command-element").id;
 		let direction = e.currentTarget.getAttribute("direction");
@@ -652,11 +714,60 @@ class EventTable extends React.Component{
 		
 		this.setState(Object.assign(this.state, {events:newEvents}));
 	}
+
+	eventsubs = {
+        "channel.update": "Channel Update",
+        "channel.follow": "Follow",
+        "channel.subscribe": "Subscribe",
+        "channel.subscription.end": "Subscription End",
+        "channel.subscription.gift": "Subscription Gift",
+        "channel.subscription.message": "Subscription Message",
+        "channel.cheer": "Cheer",
+        "channel.raid": "Raid",
+        "channel.ban": "Ban",
+        "channel.unban": "Unban",
+        "channel.moderator.add": "Mod Add",
+        "channel.moderator.remove": "Mod Remove",
+        "channel.channel_points_custom_reward.add": "Channel Points Custom Reward Add",
+        "channel.channel_points_custom_reward.update": "Channel Points Custom Reward Update",
+        "channel.channel_points_custom_reward.remove": "Channel Points Custom Reward Remove",
+        "channel.poll.begin": "Poll Begin",
+        "channel.poll.progress": "Poll Progress",
+        "channel.poll.end": "Poll End",
+        "channel.prediction.begin": "Prediction Begin",
+        "channel.prediction.progress": "Prediction Progress",
+        "channel.prediction.lock": "Prediction Lock",
+        "channel.prediction.end": "Prediction End",
+        "channel.charity_campaign.donate":"Charity Donate",
+        "channel.charity_campaign.start":"Charity Start",
+        "channel.charity_campaign.progress":"Charity Progress",
+        "channel.charity_campaign.stop":"Charity Stop",
+        "drop.entitlement.grant": "Drop Entitlement Grant",
+        "extension.bits_transaction.create": "Extension Bits Transaction Create",
+        "channel.goal.begin": "Goal Begin",
+        "channel.goal.progress": "Goal Progress",
+        "channel.goal.end": "Goal End",
+        "channel.hype_train.begin": "Hype Train Begin",
+        "channel.hype_train.progress": "Hype Train Progress",
+        "channel.hype_train.end": "Hype Train End",
+        "channel.shield_mode.begin":"Shield Mode Begin",
+        "channel.shield_mode.end":"Shield Mode End",
+        "channel.shoutout.create":"Shoutout Create",
+        "channel.shoutout.receive":"Shoutout Receive",
+        "stream.online": "Stream Online",
+        "stream.offline": "Stream Offline",
+        "user.authorization.grant": "User Authorization Grant",
+        "user.authorization.revoke": "User Authorization Revoke",
+        "user.update": "User Update"
+    }
 	
 	render(){
+
+		if(this.state.stateLoaded == false){
+			return <LoadingCircle></LoadingCircle>
+		}
 		
 		let udpHostOptions = [];
-		//console.log(this.state._udpClients);
 		if(this.state._udpClients != null){
 			if(Object.keys(this.state._udpClients).length > 0){
 				for(let u in this.state._udpClients){
@@ -737,7 +848,7 @@ class EventTable extends React.Component{
 				);
 			}
 
-			if(eventTriggers.redemption.enabled){
+			if(eventTriggers.twitch.enabled){
 				triggerIcons.push(
 					<FontAwesomeIcon icon={faAward} />
 				)
@@ -749,7 +860,7 @@ class EventTable extends React.Component{
 				)
 			}
 
-			if(this.state._eventexpands[s] == false){
+			if(!this.state._eventexpands[s]){
 				let eventElement = <div className={"command-element "+(this.state._eventexpands[s]==true?"expanded":"")} key={s} id={s}>
 					<div className={"command-key "+(this.state._eventexpands[s]==true?"expanded":"")} onClick={()=>this.toggleProps(s)}>
 						<label>
@@ -762,29 +873,49 @@ class EventTable extends React.Component{
 			}
 
 			let redemptionTrigger = null;
-			if(this.state._rewards != null){
-				let redemptionContent = eventTriggers.redemption.enabled == true ? 
-				<label triggertype="redemption" className="event-trigger">
-					<label>
-						Reward:
-						<select name="id" value={eventTriggers.redemption.id} onChange={this.handleChange}>
-							{rewardOptions}
-						</select>
-					</label>
-					<label className="label-switch">
-						Override Approval (Refundable):
-						<BoolSwitch name="override" checked={eventTriggers.redemption.override} onChange={this.handleChange}/>
-					</label>
-				</label>:null;
-				redemptionTrigger = <div triggertype="redemption">
-					<label className="label-switch">
-						Redemption:
-						<BoolSwitch name="enabled" checked={eventTriggers.redemption.enabled} onChange={this.handleChange}/>
-					</label>
-					{redemptionContent}
-				</div>;
-				
+			let redemptionContent = null;
+			if(eventTriggers.twitch.enabled == true){
+				if(eventTriggers.twitch.type == "redeem" && this.state._rewards != null){
+					redemptionContent = 
+					<label triggertype="twitch" className="event-trigger">
+						<label>
+							Reward:
+							<select name="reward-id" value={eventTriggers.twitch.reward.id} onChange={this.handleChange}>
+								{rewardOptions}
+							</select>
+						</label>
+						<label className="label-switch">
+							Override Approval (Refundable):
+							<BoolSwitch name="reward-override" checked={eventTriggers.twitch.reward.override} onChange={this.handleChange}/>
+						</label>
+					</label>;
+				}
 			}
+
+			let eventsubOptions = [];
+			for(let e in this.eventsubs){
+				eventsubOptions.push(
+					<option value={e}>{this.eventsubs[e]}</option>
+				);
+			}
+			
+			let twitchType = eventTriggers.twitch.enabled == true ?
+			<label className="label-switch">
+				Type:
+				<select name="type" defaultValue={eventTriggers.twitch.type} onChange={this.handleChange}>
+					<option value="redeem">Channel Point Redeem</option>
+					{eventsubOptions}
+				</select>
+			</label>:null;
+			redemptionTrigger = 
+					<div triggertype="twitch">
+						<label className="label-switch">
+							Twitch:
+							<BoolSwitch name="enabled" checked={eventTriggers.twitch.enabled} onChange={this.handleChange}/>
+						</label>
+						{twitchType}
+						{redemptionContent}
+					</div>;
 
 			let chatContent = eventTriggers.chat.enabled == true ?<label triggertype="chat" className="event-trigger">
 								<label className="label-switch">
@@ -957,8 +1088,8 @@ class EventTable extends React.Component{
 
 			for(let c in eventCommands){
 
-				if(typeof eventCommands[c].delay == "string"){console.log("PARSE DEL"); eventCommands[c].delay=parseInt(eventCommands[c].delay)}
-				if(typeof eventCommands[c].duration == "string"){console.log("PARSE DUR"); eventCommands[c].duration=parseFloat(eventCommands[c].duration)}
+				if(typeof eventCommands[c].delay == "string"){eventCommands[c].delay=parseInt(eventCommands[c].delay)}
+				if(typeof eventCommands[c].duration == "string"){eventCommands[c].duration=parseFloat(eventCommands[c].duration)}
 
 				maxDuration = Math.max(eventCommands[c].delay/1000,eventCommands[c].duration);
 				if(isNaN(maxDuration)){
@@ -971,14 +1102,17 @@ class EventTable extends React.Component{
 				}else if(eventCommands[c].type == "obs" || eventCommands[c].type == "mod" ){
 					id=eventCommands[c].function;
 				}
+
+				let delay = isNaN(eventCommands[c].delay) ? 0 : eventCommands[c].delay;
+				let duration = isNaN(eventCommands[c].duration) ? 1 : eventCommands[c].duration;
 				
 				timelineData.push({
 					id:c,
 					actions:[{
 						id:id,
-						start:eventCommands[c].delay/1000,
+						start:delay/1000,
 						end:eventCommands[c].etype=="timed"
-						?(eventCommands[c].delay/1000)+eventCommands[c].duration:(eventCommands[c].delay/1000)+1,
+						?(delay/1000)+duration:(delay/1000)+1,
 						eventname:s,
 						eventtype:eventCommands[c].type,
 						commandindex:c,
@@ -998,18 +1132,42 @@ class EventTable extends React.Component{
 				}
 
 				let element = null;
+				let durationField = eventCommands[c].etype=="timed" ? <label>
+																	Duration (Seconds):
+																	<input type="number" name="duration" key={s} value={eventCommands[c].duration} onChange={this.handleChange} />
+																</label>:null;
 				switch(eventCommands[c].type){
 					case 'response':
 						element = <div className="command-props response">
 							<label className="response-code-ui">
-								Message:
+								<span>Message: <FontAwesomeIcon icon={faQuestionCircle} size="lg" onClick={(e)=>window.toggleClass(e.currentTarget.parentElement?.parentElement?.querySelector(".response-cheatsheet"), "hidden")}/></span>
+								<div className="response-cheatsheet hidden">
+									Variables:
+									<ul>
+										<li>event:object - Data that triggered the event.</li>
+										<li>extra:array - Extra event data (Can be search and match words or booleans for locked events/plugins)</li>
+										<li>toUser:string - The second word in a message that's usually a user name.</li>
+										<li>command:array - The message split by whitespace for processing arguments</li>
+									</ul>
+									Functions:
+									<ul>
+										<li>say(txt:string) - Respond on the platform and channel the message originated from.</li>
+										<li>getVar(key:string, defaultVal=0:any) - Get a variable from the event storage that matches the key. Returns default value if not found.</li>
+										<li>setVar(key:string, value:any, save=true:boolean) - Set a variable in the event storage for later. Save will write the event storage to file if true.</li>
+										<li>getSharedVar(eventname:string, key:string, defaultVal=0:any) - Get a variable from another event's storage space.</li>
+										<li>setSharedVar(eventname:string, key:string, value:any, save=true:boolean) - Each event has a storage space with their internal name as the key. This will set a var within a certain event's storage space. Handy for features with multiple commands</li>
+										<li>chooseRandom(choices:array) - Returns a random element from the given array.</li>
+										<li>sanitize(txt:string) - Removes special characters from a given text</li>
+										<li>runEvent(eventName:string) - Run a spooder event. Event data from this event will be passed over.</li>
+									</ul>
+								</div>
 								<CodeEditor className="response-code-editor" name="message" language="js" key={s} 
 								value={eventCommands[c].message} 
 								onChange={this.handleChange}
 								placeholder="return 'Hello '+event.displayName"/>
 								<input className="response-code-input" type="text" placeholder="Input text"/>
 								<div className="response-code-output"></div>
-								<div className="verify-message"><button className="verify-message-button save-button" eventname={s} onClick={this.verifyResponseScript}>Verify Script</button></div>
+								<div className="verify-message"><button className="verify-message-button save-button" eventname={s} onKeyDown={((e)=>{if(e.code=="Enter"){this.verifyResponseScript}}).bind(this)} onClick={this.verifyResponseScript}>Verify Script</button></div>
 							</label>
 							<label>
 								Delay (Milliseconds):
@@ -1018,15 +1176,28 @@ class EventTable extends React.Component{
 						</div>;
 					break;
 					case 'plugin':
+						let stopEventName = eventCommands[c].etype=="timed" ?<label>
+																				End Event Name:
+																				<input type="text" key={s} name="stop_eventname" value={eventCommands[c].stop_eventname} onChange={this.handleChange} />
+																			</label>:null;
 						element = <div className="command-props plugin">
 							<label>
 								Plugin:
 								<select name="pluginname" key={s} value={eventCommands[c].pluginname} onChange={this.handleChange}>{pluginOptions}</select>
 							</label>
 							<label>
+								Event Type:
+								<select name="etype" key={s} value={eventCommands[c].etype} onChange={this.handleChange}>
+									<option value="timed">Timed</option>
+									<option value="oneshot">One Shot</option>
+								</select>
+							</label>
+							<label>
 								Event Name:
 								<input type="text" key={s} name="eventname" value={eventCommands[c].eventname} onChange={this.handleChange} />
 							</label>
+							{stopEventName}
+							{durationField}
 							<label>
 								Delay (Milliseconds):
 								<input name="delay" key={s} value={eventCommands[c].delay} type="number" break="anywhere" onChange={this.handleChange} />
@@ -1034,10 +1205,6 @@ class EventTable extends React.Component{
 						</div>;
 					break;
 					case 'software':
-						let duration = eventCommands[c].etype=="timed" ? <label>
-																		Duration (Seconds):
-																		<input type="number" name="duration" key={s} value={eventCommands[c].duration} onChange={this.handleChange} />
-																	</label>:null;
 						
 						element = <div className="command-props software">
 							
@@ -1081,8 +1248,7 @@ class EventTable extends React.Component{
 						</div>;
 					break;
 					case "obs":
-						console.log(this.state);
-						if(Object.keys(this.state._obs).length == 0){
+						if(Object.keys(this.state._obs).length == 0 || this.state._obs.status == "notconnected"){
 							element = <div className="command-props software">
 								<label>OBS not connected. Connect to OBS remote in Deck Mode and refresh. Saving now will not affect any settings in place.</label>
 							</div>;
@@ -1100,7 +1266,7 @@ class EventTable extends React.Component{
 								</option>
 							);
 						}
-						//console.log("OBS", this.state._obs);
+						
 						let sceneOptions = [];
 						for(let s in this.state._obs.scenes){
 							sceneOptions.push(
@@ -1348,6 +1514,76 @@ class EventTable extends React.Component{
 					</div>
 				);
 			}
+
+			let specialFields = null;
+			if(eventTriggers.twitch.enabled == true && eventTriggers.twitch.type == "stream.online"){
+				let guildOptions = [<option value={""}>Select Guild</option>];
+				let channelOptions = [<option value={""}>Select Channel</option>];
+				for(let d in this.state._discord){
+					guildOptions.push(
+						<option value={d}>{this.state._discord[d].name}</option>
+					);
+					
+				}
+
+				for(let c in this.state._discord[thisEvent[s].special?.discord?.guild]?.channels){
+					channelOptions.push(
+						<option value={c}>{this.state._discord[thisEvent[s].special?.discord?.guild]?.channels[c].name}</option>
+					);
+				}
+				
+				specialFields = <>
+					<div className="config-variable-ui">
+						<label className={"toggle-label"} style={{display:"flex", "flex-flow":"row", "alignItems":"center"}}>Send @everyone ping on Discord
+							<BoolSwitch eventname={thisEvent[s].special?.discord?.enabled} name="special-discord-enabled" checked={thisEvent[s].special?.discord?.enabled} onChange={this.handleChange}/>
+						</label>
+						<div key={this.state.keyname+guildOptions.length+channelOptions.length+JSON.stringify(this.state.discord)} className={(thisEvent[s].special?.discord?.enabled?"":"hidden")}>
+							<select eventname={thisEvent[s].special?.discord?.guild} name="special-discord-guild" defaultValue={thisEvent[s].special?.discord?.guild} onChange={this.handleChange}>
+								{guildOptions}
+							</select>
+							<select eventname={thisEvent[s].special?.discord?.channel} name="special-discord-channel" defaultValue={thisEvent[s].special?.discord?.channel} onChange={this.handleChange}>
+								{channelOptions}
+							</select>
+						</div>
+					</div>
+					<div className="command-props response">
+						<label className="response-code-ui">
+							<span>Reoccuring Message: <FontAwesomeIcon icon={faQuestionCircle} size="lg" onClick={(e)=>window.toggleClass(e.currentTarget.parentElement?.parentElement?.querySelector(".response-cheatsheet"), "hidden")}/></span>
+							<div className="response-cheatsheet hidden">
+								Variables:
+								<ul>
+									<li>event:object - Data that triggered the event.</li>
+									<li>extra:array - Extra event data (Can be search and match words or booleans for locked events/plugins)</li>
+									<li>toUser:string - The second word in a message that's usually a user name.</li>
+									<li>command:array - The message split by whitespace for processing arguments</li>
+								</ul>
+								Functions:
+								<ul>
+									<li>say(txt:string) - Respond on the platform and channel the message originated from.</li>
+									<li>getVar(key:string, defaultVal=0:any) - Get a variable from the event storage that matches the key. Returns default value if not found.</li>
+									<li>setVar(key:string, value:any, save=true:boolean) - Set a variable in the event storage for later. Save will write the event storage to file if true.</li>
+									<li>getSharedVar(eventname:string, key:string, defaultVal=0:any) - Get a variable from another event's storage space.</li>
+									<li>setSharedVar(eventname:string, key:string, value:any, save=true:boolean) - Each event has a storage space with their internal name as the key. This will set a var within a certain event's storage space. Handy for features with multiple commands</li>
+									<li>chooseRandom(choices:array) - Returns a random element from the given array.</li>
+									<li>sanitize(txt:string) - Removes special characters from a given text</li>
+									<li>runEvent(eventName:string) - Run a spooder event. Event data from this event will be passed over.</li>
+								</ul>
+							</div>
+							<CodeEditor className="response-code-editor" name="special-reoccuringmessage-message" language="js" key={s} 
+							value={thisEvent[s].special?.reoccuringmessage?.message} 
+							onChange={this.handleChange}
+							placeholder="return 'Hello '+event.displayName"/>
+							<input className="response-code-input" type="text" placeholder="Input text"/>
+							<div className="response-code-output"></div>
+							<div className="verify-message"><button className="verify-message-button save-button" eventname={s} onKeyDown={((e)=>{if(e.code=="Enter"){this.verifyResponseScript}}).bind(this)} onClick={this.verifyResponseScript}>Verify Script</button></div>
+						</label>
+						<label>
+							Interval (Seconds):
+							<input name="special-reoccuringmessage-interval" key={s} defaultValue={thisEvent[s].special?.reoccuringmessage?.interval} type="number" break="anywhere" onChange={this.handleChange} />
+						</label>
+					</div>
+				</>
+			}
 	
 			let addElement = <div className="add-command">
 					<div className="add-command-fields">
@@ -1420,7 +1656,6 @@ class EventTable extends React.Component{
 										scale={this.state._zooms[s]==null?maxDuration:this.state._zooms[s]} 
 										dragLine={true}
 										getActionRender={(action, row)=>{
-											//console.log(row);
 											switch(action.eventtype){
 												case "response":
 													return <div className="prompt"><FontAwesomeIcon icon={faCommentDots} size={"2x"}/></div>
@@ -1438,6 +1673,7 @@ class EventTable extends React.Component{
 											
 										}}/>
 										{timelineZoom}
+										{specialFields}
 										{commandElements}
 										{addElement}
 									</label>
@@ -1481,7 +1717,7 @@ class EventTable extends React.Component{
 							</div>
 						</div>
 						{groupObjects[groupKeys[go]]}
-						</div>
+					</div>
 				</div>
 			);
 		}

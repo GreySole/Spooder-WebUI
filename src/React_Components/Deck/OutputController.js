@@ -120,7 +120,6 @@ class OutputController extends React.Component{
     recordStateChanged(data){
         let recordObj = JSON.parse(data.args[0]);
         let newRecordStatus = Object.assign(this.state.recordStatus);
-        console.log(recordObj)
         newRecordStatus.outputActive = recordObj.outputActive;
         
         this.setState(Object.assign(this.state, {recordStatus:newRecordStatus}));

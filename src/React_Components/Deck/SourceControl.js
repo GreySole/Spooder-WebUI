@@ -77,7 +77,6 @@ class SourceControl extends React.Component{
         if(Object.keys(this.state.groups).includes(sceneItemData.sceneName)){
             let newGroups = Object.assign(this.state.groups);
             for(let sceneItem in newGroups[sceneItemData.sceneName].items){
-                console.log("CHANGING", newGroups[sceneItemData.sceneName].items[sceneItem].sceneItemId, sceneItemData.sceneItemId);
                 if(newGroups[sceneItemData.sceneName].items[sceneItem].sceneItemId == sceneItemData.sceneItemId){
                     newGroups[sceneItemData.sceneName].items[sceneItem].sceneItemEnabled = sceneItemData.sceneItemEnabled;
                     break;
@@ -100,7 +99,6 @@ class SourceControl extends React.Component{
     }
 
     studioModeChanged(data){
-        console.log("STUDIO MODE CHANGED", data.args[0])
         this.setState(Object.assign(this.state, {
             studioMode:data.args[0]
         }));
@@ -180,8 +178,6 @@ class SourceControl extends React.Component{
                     
                 }
             }
-
-            //console.log("SOURCE ITEMS", thisGroup);
             
             let visibleIcon = faEye;
             if(thisGroupSceneItem.enabled){

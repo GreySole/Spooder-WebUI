@@ -8,6 +8,8 @@ import { faCog, faTrash, faPlusCircle, faUpload, faSync, faSpider,
 import LinkButton from "../UI/LinkButton.js";
 import SettingsForm from "../PluginSettings/SettingsForm.js";
 import path from 'path-browserify';
+import LoadingCircle from '../UI/LoadingCircle';
+import DashedCircle from '../../icons/DashedCircle.svg';
 
 window.settingsFrame = function(){
 	return;
@@ -17,9 +19,11 @@ class PluginTab extends React.Component {
 	constructor(props) {
 		super(props);
 		this.osc = props.osc;
-		this.state = {};
-		this.state["plugins"] = Object.assign({},props.data);
-		this.state["_udpClients"] = props._udpClients;
+		this.state = {
+			stateLoaded:false
+		};
+		this.state["plugins"] = {};
+		this.state["_udpClients"] = {};
 		this.state["_openSettings"] = null;
 		this.state["_openAssets"] = null;
 		this.state["_openInfo"] = null;
@@ -32,7 +36,7 @@ class PluginTab extends React.Component {
 		};
 		this.state["_fileProgressStatus"] = {};
 		this.state["_fileProgressListeners"]= {};
-
+		
 		this.hiddenFileInput = React.createRef();
 		this.hiddenAssetInput = React.createRef();
 		this.onPluginChange = this.onPluginChange.bind(this);
@@ -62,6 +66,11 @@ class PluginTab extends React.Component {
 		document.querySelector("#input-file[plugin-name='"+pluginName+"']").click();
 	}
 
+	handleIconUploadClick = e => {
+		let pluginName = e.currentTarget.getAttribute("plugin-name");
+		document.querySelector("#input-icon[plugin-name='"+pluginName+"']").click();
+	}
+
 	refreshPlugins = async() => {
 		let rStatus = await fetch('/refresh_plugins')
 		.then(response=>response.json());
@@ -72,41 +81,66 @@ class PluginTab extends React.Component {
 		}, 5000);
 	}
 
-	componentDidMount(){
-		let newListeners = Object.assign(this.state._fileProgressListeners);
-		newListeners.progress = this.osc.on("/frontend/plugin/install/progress", (message) => {
-			let progressObj = JSON.parse(message.args[0]);
-			
-			let newPlugins = Object.assign({}, this.state.plugins);
-			console.log("PROGRESS", progressObj);
-			newPlugins[progressObj.pluginName] = Object.assign(newPlugins[progressObj.pluginName], {
-				status:progressObj.status,
-				message:progressObj.message
-			});
-			this.setState(Object.assign(this.state, {plugins:newPlugins}));
-		});
+	refreshSinglePlugin = async(e) => {
+		let rStatus = await fetch('/refresh_plugin?pluginname='+e.target.getAttribute("plugin-name"))
+		.then(response=>response.json());
+		this.reloadPlugins();
+		document.querySelector(".plugin-element .save-status").textContent = rStatus.status;
+		setTimeout(()=>{
+			document.querySelector(".plugin-element .save-status").textContent = "";
+		}, 5000);
+	}
 
-		newListeners.complete = this.osc.on("/frontend/plugin/install/complete", (message) => {
-			let progressObj = JSON.parse(message.args[0]);
-			console.log("COMPLETE", progressObj);
-			let newPlugins = Object.assign({}, this.state.plugins);
-			newPlugins[progressObj.pluginName] = Object.assign(newPlugins[progressObj.pluginName], {
-				status:progressObj.status,
-				message:progressObj.message
+	componentDidMount(){
+		fetch("/plugins")
+		.then(response => response.json())
+		.then(data => {
+			
+			this.setState(Object.assign(this.state, {stateLoaded:true, plugins:data, udpClients:this.props.parentState["udpClients"], _fileProgressListeners:newListeners}));
+		})
+		let newListeners = Object.assign(this.state._fileProgressListeners);
+			newListeners.progress = this.osc.on("/frontend/plugin/install/progress", (message) => {
+				let progressObj = JSON.parse(message.args[0]);
+				
+				let newPlugins = Object.assign({}, this.state.plugins);
+				console.log("PROGRESS", newPlugins, this.state);
+				newPlugins[progressObj.pluginName] = Object.assign(newPlugins[progressObj.pluginName], {
+					status:progressObj.status,
+					message:progressObj.message
+				});
+				this.setState(Object.assign(this.state, {plugins:newPlugins}));
 			});
-			this.setState(Object.assign(this.state, {plugins:newPlugins}), 
-			()=>{this.reloadPlugins(progressObj.pluginName)});
-		});
-		this.setState(Object.assign(this.state, {_fileProgressListeners:newListeners}));
+
+			newListeners.complete = this.osc.on("/frontend/plugin/install/complete", (message) => {
+				let progressObj = JSON.parse(message.args[0]);
+				console.log("COMPLETE", progressObj);
+				let newPlugins = Object.assign({}, this.state.plugins);
+				newPlugins[progressObj.pluginName] = Object.assign(newPlugins[progressObj.pluginName], {
+					status:progressObj.status,
+					message:progressObj.message
+				});
+				this.setState(Object.assign(this.state, {plugins:newPlugins}), 
+				()=>{this.reloadPlugins(progressObj.pluginName)});
+			});
+		
 	}
 
 	componentWillUnmount(){
-		this.osc.off("/frontend/plugin/install/progress", this.state._fileProgressListeners.progress);
-		this.osc.off("/frontend/plugin/install/complete", this.state._fileProgressListeners.complete);
+		if(this.state._fileProgressListeners.progress != null){
+			this.osc.off("/frontend/plugin/install/progress", this.state._fileProgressListeners.progress);
+			this.osc.off("/frontend/plugin/install/complete", this.state._fileProgressListeners.complete);
+		}
 	}
 
 	componentDidUpdate() {
 		//this.handleSettingsForms();
+	}
+
+	keyDown = e=>{
+		if(e.ctrlKey==true && e.key == 's'){
+			e.preventDefault();
+			this.saveCommands();
+		}
 	}
 
 	uploadPluginAsset = async (e) => {
@@ -127,7 +161,7 @@ class PluginTab extends React.Component {
 	}
 
 	reloadPlugins = async (newplugin) => {
-		console.log("RELOADING PLUGINS");
+		
 		const response = await fetch("/plugins");
 		const pluginDataRaw = await response.json();
 
@@ -142,7 +176,10 @@ class PluginTab extends React.Component {
 			this.setState(newState,()=>{
 
 				window.setClass(document.querySelector("#"+newplugin), "new");
-				document.querySelector("#"+newplugin).scrollIntoViewIfNeeded();
+				document.querySelector("#"+newplugin).scrollIntoView({
+					behavior:"smooth",
+					block:"center"
+				});
 
 			});
 		}else{
@@ -206,7 +243,10 @@ class PluginTab extends React.Component {
 			message:"installing..."
 		};
 		this.setState(Object.assign(this.state, {plugins:newPlugins}),()=>{
-			document.querySelector("#"+internalName).scrollIntoViewIfNeeded();
+			document.querySelector("#"+internalName).scrollIntoView({
+				behavior:"smooth",
+				block:"center"
+			});
 		});
 	}
 
@@ -217,7 +257,10 @@ class PluginTab extends React.Component {
 			this.setState(Object.assign(this.state, {"_openInfo":null}));
 		}else{
 			this.setState(Object.assign(this.state, {"_openSettings":null, "_openAssets":null, "_openInfo":plugin}),()=>{
-				document.querySelector("#"+plugin).scrollIntoViewIfNeeded();
+				document.querySelector("#"+plugin).scrollIntoView({
+					behavior:"smooth",
+					block:"center"
+				});
 			});
 		}
 	}
@@ -228,7 +271,10 @@ class PluginTab extends React.Component {
 			this.setState(Object.assign(this.state, {"_openSettings":null}));
 		}else{
 			this.setState(Object.assign(this.state, {"_openSettings":plugin, "_openAssets":null, "_openInfo":null}),()=>{
-				document.querySelector("#"+plugin).scrollIntoViewIfNeeded();
+				document.querySelector("#"+plugin).scrollIntoView({
+					behavior:"smooth",
+					block:"center"
+				});
 			});
 		}
 	}
@@ -239,7 +285,10 @@ class PluginTab extends React.Component {
 			this.setState(Object.assign(this.state, {"_openAssets":null}));
 		}else{
 			this.setState(Object.assign(this.state, {"_openAssets":plugin, "_openSettings":null, "_openInfo":null}),()=>{
-				document.querySelector("#"+plugin).scrollIntoViewIfNeeded();
+				document.querySelector("#"+plugin).scrollIntoView({
+					behavior:"smooth",
+					block:"center"
+				});
 			});
 		}
 	}
@@ -324,7 +373,6 @@ class PluginTab extends React.Component {
 			if(sForm == null){
 
 				window.settingsFrame = () => {
-					console.log("SENDING SETTINGS");
 					let thisSettings = Object.assign(this.state.plugins[this.state._openSettings]["settings"]);
 					let udpClients = this.state._udpClients;
 					let assets = this.state[this.state._openSettings]["assets"];
@@ -334,9 +382,7 @@ class PluginTab extends React.Component {
 					return thisSettings;
 				}
 				
-				return <iframe id={name+"SettingsForm"} className='settings-form-html' src={window.location.origin+"/settings/"+name}>
-					
-				</iframe>;
+				return <iframe id={name+"SettingsForm"} className='settings-form-html' src={window.location.origin+"/settings/"+name}></iframe>;
 			}else{
 
 				sForm.udpClients = this.state._udpClients;
@@ -511,6 +557,28 @@ class PluginTab extends React.Component {
 		}
 	}
 
+	replacePluginIcon = async (e) => {
+		//let assetPath = path.join(this.state._openAssets, this.state.plugins[this.state._openAssets].assetBrowserPath);
+		let pluginName = e.currentTarget.getAttribute("plugin-name");
+		var fd = new FormData();
+		fd.append('file', e.target.files[0]);
+
+		const requestOptions = {
+			method: 'POST',
+			body: fd
+		};
+		let uploadReq = await fetch('/upload_plugin_icon/'+pluginName, requestOptions)
+			.then(response => response.json());
+
+			
+		this.reloadPlugins();
+		/*let newState = Object.assign(this.state.plugins);
+		
+		newState[this.state._openAssets]["assets"] = uploadReq["newAssets"];
+		this.setState(Object.assign(this.state, {plugins:newState}));*/
+
+	}
+
 	renderInfoView(name){
 		let isOpen = name == this.state._openInfo;
 		
@@ -545,7 +613,8 @@ class PluginTab extends React.Component {
 				</div>
 				{dependenciesElement}
 				<div className="info-actions">
-					
+					<div className="add-button" onClick={this.refreshSinglePlugin} plugin-name={name}><FontAwesomeIcon icon={faSync} size="lg" /> Refresh</div>
+					<div className="add-button" onClick={this.handleIconUploadClick} plugin-name={name}><FontAwesomeIcon icon={faImage} size="lg" /> Change Icon</div>
 				</div>
 			</div>
 		}else{
@@ -618,7 +687,10 @@ class PluginTab extends React.Component {
 			description:""
 		}
 		this.setState(Object.assign(this.state, {plugins:newPlugins, _openCreate:newOpenCreate}),()=>{
-			document.querySelector("#"+internalName).scrollIntoViewIfNeeded();
+			document.querySelector("#"+internalName).scrollIntoView({
+				behavior:"smooth",
+				block:"center"
+			});
 		});
 	}
 
@@ -644,6 +716,9 @@ class PluginTab extends React.Component {
 	}
 
 	render() {
+		if(this.state.stateLoaded == false){
+			return <LoadingCircle></LoadingCircle>
+		}
 		let pluginList = [];
 		let sortedPluginKeys = Object.keys(this.state.plugins).sort();
 		if(sortedPluginKeys.length == 0){
@@ -685,6 +760,7 @@ class PluginTab extends React.Component {
 										</div>
 									</div>
 									<div className="plugin-button-ui">
+										
 										<div className="plugin-button info" onClick={this.pluginInfo}><FontAwesomeIcon icon={faCircleInfo} size="lg" /></div>
 										<div className="plugin-button delete" onClick={this.deletePlugin}><FontAwesomeIcon icon={faTrash} size="lg" /></div>
 									</div>
@@ -699,7 +775,7 @@ class PluginTab extends React.Component {
 							<div className="plugin-entry" key={p} id={p}>
 								<div className="plugin-entry-ui">
 									<div className="plugin-entry-icon spinning">
-										<FontAwesomeIcon className="plugin-status-icon" icon={faCircleNotch} size="lg"/>
+										<img className="plugin-status-icon" src={DashedCircle} height="75px"/>
 									</div>
 									<div className="plugin-entry-info">
 										<div className="plugin-entry-title">{this.state.plugins[p].name}<div className="plugin-entry-subtitle">{"by "+this.state.plugins[p].author}</div></div>
@@ -729,12 +805,14 @@ class PluginTab extends React.Component {
 									</div>
 								</div>
 								<div className="plugin-button-ui">
+									
 									<div className="plugin-button info" onClick={this.pluginInfo}><FontAwesomeIcon icon={faCircleInfo} size="lg" /></div>
 									<div className="plugin-button settings" onClick={this.pluginSettings}><FontAwesomeIcon icon={faCog} size="lg" /></div>
 									<div className="plugin-button upload" onClick={this.pluginAssets}><FontAwesomeIcon icon={faFile} size="lg" plugin-name={p} /></div>
 									<a className="link-override" href={"/export_plugin/"+p} download={p+".zip"}><div className="plugin-button export"><FontAwesomeIcon icon={faDownload} size="lg" plugin-name={p} /></div></a>
 									<div className="plugin-button delete" onClick={this.deletePlugin}><FontAwesomeIcon icon={faTrash} size="lg" /></div>
 									<input type='file' id='input-file' plugin-name={p} onChange={this.uploadPluginAsset} style={{ display: 'none' }} />
+									<input type='file' id='input-icon' plugin-name={p} onChange={this.replacePluginIcon} style={{ display: 'none' }} />
 								</div>
 							</div>
 							<div className="plugin-info-view">
@@ -776,7 +854,7 @@ class PluginTab extends React.Component {
 				<label htmlFor='input-file'>
 					<button onClick={this.handleFileClick}>Install Plugin <FontAwesomeIcon icon={faFileImport} size="lg" /></button>
 				</label>
-				<div className="save-div"><button onClick={this.refreshPlugins}>Refresh Plugins <FontAwesomeIcon icon={faSync} size="lg" /></button><div className="save-status"></div></div>
+				<div className="save-div"><button onClick={this.refreshPlugins}>Refresh All Plugins <FontAwesomeIcon icon={faSync} size="lg" /></button><div className="save-status"></div></div>
 				<input type='file' id='input-file' ref={this.hiddenFileInput} onChange={this.installNewPlugin} style={{ display: 'none' }} />
 			</div>
 			{createPlugin}

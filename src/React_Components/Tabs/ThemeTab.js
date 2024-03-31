@@ -1,5 +1,6 @@
 import React from 'react';
 import ColorEditor from '../UI/ColorEditor.js';
+import LoadingCircle from '../UI/LoadingCircle';
 
 var cStyle = getComputedStyle(document.querySelector(":root"));
 class ThemeTab extends React.Component{
@@ -37,7 +38,7 @@ class ThemeTab extends React.Component{
 
     setTheme(){
         let theme = this.state.currentTheme;
-        //console.log(theme);
+        
         for(let style in theme){
             document.documentElement.style.setProperty(style, theme[style]);
         }

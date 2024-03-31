@@ -1,0 +1,41 @@
+.users-table{
+    display:flex;
+    flex-flow:column-reverse;
+}
+
+.user-container{
+    display:flex;
+    flex-flow:row;
+    border-bottom: 1px solid white;
+}
+
+.user-entry{
+    display:flex;
+    flex-flow:column;
+    padding:10px;
+}
+
+.user-actions{
+    display:flex;
+    flex-flow:row;
+}
+
+.user-entry label{
+    margin:5px;
+}
+
+.user-entry label input{
+    margin-left:5px;
+}
+
+.user-section{
+    display:flex;
+    flex-flow:column;
+}
+
+.user-section label{
+    display:flex;
+    flex-flow:row;
+    align-items:center;
+    margin-left:15px;
+}

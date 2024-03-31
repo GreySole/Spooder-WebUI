@@ -68,7 +68,6 @@ class VolumeControl extends React.Component{
     }
 
     programSceneChanged(data){
-        console.log("PROGRAM",this.state.currentProgramScene, data.args[0]);
         this.osc.send(new OSC.Message("/obs/get/input/volumelist", 1));
     }
 
@@ -113,8 +112,6 @@ class VolumeControl extends React.Component{
         let newVolumes = Object.assign(this.state.volumes);
         newVolumes[volumeData.inputName] = volumeData.inputVolumeMul;
         this.setState(Object.assign(this.state, {volumes:newVolumes}));
-        //console.log("GOT VOLUME",volumeData);
-
     }
 
     getMute(data){
@@ -170,7 +167,6 @@ class VolumeControl extends React.Component{
         let muteData = JSON.parse(data.args[0]);
         let newInputs = Object.assign(this.state.inputs);
         newInputs[muteData.inputName].volumeMuteData.inputMuted = muteData.inputMuted;
-        console.log("MUTE CHANGED", muteData);
     }
 
     receiveMeter(data){
@@ -204,7 +200,6 @@ class VolumeControl extends React.Component{
 
     toggleMute(e){
         let inputName = e.currentTarget.getAttribute("inputname");
-        console.log(inputName);
         let inputMuted = !this.state.inputs[inputName].volumeMuteData.inputMuted;
         let newInputs = Object.assign(this.state.inputs);
         this.osc.send(new OSC.Message("/obs/set/input/mute", JSON.stringify({inputName:inputName, inputMuted:inputMuted})));
@@ -231,13 +226,11 @@ class VolumeControl extends React.Component{
 
     toggleGroupMute(e){
         let inputName = e.currentTarget.getAttribute("inputname");
-        console.log(inputName);
         let newInputs = Object.assign(this.state.inputs);
         let newGroups = Object.assign(this.state.groups);
         let groupMuted = !newGroups[inputName].groupMuted;
 
         for(let s in newGroups[inputName].items){
-            console.log(newGroups[inputName].items[s].sourceName);
             this.osc.send(new OSC.Message("/obs/set/input/mute", JSON.stringify({inputName:newGroups[inputName].items[s].sourceName, inputMuted:groupMuted})));
         }
 
@@ -289,7 +282,6 @@ class VolumeControl extends React.Component{
                         groupNames.push(inputName);
                         groupLevel[g].enabled = true;
                         if(this.state.groups[g].expanded){
-                            //console.log("PUSHING", inputName, "to", g);
                             groupItemElements[g].push(
                                 <div className="deck-volume-meter" >
                                     <div className="deck-volume-meter-label">
@@ -366,7 +358,6 @@ class VolumeControl extends React.Component{
         }
         
         for(let g in groupLevel){
-            //console.log(groupLevel[g]);
             if(!groupLevel[g].enabled){continue;}
             groupElements.push(
                 <div className={"deck-volume-group "+(this.state.groups[g].expanded?"expanded":"")}>

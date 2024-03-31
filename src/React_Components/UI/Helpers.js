@@ -12,6 +12,7 @@ global.setClass = (el, classname, bool) => {
 }
 
 global.toggleClass = (el, classname) => {
+	if(el == null){return;}
 	let hasClass = el.classList.contains(classname);
 	if(hasClass){
 		el.classList.remove(classname);

@@ -1,0 +1,31 @@
+.twitchmanage-form{
+    display:flex;
+    flex-flow:row;
+}
+
+.twitch-credentials{
+    display:flex;
+    flex-flow:column;
+}
+
+.twitch-credentials label{
+    margin:5px;
+}
+
+.twitch-credentials input{
+    margin-left:5px;
+}
+
+.twitch-bot,
+.twitch-broadcaster{
+    display:flex;
+    flex-flow:column;
+    text-align: center;
+    align-items:center;
+    margin:10px;
+}
+
+.section-header{
+    font-size:36px;
+    margin:10px;
+}

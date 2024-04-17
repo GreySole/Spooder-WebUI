@@ -31,8 +31,8 @@ class EventTable extends React.Component{
 			this.state._eventexpands[e] = false;
 			this.state._zooms[e] = 1;
 		}
-		
-		
+
+
 		this.handleChange = this.handleChange.bind(this);
 		this.addCommand = this.addCommand.bind(this);
 		this.addEvent = this.addEvent.bind(this);
@@ -56,7 +56,7 @@ class EventTable extends React.Component{
 
 		this.dragItem = createRef();
 		this.dragOverItem = createRef();
-		
+
 		this.verifyResponseScript = this.verifyResponseScript.bind(this);
 	}
 
@@ -149,11 +149,11 @@ class EventTable extends React.Component{
 		fetch("/command_table")
 		.then(response => response.json())
 		.then(data => {
-			
+
 			let commandData = JSON.parse(data.express);
 
 			if(commandData.events != null){
-		
+
 				//Auto-fix/upgrade events to current structure
 				for(let e in commandData.events){
 					if(commandData.events[e].triggers["redemption"] != null){
@@ -185,11 +185,11 @@ class EventTable extends React.Component{
 						}else if(ev == "commands"){
 
 							for(let c in commandData.events[e][ev]){
-								
+
 								for(let co in this.eventStructure[ev][commandData.events[e][ev][c].type]){
 									if(commandData.events[e][ev][c][co] == null){
 										commandData.events[e][ev][c][co] = this.eventStructure[ev][commandData.events[e][ev][c].type][co];
-										
+
 									}
 								}
 							}
@@ -201,17 +201,17 @@ class EventTable extends React.Component{
 						}
 					}
 				}
-				
+
 				if(commandData.groups == null){
 					commandData.groups = ['Default'];
 				}
 			}
-			
+
 			window.addEventListener("keydown", this.keyDown)
-			this.setState(Object.assign(this.state, 
+			this.setState(Object.assign(this.state,
 				{
 					stateLoaded:true,
-					events:commandData.events ?? {}, 
+					events:commandData.events ?? {},
 					groups:commandData.groups ?? [],
 					_udpClients:this.props.parentState.udp_clients ?? {},
 					_plugins:commandData.plugins ?? {}
@@ -220,7 +220,7 @@ class EventTable extends React.Component{
 			this.getOBSChannels();
 			this.getDiscordChannels();
 		})
-		
+
 	}
 
 	componentWillUnmount(){
@@ -239,7 +239,7 @@ class EventTable extends React.Component{
 		newZooms[e.target.name] = e.target.value;
 		this.setState(Object.assign(this.state, {_zooms:newZooms}));
 	}
-	
+
 	handleChange(e){
 		let eventName = e.target.closest(".command-element").id;
 		let isCommand = e.target.closest(".command-fields") != null;
@@ -255,9 +255,9 @@ class EventTable extends React.Component{
 			}else{
 				newState[eventName].commands[commandIndex][varname] = e.target.value;
 			}
-			
+
 		}else if(isTrigger){
-			
+
 			let triggerType = e.target.closest("[triggertype]").getAttribute("triggertype");
 			if(newState[eventName].triggers[triggerType] == null){
 				newState[eventName].triggers[triggerType] = {};
@@ -269,7 +269,7 @@ class EventTable extends React.Component{
 			}else{
 				newState[eventName].triggers[triggerType][varname] = varVal;
 			}
-			
+
 		}else{
 			if(varname.includes("-")){
 				let splitVarname = varname.split("-");
@@ -278,12 +278,12 @@ class EventTable extends React.Component{
 				}else if(splitVarname.length == 3){
 					newState[eventName][splitVarname[0]][splitVarname[1]][splitVarname[2]] = varVal;
 				}
-				
+
 			}else{
 				newState[eventName][varname] = varVal;
 			}
 		}
-		
+
 		this.setState(Object.assign(this.state,{events:newState}));
 	}
 
@@ -332,7 +332,7 @@ class EventTable extends React.Component{
 		newState[newKey] = newEvent;
 		this.setState(Object.assign(this.state,{events:newState}));
 	}
-	
+
 	addCommand(e){
 		let eventName = e.target.getAttribute("eventname");
 		let commandType = document.querySelector("#"+eventName+" .add-command [name='type']").value;
@@ -398,14 +398,14 @@ class EventTable extends React.Component{
 				}
 			break;
 		}
-		
-		
+
+
 		let newState = Object.assign(this.state.events);
 		if(newState[eventName].commands == null){newState[eventName].commands = [];}
 		newState[eventName].commands.push(newCommand);
 		this.setState(Object.assign(this.state,{events:newState}));
 	}
-	
+
 	saveCommands(){
 		let newEvents = Object.assign(this.state.events);
 		for(let c in newEvents){
@@ -420,7 +420,7 @@ class EventTable extends React.Component{
 			"events":newEvents,
 			"groups":this.state.groups
 		};
-		
+
 		const requestOptions = {
 			method: 'POST',
 			headers: {'Content-Type': 'application/json', 'Accept':'application/json'},
@@ -440,15 +440,15 @@ class EventTable extends React.Component{
 			}
 		});
 	}
-	
+
 	deleteCommand(e){
-		
+
 		let eventName = e.target.closest(".command-element").id;
 		let cIndex = e.target.closest(".command-fields").getAttribute("commandindex");
 		let newEvents = Object.assign(this.state.events);
-		
+
 		newEvents[eventName].commands.splice(cIndex,1);
-		
+
 		this.setState(Object.assign(this.state,{events:newEvents}));
 	}
 
@@ -456,7 +456,7 @@ class EventTable extends React.Component{
 		let eventName = e.target.closest(".command-element").id;
 		window.setClass(e.target.closest(".command-element"), "expanded", false);
 		window.setClass(e.target.closest(".command-section"), "hidden", true);
-		
+
 		let newState = Object.assign(this.state.events);
 		delete newState[eventName];
 
@@ -476,7 +476,7 @@ class EventTable extends React.Component{
 			this.setState(Object.assign(this.state, {groups:newGroups,events:newEvents}));
 		}
 	}
-	
+
 	toggleProps(eventkey){
 
 		let newExpands = Object.assign({}, this.state._eventexpands);
@@ -489,7 +489,7 @@ class EventTable extends React.Component{
 		window.toggleClass(element, "hidden");
 		window.toggleClass(e.currentTarget.closest(".command-group"), "expanded");
 	}
-	
+
 	sortList() {
 	  var list, i, switching, b, shouldSwitch;
 	  list = document.getElementById("id01");
@@ -534,7 +534,7 @@ class EventTable extends React.Component{
 
 		//Usually event.username is the uncapitalized version of a username.
 		//Spooder replaces this with the capitalized version in runCommands()
-		let testEvent = {  
+		let testEvent = {
 			timestamp: "2022-05-05T17:06:31.505Z",
 			command: 'PRIVMSG',
 			event: 'PRIVMSG',
@@ -565,7 +565,7 @@ class EventTable extends React.Component{
 			  isModerator: false
 			}
 		  }
-		
+
 		try{
 			let response = await fetch("/verifyResponseScript", {
 				method:"POST",
@@ -588,7 +588,7 @@ class EventTable extends React.Component{
 				window.setClass(outputEl, "verified", false);
 				window.setClass(outputEl, "failed", true);
 			}
-			
+
 		}catch(e){
 			console.log(e);
 		}
@@ -605,7 +605,7 @@ class EventTable extends React.Component{
 		}else{
 			window.setClass(e.target, "error", false);
 		}
-		
+
 	}
 
 	checkCommandConflicts(eventName, commandIndex){
@@ -707,11 +707,11 @@ class EventTable extends React.Component{
 	onUpdateTimeline(frames){
 		let newEvents = Object.assign({},this.state.events);
 		for(let t in frames){
-			
+
 			newEvents[frames[t].actions[0].eventname].commands[frames[t].actions[0].commandindex].delay = Math.floor(frames[t].actions[0].start*1000);
 			newEvents[frames[t].actions[0].eventname].commands[frames[t].actions[0].commandindex].duration = (Math.round((frames[t].actions[0].end-(frames[t].actions[0].start)) / 0.05) * 0.05).toFixed(2);
 		}
-		
+
 		this.setState(Object.assign(this.state, {events:newEvents}));
 	}
 
@@ -760,13 +760,13 @@ class EventTable extends React.Component{
         "user.authorization.revoke": "User Authorization Revoke",
         "user.update": "User Update"
     }
-	
+
 	render(){
 
 		if(this.state.stateLoaded == false){
 			return <LoadingCircle></LoadingCircle>
 		}
-		
+
 		let udpHostOptions = [];
 		if(this.state._udpClients != null){
 			if(Object.keys(this.state._udpClients).length > 0){
@@ -818,7 +818,7 @@ class EventTable extends React.Component{
 		});
 
 		for(let p in propKeys){
-			
+
 			let s = propKeys[p];
 
 			let thisEvent = this.state.events;
@@ -828,7 +828,7 @@ class EventTable extends React.Component{
 			if(s.startsWith("_")){continue;}
 			if(this.state._searchtext!="" && !s.startsWith(this.state._searchtext) && !eventName.startsWith(this.state._searchtext)){continue;}
 
-			
+
 			let eventDesc = thisEvent[s].description;
 
 			let groupName = thisEvent[s].group;
@@ -863,7 +863,7 @@ class EventTable extends React.Component{
 			if(!this.state._eventexpands[s]){
 				let eventElement = <div className={"command-element "+(this.state._eventexpands[s]==true?"expanded":"")} key={s} id={s}>
 					<div className={"command-key "+(this.state._eventexpands[s]==true?"expanded":"")} onClick={()=>this.toggleProps(s)}>
-						<label>
+						<label key={`label-${s}`}>
 							<h1>{eventName}{triggerIcons}</h1>
 						</label>
 					</div>
@@ -876,7 +876,7 @@ class EventTable extends React.Component{
 			let redemptionContent = null;
 			if(eventTriggers.twitch.enabled == true){
 				if(eventTriggers.twitch.type == "redeem" && this.state._rewards != null){
-					redemptionContent = 
+					redemptionContent =
 					<label triggertype="twitch" className="event-trigger">
 						<label>
 							Reward:
@@ -898,7 +898,7 @@ class EventTable extends React.Component{
 					<option value={e}>{this.eventsubs[e]}</option>
 				);
 			}
-			
+
 			let twitchType = eventTriggers.twitch.enabled == true ?
 			<label className="label-switch">
 				Type:
@@ -907,7 +907,7 @@ class EventTable extends React.Component{
 					{eventsubOptions}
 				</select>
 			</label>:null;
-			redemptionTrigger = 
+			redemptionTrigger =
 					<div triggertype="twitch">
 						<label className="label-switch">
 							Twitch:
@@ -944,7 +944,7 @@ class EventTable extends React.Component{
 								</label>
 							</label>:null;
 			let chatTrigger = <div triggertype="chat">
-				
+
 				<label className="label-switch">
 					Chat:
 					<BoolSwitch name="enabled" checked={eventTriggers.chat.enabled} onChange={this.handleChange}/>
@@ -954,7 +954,7 @@ class EventTable extends React.Component{
 
 			let oscTrigger = null;
 			let oscContent = null;
-			
+
 			if(eventTriggers.osc?.handletype=="search" && eventTriggers.osc?.enabled == true){
 				oscContent = <label triggertype="osc" className="event-trigger">
 					<label>
@@ -976,7 +976,7 @@ class EventTable extends React.Component{
 				</label>;
 			}else if(eventTriggers.osc?.type=="double" && eventTriggers.osc?.enabled == true){
 				oscContent = <label triggertype="osc" className="event-trigger">
-				
+
 					<label>
 						Handle:
 						<select name="handletype" value={eventTriggers.osc?.handletype} onChange={this.handleChange}>
@@ -1065,7 +1065,7 @@ class EventTable extends React.Component{
 					</label>
 				</label>;
 			}
-			
+
 			oscTrigger = <div triggertype="osc">
 				<label className="label-switch">
 					OSC:
@@ -1073,7 +1073,7 @@ class EventTable extends React.Component{
 				</label>
 				{oscContent}
 			</div>
-			
+
 			let triggerElement = <div className="command-props triggers">
 									{chatTrigger}
 									{redemptionTrigger}
@@ -1105,7 +1105,7 @@ class EventTable extends React.Component{
 
 				let delay = isNaN(eventCommands[c].delay) ? 0 : eventCommands[c].delay;
 				let duration = isNaN(eventCommands[c].duration) ? 1 : eventCommands[c].duration;
-				
+
 				timelineData.push({
 					id:c,
 					actions:[{
@@ -1161,8 +1161,8 @@ class EventTable extends React.Component{
 										<li>runEvent(eventName:string) - Run a spooder event. Event data from this event will be passed over.</li>
 									</ul>
 								</div>
-								<CodeEditor className="response-code-editor" name="message" language="js" key={s} 
-								value={eventCommands[c].message} 
+								<CodeEditor className="response-code-editor" name="message" language="js" key={s}
+								value={eventCommands[c].message}
 								onChange={this.handleChange}
 								placeholder="return 'Hello '+event.displayName"/>
 								<input className="response-code-input" type="text" placeholder="Input text"/>
@@ -1205,9 +1205,9 @@ class EventTable extends React.Component{
 						</div>;
 					break;
 					case 'software':
-						
+
 						element = <div className="command-props software">
-							
+
 							<label>
 								Address:
 								<input type="text" name="address" key={s} value={eventCommands[c].address} onChange={this.handleChange} />
@@ -1266,7 +1266,7 @@ class EventTable extends React.Component{
 								</option>
 							);
 						}
-						
+
 						let sceneOptions = [];
 						for(let s in this.state._obs.scenes){
 							sceneOptions.push(
@@ -1407,7 +1407,7 @@ class EventTable extends React.Component{
 						let handleType = null;
 						if(eventCommands[c].targettype == "event"){
 							let sortedKeys = Object.keys(this.state.events).sort();
-							
+
 							for(let s in sortedKeys){
 								targetOptions.push(
 									<option value={sortedKeys[s]}>{sortedKeys[s]}</option>
@@ -1443,7 +1443,7 @@ class EventTable extends React.Component{
 										</label>;
 						}
 
-						
+
 						element = <div className="command-props software">
 							<h3>
 								Moderation chat commands are already built into Spooder. This is mainly so you can hook an OSC trigger for quick moderation actions.
@@ -1498,16 +1498,16 @@ class EventTable extends React.Component{
 					}
 				}
 
-				
+
 				commandElements.push(
 					<div className="command-fields" key={c} commandindex={c} >
-						
+
 						{commandArrows}
 						<label>
 							{typeLabel}
 							{element}
 						</label>
-						
+
 						<div className="command-actions">
 							{trashButton}
 						</div>
@@ -1523,7 +1523,7 @@ class EventTable extends React.Component{
 					guildOptions.push(
 						<option value={d}>{this.state._discord[d].name}</option>
 					);
-					
+
 				}
 
 				for(let c in this.state._discord[thisEvent[s].special?.discord?.guild]?.channels){
@@ -1531,7 +1531,7 @@ class EventTable extends React.Component{
 						<option value={c}>{this.state._discord[thisEvent[s].special?.discord?.guild]?.channels[c].name}</option>
 					);
 				}
-				
+
 				specialFields = <>
 					<div className="config-variable-ui">
 						<label className={"toggle-label"} style={{display:"flex", "flex-flow":"row", "alignItems":"center"}}>Send @everyone ping on Discord
@@ -1569,8 +1569,8 @@ class EventTable extends React.Component{
 									<li>runEvent(eventName:string) - Run a spooder event. Event data from this event will be passed over.</li>
 								</ul>
 							</div>
-							<CodeEditor className="response-code-editor" name="special-reoccuringmessage-message" language="js" key={s} 
-							value={thisEvent[s].special?.reoccuringmessage?.message} 
+							<CodeEditor className="response-code-editor" name="special-reoccuringmessage-message" language="js" key={s}
+							value={thisEvent[s].special?.reoccuringmessage?.message}
 							onChange={this.handleChange}
 							placeholder="return 'Hello '+event.displayName"/>
 							<input className="response-code-input" type="text" placeholder="Input text"/>
@@ -1584,7 +1584,7 @@ class EventTable extends React.Component{
 					</div>
 				</>
 			}
-	
+
 			let addElement = <div className="add-command">
 					<div className="add-command-fields">
 						<label>
@@ -1646,14 +1646,14 @@ class EventTable extends React.Component{
 									</label>
 									<label className="field-section">
 										Commands:
-										<Timeline 
+										<Timeline
 										key={s+this.state._zooms[s]}
 										style={{width:"75%", height:"200px"}}
-										editorData={timelineData} 
-										effects={timelineEffectData} 
-										onChange={this.onUpdateTimeline} 
-										autoScroll={true} 
-										scale={this.state._zooms[s]==null?maxDuration:this.state._zooms[s]} 
+										editorData={timelineData}
+										effects={timelineEffectData}
+										onChange={this.onUpdateTimeline}
+										autoScroll={true}
+										scale={this.state._zooms[s]==null?maxDuration:this.state._zooms[s]}
 										dragLine={true}
 										getActionRender={(action, row)=>{
 											switch(action.eventtype){
@@ -1670,14 +1670,14 @@ class EventTable extends React.Component{
 												default:
 													return <div className="prompt"><FontAwesomeIcon icon={faNetworkWired} size={"lg"}/><label>{action.id}</label></div>
 											}
-											
+
 										}}/>
 										{timelineZoom}
 										{specialFields}
 										{commandElements}
 										{addElement}
 									</label>
-									
+
 									<div className="delete-event-div">
 										<button type="button" className="delete-button" onClick={this.deleteEvent}>DELETE EVENT</button>
 									</div>
@@ -1692,7 +1692,7 @@ class EventTable extends React.Component{
 		}
 
 		let groupElements = [];
-		
+
 
 		let groupKeys = Object.keys(groupObjects).sort();
 
@@ -1704,7 +1704,7 @@ class EventTable extends React.Component{
 				<div className="command-group" >
 					<div className={"command-group-label"+(searchEnabled?" expanded":"")} onClick={this.toggleGroup}>
 						{groupKeys[go]}
-						
+
 					</div>
 					<div className={"command-group-content"+(searchEnabled?"":" hidden")}>
 						<div className="command-group-actions" onClick={(e)=>{e.stopPropagation()}}>
@@ -1721,7 +1721,7 @@ class EventTable extends React.Component{
 				</div>
 			);
 		}
-		
+
 		return (
 			<form className="event-table">
 				<div className="event-search">
@@ -1747,5 +1747,3 @@ class EventTable extends React.Component{
 }
 
 export {EventTable};
-
-

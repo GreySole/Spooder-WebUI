@@ -47,7 +47,7 @@
 .settings-form-container,
 .asset-container{
     background-color: var(--tab-inactive-color);
-    
+
 }
 
 .no-plugins-div{
@@ -240,7 +240,7 @@
 .plugin-button.export,
 .asset-button{
     background-color:var(--button-color);
-    
+
 }
 
 .asset-button.refresh{
@@ -259,7 +259,7 @@
     margin: 15px;
     font-size: 24px;
     color: var(--text-color);
-    background-color: var(--button-plugin-color);
+    background-color: var(--color-primary);
     padding: 15px;
     border-radius:10px;
 }

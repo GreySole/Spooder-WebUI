@@ -3,7 +3,7 @@ import React from 'react';
 import {createRoot} from 'react-dom/client';
 import App from './React_Components/App.js';
 import './React_Components/reset.css';
-import './index.css';
+import './index.scss';
 import './React_Components/Tabs/CommandTable.css';
 import './React_Components/Tabs/TwitchTab.css';
 import './React_Components/Tabs/ConfigTab.css';

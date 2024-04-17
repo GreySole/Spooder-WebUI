@@ -43,11 +43,11 @@ class App extends React.Component {
 		}else if(defaultTabs != "nodefault"){
 			if(customSetupTab == null){customSetupTab = "commands"}
 		}
-		
+
 		if(urlParams.get("tab") != null){
 			customSetupTab = urlParams.get("tab");
 		}
-		
+
 		this.state = {
 			stateLoaded:false,
 			tab:customSetupTab,
@@ -56,7 +56,7 @@ class App extends React.Component {
 			tabOptions:{
 				"commands":"Events",
 				"plugins":"Plugins",
-				"osctunnels":"Tunnels", 
+				"osctunnels":"Tunnels",
 				"twitch":"Twitch",
 				"discord":"Discord",
 				"users":"Users",
@@ -96,11 +96,11 @@ class App extends React.Component {
 			},
 			udp_clients:{},
 			plugins:[],
-			
+
 		};
-		
+
 	}
-	
+
 	selectTab = this.selectTab.bind(this);
 	setTabContent = this.setTabContent.bind(this);
 	navigationClick = this.navigationClick.bind(this);
@@ -122,7 +122,7 @@ class App extends React.Component {
 				osc = new OSC({plugin: new OSC.WebsocketClientPlugin({host:serverData.host,port:serverData.port,secure:false})});
 				this.initOSC();
 			}
-			
+
 			let shares = {};
 			for(let s in serverData.shares){
 				if(serverData.activeShares != null){
@@ -135,18 +135,18 @@ class App extends React.Component {
 			}
 			serverData.shares = shares;
 			serverData.stateLoaded = true;
-			
+
 			this.setState(Object.assign(this.state, serverData));
 			this.setTabContent(this.state.tab);
-			
+
 		})
 		.catch(err => console.log(err))
-		
+
 	}
-	
+
 	initOSC(){
 		console.log("OPENING OSC");
-		
+
 		osc.on("open", () =>{
 			console.log("OSC OPEN", osc.status());
 			osc.send(new OSC.Message('/frontend/connect', 1.0));
@@ -156,7 +156,7 @@ class App extends React.Component {
 				this.setState(Object.assign(this.state, {"oscConnected":true}));
 				osc.send(new OSC.Message('/obs/get/obslogininfo', 1.0));
 			}
-			
+
 		});
 		osc.on('/obs/status/connection', (message) => {
 			this.setState(Object.assign(this.state, {"obsConnected":message.args[0]}));
@@ -177,7 +177,7 @@ class App extends React.Component {
 		})
 		osc.open();
 	}
-	
+
 	getServerState = async () => {
 		const response = await fetch("/server_state");
 		const serverStateRaw = await response.json();
@@ -198,16 +198,16 @@ class App extends React.Component {
 				var newurl = window.location.protocol + "//" + window.location.host + window.location.pathname + "?tab="+urlState.tab;
 			}
 		}else{
-			
+
 			var newurl = window.location.protocol + "//" + window.location.host + window.location.pathname;
 		}
 		window.history.pushState({path:newurl},'',newurl);
 	}
-	
+
 	selectTab(tab){
 		this.setTabContent(tab);
 	}
-	
+
 	setTabContent(tab){
 		this.setState(Object.assign(this.state, {
 			"tab":tab, "navOpen":false
@@ -237,12 +237,12 @@ class App extends React.Component {
 		}else{
 			newLoginInfo[e.target.name] = e.target.value;
 		}
-		
+
 		this.setState(Object.assign(this.state, {obsLoginInfo:newLoginInfo}));
 	}
 
 	connectOBS(){
-		
+
 		let rememberLogin = this.state.obsLoginInfo.remember != null? this.state.obsLoginInfo.remember:false;
 		osc.send(new OSC.Message("/obs/connectSocket", JSON.stringify({
 			url:this.state.obsLoginInfo.url,
@@ -367,7 +367,7 @@ class App extends React.Component {
 		}, dur);
 		this.setState(Object.assign(this.state, {toastText:txt, toastClass:tClass}));
 	}
-	
+
 	render(){
 
 		if(this.state.isExternal){
@@ -390,7 +390,7 @@ class App extends React.Component {
 
 		let tabContent = null;
 		let appMode = "setup";
-		
+
 		switch(this.state.tab){
 			case "commands":
 				tabContent = <EventTable parentState={this.state} setToast={this.setToast} />;
@@ -419,7 +419,7 @@ class App extends React.Component {
 			case "obs":
 				appMode = "deck";
 				if(this.state.oscConnected && this.state.obsConnected){
-					
+
 					tabContent = <div className="App-content deck">
 						<OutputController osc={osc} />
 						<SceneController osc={osc} />
@@ -427,9 +427,9 @@ class App extends React.Component {
 						<VolumeControl osc={osc} />
 					</div>;
 				}else{
-					
+
 					if(!this.state.oscConnected){
-						tabContent = 
+						tabContent =
 						<h1>Hold on...we're connecting to OSC</h1>
 					}else if(!this.state.obsConnected){
 						let obsLoginEl = null;
@@ -448,7 +448,7 @@ class App extends React.Component {
 							</label>
 							<button type="button" className="save-button" onClick={this.connectOBS}>Connect</button>
 						</div>;
-						
+
 						tabContent = <div className="App-content deck">
 							<h1 style={{fontSize:"24px"}}>OBS not connected!</h1><br></br>
 							<p>OBS is connected by Spooder itself. So only one connect is needed for all your Web UI clients.
@@ -457,14 +457,14 @@ class App extends React.Component {
 							</p>
 							{obsLoginEl}
 						</div>
-						
+
 					}
 				}
 				break;
 			case "osc":
 				appMode = "deck";
 				if(!this.state.oscConnected){
-					tabContent = 
+					tabContent =
 					<h1>Hold on...we're connecting to OSC</h1>
 				}else{
 					tabContent = <div className="App-content deck">
@@ -490,14 +490,14 @@ class App extends React.Component {
 		for(let t in this.state.tabOptions){
 			let tabName = this.state.tabOptions[t];
 			tabButtons.push(
-				<button type="button" name={t} className={"tab-button "+(this.state.tab==t?"selected":"")} onClick={()=>this.selectTab(t)}>{tabName}</button>
+				<button type="button" name={t} className={"tab-button "+(this.state.tab==t?"selected":"")} onClick={()=>this.selectTab(t)} key={crypto.randomUUID()}>{tabName}</button>
 			);
 		}
 		let deckButtons = [];
 		for(let d in this.state.deckTabOptions){
 			let tabName = this.state.deckTabOptions[d];
 			deckButtons.push(
-				<button type="button" name={d} className={"tab-button "+(this.state.tab==d?"selected":"")} onClick={()=>this.selectTab(d)}>{tabName}</button>
+				<button type="button" name={d} className={"tab-button "+(this.state.tab==d?"selected":"")} onClick={()=>this.selectTab(d)} key={crypto.randomUUID()}>{tabName}</button>
 			);
 		}
 		navigationTabs = <div className="navigation-tabs-mobile">
@@ -507,7 +507,7 @@ class App extends React.Component {
 										{tabButtons}
 									</div>
 								</div>
-								
+
 								<div className="navigation-tab-group">
 									<label>Deck</label>
 									<div className="navigation-buttons">
@@ -530,14 +530,14 @@ class App extends React.Component {
 				<div className="nav-share-entry" key={s}>
 					<label>{s}</label>
 					<button name={s}
-					className={"nav-share-button "+(this.state.shares[s]==false?"save-button":"delete-button")} 
+					className={"nav-share-button "+(this.state.shares[s]==false?"save-button":"delete-button")}
 					onClick={this.state.shares[s]==false?this.activateShare:this.deactivateShare}>
 						<FontAwesomeIcon icon={this.state.shares[s]==false?faPlay:faStop} size="lg"/>
 					</button>
 				</div>
 			)
 		}
-		
+
 		return <div className="App">
 					<div className={"navigation-menu "+(this.state.navOpen?"open":"")}>
 						{navigationTabs}
@@ -572,7 +572,7 @@ class App extends React.Component {
 								<span style={{color:this.state.themes.spooderpet.colors.longlegright}}>{this.state.themes.spooderpet.longlegright}</span>
 							</h1>
 						</div>
-						
+
 					</div>
 					{appContent}
 				</div>;

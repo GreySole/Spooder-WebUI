@@ -35,7 +35,7 @@
 .add-command-fields{
 	display:flex;
 	flex-flow:column;
-	
+
 }
 
 .add-command-form:not(.selected){
@@ -76,16 +76,6 @@
 	margin-top:5px;
 }
 
-.event-key-input{
-	font-size:18px;
-	padding:5px;
-}
-
-.group-name-input{
-	font-size:18px;
-	padding:5px;
-}
-
 option{
 	background-color:black;
 }
@@ -103,7 +93,7 @@ option{
 
 .command-table{
     background-color:var(--tab-active-color);
-	
+
 }
 
 .command-container{
@@ -130,17 +120,17 @@ option{
 }
 
 .command-element:not(.expanded):hover{
-	background-color:var(--command-hover-color);
+	background-color:var(--gray-700);
 }
 
 .command-element.expanded{
-	background-color:var(--command-expanded-color);
+	background-color:var(--gray-800);
 }
 
 .command-actions{
 	margin-left:15px;
 	align-self:flex-end;
-	
+
 }
 
 .command-key{
@@ -207,7 +197,7 @@ option{
 .command-arrows{
 	display:flex;
 	flex-direction:column;
-	
+
 }
 
 .type-label-conflicts{
@@ -293,7 +283,7 @@ option{
 
 .command-group-label:hover{
 	cursor:pointer;
-	background-color:var(--command-hover-color);
+	background-color:var(--gray-700);
 }
 
 .command-group.expanded .command-group-label{

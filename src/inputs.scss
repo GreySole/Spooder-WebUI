@@ -1,0 +1,182 @@
+div:has(>input + button) {
+	display: flex;
+	gap: 1rem;
+	flex-wrap: wrap;
+}
+
+label:not(.field-section):has(>input, >textarea, >select, >button, >.boolswitch) {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+
+    font-weight: bold;
+
+
+}
+
+input:not([type=checkbox]):not([type=radio]):not([type=range]),
+button,
+select {
+	font-size: 20px;
+	border: none;
+	padding: 0.5rem;
+	border-radius: var(--interactive-radius);
+
+    color: var(--black);
+
+    background-color: var(--white);
+    outline-offset: 0px;
+
+    box-shadow: 0 0 0 1px var(--gray-900);
+
+    transition: background-color 0.2s, color 0.2s, box-shadow 0.2s ease-in-out, outline-offset 0.2s ease-in-out, filter 0.2s, padding 0.2s ease-in-out, margin 0.2s ease-in-out;
+
+    &:focus-visible {
+        outline-offset: 4px;
+    }
+
+    &[type=color] {
+        appearance: none;
+        display: block;
+        padding: 0;
+
+        cursor: pointer;
+
+        aspect-ratio: 1;
+        height: 36px;
+        inline-size: unset;
+
+        box-shadow: 0 0 0 3px white;
+
+        &::-webkit-color-swatch-wrapper {
+            aspect-ratio: 1;
+            padding: 0;
+        }
+
+        &::-webkit-color-swatch {
+            border: none;
+            aspect-ratio: 1;
+            border-radius: var(--interactive-radius);
+        }
+
+        &:hover {
+            box-shadow: 0 0 0 5px white;
+        }
+    }
+}
+
+button {
+    --button-color: var(--color-primary);
+
+	color: var(--button-font-color);
+	background-color: var(--button-color);
+	font-size: 20px;
+
+	padding: 0.5rem 1rem;
+    box-shadow: 0 0 0 1px var(--button-color);
+
+	cursor: pointer;
+
+	&:hover {
+		filter: brightness(1.2);
+	}
+
+	&.add-button {
+
+		color: var(--button-font-color-analogous-cw);
+		--button-color: var(--color-analogous-cw);
+	}
+
+	&.save-button {
+
+		color: var(--button-font-color-analogous-ccw);
+		--button-color: var(--color-analogous-ccw);
+	}
+
+	&.command-button {
+		--button-color: var(--color-primary);
+	}
+
+	&.delete-button {
+        color: var(--white) !important;
+		--button-color: var(--color-delete) !important;
+	}
+}
+
+select {
+    appearance: none;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="black" width="18px" height="18px"><path d="M7 10l5 5 5-5z"/></svg>');
+    background-repeat: no-repeat;
+    background-position: right 0.5rem center;
+    background-size: 1.5rem;
+}
+
+a {
+	&:not(.link-override) {
+		color: var(--text-link-color);
+	}
+}
+
+.boolswitch {
+
+    display: flex;
+	font-size: 20px;
+	height: 1em;
+	width: 2em;
+	background: var(--gray-900);
+	border-radius: 1em;
+    position: relative;
+
+    overflow: visible;
+
+    &:before {
+        content: '';
+        position: absolute;
+        height: 100%;
+        width: 1em;
+	    border-radius: 1em;
+
+        background-color: var(--color-primary);
+        box-shadow: 0 0 0 0 var(--color-primary);
+
+        transition: width .3s ease-in-out;
+    }
+
+    &:after {
+        content: '';
+        height: 1em;
+		width: 1em;
+		border-radius: .5em;
+		background: var(--button-font-color);
+		box-shadow: 0 0.1em calc( 2px + 0.3em ) rgba(0, 0, 0, 0.5),
+                    0 0 0 2px var(--gray-100);
+
+        transform: translate3d(0, 0, 0);
+
+		transition: transform .3s ease-in-out;
+    }
+
+    &:has(>input:checked) {
+        &:before {
+            width: 2em;
+            box-shadow: 0 0 6px 0 var(--color-primary);
+        }
+
+        &:after {
+            transform: translate3d(1em, 0, 0);
+        }
+    }
+	input {
+		position: absolute;
+		opacity: 0;
+		&:checked + div {
+			-webkit-transform: translate3d(100%, 0, 0);
+			-moz-transform: translate3d(100%, 0, 0);
+			transform: translate3d(100%, 0, 0);
+		}
+	}
+
+	div {
+		display: none !important;
+	}
+}

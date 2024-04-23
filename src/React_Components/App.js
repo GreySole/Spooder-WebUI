@@ -10,7 +10,7 @@ import { UserTab } from './Tabs/UserTab.js';
 import { ThemeTab } from './Tabs/ThemeTab.js';
 import OSC from 'osc-js';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBars, faArrowRight, faPlay, faStop, faTimes, fa } from '@fortawesome/free-solid-svg-icons';
+import { faBars, faArrowRight, faPlay, faStop, faTimes, faWarning, fa } from '@fortawesome/free-solid-svg-icons';
 
 import { VolumeControl } from './Deck/VolumeControl.js';
 import { OutputController } from './Deck/OutputController.js';
@@ -72,8 +72,6 @@ function hexToRGBArray(color) {
 	let rgb = [];
 	for (let i = 0; i <= 2; i++) rgb[i] = parseInt(color.substr(i * 2, 2), 16);
 
-    console.log({hexToRGBArray: {color, rgb} });
-
 	return rgb;
 }
 
@@ -84,9 +82,8 @@ const rgbToHsl = (r, g, b) => {
 	const l = Math.max(r, g, b);
 	const s = l - Math.min(r, g, b);
 	const h = s ? (l === r ? (g - b) / s : l === g ? 2 + (b - r) / s : 4 + (r - g) / s) : 0;
-    const hsl = [60 * h < 0 ? 60 * h + 360 : 60 * h, 100 * (s ? (l <= 0.5 ? s / (2 * l - s) : s / (2 - (2 * l - s))) : 0), (100 * (2 * l - s)) / 2];
+	const hsl = [60 * h < 0 ? 60 * h + 360 : 60 * h, 100 * (s ? (l <= 0.5 ? s / (2 * l - s) : s / (2 - (2 * l - s))) : 0), (100 * (2 * l - s)) / 2];
 
-    console.log({rgbToHsl: {color: [r,g,b], hsl} });
 	return hsl;
 };
 
@@ -97,33 +94,28 @@ const hslToRgb = (h, s, l) => {
 	const a = s * Math.min(l, 1 - l);
 	const f = n => l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
 
-    const rgb = [f(0), f(8), f(4)].map(v => Math.round(v * 255));
-
-    console.log({hslToRgb: {color: [h,s,l], rgb} });
+	const rgb = [f(0), f(8), f(4)].map(v => Math.round(v * 255));
 
 	return rgb;
 };
 
-let savedThemeColor = localStorage.getItem('themeColor');
-savedThemeColor = savedThemeColor ? savedThemeColor : '#006e6e';
+let savedThemeColor = JSON.parse(localStorage.getItem('themeColor'));
 
-const setThemeColors = color => {
-	let savedThemeColor = color || localStorage.getItem('themeColor');
+savedThemeColor = savedThemeColor || '#006e6e';
 
-    localStorage.setItem('themeColor', savedThemeColor);
+const setThemeColors = (color = savedThemeColor) => {
+	localStorage.setItem('themeColor', JSON.stringify(color));
 
-	document.documentElement.style.setProperty('--color-primary', savedThemeColor);
-	document.documentElement.style.setProperty('--button-font-color', contrastingColor(savedThemeColor));
+	document.documentElement.style.setProperty('--color-primary', color);
+	document.documentElement.style.setProperty('--button-font-color', contrastingColor(color));
 
-	let cwAnalogousColor = rgbToHex(...hslToRgb(...rgbToHsl(...hexToRGBArray(savedThemeColor)).map((v, i) => (i === 0 ? (v + 30) % 360 : v))));
-	let ccwAnalogousColor = rgbToHex(...hslToRgb(...rgbToHsl(...hexToRGBArray(savedThemeColor)).map((v, i) => (i === 0 ? (v - 30) % 360 : v))));
-
-    console.log({savedThemeColor, cwAnalogousColor, ccwAnalogousColor});
+	let cwAnalogousColor = rgbToHex(...hslToRgb(...rgbToHsl(...hexToRGBArray(color)).map((v, i) => (i === 0 ? (v + 30) % 360 : v))));
+	let ccwAnalogousColor = rgbToHex(...hslToRgb(...rgbToHsl(...hexToRGBArray(color)).map((v, i) => (i === 0 ? (v - 30) % 360 : v))));
 
 	document.documentElement.style.setProperty('--color-analogous-cw', cwAnalogousColor);
 	document.documentElement.style.setProperty('--color-analogous-ccw', ccwAnalogousColor);
-    document.documentElement.style.setProperty('--button-font-color-analogous-cw', contrastingColor(cwAnalogousColor));
-    document.documentElement.style.setProperty('--button-font-color-analogous-ccw', contrastingColor(ccwAnalogousColor));
+	document.documentElement.style.setProperty('--button-font-color-analogous-cw', contrastingColor(cwAnalogousColor));
+	document.documentElement.style.setProperty('--button-font-color-analogous-ccw', contrastingColor(ccwAnalogousColor));
 };
 
 class App extends React.Component {
@@ -677,9 +669,7 @@ class App extends React.Component {
 				<div className={'navigation-menu ' + (this.state.navOpen ? 'open' : '')}>
 					{navigationTabs}
 					<div className="chat-actions">
-						<div style={{ display: 'flex', alignItems: 'center' }}>
-							Stay Here <BoolSwitch name="stayhere" onChange={this.stayHere} checked={urlParams.get('tab') != null} />
-						</div>
+							<BoolSwitch name="stayhere" onChange={this.stayHere} checked={urlParams.get('tab') != null} label="Stay Here"/>
 						<div>
 							Plugins{' '}
 							<button type="button" className="nav-restart-chat-button" onClick={this.refreshPlugins}>
@@ -704,10 +694,11 @@ class App extends React.Component {
 							<FontAwesomeIcon icon={this.state.navOpen ? faTimes : faBars} size="2x" />
 						</div>
 						<div className="toast-text">{this.state.toastText}</div>
-                        <label>
-                            Theme Color:
-						    <input type="color" value={this.state.themeColor} onChange={this.changeThemeColor} title="Change Theme Color" onClick={e => e.stopPropagation()} />
-                        </label>
+						<label>
+							Theme Color:
+							<input type="color" value={this.state.themeColor} onChange={this.changeThemeColor} title="Change Theme Color" onClick={e => e.stopPropagation()} />
+                            {/* {(luma(this.state.themeColor) < .01) && <FontAwesomeIcon icon={faWarning} size="1x" />} */}
+						</label>
 						<h1 className="App-title">
 							<span style={{ color: this.state.themes.spooderpet.colors.longlegleft }}>{this.state.themes.spooderpet.longlegleft}</span>
 							<span style={{ color: this.state.themes.spooderpet.colors.shortlegleft }}>{this.state.themes.spooderpet.shortlegleft}</span>

@@ -132,12 +132,6 @@ body {
 	display: flex;
 	flex-flow: column;
 	font-size: 24px;
-	background-color: var(--asset-entry-color);
-	input {
-		margin: 10px;
-		width: 300px;
-		font-size: 18px;
-	}
 }
 
 .deck-mode-button {

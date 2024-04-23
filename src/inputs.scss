@@ -1,20 +1,18 @@
-div:has(>input + button) {
+div:has(> input + button) {
 	display: flex;
 	gap: 1rem;
 	flex-wrap: wrap;
 }
 
-label:not(.field-section):has(>input, >textarea, >select, >button, >.boolswitch) {
-    display: flex;
-    align-items: center;
-    gap: .75rem;
+label:not(.field-section):has(> input, > textarea, > select, > button, > .boolswitch) {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
 
-    font-weight: bold;
-
-
+	font-weight: bold;
 }
 
-input:not([type=checkbox]):not([type=radio]):not([type=range]),
+input:not([type='checkbox']):not([type='radio']):not([type='range']),
 button,
 select {
 	font-size: 20px;
@@ -22,58 +20,58 @@ select {
 	padding: 0.5rem;
 	border-radius: var(--interactive-radius);
 
-    color: var(--black);
+	color: var(--black);
 
-    background-color: var(--white);
-    outline-offset: 0px;
+	background-color: var(--white);
+	outline-offset: 0px;
 
-    box-shadow: 0 0 0 1px var(--gray-900);
+	box-shadow: 0 0 0 1px var(--gray-900);
 
-    transition: background-color 0.2s, color 0.2s, box-shadow 0.2s ease-in-out, outline-offset 0.2s ease-in-out, filter 0.2s, padding 0.2s ease-in-out, margin 0.2s ease-in-out;
+	transition: background-color 0.2s, color 0.2s, box-shadow 0.2s ease-in-out, outline-offset 0.2s ease-in-out, filter 0.2s, padding 0.2s ease-in-out, margin 0.2s ease-in-out;
 
-    &:focus-visible {
-        outline-offset: 4px;
-    }
+	&:focus-visible {
+		outline-offset: 4px;
+	}
 
-    &[type=color] {
-        appearance: none;
-        display: block;
-        padding: 0;
+	&[type='color'] {
+		appearance: none;
+		display: block;
+		padding: 0;
 
-        cursor: pointer;
+		cursor: pointer;
 
-        aspect-ratio: 1;
-        height: 36px;
-        inline-size: unset;
+		aspect-ratio: 1;
+		height: 36px;
+		inline-size: unset;
 
-        box-shadow: 0 0 0 3px white;
+		box-shadow: 0 0 0 3px white;
 
-        &::-webkit-color-swatch-wrapper {
-            aspect-ratio: 1;
-            padding: 0;
-        }
+		&::-webkit-color-swatch-wrapper {
+			aspect-ratio: 1;
+			padding: 0;
+		}
 
-        &::-webkit-color-swatch {
-            border: none;
-            aspect-ratio: 1;
-            border-radius: var(--interactive-radius);
-        }
+		&::-webkit-color-swatch {
+			border: none;
+			aspect-ratio: 1;
+			border-radius: var(--interactive-radius);
+		}
 
-        &:hover {
-            box-shadow: 0 0 0 5px white;
-        }
-    }
+		&:hover {
+			box-shadow: 0 0 0 5px white;
+		}
+	}
 }
 
 button {
-    --button-color: var(--color-primary);
+	--button-color: var(--color-primary);
 
 	color: var(--button-font-color);
 	background-color: var(--button-color);
 	font-size: 20px;
 
 	padding: 0.5rem 1rem;
-    box-shadow: 0 0 0 1px var(--button-color);
+	box-shadow: 0 0 0 1px var(--button-color);
 
 	cursor: pointer;
 
@@ -82,13 +80,11 @@ button {
 	}
 
 	&.add-button {
-
 		color: var(--button-font-color-analogous-cw);
 		--button-color: var(--color-analogous-cw);
 	}
 
 	&.save-button {
-
 		color: var(--button-font-color-analogous-ccw);
 		--button-color: var(--color-analogous-ccw);
 	}
@@ -98,17 +94,21 @@ button {
 	}
 
 	&.delete-button {
-        color: var(--white) !important;
+		color: var(--white) !important;
 		--button-color: var(--color-delete) !important;
 	}
 }
 
 select {
-    appearance: none;
-    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="black" width="18px" height="18px"><path d="M7 10l5 5 5-5z"/></svg>');
-    background-repeat: no-repeat;
-    background-position: right 0.5rem center;
-    background-size: 1.5rem;
+	appearance: none;
+	background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="black" width="18px" height="18px"><path d="M7 10l5 5 5-5z"/></svg>');
+	background-repeat: no-repeat;
+	background-position: right 0.5rem center;
+	background-size: 1.5rem;
+
+	option {
+		color: var(--black);
+	}
 }
 
 a {
@@ -118,62 +118,112 @@ a {
 }
 
 .boolswitch {
+	display: flex;
+	position: relative;
 
-    display: flex;
 	font-size: 20px;
-	height: 1em;
-	width: 2em;
-	background: var(--gray-900);
-	border-radius: 1em;
-    position: relative;
 
-    overflow: visible;
+	cursor: pointer;
 
-    &:before {
-        content: '';
-        position: absolute;
-        height: 100%;
-        width: 1em;
-	    border-radius: 1em;
+	overflow: visible;
 
-        background-color: var(--color-primary);
+	input {
+        --v-size: 1em;
+        --size-ratio: 2;
+        --h-size: calc(var(--size-ratio) * var(--v-size));
+        --border-size: 2px;
+
+        position: relative;
+        display: block;
+		height: var(--v-size);
+		width: calc(2 * var(--v-size));
+
+		background: var(--gray-900);
+
+		border: var(--border-size) solid var(--gray-500);
+		border-radius: calc(0.5 * var(--v-size));
+
         box-shadow: 0 0 0 0 var(--color-primary);
 
-        transition: width .3s ease-in-out;
-    }
+        cursor: pointer;
 
-    &:after {
-        content: '';
-        height: 1em;
-		width: 1em;
-		border-radius: .5em;
-		background: var(--button-font-color);
-		box-shadow: 0 0.1em calc( 2px + 0.3em ) rgba(0, 0, 0, 0.5),
-                    0 0 0 2px var(--gray-100);
+		outline-offset: 0px;
 
-        transform: translate3d(0, 0, 0);
+        transition: outline .2s ease, outline-offset .2s ease-in-out, box-shadow .1s ease-in-out;
 
-		transition: transform .3s ease-in-out;
-    }
-
-    &:has(>input:checked) {
+        // Toggle switch on BG color
         &:before {
-            width: 2em;
-            box-shadow: 0 0 6px 0 var(--color-primary);
+            content: '';
+            display: block;
+            position: absolute;
+
+            left: 0;
+            height: calc(var(--v-size) - 2 * var(--border-size));
+            width: calc(var(--v-size) - 2 * var(--border-size));
+            border-radius: calc(0.5 * var(--v-size));
+
+            background-color: var(--color-primary);
+
+            transition: width 0.1s ease-in-out, box-shadow 0.1s ease-in-out;
         }
 
+        // Toggle switch nub
         &:after {
-            transform: translate3d(1em, 0, 0);
+            content: '';
+            display: block;
+            position: absolute;
+
+            margin: calc(-1 * var(--border-size));
+
+            height: var(--v-size);
+            width: var(--v-size);
+            left: 0;
+            border-radius: calc(0.5 * var(--v-size));
+            background: var(--white);
+            box-shadow: 0 0.1em calc(2px + 0.3em) rgba(0, 0, 0, 0.5), 0 0 0 2px var(--gray-100);
+
+            transition: left 0.1s ease-in-out;
+
+            // For testing
+            // opacity: 0.25;
         }
-    }
-	input {
-		position: absolute;
-		opacity: 0;
-		&:checked + div {
-			-webkit-transform: translate3d(100%, 0, 0);
-			-moz-transform: translate3d(100%, 0, 0);
-			transform: translate3d(100%, 0, 0);
-		}
+
+        &:hover,
+        &:focus {
+            &:before {
+                width: calc(var(--v-size) - var(--border-size));
+            }
+            &:after {
+                left: var(--border-size);
+            }
+        }
+
+        &:focus-visible {
+            outline: var(--border-size) solid var(--color-primary);
+            outline-offset: calc(2 * var(--border-size));
+        }
+
+        &:checked {
+            box-shadow: 0 0 6px 0 var(--color-primary);
+
+            &:before {
+                width: calc(var(--h-size) - 2 * var(--border-size));
+            }
+
+            &:after {
+                left: var(--v-size);
+            }
+
+            &:hover,
+            &:focus {
+                &:before {
+                    width: calc(var(--h-size) - 3 * var(--border-size));
+                }
+                &:after {
+                    left: calc(var(--h-size) - var(--v-size) - var(--border-size));
+                }
+            }
+        }
 	}
 
 	div {

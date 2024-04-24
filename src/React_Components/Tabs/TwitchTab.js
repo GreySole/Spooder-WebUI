@@ -6,64 +6,6 @@ import LoadingCircle from '../UI/LoadingCircle';
 var _reoccuringMessageCount = 0;
 var authMessageHidden = false;
 
-let scopes = [
-	'channel:moderate',
-	'chat:read',
-	'chat:edit', 
-	'whispers:read', 
-	'whispers:edit', 
-	'analytics:read:extensions', 
-	'analytics:read:games', 
-	'bits:read', 
-	'channel:edit:commercial', 
-	'channel:manage:broadcast', 
-	'channel:read:charity', 
-	'channel:manage:extensions', 
-	'channel:manage:moderators', 
-	'channel:manage:polls', 
-	'channel:manage:predictions', 
-	'channel:manage:raids', 
-	'channel:manage:redemptions', 
-	'channel:manage:schedule', 
-	'channel:manage:videos', 
-	'channel:read:editors', 
-	'channel:read:goals', 
-	'channel:read:hype_train', 
-	'channel:read:polls', 
-	'channel:read:predictions', 
-	'channel:read:redemptions', 
-	'channel:read:stream_key', 
-	'channel:read:subscriptions', 
-	'channel:read:vips', 
-	'channel:manage:vips', 
-	'clips:edit', 
-	'moderation:read', 
-	'moderator:manage:announcements', 
-	'moderator:manage:automod',
-	'moderator:read:automod_settings', 
-	'moderator:manage:automod_settings', 
-	'moderator:manage:banned_users', 
-	'moderator:read:blocked_terms',
-	'moderator:manage:chat_messages',
-	'moderator:read:chat_settings',
-	'moderator:manage:chat_settings',
-	'moderator:read:chatters',
-	'moderator:read:shield_mode',
-	'moderator:manage:shield_mode',
-	'moderator:read:shoutouts',
-	'moderator:manage:shoutouts',
-	'user:edit',
-	'user:edit:follows',
-	'user:manage:blocked_users',
-	'user:read:blocked_users',
-	'user:read:broadcast',
-	'user:manage:chat_color',
-	'user:read:email',
-	'user:read:follows',
-	'user:read:subscriptions',
-	'user:manage:whispers'
-   ];
-
 class TwitchTab extends React.Component{
 
 	constructor(props){
@@ -303,9 +245,12 @@ class TwitchTab extends React.Component{
 			return <LoadingCircle></LoadingCircle>
 		}
 		
-		let chatAuthButton = <a className={window.location.hostname!="localhost"||this.state["client-id"]==null||this.state["client-id"]==""?"disabled":""} 
+		let chatAuthButton = null;
+		if(this.state.scopeList != null){
+			chatAuthButton = <a className={window.location.hostname!="localhost"||this.state["client-id"]==null||this.state["client-id"]==""?"disabled":""} 
 		key={this.state["client-id"]+this.state["client-secret"]}
-		href={"https://id.twitch.tv/oauth2/authorize?client_id="+this.state["client-id"]+"&redirect_uri=http://localhost:"+this.state.host_port+"/twitch/authorize&response_type=code&scope="+scopes.join(" ")}><button type="button" className='command-button' disabled={window.location.hostname!="localhost"||this.state["client-id"]==null||this.state["client-id"]==""}>{this.state["token"] != null ? "Replace" : "Authorize"}</button></a>;
+		href={"https://id.twitch.tv/oauth2/authorize?client_id="+this.state["client-id"]+"&redirect_uri=http://localhost:"+this.state.host_port+"/twitch/authorize&response_type=code&scope="+this.state.scopeList.join(" ")}><button type="button" className='command-button' disabled={window.location.hostname!="localhost"||this.state["client-id"]==null||this.state["client-id"]==""}>{this.state["token"] != null ? "Replace" : "Authorize"}</button></a>;
+		}
 
 		let chatRevokeButton = <button className='delete-button' onClick={this.revokeBroadcasterAuth}>Revoke</button>
 		let broadCopyButton = <button className='command-button' onClick={this.saveAuthToBroadcaster} disabled={window.location.hostname!="localhost"||this.state["client-id"]==null||this.state["client-id"]==""}>Copy from Chat Bot</button>;

@@ -44,6 +44,7 @@ class EventTable extends React.Component{
 		this.deleteEvent = this.deleteEvent.bind(this);
 		this.deleteGroup = this.deleteGroup.bind(this);
 		this.getCustomRewards = this.getCustomRewards.bind(this);
+		this.getEventsubList = this.getEventsubList.bind(this);
 		this.getOBSChannels = this.getOBSChannels.bind(this);
 		this.getDiscordChannels = this.getDiscordChannels.bind(this);
 		this.checkEventTaken = this.checkEventTaken.bind(this);
@@ -217,6 +218,7 @@ class EventTable extends React.Component{
 					_plugins:commandData.plugins ?? {}
 				}));
 			this.getCustomRewards();
+			this.getEventsubList();
 			this.getOBSChannels();
 			this.getDiscordChannels();
 		})
@@ -641,14 +643,6 @@ class EventTable extends React.Component{
 		let rewardsRaw = await fetch('/twitch/get_channelpoint_rewards')
 		.then(response => response.json());
 
-		if(rewardsRaw.message == 'OAuth token is missing'){
-			console.log("You need to set a broadcaster oauth token to get custom rewards. \
-			If you're logged into chat with a bot account, you will need to log out of Twitch.tv and log in as your broadcaster.\
-			Authorize the broadcaster account here. Then go to the Config tab and click 'Save Oauth to Broadcaster.'\
-			Log out of Twitch and back in as the bot account. Close Spooder and run again with 'npm run start-noautologin'\
-			Then you can authorize your bot account as the main token and keep the broadcaster token on file.");
-		}
-
 		if(rewardsRaw.data==null){return;}
 
 		let rewards = rewardsRaw.data.sort((a,b)=>{
@@ -663,6 +657,16 @@ class EventTable extends React.Component{
 
 		let newState = Object.assign(this.state);
 		newState._rewards = rewards;
+		this.setState(newState);
+	}
+
+	async getEventsubList(){
+		let eventsubRaw = await fetch('/twitch/eventsubs/list')
+		.then(response => response.json());
+
+		console.log("EVENTSUBS", eventsubRaw);
+		let newState = Object.assign(this.state);
+		newState._eventsubs = eventsubRaw;
 		this.setState(newState);
 	}
 
@@ -788,7 +792,11 @@ class EventTable extends React.Component{
 			}
 		}
 
-		let pluginOptions = [];
+		let pluginOptions = [
+			<option value={null}>
+				Choose Plugin
+			</option>
+		];
 		if(this.state._plugins != null){
 			let plugins = this.state._plugins;
 			let sortedPlugins = Object.values(plugins).sort();
@@ -893,16 +901,16 @@ class EventTable extends React.Component{
 			}
 
 			let eventsubOptions = [];
-			for(let e in this.eventsubs){
+			for(let e in this.state._eventsubs){
 				eventsubOptions.push(
-					<option value={e}>{this.eventsubs[e]}</option>
+					<option value={e}>{this.state._eventsubs[e]}</option>
 				);
 			}
 			
 			let twitchType = eventTriggers.twitch.enabled == true ?
 			<label className="label-switch">
 				Type:
-				<select name="type" defaultValue={eventTriggers.twitch.type} onChange={this.handleChange}>
+				<select key={"eventsubs-"+eventsubOptions.length} name="type" defaultValue={eventTriggers.twitch.type} onChange={this.handleChange}>
 					<option value="redeem">Channel Point Redeem</option>
 					{eventsubOptions}
 				</select>
@@ -1258,7 +1266,11 @@ class EventTable extends React.Component{
 																		Duration (Seconds):
 																		<input type="number" name="duration" key={s} value={eventCommands[c].duration} onChange={this.handleChange} />
 																	</label>:null;
-						let inputItemOptions = [];
+						let inputItemOptions = [
+							<option value={null}>
+									Choose Input
+							</option>
+						];
 						for(let i in this.state._obs.inputs){
 							inputItemOptions.push(
 								<option value={this.state._obs.inputs[i].inputName}>
@@ -1267,7 +1279,11 @@ class EventTable extends React.Component{
 							);
 						}
 						
-						let sceneOptions = [];
+						let sceneOptions = [
+							<option value={null}>
+									Choose Scene
+							</option>
+						];
 						for(let s in this.state._obs.scenes){
 							sceneOptions.push(
 								<option value={this.state._obs.scenes[s].sceneName}>
@@ -1275,12 +1291,22 @@ class EventTable extends React.Component{
 								</option>
 							);
 						}
-
-						let sceneItemOptions = [];
-						for(let si in this.state._obs.sceneItems[eventCommands[c].scene]?.sceneItems){
+						
+						let sceneItemOptions = [
+							<option value={null}>
+									Choose Item
+							</option>
+						];
+						let sceneIndex = -1;
+						for(let s in this.state._obs.scenes){
+							if(eventCommands[c].scene == this.state._obs.scenes[s].sceneName){
+								sceneIndex = s;
+							}
+						}
+						for(let si in this.state._obs.sceneItems[sceneIndex]){
 							sceneItemOptions.push(
-								<option value={this.state._obs.sceneItems[eventCommands[c].scene].sceneItems[si].sceneItemId}>
-									{this.state._obs.sceneItems[eventCommands[c].scene].sceneItems[si].sourceName}
+								<option value={this.state._obs.sceneItems[sceneIndex][si].sceneItemId}>
+									{this.state._obs.sceneItems[sceneIndex][si].sourceName}
 								</option>
 							)
 						}

@@ -6,7 +6,7 @@ class BoolSwitch extends React.Component {
 		this.state = { ...props };
 		this.toggleSwitch = this.toggleSwitch.bind(this);
 
-        this.state.id = this.state.id || crypto.randomUUID()
+        this.state.id = this.state.id || Math.random()
 	}
 
 	toggleSwitch = e => {

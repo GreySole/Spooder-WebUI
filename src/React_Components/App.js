@@ -614,7 +614,7 @@ class App extends React.Component {
 		const tabButtons = Object.keys(this.state.tabOptions).map((tab, index) => {
 			const tabLabel = this.state.tabOptions[tab];
 			return (
-				<TabButton tabState={this.state.tab} tabName={tab} onClick={() => this.selectTab(tab)} key={`tab-button-${tabLabel}-${crypto.randomUUID()}`}>
+				<TabButton tabState={this.state.tab} tabName={tab} onClick={() => this.selectTab(tab)} key={`tab-button-${tabLabel}-${Math.random()}`}>
 					{tabLabel}
 				</TabButton>
 			);
@@ -624,7 +624,7 @@ class App extends React.Component {
 		for (let d in this.state.deckTabOptions) {
 			let tabName = this.state.deckTabOptions[d];
 			deckButtons.push(
-				<button type="button" name={d} className={'tab-button ' + (this.state.tab == d ? 'selected' : '')} onClick={() => this.selectTab(d)} key={crypto.randomUUID()}>
+				<button type="button" name={d} className={'tab-button ' + (this.state.tab == d ? 'selected' : '')} onClick={() => this.selectTab(d)} key={Math.random()}>
 					{tabName}
 				</button>
 			);

@@ -1,8 +1,7 @@
 import React from 'react';
-import './PluginTab.css';
 import '../PluginSettings/SettingsForm.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCog, faTrash, faPlusCircle, faUpload, faSync, faSpider, 
+import { faCog, faTrash, faPlusCircle, faUpload, faSync, faSpider,
 	faFile, faDownload, faFileImport, faCircleInfo, faArrowLeft, faHouse, faArrowUp,
 	faFolder,  faVolumeHigh, faImage, faCircleNotch, faTriangleExclamation} from '@fortawesome/free-solid-svg-icons';
 import LinkButton from "../UI/LinkButton.js";
@@ -36,7 +35,7 @@ class PluginTab extends React.Component {
 		};
 		this.state["_fileProgressStatus"] = {};
 		this.state["_fileProgressListeners"]= {};
-		
+
 		this.hiddenFileInput = React.createRef();
 		this.hiddenAssetInput = React.createRef();
 		this.onPluginChange = this.onPluginChange.bind(this);
@@ -95,13 +94,13 @@ class PluginTab extends React.Component {
 		fetch("/plugins")
 		.then(response => response.json())
 		.then(data => {
-			
+
 			this.setState(Object.assign(this.state, {stateLoaded:true, plugins:data, udpClients:this.props.parentState["udpClients"], _fileProgressListeners:newListeners}));
 		})
 		let newListeners = Object.assign(this.state._fileProgressListeners);
 			newListeners.progress = this.osc.on("/frontend/plugin/install/progress", (message) => {
 				let progressObj = JSON.parse(message.args[0]);
-				
+
 				let newPlugins = Object.assign({}, this.state.plugins);
 				console.log("PROGRESS", newPlugins, this.state);
 				newPlugins[progressObj.pluginName] = Object.assign(newPlugins[progressObj.pluginName], {
@@ -119,10 +118,10 @@ class PluginTab extends React.Component {
 					status:progressObj.status,
 					message:progressObj.message
 				});
-				this.setState(Object.assign(this.state, {plugins:newPlugins}), 
+				this.setState(Object.assign(this.state, {plugins:newPlugins}),
 				()=>{this.reloadPlugins(progressObj.pluginName)});
 			});
-		
+
 	}
 
 	componentWillUnmount(){
@@ -155,13 +154,13 @@ class PluginTab extends React.Component {
 		let uploadReq = await fetch('/upload_plugin_asset/'+assetPath, requestOptions)
 			.then(response => response.json());
 		let newState = Object.assign(this.state.plugins);
-		
+
 		newState[this.state._openAssets]["assets"] = uploadReq["newAssets"];
 		this.setState(Object.assign(this.state, {plugins:newState}));
 	}
 
 	reloadPlugins = async (newplugin) => {
-		
+
 		const response = await fetch("/plugins");
 		const pluginDataRaw = await response.json();
 
@@ -218,8 +217,8 @@ class PluginTab extends React.Component {
 				}
 			}
 		}
-		
-		
+
+
 		fd.append("internalName", internalName);
 		const requestOptions = {
 			method: 'POST',
@@ -234,7 +233,7 @@ class PluginTab extends React.Component {
 				}
 			})
 
-		
+
 
 		let newPlugins = Object.assign({}, this.state.plugins);
 		newPlugins[internalName] = {
@@ -252,7 +251,7 @@ class PluginTab extends React.Component {
 
 	pluginInfo = (e) => {
 		let plugin = e.target.closest(".plugin-entry").id;
-		
+
 		if(plugin == this.state._openInfo){
 			this.setState(Object.assign(this.state, {"_openInfo":null}));
 		}else{
@@ -294,7 +293,7 @@ class PluginTab extends React.Component {
 	}
 
 	savePlugin = async (pluginName, newData) => {
-		
+
 		const requestOptions = {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
@@ -336,15 +335,15 @@ class PluginTab extends React.Component {
 	}
 
 	deletePlugin = (e) => {
-		
+
 		let pluginEl = e.target.closest(".plugin-entry");
 		pluginEl.classList.add("deleting");
 		let pluginID = pluginEl.id;
 		let confirmation = window.confirm("Are you sure you want to delete "+pluginID+"?");
 		if (confirmation == false) { return; }
-		
+
 		let currentPlugins = {...this.state.plugins};
-		
+
 
 		const requestOptions = {
 			method: 'POST',
@@ -363,7 +362,7 @@ class PluginTab extends React.Component {
 					})
 				}
 			})
-		
+
 	}
 
 	renderSettings(name, sForm) {
@@ -381,7 +380,7 @@ class PluginTab extends React.Component {
 					thisSettings.assets = assets;
 					return thisSettings;
 				}
-				
+
 				return <iframe id={name+"SettingsForm"} className='settings-form-html' src={window.location.origin+"/settings/"+name}></iframe>;
 			}else{
 
@@ -400,18 +399,18 @@ class PluginTab extends React.Component {
 
 		let assetName = e.target.closest(".asset-entry").id;
 
-		
+
 		let assetFilePreview = path.join(this.state.plugins[this.state._openAssets].assetBrowserPath, assetName);
 		if(window.getMediaType(assetName) == "sound"){
 			this.setState(Object.assign(this.state, {_assetFilePreview:assetFilePreview}),function(){
 				this.audioPreviewRef.current.pause();
 				this.audioPreviewRef.current.load();
 		   });
-			
+
 		}else{
 			this.setState(Object.assign(this.state, {_assetFilePreview:assetFilePreview}));
 		}
-		
+
 	}
 
 	async deleteAsset(e){
@@ -441,7 +440,7 @@ class PluginTab extends React.Component {
 			}else{
 				folderPath = path.join(this.state.plugins[this.state._openAssets].assetBrowserPath,e);
 			}
-			
+
 		}else if(e == null){
 			folderPath = path.join(this.state.plugins[this.state._openAssets].assetBrowserPath);
 		}else{
@@ -464,15 +463,15 @@ class PluginTab extends React.Component {
 				newPlugins[name].assets = data.dirs.sort((a,b)=>{
 					const assetA = a.toUpperCase();
 					const assetB = b.toUpperCase();
-		
+
 					if(assetA<assetB){
 						return -1;
 					}
-		
+
 					if(assetB>assetA){
 						return 1
 					}
-		
+
 					return 0;
 				});
 				this.setState(Object.assign(this.state, {plugins:newPlugins}));
@@ -489,7 +488,7 @@ class PluginTab extends React.Component {
 			this.getAssets(name, this.state.plugins[name].assetBrowserPath);
 			return null;
 		}
-		
+
 		if(isOpen){
 			let pluginAssets = this.state.plugins[name].assets;
 			let fileTable = [];
@@ -570,10 +569,10 @@ class PluginTab extends React.Component {
 		let uploadReq = await fetch('/upload_plugin_icon/'+pluginName, requestOptions)
 			.then(response => response.json());
 
-			
+
 		this.reloadPlugins();
 		/*let newState = Object.assign(this.state.plugins);
-		
+
 		newState[this.state._openAssets]["assets"] = uploadReq["newAssets"];
 		this.setState(Object.assign(this.state, {plugins:newState}));*/
 
@@ -581,7 +580,7 @@ class PluginTab extends React.Component {
 
 	renderInfoView(name){
 		let isOpen = name == this.state._openInfo;
-		
+
 		if(isOpen){
 			let dependenciesElements = null;
 			let dependenciesElement = null;
@@ -606,7 +605,7 @@ class PluginTab extends React.Component {
 				</div>;
 			}
 			return <div className="info-container">
-				
+
 				<div className="info-description">
 					<label>Description</label>
 					{this.state.plugins[name].description}
@@ -634,7 +633,7 @@ class PluginTab extends React.Component {
 	}
 
 	createPlugin(e){
-		
+
 		e.preventDefault();
 
 		let internalName = this.state._openCreate.pluginname.toLowerCase().replaceAll(/[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/g,"").replaceAll(" ","_");
@@ -652,8 +651,8 @@ class PluginTab extends React.Component {
 				internalName+=renameCount;
 			}
 		}
-		
-		
+
+
 		fetch("/create_plugin", {
 			method:"POST",
 			headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
@@ -670,7 +669,7 @@ class PluginTab extends React.Component {
 				return;
 			}
 		});
-		
+
 		let newPlugins = Object.assign({}, this.state.plugins);
 		newPlugins[internalName] = {
 			name: this.state._openCreate.pluginname,
@@ -679,7 +678,7 @@ class PluginTab extends React.Component {
 			status:"start",
 			message:"installing..."
 		};
-		
+
 		let newOpenCreate = {
 			isOpen:false,
 			pluginname:"",
@@ -760,7 +759,7 @@ class PluginTab extends React.Component {
 										</div>
 									</div>
 									<div className="plugin-button-ui">
-										
+
 										<div className="plugin-button info" onClick={this.pluginInfo}><FontAwesomeIcon icon={faCircleInfo} size="lg" /></div>
 										<div className="plugin-button delete" onClick={this.deletePlugin}><FontAwesomeIcon icon={faTrash} size="lg" /></div>
 									</div>
@@ -783,13 +782,13 @@ class PluginTab extends React.Component {
 											{this.state.plugins[p].message}
 										</div>
 									</div>
-									
+
 								</div>
 							</div>
 						);
 					}
-					
-	
+
+
 				}else{
 					pluginList.push(
 						<div className="plugin-entry" key={p} id={p}>
@@ -805,7 +804,7 @@ class PluginTab extends React.Component {
 									</div>
 								</div>
 								<div className="plugin-button-ui">
-									
+
 									<div className="plugin-button info" onClick={this.pluginInfo}><FontAwesomeIcon icon={faCircleInfo} size="lg" /></div>
 									<div className="plugin-button settings" onClick={this.pluginSettings}><FontAwesomeIcon icon={faCog} size="lg" /></div>
 									<div className="plugin-button upload" onClick={this.pluginAssets}><FontAwesomeIcon icon={faFile} size="lg" plugin-name={p} /></div>
@@ -829,7 +828,7 @@ class PluginTab extends React.Component {
 				}
 			}
 		}
-		
+
 
 		let createPlugin = this.state._openCreate.isOpen?<div className="plugin-create-element">
 			<form onSubmit={this.createPlugin}>

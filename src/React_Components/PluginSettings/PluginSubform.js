@@ -136,6 +136,7 @@ class PluginSubform extends React.Component{
                         udpClients={this.state.udpClients}
                         assets={this.state.assets}
                         discord={this.state.discord}
+                        spooder={this.state.spooder}
                         obs={this.state.obs}
                         onChange={this.onChanged}/>
                 )

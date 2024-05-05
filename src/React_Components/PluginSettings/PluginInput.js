@@ -54,14 +54,12 @@ class PluginInput extends React.Component{
         if(this.state.options?.jsonfriendly == true){
             e.target.value = newVal.replace(/[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/,"").replace(" ", "_");
         }
-        console.log("NEW VAL", newVal)
         this.state.onChange({inputName:this.state.keyname, subname:this.state.subname, value:newVal});
         this.setState(Object.assign(this.state, {value:newVal}));
     }
 
     onMultiChanged(e){
         let newSelects = Object.assign(this.state._selects);
-        console.log(e.target.value, e.target.name);
         
         if(this.state.type == "discord" || this.state.type == "obs"){
             if(newSelects[this.state.keyname] == null){
@@ -186,7 +184,6 @@ class PluginInput extends React.Component{
                 if((this.state.options?.required == false || this.state.options?.required == null) && this.state.keyname!="keyname"){
                     udpOptions.push(<option value={-1}>None</option>);
                 }
-                
                 for(let u in this.state.udpClients){
                     udpOptions.push(
                         <option value={u}>{this.state.udpClients[u].name}</option>
@@ -198,8 +195,23 @@ class PluginInput extends React.Component{
                     </select>
                 </label>
             break;
+            case "event":
+                let eventOptions = [<option value={null}>Select Event</option>];
+                for(let e in this.state.spooder.events){
+                    eventOptions.push(
+                    <option value={e}>
+                        {this.state.spooder.events[e].name}
+                    </option>
+                    );
+                    input = 
+                    <label key={this.state.keyname}>
+                        <select name={this.state.keyname} onChange={changeCB}>
+                            {eventOptions}
+                        </select>
+                    </label>;
+                }
+            break;
             case "obs":
-                console.log(this.state.obs);
                 
                 let sceneOptions = [<option value={-1}>Select Scene</option>];
                 let itemOptions = [<option value={-1}>Select Item</option>];
@@ -237,7 +249,6 @@ class PluginInput extends React.Component{
                         }
                     }
                     
-                    console.log(this.state._selects);
                     input = <label key={this.state.keyname+sceneOptions.length+itemOptions.length+JSON.stringify(this.state._selects)}>
                         <select name="scene" defaultValue={obsVal.scene} value={this.state._selects[this.state.keyname]?.["scene"]} onChange={changeCB}>
                             {sceneOptions}
@@ -290,7 +301,6 @@ class PluginInput extends React.Component{
                         }
                     }
                     
-                    console.log(this.state._selects);
                     input = <label key={this.state.keyname+guildOptions.length+channelOptions.length+JSON.stringify(this.state._selects)}>
                         <select name="guild" defaultValue={discordVal.guild} value={this.state._selects[this.state.keyname]?.["guild"]} onChange={changeCB}>
                             {guildOptions}
@@ -317,7 +327,6 @@ class PluginInput extends React.Component{
     addMultiInput(newVal){
         let newValues = this.state.value!=null?[...this.state.value]:[];
         
-        console.log(newVal, newValues);
         if(typeof newVal == "object" && !Array.isArray(newVal)){
             newValues.push(Object.assign({}, newVal));
         }else{
@@ -393,7 +402,7 @@ class PluginInput extends React.Component{
 	}
 
 	getUDPOptions(){
-		let udpClients = this.state._udpClients;
+		let udpClients = this.state.udpClients;
 		let optionHTML = [<option value='-1'>Disabled</option>,<option value='-2'>All</option>];
         for(let c in udpClients){
             optionHTML += [<option value={c}>{c}</option>];

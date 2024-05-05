@@ -35,7 +35,9 @@ class SettingsForm extends React.Component{
             assets:{},
             discord:{},
             obs:{},
+            spooder:{},
             udpClients:newProps.data.udpClients,
+            events:newProps.data.events,
             saveSettings:newProps.saveSettings
         };
 
@@ -51,6 +53,7 @@ class SettingsForm extends React.Component{
         this.getAssets(this.state.options?.folder);
         this.getOBSChannels();
         this.getDiscordChannels();
+        this.getSpooderEvents();
     }
 
     onInputChange(newData){
@@ -152,7 +155,8 @@ class SettingsForm extends React.Component{
         fetch("/command_table")
         .then(response => response.json())
         .then(data => {
-            this.setState(Object.assign(this.state, {spooder:{events:data.express.events, groups:data.express.groups}}))
+            let eventData = JSON.parse(data.express);
+            this.setState(Object.assign(this.state, {spooder:{events:eventData.events, groups:eventData.groups}}))
         })
         .catch(e=>{
             console.log(e);
@@ -186,7 +190,7 @@ class SettingsForm extends React.Component{
         let inputTable = [];
         for(let e in elements){
             if(elements[e].type == "subform"){
-                inputTable.push(<PluginSubform key={this.state.assets!=null?e+Object.keys(this.state.assets).length+":"+Object.keys(this.state.discord).length+":"+Object.keys(this.state.obs).length:e}
+                inputTable.push(<PluginSubform key={this.state.assets!=null?e+Object.keys(this.state.assets).length+":"+Object.keys(this.state.discord).length+":"+Object.keys(this.state.obs).length+":"+Object.keys(this.state.spooder):e}
                     keyname={e} 
                     pluginName={this.state.pluginName}
                     form={elements[e].form} 
@@ -197,6 +201,7 @@ class SettingsForm extends React.Component{
                     assets={this.state.assets}
                     discord={this.state.discord}
                     obs={this.state.obs}
+                    spooder={this.state.spooder}
                     onChange={this.onInputChange}
                     onAddForm={this.onAddForm}
                     onRemoveForm={this.onRemoveForm}
@@ -210,7 +215,7 @@ class SettingsForm extends React.Component{
                     }
                 }
                 
-                inputTable.push(<PluginInput key={this.state.assets!=null?e+Object.keys(this.state.assets).length+":"+Object.keys(this.state.discord).length+":"+Object.keys(this.state.obs).length:e}
+                inputTable.push(<PluginInput key={this.state.assets!=null?e+Object.keys(this.state.assets).length+":"+Object.keys(this.state.discord).length+":"+Object.keys(this.state.obs).length+":"+Object.keys(this.state.spooder):e}
                     keyname={e} 
                     pluginName={this.state.pluginName}
                     type={elements[e].type}
@@ -223,6 +228,7 @@ class SettingsForm extends React.Component{
                     assets={this.state.assets}
                     discord={this.state.discord}
                     obs={this.state.obs}
+                    spooder={this.state.spooder}
                     onChange={this.onInputChange}
                     getGlobalValue={this.getGlobalValue}/>);
             }

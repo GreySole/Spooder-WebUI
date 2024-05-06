@@ -134,34 +134,28 @@ class ConfigTab extends React.Component{
 	}
 
 	handleUDPChange(s){
-		let name = s.target.name;
+		let name = s.target.name.substring("add_".length);
 		let parent = s.target.closest(".config-sub-var");
 		let section = parent.getAttribute("sectionname");
-		let newSection = Object.assign(this.state.config[section]);
-		newSection[parent.getAttribute("varname")][parent.getAttribute("subvarname")][name] = s.target.value;
+		let newSection = Object.assign(this.state["_addUdpClient"]);
+		newSection[name] = s.target.value;
 		this.setState(Object.assign(this.state,{[section]:newSection}));
 	}
 	
 	addSubVar(e){
-		
-		let el = e.target.closest(".config-sub-var.add")
-		let sectionName = e.target.closest(".config-variable.sub-section").getAttribute("sectionname");
-		
-		let varname = e.target.closest(".config-variable.sub-section").getAttribute("varname");
-		let newUDPClients = Object.assign(this.state[sectionName][varname]);
+		console.log("ADD SUBVAR",this.state);
+		let newUDPClients = Object.assign({},this.state.config.network.udp_clients);
 
-		let clientKey = el.querySelector(".config-sub-var-ui input[name='clientKey']").value;
-		let clientName = el.querySelector(".config-sub-var-ui input[name='clientName']").value;
-		let clientIP = el.querySelector(".config-sub-var-ui input[name='clientIP']").value;
-		let clientPort = el.querySelector(".config-sub-var-ui input[name='clientPort']").value;
-
-		newUDPClients[clientKey] = {
-			name:clientName,
-			ip:clientIP,
-			port:clientPort
+		newUDPClients[this.state["_addUdpClient"].key] = {
+			name:this.state["_addUdpClient"].name,
+			ip:this.state["_addUdpClient"].ip,
+			port:this.state["_addUdpClient"].port
 		};
+
+		let newConfig = Object.assign({}, this.state.config);
+		newConfig.network = Object.assign(this.state.config.network, {udp_clients:newUDPClients})
 		
-		this.setState(Object.assign(this.state, {"network":Object.assign(this.state.network,{udp_clients:newUDPClients})}));
+		this.setState(Object.assign(this.state, {config:newConfig}));
 	}
 	
 	saveConfig(){
@@ -181,6 +175,7 @@ class ConfigTab extends React.Component{
 		fetch('/saveConfig', requestOptions)
 		.then(response => response.json())
 		.then(data => {
+			this.props.setToast("CONFIG SAVED!", "save");
 			document.querySelector("#saveStatusText").textContent = data.status;
 			setTimeout(()=>{
 				document.querySelector("#saveStatusText").textContent = "";
@@ -190,14 +185,15 @@ class ConfigTab extends React.Component{
 
 	deleteUDPClient(e){
 		let el = e.currentTarget.closest(".config-sub-var");
-		let sectionname = el.getAttribute("sectionname");
-		let varname = el.getAttribute("varname");
 		let subvarname = el.getAttribute("subvarname");
 
-		let newUDPClients = Object.assign(this.state[sectionname][varname]);
+		let newUDPClients = Object.assign({},this.state.config.network.udp_clients);
 		delete newUDPClients[subvarname];
+
+		let newConfig = Object.assign({}, this.state.config);
+		newConfig.network = Object.assign(this.state.config.network, {udp_clients:newUDPClients})
 		
-		this.setState(Object.assign(this.state, {"network":Object.assign(this.state.network,{udp_clients:newUDPClients})}));
+		this.setState(Object.assign(this.state, {config:newConfig}));
 	}
 
 	setDefaultTabs(e){

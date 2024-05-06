@@ -134,12 +134,19 @@ class ConfigTab extends React.Component{
 	}
 
 	handleUDPChange(s){
-		let name = s.target.name.substring("add_".length);
+		let name = s.target.name;
 		let parent = s.target.closest(".config-sub-var");
 		let section = parent.getAttribute("sectionname");
-		let newSection = Object.assign(this.state["_addUdpClient"]);
-		newSection[name] = s.target.value;
-		this.setState(Object.assign(this.state,{[section]:newSection}));
+		if(!name.startsWith("add_")){
+			let newSection = Object.assign(this.state.config[section]);
+			newSection[parent.getAttribute("varname")][parent.getAttribute("subvarname")][name] = s.target.value;
+			this.setState(Object.assign(this.state, {config:Object.assign(this.state.config, {"network":newSection})}));
+		}else{
+			name = s.target.name.substring("add_".length);
+			let newSection = Object.assign(this.state["_addUdpClient"]);
+			newSection[name] = s.target.value;
+			this.setState(Object.assign(this.state,{[section]:newSection}));
+		}
 	}
 	
 	addSubVar(e){

@@ -1,7 +1,7 @@
 import React from 'react';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {faDownload, faTrash, faUpload} from '@fortawesome/free-solid-svg-icons';
-import BoolSwitch from '../UI/BoolSwitch.js';
+import FormBoolSwitch from '../UI/common/input/form/FormBoolSwitch.js';
 import LinkButton from '../UI/LinkButton.js';
 import tinycolor from 'tinycolor2';
 import LoadingCircle from '../UI/LoadingCircle';
@@ -485,7 +485,7 @@ class ConfigTab extends React.Component{
 					case 'boolean':
 						
 						table.push(<div className="config-variable"><label>{ss}</label>
-						<BoolSwitch name="obs-remember" sectionname={s} checked={this.state.config[s][ss]} onChange={this.handleChange} />
+						<FormBoolSwitch name="obs-remember" sectionname={s} checked={this.state.config[s][ss]} onChange={this.handleChange} />
 						<label className={this.state.config[s][ss]?"boolswitch checked":"boolswitch"}><input type="checkbox" name={ss} sectionname={s} defaultChecked={this.state.config[s][ss]} onChange={this.handleChange}/>
 						<div></div></label></div>);
 						break;

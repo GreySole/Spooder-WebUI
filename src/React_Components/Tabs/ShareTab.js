@@ -2,7 +2,7 @@ import React, { createRef } from 'react';
 import './ShareTab.css';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {faTrash, faPlusCircle, faPlay, faStop} from '@fortawesome/free-solid-svg-icons';
-import BoolSwitch from '../UI/BoolSwitch.js';
+import FormBoolSwitch from '../UI/common/input/form/FormBoolSwitch';
 import ToggleGrid from '../UI/ToggleGrid';
 import LinkButton from '../UI/LinkButton';
 import LoadingCircle from '../UI/LoadingCircle';
@@ -341,7 +341,7 @@ class ShareTab extends React.Component{
                             </div>
                             <div className="share-entry-user-info">
                                 <div className="share-entry-user-name"><div className="label">{this.state.shares[s].displayName?
-                                this.state.shares[s].displayName:s} <LinkButton iconOnly={true} mode="newtab" link={"https://twitch.tv/"+s} /></div> {discordForm} <div className="share-discord-label">Live Auto Share: <BoolSwitch name="autoswitch" key={s+JSON.stringify(this.state.activeSubs[s])} checked={autoShareEnabled} onChange={()=>this.setAutoShare(s)}/></div></div>
+                                this.state.shares[s].displayName:s} <LinkButton iconOnly={true} mode="newtab" link={"https://twitch.tv/"+s} /></div> {discordForm} <div className="share-discord-label">Live Auto Share: <FormBoolSwitch name="autoswitch" key={s+JSON.stringify(this.state.activeSubs[s])} checked={autoShareEnabled} onChange={()=>this.setAutoShare(s)}/></div></div>
                                 <label>Join Message<br/>
                                     <input type="text" name={s+"-"+"joinMessage"} placeholder="Say in target's chat when joined." defaultValue={this.state.shares[s].joinMessage} onChange={this.onShareMessageChanged}/>
                                 </label>

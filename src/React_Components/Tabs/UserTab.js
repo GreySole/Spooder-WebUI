@@ -1,6 +1,6 @@
 import React from 'react';
 import CodeEditor from '@uiw/react-textarea-code-editor';
-import BoolSwitch from '../UI/BoolSwitch.js';
+import FormBoolSwitch from '../UI/common/input/form/FormBoolSwitch.js';
 import LoadingCircle from '../UI/LoadingCircle';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlusCircle, faTrash } from '@fortawesome/free-solid-svg-icons';
@@ -169,10 +169,10 @@ class UserTab extends React.Component{
                         </label>
                         <div className="user-section">
                             <label>Admin
-                                <BoolSwitch name={p} checked={this.state.users.permissions[p].includes("a")} value={"a"} onChange={this.handlePermissionChange.bind(this)} />
+                                <FormBoolSwitch name={p} checked={this.state.users.permissions[p].includes("a")} value={"a"} onChange={this.handlePermissionChange.bind(this)} />
                             </label>
                             <label>Mod UI
-                                <BoolSwitch name={p} checked={this.state.users.permissions[p].includes("m")} value={"m"} onChange={this.handlePermissionChange.bind(this)} />
+                                <FormBoolSwitch name={p} checked={this.state.users.permissions[p].includes("m")} value={"m"} onChange={this.handlePermissionChange.bind(this)} />
                             </label>
                             {/*<label>Share Client
                                 <BoolSwitch name={p} checked={this.state.users.permissions[p].includes("s")} value={"s"} onChange={this.handlePermissionChange.bind(this)} />

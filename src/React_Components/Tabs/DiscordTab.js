@@ -1,6 +1,6 @@
 import React from 'react';
 import CodeEditor from '@uiw/react-textarea-code-editor';
-import BoolSwitch from '../UI/BoolSwitch.js';
+import FormBoolSwitch from '../UI/common/input/form/FormBoolSwitch.js';
 import LoadingCircle from '../UI/LoadingCircle';
 
 class DiscordTab extends React.Component{
@@ -137,20 +137,20 @@ class DiscordTab extends React.Component{
                 <div className="config-variable">
                     <label>
                         Send Ngrok Link to Channel on Startup
-                        <BoolSwitch name="autosendngrok-enabled" checked={this.state.config.autosendngrok?.enabled} onChange={this.handleDiscordChange}/>
+                        <FormBoolSwitch name="autosendngrok-enabled" checked={this.state.config.autosendngrok?.enabled} onChange={this.handleDiscordChange}/>
                     </label>
                     {this.state.config.autosendngrok?.enabled ? autoNgrokFields:null}
                 </div>
                 <div className="config-variable">
                     <label>
                         Auto Share DM Notification
-                        <BoolSwitch name="sharenotif" checked={this.state.config.sharenotif} onChange={this.handleDiscordChange}/>
+                        <FormBoolSwitch name="sharenotif" checked={this.state.config.sharenotif} onChange={this.handleDiscordChange}/>
                     </label>
                 </div>
                 <div className="config-variable">
                     <label>
                         DM Crash Report
-                        <BoolSwitch name="crashreport" checked={this.state.config.crashreport} onChange={this.handleDiscordChange}/>
+                        <FormBoolSwitch name="crashreport" checked={this.state.config.crashreport} onChange={this.handleDiscordChange}/>
                     </label>
                 </div>
             </>

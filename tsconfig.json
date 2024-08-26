@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "target": "ES6",                      // Specify ECMAScript target version
+    "module": "ES6",                      // Specify module code generation
+    "lib": ["dom", "dom.iterable", "esnext"],  // Specify library files to be included
+    "allowJs": true,                      // Allow JavaScript files to be compiled
+    "skipLibCheck": true,                 // Skip type checking of declaration files
+    "esModuleInterop": true,              // Enables emit interoperability with ES modules
+    "allowSyntheticDefaultImports": true, // Allow default imports from modules with no default export
+    "strict": true,                       // Enable all strict type-checking options
+    "forceConsistentCasingInFileNames": true,  // Disallow inconsistently-cased references to the same file
+    "moduleResolution": "node",           // Specify module resolution strategy
+    "isolatedModules": true,              // Ensures that each file can be safely transpiled without relying on other imports
+    "noEmit": true,                       // Disable emitting files from compilation
+    "jsx": "react-jsx"                    // Specify JSX code generation
+  },
+  "include": ["src"],                      // Specify files to include in compilation
+  "exclude": ["node_modules", "dist"]      // Specify files to exclude from compilation
+}

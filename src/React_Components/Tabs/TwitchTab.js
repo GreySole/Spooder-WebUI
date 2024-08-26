@@ -1,6 +1,6 @@
 import React from 'react';
 import CodeEditor from '@uiw/react-textarea-code-editor';
-import BoolSwitch from '../UI/BoolSwitch.js';
+import FormBoolSwitch from '../UI/common/input/form/FormBoolSwitch.js';
 import LoadingCircle from '../UI/LoadingCircle';
 
 var _reoccuringMessageCount = 0;

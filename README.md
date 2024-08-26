@@ -1,3 +1,5 @@
+# This is a development branch for Spooder 0.5. The whole project is being rewritten to better standards. Please don't select this branch in the installer until Spooder has fully molted!
+
 # Spooder-WebUI
  Source code for Spooder's WebUI
 # Developing

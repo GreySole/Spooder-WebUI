@@ -2,6 +2,7 @@ export enum ToastType {
   SAVE = 'toast-save',
   ERROR = 'toast-error',
   REFRESH = 'toast-refresh',
+  SUCCESS = 'toast-success',
 }
 
 export enum OSCConditionType {
@@ -45,7 +46,7 @@ export interface SelectOption {
   value: string | number;
 }
 
-export interface Event {
+export interface SpooderEvent {
   name: string;
   description: string;
   group: string;

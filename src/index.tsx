@@ -1,3 +1,4 @@
+import React from 'react';
 import { Provider } from 'react-redux';
 import { createRoot } from 'react-dom/client';
 import store from './app/store';
@@ -8,6 +9,6 @@ const rootElement = document.getElementById('app');
 const root = createRoot(rootElement!);
 root.render(
   <Provider store={store}>
-    <InitLayer/>
+    <InitLayer />
   </Provider>,
 );

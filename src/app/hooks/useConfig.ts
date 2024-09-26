@@ -1,13 +1,16 @@
-import { useDispatch, useSelector } from 'react-redux';
-import { _setSave } from '../slice/hotkeySlice';
-import { IRootState } from '../store';
 import {
   useGetConfigQuery,
+  useGetOSCTunnelsQuery,
   useGetUdpClientsQuery,
   useSaveConfigMutation,
 } from '../api/configSlice';
+import useToast from './useToast';
+import { ToastType } from '../../React_Components/Types';
+import { FieldValues } from 'react-hook-form';
 
 export default function useConfig() {
+  const { showToast } = useToast();
+
   function getConfig() {
     const { data, isLoading, error } = useGetConfigQuery(null);
     return {
@@ -16,6 +19,7 @@ export default function useConfig() {
       error,
     };
   }
+
   function getUdpClients() {
     const { data, isLoading, error } = useGetUdpClientsQuery(null);
     return {
@@ -25,21 +29,43 @@ export default function useConfig() {
     };
   }
 
-  async function saveConfig(form: FormData) {
-    const [saveConfig] = useSaveConfigMutation();
-    try {
-      const result = await saveConfig(form).unwrap();
-      return {
-        data: result,
-        error: null,
-      };
-    } catch (error) {
-      return {
-        data: null,
-        error: error,
-      };
-    }
+  function getOSCTunnels() {
+    const { data, isLoading, error } = useGetOSCTunnelsQuery(null);
+    return {
+      data,
+      isLoading,
+      error,
+    };
   }
 
-  return { getConfig, getUdpClients, saveConfig };
+  function getSaveConfig() {
+    const [saveConfigMutation, { isLoading, isSuccess, error }] = useSaveConfigMutation();
+
+    function saveConfig(form: FieldValues) {
+      console.log('SAVING', form);
+
+      const formData = new FormData();
+      for (const [key, value] of Object.entries(form)) {
+        formData.append(key, value);
+      }
+
+      saveConfigMutation(formData)
+        .unwrap()
+        .then(() => {
+          showToast('Config saved successfully!', ToastType.SUCCESS);
+        })
+        .catch((err) => {
+          showToast(`Error saving config: ${err.message}`, ToastType.ERROR);
+        });
+    }
+
+    return { saveConfig, isLoading, isSuccess, error };
+  }
+
+  return {
+    getConfig,
+    getUdpClients,
+    getOSCTunnels,
+    getSaveConfig,
+  };
 }

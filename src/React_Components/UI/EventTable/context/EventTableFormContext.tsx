@@ -1,22 +1,25 @@
 import { ReactNode, createContext } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import useEvents from '../../../../app/hooks/useEvents';
+import LoadingCircle from '../../LoadingCircle';
 
 interface EventTableFormContextProviderProps {
   children: ReactNode;
+  defaultEvents:any;
+  defaultGroups:any;
 }
 
 export default function EventTableFormContextProvider(props: EventTableFormContextProviderProps) {
-  const { children } = props;
-  const { getEvents } = useEvents();
-  const { events, groups, isLoading, error } = getEvents();
+  const { children, defaultEvents, defaultGroups } = props;
 
   const EventTableForm = useForm({
     defaultValues: {
-      events: events,
-      groups: groups,
+      events: defaultEvents,
+      groups: defaultGroups,
     },
   });
+
+  
 
   return <FormProvider {...EventTableForm}>{children}</FormProvider>;
 }

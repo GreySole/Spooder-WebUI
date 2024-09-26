@@ -34,7 +34,19 @@ interface Plugin {
 export default function PluginEntry(props: PluginComponentProps) {
   const { pluginName } = props;
   const { showToast } = useToast();
-  const { refreshPlugins, deletePlugin, uploadPluginIcon, savePlugin, exportPlugin } = usePlugins();
+  const {
+    getRefreshPlugins,
+    getDeletePlugin,
+    getUploadPluginIcon,
+    getSavePlugin,
+    getExportPlugin,
+  } = usePlugins();
+  const { refreshPlugins } = getRefreshPlugins();
+  const { deletePlugin } = getDeletePlugin();
+  const { uploadPluginIcon } = getUploadPluginIcon();
+  const { savePlugin } = getSavePlugin();
+  const { exportPlugin } = getExportPlugin();
+
   const {
     plugins,
     isReady,
@@ -78,7 +90,7 @@ export default function PluginEntry(props: PluginComponentProps) {
     if (plugin == pluginAssetsOpen) {
       setPluginAssetsOpen('');
     } else {
-      setPluginAssetsOpen('');
+      setPluginAssetsOpen(plugin);
     }
   }
 
@@ -98,14 +110,14 @@ export default function PluginEntry(props: PluginComponentProps) {
     reloadPlugins();
   }
 
-  async function savePluginClick(pluginName: string, newData: any) {
-    const { error } = await savePlugin(pluginName, newData);
+  /*async function savePluginClick(pluginName: string, newData: any) {
+    await savePlugin(pluginName, newData);
     if (!error) {
       showToast(`${pluginName} saved!`, ToastType.SAVE);
     } else {
       showToast(`${pluginName} save failed!`, ToastType.ERROR);
     }
-  }
+  }*/
 
   async function exportPluginClick(pluginName: string) {
     exportPlugin(pluginName);
@@ -223,7 +235,7 @@ export default function PluginEntry(props: PluginComponentProps) {
               <FontAwesomeIcon icon={faCog} size='lg' />
             </div>
             <div className='plugin-button upload' onClick={() => pluginAssets(pluginName)}>
-              <FontAwesomeIcon icon={faFile} size='lg' plugin-name={pluginName} />
+              <FontAwesomeIcon icon={faFile} size='lg' />
             </div>
             <a
               className='link-override'
@@ -231,7 +243,7 @@ export default function PluginEntry(props: PluginComponentProps) {
               download={pluginName + '.zip'}
             >
               <div className='plugin-button export'>
-                <FontAwesomeIcon icon={faDownload} size='lg' plugin-name={pluginName} />
+                <FontAwesomeIcon icon={faDownload} size='lg' />
               </div>
             </a>
             <div className='plugin-button delete' onClick={() => deletePlugin(pluginName)}>
@@ -247,13 +259,13 @@ export default function PluginEntry(props: PluginComponentProps) {
           </div>
         </div>
         <div className='plugin-info-view'>
-          <PluginInfoView pluginName={pluginName} />
+          {pluginInfoOpen === pluginName ? <PluginInfoView pluginName={pluginName} /> : null}
         </div>
         <div className='plugin-entry-settings'>
-          <PluginSettings pluginName={pluginName} />
+          {pluginSettingsOpen === pluginName ? <PluginSettings pluginName={pluginName} /> : null}
         </div>
         <div className='plugin-asset-manager'>
-          <PluginAssetManager pluginName={pluginName} />
+          {pluginAssetsOpen === pluginName ? <PluginAssetManager pluginName={pluginName} /> : null}
         </div>
       </div>
     );

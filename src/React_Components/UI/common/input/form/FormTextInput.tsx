@@ -6,12 +6,14 @@ interface TextInputProps {
   label?: string;
   charLimit?: number;
   jsonFriendly?: boolean;
+  password?: boolean;
 }
 
 export default function FormTextInput(props: TextInputProps) {
-  const { formKey, label, charLimit, jsonFriendly } = props;
+  const { formKey, label, charLimit, jsonFriendly, password } = props;
   const { watch, register } = useFormContext();
   const value = watch(formKey);
+
   function _onInput(value: string) {
     if (charLimit !== undefined) {
       if (value.length > charLimit) {
@@ -29,7 +31,7 @@ export default function FormTextInput(props: TextInputProps) {
       <input
         id={`text-${formKey}`}
         className='text-input'
-        type='text'
+        type={password ? 'password' : 'text'}
         value={value}
         {...register(formKey, { setValueAs: _onInput })}
       />

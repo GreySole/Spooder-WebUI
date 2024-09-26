@@ -1,13 +1,215 @@
 import React, { createRef } from 'react';
 import './ShareTab.css';
-import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
-import {faTrash, faPlusCircle, faPlay, faStop} from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faTrash, faPlusCircle, faPlay, faStop } from '@fortawesome/free-solid-svg-icons';
 import FormBoolSwitch from '../UI/common/input/form/FormBoolSwitch';
 import ToggleGrid from '../UI/ToggleGrid';
 import LinkButton from '../UI/LinkButton';
 import LoadingCircle from '../UI/LoadingCircle';
 
-class ShareTab extends React.Component{
+export default function ShareTab() {
+  if (this.state.stateLoaded == false) {
+    return <LoadingCircle></LoadingCircle>;
+  }
+  let entries = [];
+  for (let s in this.state.shares) {
+    let shareContent = null;
+    if (this.state.openSettings.share == s) {
+      let gridData =
+        this.state.openSettings.type == 'commands'
+          ? this.state.chatCommands
+          : this.state.activePlugins;
+      let selectedData =
+        this.state.openSettings.type == 'commands'
+          ? this.state.shares[s].commands
+          : this.state.shares[s].plugins;
+      shareContent = (
+        <div className={'share-entry-content-' + this.state.openSettings.type}>
+          <ToggleGrid
+            data={gridData}
+            selected={selectedData}
+            type={this.state.openSettings.type}
+            onToggleChange={this.onShareChanged}
+          />
+          <button className='save-button' onClick={this.closeShare}>
+            Done
+          </button>
+        </div>
+      );
+    } else {
+      shareContent = (
+        <div className='share-entry-content-overview'>
+          <div className='share-entry-commands'>
+            <div className='share-entry-label'>
+              Commands{' '}
+              <button
+                className='add-button'
+                onClick={() => {
+                  this.openShareCommands(s);
+                }}
+              >
+                Set
+              </button>
+            </div>
+            {this.state.shares[s].commands.join(', ')}
+          </div>
+          <div className='share-entry-plugins'>
+            <div className='share-entry-label'>
+              Plugins{' '}
+              <button
+                className='add-button'
+                onClick={() => {
+                  this.openSharePlugins(s);
+                }}
+              >
+                Set
+              </button>
+            </div>
+            {this.state.shares[s].plugins.join(', ')}
+          </div>
+        </div>
+      );
+    }
+
+    let joinButton = !this.state.activeShares.includes('#' + s) ? (
+      <button className='save-button join-button' onClick={() => this.activateShare(s)}>
+        <FontAwesomeIcon icon={faPlay} size='2x' />
+      </button>
+    ) : (
+      <button className='delete-button leave-button'>
+        <FontAwesomeIcon icon={faStop} size='2x' onClick={() => this.deactivateShare(s)} />
+      </button>
+    );
+
+    let discordForm = null;
+    if (this.state.shares[s].discordId == null && this.state.openDiscord != s) {
+      discordForm = (
+        <button name={s} type='button' className='add-button' onClick={this.openAddDiscord}>
+          Add Discord
+        </button>
+      );
+    } else if (this.state.shares[s].discordId == null && this.state.openDiscord == s) {
+      discordForm = (
+        <form
+          id={s + '-' + 'discordForm'}
+          onSubmit={this.verifyDiscordUser}
+          className='share-discord-form'
+        >
+          <input
+            id={s + '-' + 'did'}
+            name='discordid'
+            type='text'
+            placeholder='Discord ID, not the name!'
+          />
+          <button type='submit' form={s + '-' + 'discordForm'} className='add-button'>
+            Add
+          </button>
+        </form>
+      );
+    } else {
+      discordForm = (
+        <div className='share-discord-label'>
+          Discord: {this.state.shares[s].discordName}
+          <button className='delete-button discord-delete' onClick={() => this.removeDiscord(s)}>
+            <FontAwesomeIcon icon={faTrash} />
+          </button>
+        </div>
+      );
+    }
+
+    let autoShareEnabled = this.state.activeSubs[s]?.['stream.online'] != null;
+    entries.push(
+      <div className='share-entry' key={s}>
+        <div className='share-entry-info'>
+          <div className='share-entry-user'>
+            <div className='share-entry-user-pfp'>
+              <img src={this.state.shares[s].profilepic} width={100} height={100} />
+            </div>
+            <div className='share-entry-user-info'>
+              <div className='share-entry-user-name'>
+                <div className='label'>
+                  {this.state.shares[s].displayName ? this.state.shares[s].displayName : s}{' '}
+                  <LinkButton iconOnly={true} mode='newtab' link={'https://twitch.tv/' + s} />
+                </div>{' '}
+                {discordForm}{' '}
+                <div className='share-discord-label'>
+                  Live Auto Share:{' '}
+                  <FormBoolSwitch
+                    name='autoswitch'
+                    key={s + JSON.stringify(this.state.activeSubs[s])}
+                    checked={autoShareEnabled}
+                    onChange={() => this.setAutoShare(s)}
+                  />
+                </div>
+              </div>
+              <label>
+                Join Message
+                <br />
+                <input
+                  type='text'
+                  name={s + '-' + 'joinMessage'}
+                  placeholder="Say in target's chat when joined."
+                  defaultValue={this.state.shares[s].joinMessage}
+                  onChange={this.onShareMessageChanged}
+                />
+              </label>
+              <label>
+                Leave Message
+                <br />
+                <input
+                  type='text'
+                  name={s + '-' + 'leaveMessage'}
+                  sharename={s}
+                  placeholder="Say in target's chat before leaving."
+                  defaultValue={this.state.shares[s].leaveMessage}
+                  onChange={this.onShareMessageChanged}
+                />
+              </label>
+            </div>
+            <div className='share-entry-actions'>
+              {joinButton}
+              <button className='delete-button' onClick={() => this.removeShareEntry(s)}>
+                <FontAwesomeIcon icon={faTrash} size='2x' />
+              </button>
+            </div>
+          </div>
+          <div className='share-entry-content'>{shareContent}</div>
+        </div>
+      </div>,
+    );
+  }
+  let createPluginForm = (
+    <div className='share-tab-create-element'>
+      <form autoComplete='off' onSubmit={this.addShareEntry}>
+        <input name='username' type='search' placeholder='Twitch username' required={true} />
+        <button className='add-button' type='submit'>
+          Add
+        </button>
+      </form>
+    </div>
+  );
+
+  return (
+    <div className='share-tab-content'>
+      <div className='plugin-install-button'>
+        <button onClick={this.openCreateShare}>
+          Create Share <FontAwesomeIcon icon={faPlusCircle} size='lg' />
+        </button>
+      </div>
+
+      {this.state.openCreate ? createPluginForm : null}
+      {entries}
+      <div className='save-div'>
+        <button className='save-button' onClick={this.saveShares}>
+          Save
+        </button>
+        <div className='save-status'></div>
+      </div>
+    </div>
+  );
+}
+
+/*class ShareTab extends React.Component{
     constructor(props){
         super(props);
         this.state = {stateLoaded:false}
@@ -382,4 +584,4 @@ class ShareTab extends React.Component{
     }
 }
 
-export {ShareTab};
+export {ShareTab};*/

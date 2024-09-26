@@ -13,8 +13,10 @@ interface PluginInfoViewProps {
 export default function PluginInfoView(props: PluginInfoViewProps) {
   const { pluginName } = props;
   const { showToast } = useToast();
-  const { getPlugins, refreshPlugin, reinstallPlugin } = usePlugins();
+  const { getRefreshPlugin, getReinstallPlugin } = usePlugins();
   const { plugins, isReady } = usePluginContext();
+  const { refreshPlugin } = getRefreshPlugin();
+  const { reinstallPlugin } = getReinstallPlugin();
 
   if (!isReady) {
     return null;

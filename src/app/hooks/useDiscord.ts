@@ -1,3 +1,4 @@
+import { get } from 'react-hook-form';
 import {
   useGetChannelsQuery,
   useGetConfigQuery,
@@ -33,26 +34,20 @@ export default function useDiscord() {
     };
   }
 
-  async function saveDiscordConfig(form: FormData) {
-    const [saveDiscordConfig] = useSaveDiscordConfigMutation();
-    try {
-      const result = await saveDiscordConfig(form).unwrap();
-      return {
-        data: result,
-        error: null,
-      };
-    } catch (error) {
-      return {
-        data: null,
-        error: error,
-      };
+  function getSaveDiscordConfig() {
+    const [saveDiscordConfigMutation, { isLoading, isSuccess, error }] =
+      useSaveDiscordConfigMutation();
+    function saveDiscordConfig(form: FormData) {
+      saveDiscordConfigMutation(form);
     }
+
+    return { saveDiscordConfig, isLoading, isSuccess, error };
   }
 
   return {
     getChannels,
     getConfig,
     getUser,
-    saveDiscordConfig,
+    getSaveDiscordConfig,
   };
 }

@@ -210,11 +210,11 @@ option {
 	flex-flow: column;
 }
 
-.command-element:not(.expanded):hover {
+.command-element .expandable:not(.expanded) .expandable-label:hover {
 	background-color: var(--gray-700);
 }
 
-.command-element.expanded {
+.command-element .expandable.expanded .expandable-label {
 	background-color: var(--gray-800);
 }
 
@@ -383,16 +383,13 @@ option {
 	border-bottom: var(--border-color) 1px solid;
 }
 
-.command-group-label:hover {
+.command-group .expandable-label:hover {
 	cursor: pointer;
 	background-color: var(--gray-700);
 }
 
-.command-group.expanded .command-group-label {
+.command-group .expandable-label {
 	margin-bottom: 10px;
-}
-
-.command-group-label {
 	display: flex;
 	flex-flow: row;
 	align-items: center;
@@ -405,10 +402,6 @@ option {
 	flex-flow: row;
 	align-items: center;
 	margin-left: 15px;
-}
-
-.command-group:not(.expanded) .command-group-actions {
-	display: none;
 }
 
 .verified {

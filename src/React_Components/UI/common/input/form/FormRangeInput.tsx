@@ -6,11 +6,13 @@ interface FormRangeInputProps {
   min: number;
   max: number;
   step?: number;
+  showValue?: boolean;
 }
 
 export default function FormRangeInput(props: FormRangeInputProps) {
-  const { formKey, label, min, max, step } = props;
-  const { register } = useFormContext();
+  const { formKey, label, min, max, step, showValue } = props;
+  const { register, watch } = useFormContext();
+  const value = watch(formKey, min);
   return (
     <label htmlFor={`range-${formKey}`}>
       {label}
@@ -23,6 +25,7 @@ export default function FormRangeInput(props: FormRangeInputProps) {
         step={step}
         {...register(formKey, { valueAsNumber: true })}
       />
+      {showValue ? value : null}
     </label>
   );
 }

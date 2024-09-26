@@ -1,8 +1,8 @@
 import React from 'react';
 import PluginSubform from './PluginSubform';
-import PluginInput from './PluginInput.js';
+import PluginInput from './PluginInput';
 import { useForm, FormProvider } from 'react-hook-form';
-import { PluginComponentProps } from '../Types';
+import { KeyedObject, PluginComponentProps } from '../Types';
 import { usePluginContext } from '../UI/PluginTab/context/PluginTabFormContext';
 import PluginSettingsSaveButton from './PluginSettingsSaveButton';
 
@@ -11,8 +11,10 @@ export default function SettingsForm(props: PluginComponentProps) {
   const { plugins } = usePluginContext();
   const plugin = plugins[pluginName];
 
-  let values = plugin.sform.values;
-  const defaults = plugin.sform.defaults;
+  const values = plugin['settings'];
+  const form = plugin['settings-form'].form;
+  const defaults = plugin['settings-form'].defaults;
+
   for (let d in defaults) {
     if (values[d] == null) {
       if (typeof defaults[d] == 'object' && !Array.isArray(defaults[d])) {
@@ -29,6 +31,7 @@ export default function SettingsForm(props: PluginComponentProps) {
       values[d] = values[d][0];
     }
   }
+
   const SettingsFormContext = useForm({
     defaultValues: values,
   });
@@ -59,18 +62,26 @@ export default function SettingsForm(props: PluginComponentProps) {
   }
 
   let inputTable = [];
-  for (let e in values) {
-    if (values[e].type == 'subform') {
-      inputTable.push(<PluginSubform keyname={e} />);
+  for (let e in form) {
+    if (form[e].type == 'subform') {
+      inputTable.push(
+        <PluginSubform
+          formkey={e}
+          pluginName={pluginName}
+          label={form[e].label}
+          form={form[e].form}
+          defaults={defaults[e]}
+        />,
+      );
     } else {
-      if (values[e].showif) {
-        if (values[values[e].showif.variable] != null) {
+      if (form[e].showif) {
+        if (values[form[e].showif.variable] != null) {
           if (
             !eval(
               '' +
-                values[values[e].showif.variable] +
-                translateCondition(values[e].showif.condition) +
-                values[e].showif.value,
+                values[form[e].showif.variable] +
+                translateCondition(form[e].showif.condition) +
+                form[e].showif.value,
             )
           ) {
             continue;
@@ -78,7 +89,16 @@ export default function SettingsForm(props: PluginComponentProps) {
         }
       }
 
-      inputTable.push(<PluginInput formKey={e} label={values[e].label} type={values[e].type} isMulti={values[e].multi} options={values[e].options} defaultValue={defaults[e]} />);
+      inputTable.push(
+        <PluginInput
+          formKey={e}
+          pluginName={pluginName}
+          defaultValue={defaults[e]}
+          label={form[e].label}
+          type={form[e].type}
+          options={form[e].options}
+        />,
+      );
     }
   }
 

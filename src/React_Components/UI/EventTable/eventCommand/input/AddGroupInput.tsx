@@ -12,30 +12,30 @@ export default function AddGroupInput() {
     setValue('groups', groups);
   }
   return (
-    <HotkeysProvider enter={()=>inputFocused ? addGroup(addGroupName):null}>
+    <HotkeysProvider enter={() => inputFocused ? addGroup(addGroupName) : null}>
       <div className='event-add field-section'>
-      <label>Add Group</label>
-      <div className='add-command-actions'>
-        <input
-          type='text'
-          className='group-name-input'
-          name='groupname'
-          value={addGroupName}
-          onInput={(e: React.ChangeEvent<HTMLInputElement>) => setAddGroupName(e.target.value)}
-          onFocus={()=>setInputFocused(true)}
-          onBlur={()=>setInputFocused(false)}
-        />
-        <button
-          type='button'
-          id='addGroupButton'
-          className='add-button'
-          onClick={() => addGroup(addGroupName)}
-        >
-          Add
-        </button>
+        <label>Add Group</label>
+        <div className='add-command-actions'>
+          <input
+            type='text'
+            className='group-name-input'
+            name='groupname'
+            value={addGroupName}
+            onInput={(e: React.ChangeEvent<HTMLInputElement>) => setAddGroupName(e.target.value)}
+            onFocus={() => setInputFocused(true)}
+            onBlur={() => setInputFocused(false)}
+          />
+          <button
+            type='button'
+            id='addGroupButton'
+            className='add-button'
+            onClick={() => addGroup(addGroupName)}
+          >
+            Add
+          </button>
+        </div>
       </div>
-    </div>
     </HotkeysProvider>
-    
+
   );
 }

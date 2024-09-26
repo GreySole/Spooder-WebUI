@@ -15,7 +15,7 @@ export const discordApi = createApi({
     }),
     saveDiscordConfig: builder.mutation({
       query: (form) => ({
-        url: '/discord/saveDiscordConfig',
+        url: '/discord/save_discord_config',
         method: 'post',
         body: form,
         headers: {

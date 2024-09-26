@@ -39,7 +39,7 @@ export const PluginProvider = (props: PluginProviderProps) => {
   const { addListener, removeListener } = useOSC();
 
   useEffect(() => {
-    addListener('/frontend/plugin/install/progress', (message:any) => {
+    addListener('/frontend/plugin/install/progress', (message: any) => {
       let progressObj = JSON.parse(message.args[0]);
 
       let newNewPlugins = Object.assign({}, newPlugins);
@@ -51,7 +51,7 @@ export const PluginProvider = (props: PluginProviderProps) => {
       setNewPlugins(newNewPlugins);
     });
 
-    addListener('/frontend/plugin/install/complete', (message:any) => {
+    addListener('/frontend/plugin/install/complete', (message: any) => {
       let progressObj = JSON.parse(message.args[0]);
       console.log('COMPLETE', progressObj);
       let newNewPlugins = Object.assign({}, newPlugins);
@@ -64,7 +64,7 @@ export const PluginProvider = (props: PluginProviderProps) => {
       removeListener('/frontend/plugin/install/progress');
       removeListener('/frontend/plugin/install/complete');
     };
-  });
+  }, []);
 
   const isReady = !isLoading && !error && plugins !== undefined;
 
@@ -92,4 +92,3 @@ export const PluginProvider = (props: PluginProviderProps) => {
 
   return <PluginContext.Provider value={value}>{children}</PluginContext.Provider>;
 };
-

@@ -1,35 +1,34 @@
 import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useState, useEffect } from "react";
+import { useState, useEffect, ReactNode } from "react";
 import { useFormContext } from "react-hook-form";
-import useConfig from "../../app/hooks/useConfig";
-import useEvents from "../../app/hooks/useEvents";
-import Expandable from "../UI/common/Expandable";
-import EventTableFormContextProvider from "../UI/EventTable/context/EventTableFormContext";
-import AddEventInput from "../UI/EventTable/eventCommand/input/AddEventInput";
-import AddGroupInput from "../UI/EventTable/eventCommand/input/AddGroupInput";
-import EventElement from "../UI/EventTable/EventElement";
-import LoadingCircle from "../UI/LoadingCircle";
-import { useHotkeys } from "../../app/hooks/useHotkeys";
-import SaveEventsButton from "../UI/EventTable/eventCommand/input/SaveEventsButton";
+import useConfig from "../../../app/hooks/useConfig";
+import useEvents from "../../../app/hooks/useEvents";
+import Expandable from "../common/Expandable";
+import EventTableFormContextProvider from "./context/EventTableFormContext";
+import AddEventInput from "./eventCommand/input/AddEventInput";
+import AddGroupInput from "./eventCommand/input/AddGroupInput";
+import EventElement from "./EventElement";
+import LoadingCircle from "../LoadingCircle";
+import { useHotkeys } from "../../../app/hooks/useHotkeys";
+import SaveEventsButton from "../common/input/form/SaveButton";
+import DeleteGroupButton from "./eventCommand/input/DeleteGroupButton";
+
 
 
 export default function EventTable() {
-  const {  getEvents } = useEvents();
-  const { getUdpClients } = useConfig();
 
-  const { events, groups, isLoading, error } = getEvents();
+  const { watch } = useFormContext();
   const [searchText, setSearchText] = useState<string>('');
 
-  if (isLoading) {
-    return <LoadingCircle />;
-  }
+  const events = watch('events', {});
+  const groups = watch('groups', []);
 
   let propKeys = Object.keys(events).sort((a, b) => {
     return events[a].name.toUpperCase() > events[b].name.toUpperCase() ? 1 : -1;
   });
 
-  const groupObjects = {} as { [key: string]: any };
+  const groupObjects = groups.reduce((obj: any, key: string) => ({ ...obj, [key]: [] }), { "Default": [] });
 
   for (let p in propKeys) {
     let s = propKeys[p];
@@ -70,6 +69,9 @@ export default function EventTable() {
               }}
             >
               <AddEventInput groupName={groupName} />
+              <div className='delete-event-div'>
+                <DeleteGroupButton groupName={groupName} />
+            </div>
             </div>
             {groupObjects[groupName]}
           </div>
@@ -78,22 +80,20 @@ export default function EventTable() {
     );
   });
 
-  return (
-    <EventTableFormContextProvider>
-      <div className='event-search'>
-        <FontAwesomeIcon icon={faMagnifyingGlass} className='event-search-icon' size='lg' />
-        <input
-          type='search'
-          className='event-search-bar'
-          placeholder='Search Events...'
-          onInput={(e: React.ChangeEvent<HTMLInputElement>) => setSearchText(e.target.value)}
-        />
-      </div>
-      <div className='event-container'>{groupElements}</div>
-      <AddGroupInput />
-      <SaveEventsButton/>
-    </EventTableFormContextProvider>
-  );
+  return <>
+    <div className='event-search'>
+      <FontAwesomeIcon icon={faMagnifyingGlass} className='event-search-icon' size='lg' />
+      <input
+        type='search'
+        className='event-search-bar'
+        placeholder='Search Events...'
+        onInput={(e: React.ChangeEvent<HTMLInputElement>) => setSearchText(e.target.value)}
+      />
+    </div>
+    <div className='event-container'>
+      {groupElements}
+    </div>
+  </>
 }
 
 export { EventTable };

@@ -21,12 +21,14 @@ export function HotkeysProvider(props:HotkeysProps) {
   useEffect(() => {
     const keyListener = (e: any) => {
       if (e.ctrlKey && e.key === 's') {
+        e.preventDefault();
         if(save){
           save();
         }
         
       }
       if (e.key === 'Enter') {
+        e.preventDefault();
         if(enter){
           enter();
         }

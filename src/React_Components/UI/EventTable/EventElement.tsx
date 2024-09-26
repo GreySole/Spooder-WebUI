@@ -9,7 +9,7 @@ import FormTextInput from '../common/input/form/FormTextInput';
 import EventTriggers from './EventTriggers';
 import FormNumberInput from '../common/input/form/FormNumberInput';
 import FormSelectDropdown from '../common/input/form/FormSelectDropdown';
-import DeleteGroupButton from './eventCommand/input/DeleteGroupButton';
+import DeleteEventButton from './eventCommand/input/DeleteEventButton';
 
 interface EventElementProps {
   eventName: string;
@@ -23,7 +23,6 @@ export default function EventElement(props: EventElementProps) {
   const eventTriggers = event.triggers;
   const eventCommands = event.commands;
 
-  const groupName = event.group ?? 'Default';
   const groupOptions = groups.map((groupName: string) => ({ label: groupName, value: groupName }));
 
   let triggerIcons = [];
@@ -67,7 +66,7 @@ export default function EventElement(props: EventElementProps) {
           <EventCommands eventName={eventName} eventCommands={eventCommands} />
 
           <div className='delete-event-div'>
-            <DeleteGroupButton groupName={groupName} />
+            <DeleteEventButton eventName={eventName} />
           </div>
         </div>
       </EventExpandable>

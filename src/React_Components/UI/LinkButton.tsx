@@ -1,17 +1,15 @@
 import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faClipboard, faSquareArrowUpRight } from '@fortawesome/free-solid-svg-icons';
+import { faClipboard, faDownload, faSquareArrowUpRight } from '@fortawesome/free-solid-svg-icons';
 import { $, setClass } from './Helpers';
 
 interface LinkButtonProps {
   name?: string;
-  text: string;
+  text?: string;
   link: string;
-  mode: LinkButtonMode;
+  mode: 'newtab' | 'copy' | 'download';
   iconOnly?: boolean;
 }
-
-type LinkButtonMode = 'newtab' | 'copy';
 
 export default function LinkButton(props: LinkButtonProps) {
   const { name, text, link, mode, iconOnly } = props;
@@ -21,7 +19,29 @@ export default function LinkButton(props: LinkButtonProps) {
       window.open(link, '_blank');
     } else if (mode === 'copy') {
       copyTextToClipboard(link);
+    } else if (mode === 'download') {
+      downloadLink(link);
     }
+  }
+
+  function downloadLink(downloadLink: string) {
+    fetch(downloadLink, {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/zip' },
+    })
+      .then((response) => response.blob())
+      .then((blob) => {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.style.display = 'none';
+        a.href = url;
+        a.download = name ?? 'backup.zip';
+        document.body.appendChild(a);
+        a.click();
+
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      });
   }
 
   function fallbackCopyTextToClipboard(text: string) {
@@ -74,6 +94,8 @@ export default function LinkButton(props: LinkButtonProps) {
   let iconLink = faClipboard;
   if (mode == 'newtab') {
     iconLink = faSquareArrowUpRight;
+  } else if (mode == 'download') {
+    iconLink = faDownload;
   }
   return (
     <div className='link-button'>

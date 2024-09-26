@@ -15,184 +15,98 @@ import {
 } from '../api/pluginSlice';
 
 export default function usePlugins() {
-  async function installPlugin(file: File) {
-    const form = new FormData();
-    form.append('file', file);
-    const [installPlugin] = useInstallPluginMutation();
-    try {
-      const result = await installPlugin(form).unwrap();
-      return {
-        data: result,
-        error: null,
-      };
-    } catch (error) {
-      return {
-        data: null,
-        error: error,
-      };
+  function getInstallPlugin() {
+    const [installPluginMutation, { isLoading, isSuccess, error }] = useInstallPluginMutation();
+    function installPlugin(file: File) {
+      const form = new FormData();
+      form.append('file', file);
+      installPluginMutation(form);
     }
+
+    return { installPlugin, isLoading, isSuccess, error };
   }
 
-  async function uploadPluginAsset(assetPath: string, form: FormData) {
-    const [uploadPluginAsset] = useUploadPluginAssetMutation();
-
-    try {
-      const result = await uploadPluginAsset({ assetPath, form }).unwrap();
-      return {
-        data: result,
-        error: null,
-      };
-    } catch (error) {
-      return {
-        data: null,
-        error: error,
-      };
+  function getUploadPluginAsset() {
+    const [uploadPluginAssetMutation, { isLoading, isSuccess, error }] =
+      useUploadPluginAssetMutation();
+    function uploadPluginAsset(assetPath: string, form: FormData) {
+      uploadPluginAssetMutation({ assetPath, form });
     }
+    return { uploadPluginAsset, isLoading, isSuccess, error };
   }
 
-  async function uploadPluginIcon(assetPath: string, form: FormData) {
-    const [uploadPluginIcon] = useUploadPluginIconMutation();
-    uploadPluginIcon({ assetPath, form });
-    try {
-      const result = await uploadPluginIcon({ assetPath, form }).unwrap();
-      return {
-        data: result,
-        error: null,
-      };
-    } catch (error) {
-      return {
-        data: null,
-        error: error,
-      };
+  function getUploadPluginIcon() {
+    const [uploadPluginIconMutation, { isLoading, isSuccess, error }] =
+      useUploadPluginIconMutation();
+    function uploadPluginIcon(assetPath: string, form: FormData) {
+      uploadPluginIconMutation({ assetPath, form });
     }
+    return { uploadPluginIcon, isLoading, isSuccess, error };
   }
 
-  async function deletePlugin(pluginName: string) {
-    const [deletePlugin] = useDeletePluginMutation();
-    try {
-      const result = await deletePlugin(pluginName).unwrap();
-      return {
-        data: result,
-        error: null,
-      };
-    } catch (error) {
-      return {
-        data: null,
-        error: error,
-      };
+  function getDeletePlugin() {
+    const [deletePluginMutation, { isLoading, isSuccess, error }] = useDeletePluginMutation();
+    function deletePlugin(pluginName: string) {
+      deletePluginMutation(pluginName);
     }
+    return { deletePlugin, isLoading, isSuccess, error };
   }
 
-  async function deletePluginAsset(pluginName: string, assetName: string) {
-    const [deletePluginAsset] = useDeletePluginAssetMutation();
-    try {
-      const result = await deletePluginAsset({ pluginName, assetName }).unwrap();
-      return {
-        data: result,
-        error: null,
-      };
-    } catch (error) {
-      return {
-        data: null,
-        error: error,
-      };
+  function getDeletePluginAsset() {
+    const [deletePluginAssetMutation, { isLoading, isSuccess, error }] =
+      useDeletePluginAssetMutation();
+    function deletePluginAsset(pluginName: string, assetName: string) {
+      deletePluginAssetMutation({ pluginName, assetName });
     }
+    return { deletePluginAsset, isLoading, isSuccess, error };
   }
 
-  async function exportPlugin(pluginName: string) {
-    const [exportPlugin] = useExportPluginMutation();
-    try {
-      const result = await exportPlugin(pluginName).unwrap();
-      return {
-        data: result,
-        error: null,
-      };
-    } catch (error) {
-      return {
-        data: null,
-        error: error,
-      };
+  function getExportPlugin() {
+    const [exportPluginMutation, { isLoading, isSuccess, error }] = useExportPluginMutation();
+    function exportPlugin(pluginName: string) {
+      exportPluginMutation(pluginName);
     }
+    return { exportPlugin, isLoading, isSuccess, error };
   }
 
-  async function refreshPlugin(pluginName: string) {
-    const [refreshPlugin] = useRefreshPluginMutation();
-    try {
-      const result = await refreshPlugin(pluginName).unwrap();
-      return {
-        data: result,
-        error: null,
-      };
-    } catch (error) {
-      return {
-        data: null,
-        error: error,
-      };
+  function getRefreshPlugin() {
+    const [refreshPluginMutation, { isLoading, isSuccess, error }] = useRefreshPluginMutation();
+    function refreshPlugin(pluginName: string) {
+      refreshPluginMutation(pluginName);
     }
+    return { refreshPlugin, isLoading, isSuccess, error };
   }
 
-  async function refreshPlugins() {
-    const [refreshPlugins] = useRefreshPluginsMutation();
-    try {
-      const result = await refreshPlugins(null).unwrap();
-      return {
-        data: result,
-        error: null,
-      };
-    } catch (error) {
-      return {
-        data: null,
-        error: error,
-      };
+  function getRefreshPlugins() {
+    const [refreshPluginsMutation, { isLoading, isSuccess, error }] = useRefreshPluginsMutation();
+    function refreshPlugins() {
+      refreshPluginsMutation(null);
     }
+    return { refreshPlugins, isLoading, isSuccess, error };
   }
 
-  async function reinstallPlugin(pluginName: string) {
-    const [reinstallPlugin] = useReinstallPluginMutation();
-    try {
-      const result = await reinstallPlugin(pluginName).unwrap();
-      return {
-        data: result,
-        error: null,
-      };
-    } catch (error) {
-      return {
-        data: null,
-        error: error,
-      };
+  function getReinstallPlugin() {
+    const [reinstallPluginMutation, { isLoading, isSuccess, error }] = useReinstallPluginMutation();
+    function reinstallPlugin(pluginName: string) {
+      reinstallPluginMutation(pluginName);
     }
+    return { reinstallPlugin, isLoading, isSuccess, error };
   }
 
-  async function createPlugin(form: FormData) {
-    const [createPlugin] = useCreatePluginMutation();
-    try {
-      const result = await createPlugin(form).unwrap();
-      return {
-        data: result,
-        error: null,
-      };
-    } catch (error) {
-      return {
-        data: null,
-        error: error,
-      };
+  function getCreatePlugin() {
+    const [createPluginMutation, { isLoading, isSuccess, error }] = useCreatePluginMutation();
+    function createPlugin(form: FormData) {
+      createPluginMutation(form);
     }
+    return { createPlugin, isLoading, isSuccess, error };
   }
 
-  async function savePlugin(pluginName: string, newData: any) {
-    const [savePlugin] = useSavePluginMutation();
-    try {
-      const result = await savePlugin({ pluginName, newData }).unwrap();
-      return {
-        data: result,
-        error: null,
-      };
-    } catch (error) {
-      return {
-        data: null,
-        error: error,
-      };
+  function getSavePlugin() {
+    const [savePluginMutation, { isLoading, isSuccess, error }] = useSavePluginMutation();
+    function savePlugin(pluginName: string, newData: any) {
+      savePluginMutation({ pluginName, newData });
     }
+    return { savePlugin, isLoading, isSuccess, error };
   }
 
   function getPlugins() {
@@ -205,7 +119,7 @@ export default function usePlugins() {
     };
   }
 
-  function browsePluginAssets(pluginName: string, assetName: string) {
+  function getPluginAssets(pluginName: string, assetName: string) {
     const { isLoading, error, data, refetch } = useBrowsePluginAssetsQuery({
       pluginName,
       assetName,
@@ -219,18 +133,18 @@ export default function usePlugins() {
   }
 
   return {
+    getInstallPlugin,
     getPlugins,
-    createPlugin,
-    installPlugin,
-    reinstallPlugin,
-    refreshPlugin,
-    refreshPlugins,
-    savePlugin,
-    deletePlugin,
-    deletePluginAsset,
-    exportPlugin,
-    browsePluginAssets,
-    uploadPluginAsset,
-    uploadPluginIcon,
+    getPluginAssets,
+    getUploadPluginAsset,
+    getUploadPluginIcon,
+    getDeletePlugin,
+    getDeletePluginAsset,
+    getExportPlugin,
+    getRefreshPlugin,
+    getRefreshPlugins,
+    getReinstallPlugin,
+    getCreatePlugin,
+    getSavePlugin,
   };
 }

@@ -5,14 +5,27 @@ export const configApi = createApi({
   baseQuery: fetchBaseQuery({ baseUrl: window.location.origin }),
   endpoints: (builder) => ({
     getConfig: builder.query({
-      query: () => 'server_config',
+      query: () => '/config/server_config',
     }),
     getUdpClients: builder.query({
-      query: () => 'udp_hosts',
+      query: () => '/config/udp_clients',
+    }),
+    getOSCTunnels: builder.query({
+      query: () => '/config/osc_tunnels',
+    }),
+    saveOSCTunnels: builder.mutation({
+      query: (form) => ({
+        url: '/config/save_osc_tunnels',
+        method: 'post',
+        body: form,
+        headers: {
+          'Content-type': 'application/json; charset=UTF-8',
+        },
+      }),
     }),
     saveConfig: builder.mutation({
       query: (form) => ({
-        url: 'saveConfig',
+        url: '/config/save_config',
         method: 'post',
         body: form,
         headers: {
@@ -23,4 +36,10 @@ export const configApi = createApi({
   }),
 });
 
-export const { useGetConfigQuery, useGetUdpClientsQuery, useSaveConfigMutation } = configApi;
+export const {
+  useGetConfigQuery,
+  useGetUdpClientsQuery,
+  useSaveConfigMutation,
+  useGetOSCTunnelsQuery,
+  useSaveOSCTunnelsMutation,
+} = configApi;

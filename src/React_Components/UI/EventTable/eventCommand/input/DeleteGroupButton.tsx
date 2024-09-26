@@ -6,9 +6,10 @@ interface DeleteGroupButtonProps {
 }
 
 export default function DeleteGroupButton(props: DeleteGroupButtonProps) {
+  const { setValue, getValues } = useFormContext();
   const { groupName } = props;
   function deleteGroup(groupName: string) {
-    const { setValue, getValues } = useFormContext();
+    
 
     if (confirm('All events assigned to this group will be deleted. Is that okay?')) {
       const events = getValues(EVENT_KEY);

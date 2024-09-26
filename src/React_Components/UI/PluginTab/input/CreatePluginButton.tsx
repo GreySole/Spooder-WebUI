@@ -12,7 +12,8 @@ export default function CreatePluginButton() {
     description: '',
   });
   const { plugins, newPlugins, setNewPlugins } = usePluginContext();
-  const { createPlugin } = usePlugins();
+  const { getCreatePlugin } = usePlugins();
+  const { createPlugin } = getCreatePlugin();
 
   function createPluginClick() {
     let internalName = createForm.pluginname

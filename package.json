@@ -1,6 +1,6 @@
 {
   "name": "spooder-webui",
-  "version": "0.4.9",
+  "version": "0.5.0",
   "description": "Web interface for Spooder",
   "main": "spooder.js",
   "scripts": {
@@ -18,7 +18,6 @@
     "@typescript-eslint/parser": "^5.62.0",
     "@uiw/react-textarea-code-editor": "^2.0.6",
     "@xzdarcy/react-timeline-editor": "^0.1.9",
-    "eslint": "^8.57.0",
     "osc-js": "^2.3.2",
     "path-browserify": "^1.0.1",
     "prettier": "^3.3.2",

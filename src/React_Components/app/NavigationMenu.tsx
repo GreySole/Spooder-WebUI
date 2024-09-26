@@ -5,17 +5,22 @@ import BoolSwitch from '../UI/common/input/controlled/BoolSwitch';
 import usePlugins from '../../app/hooks/usePlugins';
 
 export default function NavigationMenu() {
-  const { urlParams, setTab, currentTab, tabOptions, deckTabOptions, navigationOpen, setStayHere } =
-    useNavigation();
+  const {
+    urlParams,
+    setTab,
+    currentTab,
+    tabOptions,
+    deckTabOptions,
+    navigationOpen,
+    setStayHere,
+    setNavigation,
+  } = useNavigation();
+  const { getRefreshPlugins } = usePlugins();
+  const { refreshPlugins } = getRefreshPlugins();
+
   const tabButtons = Object.keys(tabOptions).map((tab: string, index) => {
     const tabLabel = tabOptions[tab];
-    return (
-      <TabButton
-        key={tab}
-        tabLable={tabLabel}
-        tabName={tab}
-      />
-    );
+    return <TabButton key={tab} tabLable={tabLabel} tabName={tab} />;
   });
 
   let deckButtons = [] as React.JSX.Element[];
@@ -26,7 +31,10 @@ export default function NavigationMenu() {
         type='button'
         name={d}
         className={'tab-button ' + (currentTab == d ? 'selected' : '')}
-        onClick={() => setTab(d)}
+        onClick={() => {
+          setTab(d);
+          setNavigation(false);
+        }}
         key={Math.random()}
       >
         {tabName}
@@ -48,8 +56,6 @@ export default function NavigationMenu() {
     </div>
   );
 
-  const { refreshPlugins } = usePlugins();
-
   return (
     <div className={'navigation-menu ' + (navigationOpen ? 'open' : '')}>
       {navigationTabs}
@@ -67,7 +73,7 @@ export default function NavigationMenu() {
         </div>
         <div>
           Chat{' '}
-          <button type='button' className='nav-restart-chat-button' onClick={(restartChat) => { }}>
+          <button type='button' className='nav-restart-chat-button' onClick={(restartChat) => {}}>
             Restart Chat
           </button>
         </div>

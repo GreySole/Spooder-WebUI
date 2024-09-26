@@ -11,6 +11,8 @@ import LoadingCircle from '../LoadingCircle';
 export default function PluginList() {
   const { plugins, isReady, reloadPlugins } = usePluginContext();
 
+  console.log(plugins);
+
   if (!isReady) {
     return <LoadingCircle />;
   }
@@ -30,15 +32,5 @@ export default function PluginList() {
     }
   }
 
-  return (
-    <div className='plugin-element'>
-      <div className='plugin-install-button'>
-        <div className='save-div'>
-          <Button label='Refresh All Plugins' onClick={reloadPlugins} icon={faSync} iconSize='lg' />
-          <div className='save-status'></div>
-        </div>
-        <div className='plugin-list'>{pluginList}</div>
-      </div>
-    </div>
-  );
+  return <div className='plugin-list'>{pluginList}</div>;
 }

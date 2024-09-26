@@ -16,18 +16,24 @@ import { useRef, useState } from 'react';
 import { PluginComponentProps } from '../../Types';
 import { usePluginContext } from './context/PluginTabFormContext';
 import usePlugins from '../../../app/hooks/usePlugins';
+import LoadingCircle from '../LoadingCircle';
 
 export default function PluginAssetManager(props: PluginComponentProps) {
   const { pluginName } = props;
   const { plugins, isReady, reloadPlugins } = usePluginContext();
-  const { deletePluginAsset, uploadPluginAsset } = usePlugins();
+  const { getDeletePluginAsset, getUploadPluginAsset, getPluginAssets } = usePlugins();
+  const { deletePluginAsset } = getDeletePluginAsset();
+  const { uploadPluginAsset, error: pluginUploadError } = getUploadPluginAsset();
 
   const audioPreviewRef = useRef<HTMLMediaElement>(null);
   const [assetFilePreview, setAssetFilePreview] = useState<string>('');
   const hiddenAssetInput = useRef<HTMLInputElement>(null);
 
-  if (!isReady) {
-    return null;
+  const [currentFolder, setCurrentFolder] = useState('/');
+  const { data, isLoading, error, refetch } = getPluginAssets(pluginName, currentFolder);
+
+  if (!isReady || isLoading) {
+    return <LoadingCircle />;
   }
 
   const plugin = plugins?.[pluginName];
@@ -50,8 +56,8 @@ export default function PluginAssetManager(props: PluginComponentProps) {
   }
 
   async function deleteAsset() {
-    let deleteReq = await deletePluginAsset(pluginName, assetFilePreview);
-    if (!deleteReq.error) {
+    deletePluginAsset(pluginName, assetFilePreview);
+    if (!pluginUploadError) {
       reloadPlugins();
       setAssetFilePreview('');
     }
@@ -62,40 +68,10 @@ export default function PluginAssetManager(props: PluginComponentProps) {
     if (assetName === '/') {
       folderPath = '/';
     } else {
-      folderPath = path.join(plugin.assetBrowserPath, assetName);
+      folderPath = path.join(currentFolder, assetName);
     }
-    getAssets(pluginName, folderPath);
-  }
-
-  function getAssets(name: string, folderPath: string) {
-    fetch('/browse_plugin_assets', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-      body: JSON.stringify({ pluginname: name, folder: folderPath }),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.status == 'ok') {
-          let newPlugins = Object.assign({}, plugins);
-          newPlugins[name].assetBrowserPath = folderPath;
-          newPlugins[name].assets = data.dirs.sort((a: string, b: string) => {
-            const assetA = a.toUpperCase();
-            const assetB = b.toUpperCase();
-
-            if (assetA < assetB) {
-              return -1;
-            }
-
-            if (assetB > assetA) {
-              return 1;
-            }
-
-            return 0;
-          });
-          reloadPlugins();
-        }
-      })
-      .catch((error) => {});
+    setCurrentFolder(folderPath);
+    refetch();
   }
 
   async function uploadPluginAssetClick(file: File | undefined) {
@@ -115,28 +91,22 @@ export default function PluginAssetManager(props: PluginComponentProps) {
     reloadPlugins();
   }
 
-  if (plugin.assets == null) {
-    getAssets(pluginName, plugin.assetBrowserPath);
-    return null;
-  }
-
-  let pluginAssets = plugin.assets;
-  let fileTable = [];
-  let folderTable = [];
-  for (let p in pluginAssets) {
-    let fileType = getMediaType(pluginAssets[p]);
+  const fileTable = [];
+  const folderTable = [];
+  for (let p in data) {
+    let fileType = getMediaType(data[p]);
     let fileIcon = <h2>{fileType}</h2>;
     if (fileType == null) {
       folderTable.push(
         <div
           className='asset-entry'
-          key={pluginAssets[p]}
-          id={pluginAssets[p]}
-          onClick={() => selectAsset(pluginAssets[p])}
-          onDoubleClick={() => browseFolder(pluginAssets[p])}
+          key={data[p]}
+          id={data[p]}
+          onClick={() => selectAsset(data[p])}
+          onDoubleClick={() => browseFolder(data[p])}
         >
           <FontAwesomeIcon icon={faFolder} />
-          {pluginAssets[p]}
+          {data[p].substring(data[p].lastIndexOf('/') + 1)}
         </div>,
       );
       continue;
@@ -146,14 +116,9 @@ export default function PluginAssetManager(props: PluginComponentProps) {
       fileIcon = <FontAwesomeIcon icon={faVolumeHigh} />;
     }
     fileTable.push(
-      <div
-        className='asset-entry'
-        key={pluginAssets[p]}
-        id={pluginAssets[p]}
-        onClick={() => selectAsset(pluginAssets[p])}
-      >
+      <div className='asset-entry' key={data[p]} id={data[p]} onClick={() => selectAsset(data[p])}>
         {fileIcon}
-        {pluginAssets[p]}
+        {data[p].substring(data[p].lastIndexOf('/') + 1)}
       </div>,
     );
   }

@@ -5,11 +5,11 @@ export const eventApi = createApi({
   baseQuery: fetchBaseQuery({ baseUrl: window.location.origin+"/events" }),
   endpoints: (builder) => ({
     getEvents: builder.query({
-      query: () => '/command_table',
+      query: () => '/event_table',
     }),
     saveEvents: builder.mutation({
       query: (form) => ({
-        url: '/saveCommandList',
+        url: '/save_command_list',
         method: 'post',
         body: form,
         headers: {

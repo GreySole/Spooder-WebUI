@@ -33,12 +33,15 @@ export const navigationSlice = createSlice({
     _toggleNavigation: (state) => {
       state.navigationOpen = !state.navigationOpen;
     },
+    _setNavigation: (state, action) => {
+      state.navigationOpen = action.payload.isOpen;
+    },
     _setStayHere: (state, action) => {
       state.stayHere = action.payload.stayHere;
     },
   },
 });
 
-export const { _setTab, _toggleNavigation, _setStayHere } = navigationSlice.actions;
+export const { _setTab, _toggleNavigation, _setNavigation, _setStayHere } = navigationSlice.actions;
 
 export default navigationSlice.reducer;

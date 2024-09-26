@@ -51,116 +51,64 @@ export default function useTwitch() {
     return { data, isLoading, error };
   }
 
-  async function revokeToken(type: string, user_id: string) {
-    const [revokeToken] = useRevokeTokenMutation();
-    try {
-      const result = await revokeToken(null).unwrap();
-      return {
-        data: result,
-        error: null,
-      };
-    } catch (error) {
-      return {
-        data: null,
-        error: error,
-      };
+  function getRevokeToken() {
+    const [revokeTokenMutation, { isLoading, isSuccess, error }] = useRevokeTokenMutation();
+    function revokeToken(type: string, user_id: string) {
+      revokeTokenMutation(null);
     }
+    return { revokeToken, isLoading, isSuccess, error };
   }
 
-  async function saveAuthToBroadcaster(type: string, user_id: string) {
-    const [saveAuthToBroadcaster] = useSaveAuthToBroadcasterMutation();
-    try {
-      const result = await saveAuthToBroadcaster(null).unwrap();
-      return {
-        data: result,
-        error: null,
-      };
-    } catch (error) {
-      return {
-        data: null,
-        error: error,
-      };
+  function getSaveAuthToBroadcaster() {
+    const [saveAuthToBroadcasterMutation, { isLoading, isSuccess, error }] =
+      useSaveAuthToBroadcasterMutation();
+    function saveAuthToBroadcaster(type: string, user_id: string) {
+      saveAuthToBroadcasterMutation(null);
     }
+    return { saveAuthToBroadcaster, isLoading, isSuccess, error };
   }
 
-  async function saveTwitchConfig(form: FormData) {
-    const [saveTwitchConfig] = useSaveTwitchConfigMutation();
-    try {
-      const result = await saveTwitchConfig(form).unwrap();
-      return {
-        data: result,
-        error: null,
-      };
-    } catch (error) {
-      return {
-        data: null,
-        error: error,
-      };
+  function getSaveTwitchConfig() {
+    const [saveTwitchConfigMutation, { isLoading, isSuccess, error }] =
+      useSaveTwitchConfigMutation();
+    function saveTwitchConfig(form: FormData) {
+      saveTwitchConfigMutation(form);
     }
+    return { saveTwitchConfig, isLoading, isSuccess, error };
   }
 
-  async function convertEventsubToSpooder() {
-    const [convertEventsubToSpooder] = useConvertEventsubToSpooderMutation();
-    try {
-      const result = await convertEventsubToSpooder(null).unwrap();
-      return {
-        data: result,
-        error: null,
-      };
-    } catch (error) {
-      return {
-        data: null,
-        error: error,
-      };
+  function getConvertEventsubToSpooder() {
+    const [convertEventsubToSpooderMutation, { isLoading, isSuccess, error }] =
+      useConvertEventsubToSpooderMutation();
+    function convertEventsubToSpooder() {
+      convertEventsubToSpooderMutation(null);
     }
+    return { convertEventsubToSpooder, isLoading, isSuccess, error };
   }
 
-  async function initEventsub(type: string, user_id: string) {
-    const [initEventsub] = useInitEventsubMutation();
-    try {
-      const result = await initEventsub({ type, user_id }).unwrap();
-      return {
-        data: result,
-        error: null,
-      };
-    } catch (error) {
-      return {
-        data: null,
-        error: error,
-      };
+  function getInitEventsub() {
+    const [initEventsubMutation, { isLoading, isSuccess, error }] = useInitEventsubMutation();
+    function initEventsub(type: string, user_id: string) {
+      initEventsubMutation({ type, user_id });
     }
+    return { initEventsub, isLoading, isSuccess, error };
   }
 
-  async function refreshEventsubs() {
-    const [refreshEventsubs] = useRefreshEventsubsMutation();
-    try {
-      const result = await refreshEventsubs(null).unwrap();
-      return {
-        data: result,
-        error: null,
-      };
-    } catch (error) {
-      return {
-        data: null,
-        error: error,
-      };
+  function getRefreshEventsubs() {
+    const [refreshEventsubsMutation, { isLoading, isSuccess, error }] =
+      useRefreshEventsubsMutation();
+    function refreshEventsubs() {
+      refreshEventsubsMutation(null);
     }
+    return { refreshEventsubs, isLoading, isSuccess, error };
   }
 
-  async function deleteEventsub(subId: string) {
-    const [deleteEventsub] = useDeleteEventsubMutation();
-    try {
-      const result = await deleteEventsub(subId).unwrap();
-      return {
-        data: result,
-        error: null,
-      };
-    } catch (error) {
-      return {
-        data: null,
-        error: error,
-      };
+  function getDeleteEventsub() {
+    const [deleteEventsubMutation, { isLoading, isSuccess, error }] = useDeleteEventsubMutation();
+    function deleteEventsub(subId: string) {
+      deleteEventsubMutation(subId);
     }
+    return { deleteEventsub, isLoading, isSuccess, error };
   }
 
   return {
@@ -170,12 +118,12 @@ export default function useTwitch() {
     getEventsubTypes,
     getEventsubsByUser,
     getEventsubsList,
-    revokeToken,
-    saveAuthToBroadcaster,
-    saveTwitchConfig,
-    convertEventsubToSpooder,
-    initEventsub,
-    refreshEventsubs,
-    deleteEventsub,
+    getRevokeToken,
+    getSaveAuthToBroadcaster,
+    getSaveTwitchConfig,
+    getConvertEventsubToSpooder,
+    getInitEventsub,
+    getRefreshEventsubs,
+    getDeleteEventsub,
   };
 }

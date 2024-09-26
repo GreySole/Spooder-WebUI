@@ -1,8 +1,11 @@
-import { useState } from "react";
-import { PluginProvider } from "../UI/PluginTab/context/PluginTabFormContext";
-import CreatePluginButton from "../UI/PluginTab/input/CreatePluginButton";
-import InstallPluginButton from "../UI/PluginTab/input/InstallPluginButton";
-import PluginList from "../UI/PluginTab/PluginList";
+import { useState } from 'react';
+import { PluginProvider } from '../UI/PluginTab/context/PluginTabFormContext';
+import CreatePluginButton from '../UI/PluginTab/input/CreatePluginButton';
+import InstallPluginButton from '../UI/PluginTab/input/InstallPluginButton';
+import PluginList from '../UI/PluginTab/PluginList';
+import { faSync } from '@fortawesome/free-solid-svg-icons';
+import Button from '../UI/common/input/controlled/Button';
+import RefreshAllPluginsButton from '../UI/PluginTab/input/RefreshAllPluginsButton';
 
 interface NewPlugin {
   [key: string]: {
@@ -23,9 +26,9 @@ export default function PluginTab() {
         <div className='plugin-install-button'>
           <CreatePluginButton />
           <InstallPluginButton />
-
-          <PluginList />
+          <RefreshAllPluginsButton />
         </div>
+        <PluginList />
       </div>
     </PluginProvider>
   );

@@ -9,7 +9,7 @@ interface SelectDropdownProps {
 
 export default function FormSelectDropdown(props: SelectDropdownProps) {
   const { formKey, label, options } = props;
-  const { watch, register } = useFormContext();
+  const { watch, register, getValues } = useFormContext();
   const value = watch(formKey);
 
   return (

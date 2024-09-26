@@ -3,9 +3,9 @@ import React from 'react';
 interface BoxProps {
   padding: string;
   margin: string;
-  flexFlow: string;
-  alignItems: string;
-  justifyContent: string;
+  flexFlow: 'row' | 'column';
+  alignItems: 'left' | 'center' | 'right';
+  justifyContent: 'center' | 'space-between' | 'space-around' | 'space-evenly';
   children: React.JSX.Element[];
 }
 

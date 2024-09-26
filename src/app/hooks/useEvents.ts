@@ -102,7 +102,7 @@ export default function useEvents() {
     },
   };
 
-  const {showToast} = useToast();
+  const { showToast } = useToast();
 
   function getEvents() {
     const { data, isLoading, error } = useGetEventsQuery(null);
@@ -114,18 +114,21 @@ export default function useEvents() {
     };
   }
 
-  function saveEvents(form: FieldValues) {
-    const [saveEvents, { isLoading, isSuccess, error }] = useSaveEventsMutation();
-    const formData = new FormData();
-    for (const [key, value] of Object.entries(form)) {
-      formData.append(key, value);
+  function getSaveEvents() {
+    const [saveEventsMutation, { isLoading, isSuccess, error }] = useSaveEventsMutation();
+    function saveEvents(form: FieldValues) {
+      const formData = new FormData();
+      for (const [key, value] of Object.entries(form)) {
+        formData.append(key, value);
+      }
+      console.log('SAVING', form);
+      saveEventsMutation(form).then((response) => {
+        showToast('Events Saved!', ToastType.SAVE);
+      });
+      console.log('SAVING', form);
     }
 
-    saveEvents(form).then((response) => {
-      showToast("Events Saved!", ToastType.SAVE);
-    })
-
-    return { isLoading, isSuccess, error };
+    return { saveEvents, isLoading, isSuccess, error };
   }
 
   function fixEventForm(rawData: any) {
@@ -256,7 +259,7 @@ export default function useEvents() {
 
   return {
     getEvents,
-    saveEvents,
+    getSaveEvents,
     verifyResponseScript,
   };
 }

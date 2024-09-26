@@ -1,5 +1,5 @@
 import { useDispatch, useSelector } from 'react-redux';
-import { _setStayHere, _setTab, _toggleNavigation } from '../slice/navigationSlice';
+import { _setNavigation, _setStayHere, _setTab, _toggleNavigation } from '../slice/navigationSlice';
 import { IRootState } from '../store';
 
 export default function useNavigation() {
@@ -20,6 +20,11 @@ export default function useNavigation() {
     dispatch(_toggleNavigation());
   }
 
+  function setNavigation(isOpen: boolean) {
+    console.log('SETTING NAV', isOpen);
+    dispatch(_setNavigation(isOpen));
+  }
+
   function setStayHere(stayHere: boolean) {
     dispatch(_setStayHere(stayHere));
   }
@@ -28,6 +33,7 @@ export default function useNavigation() {
     navigationOpen,
     setTab,
     toggleNavigation,
+    setNavigation,
     setStayHere,
     stayHere,
     tabOptions,

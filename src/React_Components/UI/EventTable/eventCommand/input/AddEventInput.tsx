@@ -2,6 +2,7 @@ import { useFormContext } from 'react-hook-form';
 import { EVENT_KEY } from '../../FormKeys';
 import { useState } from 'react';
 import { HotkeysProvider } from '../../../../../app/hooks/useHotkeys';
+import { SpooderEvent } from '../../../../Types';
 
 interface AddEventButtonProps {
   groupName: string;
@@ -9,7 +10,7 @@ interface AddEventButtonProps {
 
 export default function AddEventInput(props: AddEventButtonProps) {
   const { groupName } = props;
-  const { setValue, getValues, watch } = useFormContext();
+  const { setValue, watch } = useFormContext();
   const [addEventName, setAddEventName] = useState<string>('');
   const [inputFocused, setInputFocused] = useState<boolean>(false);
   const events = watch('events');
@@ -24,6 +25,7 @@ export default function AddEventInput(props: AddEventButtonProps) {
   }
 
   function addEvent(newKey: string, eventGroup: string) {
+    console.log("NEW EVENT", newKey);
     if (events[newKey] != null) {
       return;
     }
@@ -49,22 +51,22 @@ export default function AddEventInput(props: AddEventButtonProps) {
         },
       },
       commands: [],
-    } as unknown as Event;
+    } as SpooderEvent;
 
     setValue(`${EVENT_KEY}.${newKey}`, newEvent);
   }
 
   return (
-    <HotkeysProvider enter={()=>inputFocused ? addEvent(addEventName, groupName): null}>
+    <HotkeysProvider enter={() => inputFocused ? addEvent(addEventName, groupName) : null}>
       <input
         type='text'
         className={`event-key-input ${checkEventTaken(addEventName) ? 'error' : ''}`}
         id='eventkey'
         placeholder='Event name'
         value={addEventName}
-        onInput={() => setAddEventName(addEventName)}
-        onFocus={()=>setInputFocused(true)}
-        onBlur={()=>setInputFocused(false)}
+        onInput={(e: React.ChangeEvent<HTMLInputElement>) => setAddEventName(e.target.value)}
+        onFocus={() => setInputFocused(true)}
+        onBlur={() => setInputFocused(false)}
       />
       <button
         type='button'

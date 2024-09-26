@@ -5,7 +5,8 @@ import usePlugins from '../../../../app/hooks/usePlugins';
 
 export default function InstallPluginButton() {
   const hiddenFileInput = useRef<HTMLInputElement>(null);
-  const { installPlugin } = usePlugins();
+  const { getInstallPlugin } = usePlugins();
+  const { installPlugin } = getInstallPlugin();
 
   function validateFile(file?: File) {
     if (file !== undefined) {

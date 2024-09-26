@@ -1,24 +1,27 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import { PluginsObject } from '../../React_Components/Types';
+import { KeyedObject, PluginsObject } from '../../React_Components/Types';
 
 export const pluginApi = createApi({
   reducerPath: 'pluginApi',
   baseQuery: fetchBaseQuery({ baseUrl: window.location.origin }),
   endpoints: (builder) => ({
     getPlugins: builder.query<PluginsObject, null>({
-      query: () => '/plugins',
+      query: () => '/plugins/get_list',
     }),
     browsePluginAssets: builder.query({
       query: ({ pluginName, assetName }) => ({
-        url: `/browse_plugin_assets?pluginname=${pluginName}&assetname=${assetName}`,
+        url: `/plugins/browse_plugin_assets?pluginname=${pluginName}&folder=${assetName}`,
         headers: {
           'Content-type': 'application/json; charset=UTF-8',
         },
       }),
+      transformResponse: (data: KeyedObject) => {
+        return data.dirs;
+      },
     }),
     installPlugin: builder.mutation({
       query: (form) => ({
-        url: '/install_plugin',
+        url: '/plugins/install_plugin',
         method: 'post',
         body: form,
         headers: {
@@ -28,7 +31,7 @@ export const pluginApi = createApi({
     }),
     uploadPluginAsset: builder.mutation({
       query: ({ assetPath, form }) => ({
-        url: `/upload_plugin_asset/${assetPath}`,
+        url: `/plugins/upload_plugin_asset/${assetPath}`,
         method: 'post',
         body: form,
         headers: {
@@ -38,7 +41,7 @@ export const pluginApi = createApi({
     }),
     uploadPluginIcon: builder.mutation({
       query: ({ assetPath, form }) => ({
-        url: `/upload_plugin_icon/${assetPath}`,
+        url: `/plugins/upload_plugin_icon/${assetPath}`,
         method: 'post',
         body: form,
         headers: {
@@ -48,7 +51,7 @@ export const pluginApi = createApi({
     }),
     deletePlugin: builder.mutation({
       query: (pluginID: string) => ({
-        url: `/delete_plugin`,
+        url: `/plugins/delete_plugin`,
         method: 'post',
         body: { pluginName: pluginID },
         headers: {
@@ -58,7 +61,7 @@ export const pluginApi = createApi({
     }),
     deletePluginAsset: builder.mutation({
       query: ({ pluginName, assetName }) => ({
-        url: `/delete_plugin_asset`,
+        url: `/plugins/delete_plugin_asset`,
         method: 'post',
         body: { pluginName: pluginName, assetName: assetName },
         headers: {
@@ -68,7 +71,7 @@ export const pluginApi = createApi({
     }),
     exportPlugin: builder.mutation({
       query: (pluginID: string) => ({
-        url: `/export_plugin/${pluginID}`,
+        url: `/plugins/export_plugin/${pluginID}`,
         method: 'get',
         headers: {
           'Content-type': 'application/json; charset=UTF-8',
@@ -77,7 +80,7 @@ export const pluginApi = createApi({
     }),
     refreshPlugin: builder.mutation({
       query: (pluginName: string) => ({
-        url: `/refresh_plugin?pluginname=${pluginName}`,
+        url: `/plugins/refresh_plugin?pluginname=${pluginName}`,
         method: 'get',
         headers: {
           'Content-type': 'application/json; charset=UTF-8',
@@ -86,7 +89,7 @@ export const pluginApi = createApi({
     }),
     refreshPlugins: builder.mutation({
       query: () => ({
-        url: '/refresh_plugins',
+        url: '/plugins/refresh_plugins',
         method: 'get',
         headers: {
           'Content-type': 'application/json; charset=UTF-8',
@@ -95,7 +98,7 @@ export const pluginApi = createApi({
     }),
     reinstallPlugin: builder.mutation({
       query: (pluginName: string) => ({
-        url: `/reinstall_plugin?pluginname=${pluginName}`,
+        url: `/plugins/reinstall_plugin?pluginname=${pluginName}`,
         method: 'get',
         headers: {
           'Content-type': 'application/json; charset=UTF-8',
@@ -104,7 +107,7 @@ export const pluginApi = createApi({
     }),
     createPlugin: builder.mutation({
       query: (form) => ({
-        url: '/create_plugin',
+        url: '/plugins/create_plugin',
         method: 'post',
         body: form,
         headers: {
@@ -114,7 +117,7 @@ export const pluginApi = createApi({
     }),
     savePlugin: builder.mutation({
       query: ({ pluginName, newData }) => ({
-        url: '/save_plugin',
+        url: '/plugins/save_plugin',
         method: 'post',
         body: { pluginName, newData },
         headers: {

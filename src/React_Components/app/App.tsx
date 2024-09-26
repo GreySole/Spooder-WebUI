@@ -1,62 +1,46 @@
-import { faPlay, faStop } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useEffect, useState } from "react";
-import useNavigation from "../../app/hooks/useNavigation";
-import useServer from "../../app/hooks/useServer";
-import useTheme from "../../app/hooks/useTheme";
-import NavigationMenu from "./NavigationMenu";
-import NavigationTabs from "./NavigationTabs";
-import ModUI from "../deck/ModUI";
-import OSCMonitor from "../deck/OSCMonitor";
-import { ConfigTab } from "../Tabs/ConfigTab";
-import { DiscordTab } from "../Tabs/DiscordTab";
-import EventTable from "../Tabs/EventTable";
-import { OSCTunnelTab } from "../Tabs/OSCTunnelTab";
-import PluginTab from "../Tabs/PluginTab";
-import { ShareTab } from "../Tabs/ShareTab";
-import { TwitchTab } from "../Tabs/TwitchTab";
-import { UserTab } from "../Tabs/UserTab";
-import FormBoolSwitch from "../UI/common/input/form/FormBoolSwitch";
-import LoadingCircle from "../UI/LoadingCircle";
-import BoolSwitch from "../UI/common/input/controlled/BoolSwitch";
-import usePlugins from "../../app/hooks/usePlugins";
-import AppHeader from "./AppHeader";
-import { useOSC } from "../../app/context/OscContext";
-
+import { faPlay, faStop } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { useEffect, useState } from 'react';
+import useNavigation from '../../app/hooks/useNavigation';
+import useServer from '../../app/hooks/useServer';
+import useTheme from '../../app/hooks/useTheme';
+import NavigationMenu from './NavigationMenu';
+import NavigationTabs from './NavigationTabs';
+import ModUI from '../deck/ModUI';
+import OSCMonitor from '../deck/OSCMonitor';
+import { DiscordTab } from '../Tabs/DiscordTab';
+import EventTable from '../UI/EventTable/EventTable';
+import PluginTab from '../Tabs/PluginTab';
+import { TwitchTab } from '../Tabs/TwitchTab';
+import { UserTab } from '../Tabs/UserTab';
+import FormBoolSwitch from '../UI/common/input/form/FormBoolSwitch';
+import LoadingCircle from '../UI/LoadingCircle';
+import BoolSwitch from '../UI/common/input/controlled/BoolSwitch';
+import usePlugins from '../../app/hooks/usePlugins';
+import AppHeader from './AppHeader';
+import { useOSC } from '../../app/context/OscContext';
+import EventTab from '../Tabs/EventTab';
+import ConfigTab from '../Tabs/ConfigTab';
+import OSCTunnelTab from '../Tabs/OSCTunnelTab';
 
 export default function App() {
   const { urlParams, currentTab, stayHere, navigationOpen, setStayHere } = useNavigation();
-  const [toastText, setToastText] = useState<string>('');
-  const [toastClass, setToastClass] = useState<string>('');
   const { getServerState } = useServer();
   const { data: serverData, isLoading: serverLoading, error: serverError } = getServerState();
-  const {addListener, removeListener} = useOSC();
+  const { addListener, removeListener } = useOSC();
+  const { getRefreshPlugins } = usePlugins();
+  const { refreshPlugins } = getRefreshPlugins();
 
-  useEffect(()=>{
-    addListener('/obs/status/connection', (message:any)=>{
-      
-    })
+  useEffect(() => {
+    addListener('/obs/status/connection', (message: any) => {});
 
     return () => {
       removeListener('/obs/status/connection');
-    }
-  },[])
+    };
+  }, []);
 
   if (serverLoading) {
     return <LoadingCircle />;
-  }
-
-  function setToast(txt: string, tClass: string, dur: number) {
-    if (dur == null) {
-      dur = 3000;
-    }
-    setTimeout(() => {
-      setToastText('');
-      setToastClass('');
-    }, dur);
-
-    setToastText(txt);
-    setToastClass(tClass);
   }
 
   if (serverData.isExternal) {
@@ -86,18 +70,18 @@ export default function App() {
 
   switch (currentTab) {
     case 'commands':
-      tabContent = <EventTable />;
+      tabContent = <EventTab />;
       break;
-    /*case 'config':
+    case 'config':
       tabContent = <ConfigTab />;
-      break;*/
-    /*case 'plugins':
+      break;
+    case 'plugins':
       tabContent = <PluginTab />;
       break;
     case 'osctunnels':
       tabContent = <OSCTunnelTab />;
       break;
-    case 'sharing':
+    /*case 'sharing':
       tabContent = <ShareTab />;
       break;
     case 'discord':
@@ -148,7 +132,7 @@ export default function App() {
           className={
             'nav-share-button ' + (serverData.shares[s] == false ? 'save-button' : 'delete-button')
           }
-          onClick={()=>{}}
+          onClick={() => {}}
         >
           <FontAwesomeIcon icon={serverData.shares[s] == false ? faPlay : faStop} size='lg' />
         </button>
@@ -156,12 +140,9 @@ export default function App() {
     );
   }
 
-  const { customSpooder, setThemeColor, themeColor } = useTheme();
-  const {refreshPlugins} = usePlugins();
-
   return (
     <div className='App'>
-      <AppHeader/>
+      <AppHeader />
       <div className={'navigation-menu ' + (navigationOpen ? 'open' : '')}>
         <NavigationTabs />
         <NavigationMenu />
@@ -179,7 +160,7 @@ export default function App() {
           </div>
           <div>
             Chat{' '}
-            <button type='button' className='nav-restart-chat-button' onClick={()=>{}}>
+            <button type='button' className='nav-restart-chat-button' onClick={() => {}}>
               Restart Chat
             </button>
           </div>

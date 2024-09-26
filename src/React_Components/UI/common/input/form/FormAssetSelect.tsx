@@ -3,6 +3,9 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import usePlugins from '../../../../../app/hooks/usePlugins';
 import FormSelectDropdown from './FormSelectDropdown';
 import { useRef } from 'react';
+import { useFormContext } from 'react-hook-form';
+import { useUploadPluginAssetMutation } from '../../../../../app/api/pluginSlice';
+import LoadingCircle from '../../../LoadingCircle';
 
 interface FormAssetSelectProps {
   formKey: string;
@@ -12,83 +15,36 @@ interface FormAssetSelectProps {
   assetFolderPath: string;
 }
 
-/*function getAssetOptions(mediaType, folder) {
-  //console.log("GET ASSETS", mediaType, _assets);
-  if (assets == null) {
-    return [];
-  }
-  if (folder == '' || folder == null) {
-    folder = 'root';
-  }
-  let assets = assets;
-  let options = {};
-  let extensions = window.mediaExtensions;
-  if (assets[folder] != null) {
-    for (let a in assets[folder]) {
-      let astring = assets[folder][a];
-      if (extensions[mediaType] == null) {
-        if (folder != 'root') {
-          options[astring] = astring.substring(folder.length + 1);
-        } else {
-          options[astring] = astring;
-        }
-      } else {
-        if (extensions[mediaType].includes(astring.substring(astring.lastIndexOf('.')))) {
-          if (folder != 'root') {
-            options[astring] = astring.substring(folder.length + 1);
-          } else {
-            options[astring] = astring;
-          }
-        }
-      }
-    }
-  }
-
-  //console.log(options);
-  let optionHTML = [];
-  if (options?.required == false || options?.required == null) {
-    optionHTML.push(<option value=''>None</option>);
-  }
-
-  for (let o in options) {
-    optionHTML.push(<option value={o}>{options[o]}</option>);
-  }
-
-  return optionHTML;
-}*/
-
 export default function FormAssetSelect(props: FormAssetSelectProps) {
   const { formKey, label, assetType, pluginName, assetFolderPath } = props;
   const acceptedFormat = assetType != null ? assetType + '/*' : '*';
-  const { browsePluginAssets, uploadPluginAsset } = usePlugins();
-  const {
-    data: assets,
-    isLoading,
-    error,
-    refetch,
-  } = browsePluginAssets(pluginName, assetFolderPath);
+  const { getPluginAssets } = usePlugins();
+  const { setValue } = useFormContext();
+  const [uploadPluginAsset] = useUploadPluginAssetMutation();
+  const { data: assets, isLoading, error, refetch } = getPluginAssets(pluginName, assetFolderPath);
   const fileRef = useRef<HTMLInputElement>(null);
 
   if (isLoading || error) {
-    return null;
+    return <LoadingCircle />;
   }
 
   const assetOptions = [{ label: 'None', value: '' }];
   for (let a in assets) {
     assetOptions.push({
-      label: assets[a],
-      value: a,
+      label: assets[a].substring(assets[a].lastIndexOf('/') + 1),
+      value: assets[a],
     });
   }
 
   async function uploadAsset(files: FileList | null) {
     if (files && files.length > 0) {
-      const path = assetFolderPath == null ? pluginName : pluginName + '/' + assetFolderPath;
+      const assetPath = `${assetFolderPath}/${files[0].name}`;
       var fd = new FormData();
 
       fd.append('file', files[0]);
 
-      await uploadPluginAsset(assetFolderPath, fd);
+      await uploadPluginAsset({ assetPath, fd }).unwrap();
+      setValue(formKey, assetPath);
       refetch();
     }
   }
@@ -102,7 +58,7 @@ export default function FormAssetSelect(props: FormAssetSelectProps) {
   return (
     <label>
       {label}
-      <FormSelectDropdown formKey={formKey} label={label} options={assetOptions} />
+      <FormSelectDropdown formKey={formKey} options={assetOptions} />
       <button className='settings-form-asset-upload' onClick={handleClick}>
         <FontAwesomeIcon icon={faFileImport} size='lg' />
       </button>
@@ -110,7 +66,7 @@ export default function FormAssetSelect(props: FormAssetSelectProps) {
         type='file'
         id={'input-file-' + formKey}
         ref={fileRef}
-        accept={assetType}
+        accept={acceptedFormat}
         onChange={(e) => uploadAsset(e.target?.files)}
         style={{ display: 'none' }}
       />

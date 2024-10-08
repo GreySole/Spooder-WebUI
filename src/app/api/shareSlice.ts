@@ -7,9 +7,21 @@ export const shareApi = createApi({
     getShares: builder.query({
       query: () => '/shares/list',
     }),
+    getActiveShares: builder.query({
+      query: () => '/shares/active_shares',
+    }),
     verifyShareTarget: builder.mutation({
       query: (shareUser) => ({
         url: '/shares/verify_share_target?shareuser=' + shareUser,
+        method: 'get',
+        headers: {
+          'Content-type': 'application/json; charset=UTF-8',
+        },
+      }),
+    }),
+    verifyDiscordTarget: builder.mutation({
+      query: (discordId) => ({
+        url: '/discord/user?userid=' + discordId,
         method: 'get',
         headers: {
           'Content-type': 'application/json; charset=UTF-8',
@@ -41,6 +53,7 @@ export const shareApi = createApi({
 
 export const {
   useGetSharesQuery,
+  useGetActiveSharesQuery,
   useVerifyShareTargetMutation,
   useSetShareMutation,
   useSaveSharesMutation,

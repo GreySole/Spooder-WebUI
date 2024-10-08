@@ -10,6 +10,7 @@ import { pluginApi } from './api/pluginSlice';
 import toastSlice from './slice/toastSlice';
 import { serverApi } from './api/serverSlice';
 import { shareApi } from './api/shareSlice';
+import { userApi } from './api/userSlice';
 
 const store = configureStore({
   reducer: {
@@ -24,6 +25,7 @@ const store = configureStore({
     [pluginApi.reducerPath]: pluginApi.reducer,
     [serverApi.reducerPath]: serverApi.reducer,
     [shareApi.reducerPath]: shareApi.reducer,
+    [userApi.reducerPath]: userApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware()
@@ -34,7 +36,8 @@ const store = configureStore({
       .concat(twitchApi.middleware)
       .concat(pluginApi.middleware)
       .concat(serverApi.middleware)
-      .concat(shareApi.middleware),
+      .concat(shareApi.middleware)
+      .concat(userApi.middleware),
 });
 export default store;
 export type IRootState = ReturnType<typeof store.getState>;

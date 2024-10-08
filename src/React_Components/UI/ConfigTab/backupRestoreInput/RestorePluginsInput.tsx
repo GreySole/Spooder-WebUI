@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import useServer from '../../../../app/hooks/useServer';
 import LoadingCircle from '../../LoadingCircle';
 import SelectDropdown from '../../common/input/controlled/SelectDropdown';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useRestorePluginsMutation } from '../../../../app/api/serverSlice';
 import Button from '../../common/input/controlled/Button';
 import LinkButton from '../../LinkButton';

@@ -1,3 +1,4 @@
+import React from 'react';
 import useConfig from '../../app/hooks/useConfig';
 import Expandable from '../UI/common/Expandable';
 import SaveButton from '../UI/common/input/form/SaveButton';

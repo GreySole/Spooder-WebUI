@@ -1,3 +1,4 @@
+import React from 'react';
 import FormBoolSwitch from '../../../common/input/form/FormBoolSwitch';
 import { useFormContext } from 'react-hook-form';
 import { buildKey, buildTriggerKey } from '../../FormKeys';

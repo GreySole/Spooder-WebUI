@@ -1,5 +1,9 @@
 import { FieldValues, useFormContext } from 'react-hook-form';
-import { useGetEventsQuery, useSaveEventsMutation } from '../api/eventSlice';
+import {
+  useGetChatCommandsQuery,
+  useGetEventsQuery,
+  useSaveEventsMutation,
+} from '../api/eventSlice';
 import { buildEventKey, buildKey } from '../../React_Components/UI/EventTable/FormKeys';
 import { EVENTS } from 'react-hook-form/dist/constants';
 import useToast from './useToast';
@@ -109,6 +113,15 @@ export default function useEvents() {
     return {
       events: data?.events,
       groups: data?.groups,
+      isLoading,
+      error,
+    };
+  }
+
+  function getChatCommands() {
+    const { data, isLoading, error } = useGetChatCommandsQuery(null);
+    return {
+      data,
       isLoading,
       error,
     };
@@ -259,6 +272,7 @@ export default function useEvents() {
 
   return {
     getEvents,
+    getChatCommands,
     getSaveEvents,
     verifyResponseScript,
   };

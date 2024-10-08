@@ -1,4 +1,4 @@
-import { ReactNode, useState } from 'react';
+import React, { ReactNode, useState } from 'react';
 
 interface ExpandableProps {
   label: string;
@@ -10,7 +10,9 @@ export default function Expandable(props: ExpandableProps) {
   const [open, setOpen] = useState<boolean>(false);
   return (
     <div className='expandable'>
-      <label className='expandable-label' onClick={(e) => setOpen(!open)}>{label}</label>
+      <label className='expandable-label' onClick={(e) => setOpen(!open)}>
+        {label}
+      </label>
       {open ? children : null}
     </div>
   );

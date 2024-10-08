@@ -2,7 +2,7 @@ import { faFileImport } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import usePlugins from '../../../../../app/hooks/usePlugins';
 import FormSelectDropdown from './FormSelectDropdown';
-import { useRef } from 'react';
+import React, { useRef } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { useUploadPluginAssetMutation } from '../../../../../app/api/pluginSlice';
 import LoadingCircle from '../../../LoadingCircle';

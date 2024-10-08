@@ -1,9 +1,5 @@
-import { faCommentDots, faAward, faNetworkWired } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import FormBoolSwitch from '../common/input/form/FormBoolSwitch';
-import useTwitch from '../../../app/hooks/useTwitch';
+import React from 'react';
 import { useFormContext } from 'react-hook-form';
-import { buildTriggerKey } from './FormKeys';
 
 interface EventTriggersProps {
   eventName: string;

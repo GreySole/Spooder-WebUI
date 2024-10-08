@@ -1,3 +1,4 @@
+import React from 'react';
 import useTheme from '../../../app/hooks/useTheme';
 
 export default function SpooderPet() {

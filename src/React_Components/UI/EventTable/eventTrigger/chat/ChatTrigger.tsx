@@ -1,3 +1,4 @@
+import React from 'react';
 import { useFormContext } from 'react-hook-form';
 import FormBoolSwitch from '../../../common/input/form/FormBoolSwitch';
 import { buildKey, buildTriggerKey } from '../../FormKeys';
@@ -35,11 +36,8 @@ export default function ChatTrigger(props: ChatTriggerProps) {
     <div className='chat-trigger'>
       <FormBoolSwitch label='Chat:' formKey={enabledKey} />
       <ChatTriggerCondition eventName={eventName} />
-      <FormBoolSwitch
-        label='Search and Match in Message:'
-        formKey={searchKey}
-      />
-      <FormTextInput label='Command:' formKey={commandKey}/>
+      <FormBoolSwitch label='Search and Match in Message:' formKey={searchKey} />
+      <FormTextInput label='Command:' formKey={commandKey} />
     </div>
   );
 }

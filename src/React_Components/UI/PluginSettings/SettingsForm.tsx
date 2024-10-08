@@ -2,8 +2,8 @@ import React from 'react';
 import PluginSubform from './PluginSubform';
 import PluginInput from './PluginInput';
 import { useForm, FormProvider } from 'react-hook-form';
-import { KeyedObject, PluginComponentProps } from '../Types';
-import { usePluginContext } from '../UI/PluginTab/context/PluginTabFormContext';
+import { KeyedObject, PluginComponentProps } from '../../Types';
+import { usePluginContext } from '../PluginTab/context/PluginTabFormContext';
 import PluginSettingsSaveButton from './PluginSettingsSaveButton';
 
 export default function SettingsForm(props: PluginComponentProps) {

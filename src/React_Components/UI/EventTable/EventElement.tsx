@@ -1,3 +1,4 @@
+import React from 'react';
 import { faCommentDots, faAward, faNetworkWired } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import FormBoolSwitch from '../common/input/form/FormBoolSwitch';

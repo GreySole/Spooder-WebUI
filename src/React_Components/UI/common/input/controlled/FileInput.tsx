@@ -1,7 +1,7 @@
+import React, { useRef } from 'react';
 import { faFileImport } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import usePlugins from '../../../../../app/hooks/usePlugins';
-import { useRef } from 'react';
 
 interface FileInputProps {
   label?: string;

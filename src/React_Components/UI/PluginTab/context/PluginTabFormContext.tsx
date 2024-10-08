@@ -1,3 +1,4 @@
+import React from 'react';
 import { ReactNode, createContext, useContext, useEffect, useState } from 'react';
 import usePlugins from '../../../../app/hooks/usePlugins';
 import { PluginsObject, ToastType } from '../../../Types';

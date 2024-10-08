@@ -1,3 +1,4 @@
+import React from 'react';
 import useEvents from '../../../../../app/hooks/useEvents';
 import SelectDropdown from './SelectDropdown';
 

@@ -1,3 +1,4 @@
+import React from 'react';
 import { useFormContext } from 'react-hook-form';
 import { buildCommandKey, buildKey } from '../../FormKeys';
 import usePlugins from '../../../../../app/hooks/usePlugins';

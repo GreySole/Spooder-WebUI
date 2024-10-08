@@ -1,3 +1,4 @@
+import React from 'react';
 import { useFormContext } from 'react-hook-form';
 import { buildKey, buildTriggerKey } from '../../FormKeys';
 import FormBoolSwitch from '../../../common/input/form/FormBoolSwitch';
@@ -27,10 +28,7 @@ export default function ChatTriggerCondition(props: ChatTriggerConditionProps) {
 
   return (
     <div className='bool-group'>
-      <FormBoolSwitch
-        label='Broadcaster Only:'
-        formKey={conditionBroadcasterKey}
-      />
+      <FormBoolSwitch label='Broadcaster Only:' formKey={conditionBroadcasterKey} />
       <FormBoolSwitch label='Mod Only:' formKey={conditionModKey} />
       <FormBoolSwitch label='Subscriber Only:' formKey={conditionSubKey} />
       <FormBoolSwitch label='VIP Only:' formKey={conditionVipKey} />

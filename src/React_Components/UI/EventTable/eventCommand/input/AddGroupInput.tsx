@@ -1,3 +1,4 @@
+import React from 'react';
 import { useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { HotkeysProvider } from '../../../../../app/hooks/useHotkeys';
@@ -12,7 +13,7 @@ export default function AddGroupInput() {
     setValue('groups', groups);
   }
   return (
-    <HotkeysProvider enter={() => inputFocused ? addGroup(addGroupName) : null}>
+    <HotkeysProvider enter={() => (inputFocused ? addGroup(addGroupName) : null)}>
       <div className='event-add field-section'>
         <label>Add Group</label>
         <div className='add-command-actions'>
@@ -36,6 +37,5 @@ export default function AddGroupInput() {
         </div>
       </div>
     </HotkeysProvider>
-
   );
 }

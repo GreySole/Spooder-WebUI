@@ -14,7 +14,6 @@
     "@fortawesome/free-solid-svg-icons": "^6.1.1",
     "@fortawesome/react-fontawesome": "^0.1.18",
     "@reduxjs/toolkit": "^2.2.5",
-    "@types/react": "^18.3.3",
     "@typescript-eslint/parser": "^5.62.0",
     "@uiw/react-textarea-code-editor": "^2.0.6",
     "@xzdarcy/react-timeline-editor": "^0.1.9",
@@ -29,13 +28,17 @@
     "redux": "^5.0.1",
     "sass": "^1.72.0",
     "spooder-webui": "file:",
-    "tinycolor2": "^1.4.2"
+    "tinycolor2": "^1.4.2",
+    "uuid": "^10.0.0"
   },
   "devDependencies": {
     "@types/path-browserify": "^1.0.2",
+    "@types/react": "^18.3.11",
     "@types/react-dom": "^18.3.0",
     "@types/tinycolor2": "^1.4.6",
-    "react-scripts": "^5.0.1"
+    "@types/uuid": "^10.0.0",
+    "react-scripts": "^5.0.1",
+    "typescript": "^5.6.2"
   },
   "proxy": "http://localhost:3000",
   "browserslist": {

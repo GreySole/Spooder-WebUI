@@ -1,19 +1,15 @@
 import { faPlay, faStop } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import useNavigation from '../../app/hooks/useNavigation';
 import useServer from '../../app/hooks/useServer';
-import useTheme from '../../app/hooks/useTheme';
 import NavigationMenu from './NavigationMenu';
 import NavigationTabs from './NavigationTabs';
 import ModUI from '../deck/ModUI';
 import OSCMonitor from '../deck/OSCMonitor';
 import { DiscordTab } from '../Tabs/DiscordTab';
-import EventTable from '../UI/EventTable/EventTable';
 import PluginTab from '../Tabs/PluginTab';
 import { TwitchTab } from '../Tabs/TwitchTab';
-import { UserTab } from '../Tabs/UserTab';
-import FormBoolSwitch from '../UI/common/input/form/FormBoolSwitch';
 import LoadingCircle from '../UI/LoadingCircle';
 import BoolSwitch from '../UI/common/input/controlled/BoolSwitch';
 import usePlugins from '../../app/hooks/usePlugins';
@@ -22,6 +18,8 @@ import { useOSC } from '../../app/context/OscContext';
 import EventTab from '../Tabs/EventTab';
 import ConfigTab from '../Tabs/ConfigTab';
 import OSCTunnelTab from '../Tabs/OSCTunnelTab';
+import ShareTab from '../Tabs/ShareTab';
+import UserTab from '../Tabs/UserTab';
 
 export default function App() {
   const { urlParams, currentTab, stayHere, navigationOpen, setStayHere } = useNavigation();
@@ -81,18 +79,19 @@ export default function App() {
     case 'osctunnels':
       tabContent = <OSCTunnelTab />;
       break;
-    /*case 'sharing':
+    case 'sharing':
       tabContent = <ShareTab />;
       break;
-    case 'discord':
+    case 'users':
+      tabContent = <UserTab />;
+      break;
+    /*case 'discord':
       tabContent = <DiscordTab />;
       break;
     case 'twitch':
       tabContent = <TwitchTab />;
       break;
-    case 'users':
-      tabContent = <UserTab />;
-      break;*/
+    */
     case 'obs':
       break;
     case 'osc':

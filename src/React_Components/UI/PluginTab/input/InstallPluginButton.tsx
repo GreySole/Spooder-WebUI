@@ -1,3 +1,4 @@
+import React from 'react';
 import { faFileImport } from '@fortawesome/free-solid-svg-icons';
 import Button from '../../common/input/controlled/Button';
 import { useRef } from 'react';

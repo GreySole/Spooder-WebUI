@@ -1,4 +1,4 @@
-import { ChangeEventHandler } from 'react';
+import React, { ChangeEventHandler } from 'react';
 import { useFormContext } from 'react-hook-form';
 
 interface BoolSwitchProps {

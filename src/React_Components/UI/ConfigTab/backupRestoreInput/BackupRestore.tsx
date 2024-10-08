@@ -1,3 +1,4 @@
+import React from 'react';
 import { faUpload, faTrash, faDownload } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useState } from 'react';

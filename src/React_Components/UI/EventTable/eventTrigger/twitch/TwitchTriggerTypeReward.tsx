@@ -1,3 +1,4 @@
+import React from 'react';
 import { useFormContext } from 'react-hook-form';
 import useTwitch from '../../../../../app/hooks/useTwitch';
 import FormBoolSwitch from '../../../common/input/form/FormBoolSwitch';
@@ -48,10 +49,7 @@ export default function TwitchTriggerTypeReward(props: EventTriggerProps) {
           {rewardOptions}
         </select>
       </label>
-      <FormBoolSwitch
-        label='Override Approval (Refundable):'
-        formKey={overrideKey}
-      />
+      <FormBoolSwitch label='Override Approval (Refundable):' formKey={overrideKey} />
     </label>
   );
 }

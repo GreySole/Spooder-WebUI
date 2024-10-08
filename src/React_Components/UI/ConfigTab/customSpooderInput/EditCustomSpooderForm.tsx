@@ -1,7 +1,7 @@
 import { useForm, FormProvider } from 'react-hook-form';
 import useTheme from '../../../../app/hooks/useTheme';
 import { KeyedObject } from '../../../Types';
-import { ReactNode } from 'react';
+import React, { ReactNode } from 'react';
 
 interface EditCustomSpooderForm {
   data: KeyedObject;

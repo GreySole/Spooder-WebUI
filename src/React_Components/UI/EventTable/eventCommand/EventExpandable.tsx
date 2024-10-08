@@ -1,4 +1,4 @@
-import { ReactNode, useState } from 'react';
+import React, { ReactNode, useState } from 'react';
 
 interface ExpandableProps {
   label: string;
@@ -11,7 +11,7 @@ export default function EventExpandable(props: ExpandableProps) {
   const [open, setOpen] = useState<boolean>(false);
   return (
     <div className='expandable event'>
-      <label className="expandable-label" onClick={() => setOpen(!open)}>
+      <label className='expandable-label' onClick={() => setOpen(!open)}>
         <h1>
           {label}
           {triggerIcons}

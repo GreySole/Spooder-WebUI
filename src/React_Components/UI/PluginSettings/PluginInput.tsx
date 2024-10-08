@@ -1,18 +1,19 @@
+import React from 'react';
 import { useFormContext } from 'react-hook-form';
-import FormAssetSelect from '../UI/common/input/form/FormAssetSelect';
-import FormBoolSwitch from '../UI/common/input/form/FormBoolSwitch';
-import FormEventSelect from '../UI/common/input/form/FormEventSelect';
-import FormOBSSceneItemSelect from '../UI/common/input/form/FormOBSSceneItemSelect';
-import FormRangeInput from '../UI/common/input/form/FormRangeInput';
-import FormSelectDropdown from '../UI/common/input/form/FormSelectDropdown';
-import FormTextAreaInput from '../UI/common/input/form/FormTextAreaInput';
-import FormTextInput from '../UI/common/input/form/FormTextInput';
-import FormUdpSelectDropdown from '../UI/common/input/form/FormUdpSelectDropdown';
+import FormAssetSelect from '../common/input/form/FormAssetSelect';
+import FormBoolSwitch from '../common/input/form/FormBoolSwitch';
+import FormEventSelect from '../common/input/form/FormEventSelect';
+import FormOBSSceneItemSelect from '../common/input/form/FormOBSSceneItemSelect';
+import FormRangeInput from '../common/input/form/FormRangeInput';
+import FormSelectDropdown from '../common/input/form/FormSelectDropdown';
+import FormTextAreaInput from '../common/input/form/FormTextAreaInput';
+import FormTextInput from '../common/input/form/FormTextInput';
+import FormUdpSelectDropdown from '../common/input/form/FormUdpSelectDropdown';
 import CodeEditor from '@uiw/react-textarea-code-editor';
-import { KeyedObject } from '../Types';
-import FormColorInput from '../UI/common/input/form/FormColorInput';
-import FormCodeInput from '../UI/common/input/form/FormCodeInput';
-import FormDiscordChannelSelect from '../UI/common/input/form/FormDiscordChannelSelect';
+import { KeyedObject } from '../../Types';
+import FormColorInput from '../common/input/form/FormColorInput';
+import FormCodeInput from '../common/input/form/FormCodeInput';
+import FormDiscordChannelSelect from '../common/input/form/FormDiscordChannelSelect';
 
 interface PluginInputProps {
   pluginName: string;

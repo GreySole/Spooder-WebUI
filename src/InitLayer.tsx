@@ -1,3 +1,4 @@
+import React from 'react';
 import { OscProvider } from './app/context/OscContext';
 import useServer from './app/hooks/useServer';
 import App from './React_Components/app/App';

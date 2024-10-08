@@ -1,6 +1,6 @@
 import { faTrash, faDownload } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import BoolSwitch from '../../common/input/controlled/BoolSwitch';
 import useServer from '../../../../app/hooks/useServer';
 import {

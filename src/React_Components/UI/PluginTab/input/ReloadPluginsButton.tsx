@@ -1,3 +1,4 @@
+import React from 'react';
 import { faSync } from '@fortawesome/free-solid-svg-icons';
 import Button from '../../common/input/controlled/Button';
 import { usePluginContext } from '../context/PluginTabFormContext';

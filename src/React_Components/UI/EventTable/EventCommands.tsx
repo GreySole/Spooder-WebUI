@@ -1,3 +1,4 @@
+import React from 'react';
 import { faCommentDots, faLock, faNetworkWired, faPlug } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import EventOBSCommand from './eventCommand/obs/EventOBSCommand';
@@ -199,7 +200,7 @@ export default function EventCommands(props: EventCommandsProps) {
       />
       {timelineZoom}
       {commandElements}
-      <EventAddCommand onClickAdd={()=>addCommand('software')} />
+      <EventAddCommand onClickAdd={() => addCommand('software')} />
     </label>
   );
 }

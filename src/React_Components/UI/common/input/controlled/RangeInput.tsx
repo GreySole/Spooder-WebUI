@@ -1,3 +1,5 @@
+import React from 'react';
+
 interface RangeInputProps {
   label?: string;
   min: number;

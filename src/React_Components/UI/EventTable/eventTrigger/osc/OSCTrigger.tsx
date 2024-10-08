@@ -1,3 +1,4 @@
+import React from 'react';
 import { useFormContext } from 'react-hook-form';
 import FormBoolSwitch from '../../../common/input/form/FormBoolSwitch';
 import { EventTriggerProps, OSCConditionType, OSCHandleType } from '../../../../Types';

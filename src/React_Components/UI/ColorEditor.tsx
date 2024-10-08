@@ -1,3 +1,4 @@
+import React from 'react';
 import tinycolor from 'tinycolor2';
 
 interface ColorEditorProps {
@@ -8,12 +9,12 @@ interface ColorEditorProps {
 
 export default function ColorEditor(props: ColorEditorProps) {
   const { color, alpha, onColorChanged } = props;
-  function processColorChange(e:any) {
+  function processColorChange(e: any) {
     const newColor = tinycolor(color) ?? new tinycolor();
     onColorChanged(newColor.setAlpha(alpha).toRgbString());
   }
 
-  function processAlphaChange(e:any) {
+  function processAlphaChange(e: any) {
     const newColor = tinycolor(color) ?? new tinycolor();
     onColorChanged(newColor.setAlpha(alpha).toRgbString());
   }

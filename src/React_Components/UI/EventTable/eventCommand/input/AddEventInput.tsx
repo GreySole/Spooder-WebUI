@@ -1,3 +1,4 @@
+import React from 'react';
 import { useFormContext } from 'react-hook-form';
 import { EVENT_KEY } from '../../FormKeys';
 import { useState } from 'react';
@@ -25,7 +26,7 @@ export default function AddEventInput(props: AddEventButtonProps) {
   }
 
   function addEvent(newKey: string, eventGroup: string) {
-    console.log("NEW EVENT", newKey);
+    console.log('NEW EVENT', newKey);
     if (events[newKey] != null) {
       return;
     }
@@ -57,7 +58,7 @@ export default function AddEventInput(props: AddEventButtonProps) {
   }
 
   return (
-    <HotkeysProvider enter={() => inputFocused ? addEvent(addEventName, groupName) : null}>
+    <HotkeysProvider enter={() => (inputFocused ? addEvent(addEventName, groupName) : null)}>
       <input
         type='text'
         className={`event-key-input ${checkEventTaken(addEventName) ? 'error' : ''}`}

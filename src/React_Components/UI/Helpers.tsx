@@ -1,3 +1,4 @@
+import React from 'react';
 export function $(selector: string) {
   return document.querySelector(selector);
 }

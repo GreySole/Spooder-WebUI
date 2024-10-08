@@ -1,3 +1,4 @@
+import React from 'react';
 import {
   faTriangleExclamation,
   faCircleInfo,
@@ -18,7 +19,6 @@ import PluginSettings from './input/PluginSettings';
 import { usePluginContext } from './context/PluginTabFormContext';
 import PluginAssetManager from './PluginAssetManager';
 import { setClass } from '../Helpers';
-import { useHotkeys } from '../../../app/hooks/useHotkeys';
 
 interface Plugin {
   name: string;

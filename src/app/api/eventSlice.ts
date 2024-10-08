@@ -2,10 +2,13 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
 export const eventApi = createApi({
   reducerPath: 'eventApi',
-  baseQuery: fetchBaseQuery({ baseUrl: window.location.origin+"/events" }),
+  baseQuery: fetchBaseQuery({ baseUrl: window.location.origin + '/events' }),
   endpoints: (builder) => ({
     getEvents: builder.query({
       query: () => '/event_table',
+    }),
+    getChatCommands: builder.query({
+      query: () => '/chat_commands',
     }),
     saveEvents: builder.mutation({
       query: (form) => ({
@@ -20,4 +23,4 @@ export const eventApi = createApi({
   }),
 });
 
-export const { useGetEventsQuery, useSaveEventsMutation } = eventApi;
+export const { useGetEventsQuery, useGetChatCommandsQuery, useSaveEventsMutation } = eventApi;

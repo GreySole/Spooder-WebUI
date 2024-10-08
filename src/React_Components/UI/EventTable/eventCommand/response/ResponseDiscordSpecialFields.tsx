@@ -1,3 +1,4 @@
+import React from 'react';
 import { useFormContext } from 'react-hook-form';
 import useDiscord from '../../../../../app/hooks/useDiscord';
 import { buildKey } from '../../FormKeys';

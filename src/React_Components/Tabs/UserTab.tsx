@@ -1,11 +1,39 @@
 import React from 'react';
-import CodeEditor from '@uiw/react-textarea-code-editor';
-import FormBoolSwitch from '../UI/common/input/form/FormBoolSwitch.js';
+import useUsers from '../../app/hooks/useUsers';
+import SaveButton from '../UI/common/input/form/SaveButton';
 import LoadingCircle from '../UI/LoadingCircle';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlusCircle, faTrash } from '@fortawesome/free-solid-svg-icons';
+import CreatePluginButton from '../UI/PluginTab/input/CreatePluginButton';
+import UserTabFormContextProvider from '../UI/UserTab/context/UserTabFormContext';
+import UserList from '../UI/UserTab/UserList';
+import CreateUserButton from '../UI/UserTab/CreateUserButton';
 
-class UserTab extends React.Component{
+export default function UserTab() {
+  const { getUsers, getSaveUsers } = useUsers();
+  const { data: users, isLoading, error } = getUsers();
+  const { saveUsers } = getSaveUsers();
+
+  if (isLoading) {
+    return <LoadingCircle></LoadingCircle>;
+  }
+
+  console.log('USERS', users);
+
+  return (
+    <UserTabFormContextProvider users={users}>
+      <div className='users-tab'>
+        <CreateUserButton />
+        <div className='users-table'>
+          <UserList />
+        </div>
+        <div className='save-commands'>
+          <SaveButton saveFunction={saveUsers} />
+        </div>
+      </div>
+    </UserTabFormContextProvider>
+  );
+}
+
+/*class UserTab extends React.Component{
     constructor(props){
         super(props);
         this.state ={
@@ -174,9 +202,9 @@ class UserTab extends React.Component{
                             <label>Mod UI
                                 <FormBoolSwitch name={p} checked={this.state.users.permissions[p].includes("m")} value={"m"} onChange={this.handlePermissionChange.bind(this)} />
                             </label>
-                            {/*<label>Share Client
+                            <label>Share Client
                                 <BoolSwitch name={p} checked={this.state.users.permissions[p].includes("s")} value={"s"} onChange={this.handlePermissionChange.bind(this)} />
-                            </label>*/}
+                            </label>
                         </div>
                         <label>Twitch Username
                             <input type="text" name={p} defaultValue={this.state.users.twitch[p]} onChange={this.handleTwitchChange.bind(this)}/>
@@ -205,4 +233,4 @@ class UserTab extends React.Component{
     }
 }
 
-export {UserTab};
+export {UserTab};*/

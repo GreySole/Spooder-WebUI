@@ -1,3 +1,4 @@
+import React from 'react';
 import { useState } from 'react';
 import useConfig from '../../../app/hooks/useConfig';
 import usePlugins from '../../../app/hooks/usePlugins';

@@ -1,23 +1,21 @@
-import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useState, useEffect, ReactNode } from "react";
-import { useFormContext } from "react-hook-form";
-import useConfig from "../../../app/hooks/useConfig";
-import useEvents from "../../../app/hooks/useEvents";
-import Expandable from "../common/Expandable";
-import EventTableFormContextProvider from "./context/EventTableFormContext";
-import AddEventInput from "./eventCommand/input/AddEventInput";
-import AddGroupInput from "./eventCommand/input/AddGroupInput";
-import EventElement from "./EventElement";
-import LoadingCircle from "../LoadingCircle";
-import { useHotkeys } from "../../../app/hooks/useHotkeys";
-import SaveEventsButton from "../common/input/form/SaveButton";
-import DeleteGroupButton from "./eventCommand/input/DeleteGroupButton";
-
-
+import React from 'react';
+import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { useState, useEffect, ReactNode } from 'react';
+import { useFormContext } from 'react-hook-form';
+import useConfig from '../../../app/hooks/useConfig';
+import useEvents from '../../../app/hooks/useEvents';
+import Expandable from '../common/Expandable';
+import EventTableFormContextProvider from './context/EventTableFormContext';
+import AddEventInput from './eventCommand/input/AddEventInput';
+import AddGroupInput from './eventCommand/input/AddGroupInput';
+import EventElement from './EventElement';
+import LoadingCircle from '../LoadingCircle';
+import { useHotkeys } from '../../../app/hooks/useHotkeys';
+import SaveEventsButton from '../common/input/form/SaveButton';
+import DeleteGroupButton from './eventCommand/input/DeleteGroupButton';
 
 export default function EventTable() {
-
   const { watch } = useFormContext();
   const [searchText, setSearchText] = useState<string>('');
 
@@ -28,7 +26,9 @@ export default function EventTable() {
     return events[a].name.toUpperCase() > events[b].name.toUpperCase() ? 1 : -1;
   });
 
-  const groupObjects = groups.reduce((obj: any, key: string) => ({ ...obj, [key]: [] }), { "Default": [] });
+  const groupObjects = groups.reduce((obj: any, key: string) => ({ ...obj, [key]: [] }), {
+    Default: [],
+  });
 
   for (let p in propKeys) {
     let s = propKeys[p];
@@ -71,7 +71,7 @@ export default function EventTable() {
               <AddEventInput groupName={groupName} />
               <div className='delete-event-div'>
                 <DeleteGroupButton groupName={groupName} />
-            </div>
+              </div>
             </div>
             {groupObjects[groupName]}
           </div>
@@ -80,20 +80,20 @@ export default function EventTable() {
     );
   });
 
-  return <>
-    <div className='event-search'>
-      <FontAwesomeIcon icon={faMagnifyingGlass} className='event-search-icon' size='lg' />
-      <input
-        type='search'
-        className='event-search-bar'
-        placeholder='Search Events...'
-        onInput={(e: React.ChangeEvent<HTMLInputElement>) => setSearchText(e.target.value)}
-      />
-    </div>
-    <div className='event-container'>
-      {groupElements}
-    </div>
-  </>
+  return (
+    <>
+      <div className='event-search'>
+        <FontAwesomeIcon icon={faMagnifyingGlass} className='event-search-icon' size='lg' />
+        <input
+          type='search'
+          className='event-search-bar'
+          placeholder='Search Events...'
+          onInput={(e: React.ChangeEvent<HTMLInputElement>) => setSearchText(e.target.value)}
+        />
+      </div>
+      <div className='event-container'>{groupElements}</div>
+    </>
+  );
 }
 
 export { EventTable };

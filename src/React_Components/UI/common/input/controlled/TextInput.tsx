@@ -1,3 +1,5 @@
+import React from 'react';
+
 interface TextInputProps {
   key?: string;
   value: string;
@@ -35,7 +37,7 @@ export default function TextInput(props: TextInputProps) {
         placeholder={placeholder}
         type={password ? 'password' : 'text'}
         value={value}
-        onChange={(e) => _onInput(e.target.value)}
+        onInput={(e) => _onInput(e.currentTarget.value)}
       />
     </label>
   );

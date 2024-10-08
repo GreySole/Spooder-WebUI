@@ -1,3 +1,4 @@
+import React from 'react';
 import FormColorInput from '../../common/input/form/FormColorInput';
 import FormTextInput from '../../common/input/form/FormTextInput';
 

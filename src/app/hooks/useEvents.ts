@@ -4,10 +4,10 @@ import {
   useGetEventsQuery,
   useSaveEventsMutation,
 } from '../api/eventSlice';
-import { buildEventKey, buildKey } from '../../React_Components/UI/EventTable/FormKeys';
+import { buildEventKey, buildKey } from '../../ui/Tabs/EventsTab/FormKeys';
 import { EVENTS } from 'react-hook-form/dist/constants';
 import useToast from './useToast';
-import { ToastType } from '../../React_Components/Types';
+import { ToastType } from '../../ui/Types';
 
 interface Event {
   name: string;

@@ -1,4 +1,4 @@
-import { KeyedObject } from '../../React_Components/Types';
+import { KeyedObject } from '../../ui/Types';
 import {
   useBackupPluginsMutation,
   useBackupSettingsMutation,

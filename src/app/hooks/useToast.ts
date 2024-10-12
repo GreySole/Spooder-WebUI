@@ -1,5 +1,5 @@
 import { useSelector } from 'react-redux';
-import { ToastType } from '../../React_Components/Types';
+import { ToastType } from '../../ui/Types';
 import { _showToast } from '../slice/toastSlice';
 import { IRootState } from '../store';
 

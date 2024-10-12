@@ -1,6 +1,6 @@
 import React, { createContext, useState, useEffect, ReactNode, useContext } from 'react';
 import OSC from 'osc-js';
-import { KeyedObject } from '../../React_Components/Types';
+import { KeyedObject } from '../../ui/Types';
 
 export const OscContext = createContext({
   isReady: false,

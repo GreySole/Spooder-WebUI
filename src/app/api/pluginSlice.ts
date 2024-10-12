@@ -1,5 +1,5 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import { KeyedObject, PluginsObject } from '../../React_Components/Types';
+import { KeyedObject, PluginsObject } from '../../ui/Types';
 
 export const pluginApi = createApi({
   reducerPath: 'pluginApi',

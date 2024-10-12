@@ -2,29 +2,32 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
 export const twitchApi = createApi({
   reducerPath: 'twitchApi',
-  baseQuery: fetchBaseQuery({ baseUrl: window.location.origin }),
+  baseQuery: fetchBaseQuery({ baseUrl: window.location.origin + '/twitch' }),
   endpoints: (builder) => ({
-    getEventsubs: builder.query({
-      query: () => '/twitch/eventsubs',
+    getEventSubs: builder.query({
+      query: () => '/eventsubs',
     }),
-    getEventsubsList: builder.query({
-      query: () => '/twitch/eventsubs/list',
+    getAvailableEventSubs: builder.query({
+      query: () => '/get_available_eventsubs',
     }),
-    getEventsubTypes: builder.query({
-      query: () => '/twitch/eventsubs/types',
+    getAvailableScopes: builder.query({
+      query: () => '/get_available_scopes',
+    }),
+    getLinkedAccounts: builder.query({
+      query: () => '/get_linked_accounts',
     }),
     getConfig: builder.query({
-      query: () => '/twitch/config',
+      query: () => '/get_config',
     }),
     getChannelPointRewards: builder.query({
-      query: () => '/twitch/get_channelpoint_rewards',
+      query: () => '/get_channelpoint_rewards',
     }),
-    getEventsubsByUser: builder.query({
-      query: (twitchId: string) => `/twitch/get_channelpoint_rewards?twitchid=${twitchId}`,
+    getEventSubsByUser: builder.query({
+      query: (twitchId: string) => `/get_channelpoint_rewards?twitchid=${twitchId}`,
     }),
     revokeToken: builder.mutation({
       query: () => ({
-        url: `/twitch/revoke`,
+        url: `/revoke`,
         method: 'get',
         headers: {
           'Content-type': 'application/json; charset=UTF-8',
@@ -33,16 +36,16 @@ export const twitchApi = createApi({
     }),
     saveAuthToBroadcaster: builder.mutation({
       query: () => ({
-        url: `/twitch/save_auth_to_broadcaster`,
+        url: `/save_auth_to_broadcaster`,
         method: 'get',
         headers: {
           'Content-type': 'application/json; charset=UTF-8',
         },
       }),
     }),
-    convertEventsubToSpooder: builder.mutation({
+    convertEventSubToSpooder: builder.mutation({
       query: () => ({
-        url: `/convertEventsubToSpooder`,
+        url: `/convertEventSubToSpooder`,
         method: 'get',
         headers: {
           'Content-type': 'application/json; charset=UTF-8',
@@ -51,7 +54,7 @@ export const twitchApi = createApi({
     }),
     saveTwitchConfig: builder.mutation({
       query: (form) => ({
-        url: '/twitch/saveConfig',
+        url: '/saveConfig',
         method: 'post',
         body: form,
         headers: {
@@ -59,27 +62,27 @@ export const twitchApi = createApi({
         },
       }),
     }),
-    refreshEventsubs: builder.mutation({
+    refreshEventSubs: builder.mutation({
       query: () => ({
-        url: `/twitch/refresh_eventsubs`,
+        url: `/refresh_eventsubs`,
         method: 'get',
         headers: {
           'Content-type': 'application/json; charset=UTF-8',
         },
       }),
     }),
-    initEventsub: builder.mutation({
+    initEventSub: builder.mutation({
       query: ({ type, user_id }) => ({
-        url: `/twitch/init_eventsub?type=${type}&user_id=${user_id}`,
+        url: `/init_eventsub?type=${type}&user_id=${user_id}`,
         method: 'get',
         headers: {
           'Content-type': 'application/json; charset=UTF-8',
         },
       }),
     }),
-    deleteEventsub: builder.mutation({
+    deleteEventSub: builder.mutation({
       query: (subId: string) => ({
-        url: `/twitch/delete_eventsub?id=${subId}`,
+        url: `/delete_eventsub?id=${subId}`,
         method: 'get',
         headers: {
           'Content-type': 'application/json; charset=UTF-8',
@@ -90,17 +93,18 @@ export const twitchApi = createApi({
 });
 
 export const {
-  useConvertEventsubToSpooderMutation,
-  useDeleteEventsubMutation,
-  useGetChannelPointRewardsQuery,
+  useConvertEventSubToSpooderMutation,
+  useGetEventSubsQuery,
+  useGetAvailableEventSubsQuery,
+  useGetAvailableScopesQuery,
+  useGetLinkedAccountsQuery,
   useGetConfigQuery,
-  useGetEventsubTypesQuery,
-  useGetEventsubsByUserQuery,
-  useGetEventsubsListQuery,
-  useGetEventsubsQuery,
-  useInitEventsubMutation,
-  useRefreshEventsubsMutation,
+  useGetChannelPointRewardsQuery,
+  useGetEventSubsByUserQuery,
   useRevokeTokenMutation,
   useSaveAuthToBroadcasterMutation,
   useSaveTwitchConfigMutation,
+  useRefreshEventSubsMutation,
+  useDeleteEventSubMutation,
+  useInitEventSubMutation,
 } = twitchApi;

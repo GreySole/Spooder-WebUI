@@ -1,14 +1,16 @@
+import { FieldValues } from 'react-hook-form';
 import {
-  useConvertEventsubToSpooderMutation,
-  useDeleteEventsubMutation,
+  useConvertEventSubToSpooderMutation,
+  useDeleteEventSubMutation,
+  useGetAvailableEventSubsQuery,
+  useGetAvailableScopesQuery,
   useGetChannelPointRewardsQuery,
   useGetConfigQuery,
-  useGetEventsubTypesQuery,
-  useGetEventsubsByUserQuery,
-  useGetEventsubsListQuery,
-  useGetEventsubsQuery,
-  useInitEventsubMutation,
-  useRefreshEventsubsMutation,
+  useGetEventSubsByUserQuery,
+  useGetEventSubsQuery,
+  useGetLinkedAccountsQuery,
+  useInitEventSubMutation,
+  useRefreshEventSubsMutation,
   useRevokeTokenMutation,
   useSaveAuthToBroadcasterMutation,
   useSaveTwitchConfigMutation,
@@ -27,33 +29,39 @@ export default function useTwitch() {
     return { data, isLoading, error };
   }
 
-  function getEventsubs() {
-    const { data, isLoading, error } = useGetEventsubsQuery(null);
+  function getEventSubs() {
+    const { data, isLoading, error } = useGetEventSubsQuery(null);
 
     return { data, isLoading, error };
   }
 
-  function getEventsubTypes() {
-    const { data, isLoading, error } = useGetEventsubTypesQuery(null);
+  function getAvailableEventSubs() {
+    const { data, isLoading, error } = useGetAvailableEventSubsQuery(null);
 
     return { data, isLoading, error };
   }
 
-  function getEventsubsByUser(twitchId: string) {
-    const { data, isLoading, error } = useGetEventsubsByUserQuery(twitchId);
+  function getAvailableScopes() {
+    const { data, isLoading, error } = useGetAvailableScopesQuery(null);
 
     return { data, isLoading, error };
   }
 
-  function getEventsubsList() {
-    const { data, isLoading, error } = useGetEventsubsListQuery(null);
+  function getLinkedAccounts() {
+    const { data, isLoading, error } = useGetLinkedAccountsQuery(null);
+
+    return { data, isLoading, error };
+  }
+
+  function getEventSubsByUser(twitchId: string) {
+    const { data, isLoading, error } = useGetEventSubsByUserQuery(twitchId);
 
     return { data, isLoading, error };
   }
 
   function getRevokeToken() {
     const [revokeTokenMutation, { isLoading, isSuccess, error }] = useRevokeTokenMutation();
-    function revokeToken(type: string, user_id: string) {
+    function revokeToken() {
       revokeTokenMutation(null);
     }
     return { revokeToken, isLoading, isSuccess, error };
@@ -62,7 +70,7 @@ export default function useTwitch() {
   function getSaveAuthToBroadcaster() {
     const [saveAuthToBroadcasterMutation, { isLoading, isSuccess, error }] =
       useSaveAuthToBroadcasterMutation();
-    function saveAuthToBroadcaster(type: string, user_id: string) {
+    function saveAuthToBroadcaster() {
       saveAuthToBroadcasterMutation(null);
     }
     return { saveAuthToBroadcaster, isLoading, isSuccess, error };
@@ -71,59 +79,64 @@ export default function useTwitch() {
   function getSaveTwitchConfig() {
     const [saveTwitchConfigMutation, { isLoading, isSuccess, error }] =
       useSaveTwitchConfigMutation();
-    function saveTwitchConfig(form: FormData) {
-      saveTwitchConfigMutation(form);
+    function saveTwitchConfig(form: FieldValues) {
+      const formData = new FormData();
+      for (const [key, value] of Object.entries(form)) {
+        formData.append(key, value);
+      }
+      saveTwitchConfigMutation(formData);
     }
     return { saveTwitchConfig, isLoading, isSuccess, error };
   }
 
-  function getConvertEventsubToSpooder() {
-    const [convertEventsubToSpooderMutation, { isLoading, isSuccess, error }] =
-      useConvertEventsubToSpooderMutation();
-    function convertEventsubToSpooder() {
-      convertEventsubToSpooderMutation(null);
+  function getConvertEventSubToSpooder() {
+    const [convertEventSubToSpooderMutation, { isLoading, isSuccess, error }] =
+      useConvertEventSubToSpooderMutation();
+    function convertEventSubToSpooder() {
+      convertEventSubToSpooderMutation(null);
     }
-    return { convertEventsubToSpooder, isLoading, isSuccess, error };
+    return { convertEventSubToSpooder, isLoading, isSuccess, error };
   }
 
-  function getInitEventsub() {
-    const [initEventsubMutation, { isLoading, isSuccess, error }] = useInitEventsubMutation();
-    function initEventsub(type: string, user_id: string) {
-      initEventsubMutation({ type, user_id });
+  function getInitEventSub() {
+    const [initEventSubMutation, { isLoading, isSuccess, error }] = useInitEventSubMutation();
+    function initEventSub(type: string, user_id: string) {
+      initEventSubMutation({ type, user_id });
     }
-    return { initEventsub, isLoading, isSuccess, error };
+    return { initEventSub, isLoading, isSuccess, error };
   }
 
-  function getRefreshEventsubs() {
-    const [refreshEventsubsMutation, { isLoading, isSuccess, error }] =
-      useRefreshEventsubsMutation();
-    function refreshEventsubs() {
-      refreshEventsubsMutation(null);
+  function getRefreshEventSubs() {
+    const [refreshEventSubsMutation, { isLoading, isSuccess, error }] =
+      useRefreshEventSubsMutation();
+    function refreshEventSubs() {
+      refreshEventSubsMutation(null);
     }
-    return { refreshEventsubs, isLoading, isSuccess, error };
+    return { refreshEventSubs, isLoading, isSuccess, error };
   }
 
-  function getDeleteEventsub() {
-    const [deleteEventsubMutation, { isLoading, isSuccess, error }] = useDeleteEventsubMutation();
-    function deleteEventsub(subId: string) {
-      deleteEventsubMutation(subId);
+  function getDeleteEventSub() {
+    const [deleteEventSubMutation, { isLoading, isSuccess, error }] = useDeleteEventSubMutation();
+    function deleteEventSub(subId: string) {
+      deleteEventSubMutation(subId);
     }
-    return { deleteEventsub, isLoading, isSuccess, error };
+    return { deleteEventSub, isLoading, isSuccess, error };
   }
 
   return {
     getTwitchConfig,
     getChannelPointRewards,
-    getEventsubs,
-    getEventsubTypes,
-    getEventsubsByUser,
-    getEventsubsList,
+    getAvailableEventSubs,
+    getAvailableScopes,
+    getLinkedAccounts,
+    getEventSubs,
+    getEventSubsByUser,
     getRevokeToken,
     getSaveAuthToBroadcaster,
     getSaveTwitchConfig,
-    getConvertEventsubToSpooder,
-    getInitEventsub,
-    getRefreshEventsubs,
-    getDeleteEventsub,
+    getConvertEventSubToSpooder,
+    getInitEventSub,
+    getRefreshEventSubs,
+    getDeleteEventSub,
   };
 }

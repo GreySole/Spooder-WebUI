@@ -1,7 +1,7 @@
 import React, { ReactNode, createContext } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import useEvents from '../../../../app/hooks/useEvents';
-import LoadingCircle from '../../../Common/LoadingCircle';
+import LoadingCircle from '../../../common/LoadingCircle';
 
 interface EventTableFormContextProviderProps {
   children: ReactNode;

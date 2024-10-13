@@ -1,13 +1,14 @@
 import React from 'react';
 import useConfig from '../../app/hooks/useConfig';
-import Expandable from '../Common/Expandable';
-import SaveButton from '../Common/input/form/SaveButton';
-import BackupRestore from './ConfigTab/backupRestoreInput/BackupRestore';
-import ConfigBotSection from './ConfigTab/configInput/ConfigBotSection';
-import ConfigNetworkSection from './ConfigTab/configInput/ConfigNetworkSection';
-import ConfigTabFormContextProvider from './ConfigTab/context/ConfigTabFormContext';
-import EditCustomSpooder from './ConfigTab/customSpooderInput/EditCustomSpooder';
-import LoadingCircle from '../Common/LoadingCircle';
+import Expandable from '../common/Expandable';
+import SaveButton from '../common/input/form/SaveButton';
+import BackupRestore from './configTab/backupRestoreInput/BackupRestore';
+import ConfigBotSection from './configTab/configInput/ConfigBotSection';
+import ConfigNetworkSection from './configTab/configInput/ConfigNetworkSection';
+import ConfigTabFormContextProvider from './configTab/context/ConfigTabFormContext';
+import EditCustomSpooder from './configTab/customSpooderInput/EditCustomSpooder';
+import LoadingCircle from '../common/LoadingCircle';
+import ThemeColor from './configTab/themeColor/ThemeColor';
 
 export default function ConfigTab() {
   const { getConfig, getSaveConfig } = useConfig();
@@ -19,7 +20,10 @@ export default function ConfigTab() {
   }
 
   return (
-    <form className='config-tab'>
+    <div className='config-tab'>
+      <div className='non-config-element'>
+        <ThemeColor />
+      </div>
       <div className='non-config-element'>
         <Expandable label='Customize Spooder'>
           <EditCustomSpooder />
@@ -35,7 +39,7 @@ export default function ConfigTab() {
         <ConfigNetworkSection />
         <SaveButton saveFunction={saveConfig} />
       </ConfigTabFormContextProvider>
-    </form>
+    </div>
   );
 }
 

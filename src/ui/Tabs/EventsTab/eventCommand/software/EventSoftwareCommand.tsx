@@ -3,9 +3,9 @@ import { useFormContext } from 'react-hook-form';
 import { buildCommandKey, buildKey } from '../../FormKeys';
 import useConfig from '../../../../../app/hooks/useConfig';
 import { EventCommandProps } from '../../../../Types';
-import FormTextInput from '../../../../Common/input/form/FormTextInput';
-import FormSelectDropdown from '../../../../Common/input/form/FormSelectDropdown';
-import FormNumberInput from '../../../../Common/input/form/FormNumberInput';
+import FormTextInput from '../../../../common/input/form/FormTextInput';
+import FormSelectDropdown from '../../../../common/input/form/FormSelectDropdown';
+import FormNumberInput from '../../../../common/input/form/FormNumberInput';
 
 function checkCommandConflicts(eventName: string, commandIndex: number) {
   const { getValues } = useFormContext();

@@ -1,8 +1,8 @@
 import React from 'react';
-import LoadingCircle from '../Common/LoadingCircle';
+import LoadingCircle from '../common/LoadingCircle';
 import { FormProvider, useForm } from 'react-hook-form';
-import OSCTunnelList from './OSCTunnelsTab/OSCTunnelList';
-import SaveTunnelFormButton from './OSCTunnelsTab/SaveTunnelFormButton';
+import OSCTunnelList from './oscTunnels/OSCTunnelList';
+import SaveTunnelFormButton from './oscTunnels/SaveTunnelFormButton';
 import useConfig from '../../app/hooks/useConfig';
 
 export default function OSCTunnelTab() {

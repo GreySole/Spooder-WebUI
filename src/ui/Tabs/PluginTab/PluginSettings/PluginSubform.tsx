@@ -4,8 +4,8 @@ import { faPlus, faTrash } from '@fortawesome/free-solid-svg-icons';
 import PluginInput from './PluginInput';
 import PluginMultiInput from './PluginMultiInput';
 import { useFormContext } from 'react-hook-form';
-import TextInput from '../../../Common/input/controlled/TextInput';
-import SelectDropdown from '../../../Common/input/controlled/SelectDropdown';
+import TextInput from '../../../common/input/controlled/TextInput';
+import SelectDropdown from '../../../common/input/controlled/SelectDropdown';
 import { KeyedObject } from '../../../Types';
 
 interface PluginSubformProps {

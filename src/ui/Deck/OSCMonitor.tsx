@@ -1,8 +1,8 @@
 import { faArrowDown } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React, { useEffect, useState } from 'react';
-import FormBoolSwitch from '../Common/input/form/FormBoolSwitch';
-import BoolSwitch from '../Common/input/controlled/BoolSwitch';
+import FormBoolSwitch from '../common/input/form/FormBoolSwitch';
+import BoolSwitch from '../common/input/controlled/BoolSwitch';
 import { KeyedObject } from '../Types';
 import { useOSC } from '../../app/context/OscContext';
 

@@ -3,7 +3,7 @@ import OSC from 'osc-js';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircle, faStream, faCog, faPause, faPlay } from '@fortawesome/free-solid-svg-icons';
 import './OutputController.css';
-import FormBoolSwitch from '../../Common/input/form/FormBoolSwitch';
+import FormBoolSwitch from '../../common/input/form/FormBoolSwitch';
 import { useOSC } from '../../../app/context/OscContext';
 
 export default function OutputController() {

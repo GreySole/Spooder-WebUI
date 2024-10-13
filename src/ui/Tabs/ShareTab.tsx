@@ -1,10 +1,10 @@
 import React from 'react';
 import './ShareTab.css';
-import LoadingCircle from '../Common/LoadingCircle';
+import LoadingCircle from '../common/LoadingCircle';
 import useShare from '../../app/hooks/useShare';
-import ShareTabFormContextProvider from './ShareTab/context/ShareTabFormContext';
-import ShareEntry from './ShareTab/ShareEntry';
-import ShareSaveButton from './ShareTab/input/ShareSaveButton';
+import ShareTabFormContextProvider from './shareTab/context/ShareTabFormContext';
+import ShareEntry from './shareTab/ShareEntry';
+import ShareSaveButton from './shareTab/input/ShareSaveButton';
 
 export default function ShareTab() {
   const { getShares } = useShare();

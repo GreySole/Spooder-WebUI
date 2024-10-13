@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import TextInput from '../../../Common/input/controlled/TextInput';
-import NumberInput from '../../../Common/input/controlled/NumberInput';
+import TextInput from '../../../common/input/controlled/TextInput';
+import NumberInput from '../../../common/input/controlled/NumberInput';
 import { useFormContext } from 'react-hook-form';
 
 export default function AddUdpClient() {

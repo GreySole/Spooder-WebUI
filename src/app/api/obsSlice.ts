@@ -4,6 +4,16 @@ export const obsApi = createApi({
   reducerPath: 'obsApi',
   baseQuery: fetchBaseQuery({ baseUrl: window.location.origin }),
   endpoints: (builder) => ({
+    connectObs: builder.mutation({
+      query: (form) => ({
+        url: '/obs/connect',
+        method: 'post',
+        body: form,
+        headers: {
+          'Content-type': 'application/json; charset=UTF-8',
+        },
+      }),
+    }),
     getObsSettings: builder.query({
       query: () => '/obs/get_output_settings',
     }),
@@ -23,4 +33,9 @@ export const obsApi = createApi({
   }),
 });
 
-export const { useGetObsSettingsQuery, useGetScenesQuery, useSaveObsSettingsMutation } = obsApi;
+export const {
+  useConnectObsMutation,
+  useGetObsSettingsQuery,
+  useGetScenesQuery,
+  useSaveObsSettingsMutation,
+} = obsApi;

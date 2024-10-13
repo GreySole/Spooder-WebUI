@@ -3,8 +3,8 @@ import {
   useBackupPluginsMutation,
   useCheckInSettingsMutation,
 } from '../../../../app/api/serverSlice';
-import FileInput from '../../../Common/input/controlled/FileInput';
-import TextInput from '../../../Common/input/controlled/TextInput';
+import FileInput from '../../../common/input/controlled/FileInput';
+import TextInput from '../../../common/input/controlled/TextInput';
 
 export default function BackupSettingsInput() {
   const [

@@ -1,7 +1,7 @@
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
 import { buildKey, buildTriggerKey } from '../../FormKeys';
-import FormBoolSwitch from '../../../../Common/input/form/FormBoolSwitch';
+import FormBoolSwitch from '../../../../common/input/form/FormBoolSwitch';
 
 interface ChatTriggerConditionProps {
   eventName: string;

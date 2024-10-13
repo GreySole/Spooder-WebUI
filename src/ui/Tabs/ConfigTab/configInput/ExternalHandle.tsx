@@ -1,8 +1,8 @@
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
-import LinkButton from '../../../Common/LinkButton';
-import FormSelectDropdown from '../../../Common/input/form/FormSelectDropdown';
-import FormTextInput from '../../../Common/input/form/FormTextInput';
+import LinkButton from '../../../common/LinkButton';
+import FormSelectDropdown from '../../../common/input/form/FormSelectDropdown';
+import FormTextInput from '../../../common/input/form/FormTextInput';
 
 export default function ExternalHandle() {
   const { watch } = useFormContext();

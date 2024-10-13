@@ -2,8 +2,8 @@ import React from 'react';
 import { useFormContext } from 'react-hook-form';
 import { buildKey } from '../../FormKeys';
 import { ReactNode } from 'react';
-import FormNumberInput from '../../../../Common/input/form/FormNumberInput';
-import FormSelectDropdown from '../../../../Common/input/form/FormSelectDropdown';
+import FormNumberInput from '../../../../common/input/form/FormNumberInput';
+import FormSelectDropdown from '../../../../common/input/form/FormSelectDropdown';
 import { SelectOption } from '../../../../Types';
 
 interface ObsSwitchScenesInputProps {

@@ -1,7 +1,7 @@
 import { faPlay, faStop } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import useShare from '../../../../app/hooks/useShare';
-import Button from '../../../Common/input/controlled/Button';
+import Button from '../../../common/input/controlled/Button';
 import React from 'react';
 
 interface ToggleShareButtonProps {

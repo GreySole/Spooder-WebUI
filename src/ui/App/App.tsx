@@ -3,23 +3,24 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React, { useEffect, useState } from 'react';
 import useNavigation from '../../app/hooks/useNavigation';
 import useServer from '../../app/hooks/useServer';
-import ModUI from '../Deck/ModUI';
-import OSCMonitor from '../Deck/OSCMonitor';
-import { DiscordTab } from '../Tabs/DiscordTab';
-import PluginTab from '../Tabs/PluginTab';
-import LoadingCircle from '../Common/LoadingCircle';
-import BoolSwitch from '../Common/input/controlled/BoolSwitch';
+import ModUI from '../deck/ModUI';
+import OSCMonitor from '../deck/OSCMonitor';
+import PluginTab from '../tabs/PluginTab';
+import LoadingCircle from '../common/LoadingCircle';
+import BoolSwitch from '../common/input/controlled/BoolSwitch';
 import usePlugins from '../../app/hooks/usePlugins';
 import { useOSC } from '../../app/context/OscContext';
-import EventTab from '../Tabs/EventTab';
-import ConfigTab from '../Tabs/ConfigTab';
-import OSCTunnelTab from '../Tabs/OSCTunnelTab';
-import ShareTab from '../Tabs/ShareTab';
-import UserTab from '../Tabs/UserTab';
-import TwitchTab from '../Tabs/TwitchTab';
+import EventTab from '../tabs/EventTab';
+import ConfigTab from '../tabs/ConfigTab';
+import OSCTunnelTab from '../tabs/OSCTunnelTab';
+import ShareTab from '../tabs/ShareTab';
+import UserTab from '../tabs/UserTab';
+import TwitchTab from '../tabs/TwitchTab';
 import AppHeader from './AppHeader';
 import NavigationMenu from './NavigationMenu';
 import NavigationTabs from './NavigationTabs';
+import OBS from '../deck/obs/OBS';
+import DiscordTab from '../tabs/DiscordTab';
 
 export default function App() {
   const { urlParams, currentTab, stayHere, navigationOpen, setStayHere } = useNavigation();
@@ -85,13 +86,14 @@ export default function App() {
     case 'users':
       tabContent = <UserTab />;
       break;
-    /*case 'discord':
+    case 'discord':
       tabContent = <DiscordTab />;
-      break;*/
+      break;
     case 'twitch':
       tabContent = <TwitchTab />;
       break;
     case 'obs':
+      tabContent = <OBS />;
       break;
     case 'osc':
       appMode = 'deck';

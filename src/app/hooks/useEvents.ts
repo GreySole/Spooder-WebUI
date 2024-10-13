@@ -4,10 +4,11 @@ import {
   useGetEventsQuery,
   useSaveEventsMutation,
 } from '../api/eventSlice';
-import { buildEventKey, buildKey } from '../../ui/Tabs/EventsTab/FormKeys';
+import { buildEventKey, buildKey } from '../../ui/tabs/eventsTab/FormKeys';
 import { EVENTS } from 'react-hook-form/dist/constants';
 import useToast from './useToast';
 import { ToastType } from '../../ui/Types';
+import { convertReactFormToFormData } from '../../ui/common/Helpers';
 
 interface Event {
   name: string;
@@ -130,12 +131,8 @@ export default function useEvents() {
   function getSaveEvents() {
     const [saveEventsMutation, { isLoading, isSuccess, error }] = useSaveEventsMutation();
     function saveEvents(form: FieldValues) {
-      const formData = new FormData();
-      for (const [key, value] of Object.entries(form)) {
-        formData.append(key, value);
-      }
-      console.log('SAVING', form);
-      saveEventsMutation(form).then((response) => {
+      const formData = convertReactFormToFormData(form);
+      saveEventsMutation(formData).then((response) => {
         showToast('Events Saved!', ToastType.SAVE);
       });
       console.log('SAVING', form);

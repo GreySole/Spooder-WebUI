@@ -1,10 +1,10 @@
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
 import AddUdpClient from './AddUdpClient';
-import Button from '../../../Common/input/controlled/Button';
+import Button from '../../../common/input/controlled/Button';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
-import FormTextInput from '../../../Common/input/form/FormTextInput';
-import FormNumberInput from '../../../Common/input/form/FormNumberInput';
+import FormTextInput from '../../../common/input/form/FormTextInput';
+import FormNumberInput from '../../../common/input/form/FormNumberInput';
 
 export default function UdpClientList() {
   const { watch, setValue } = useFormContext();

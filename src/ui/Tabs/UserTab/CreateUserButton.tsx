@@ -1,6 +1,6 @@
 import { faPlusCircle } from '@fortawesome/free-solid-svg-icons';
 import React from 'react';
-import Button from '../../Common/input/controlled/Button';
+import Button from '../../common/input/controlled/Button';
 import { useFormContext } from 'react-hook-form';
 import { v4 as uuidv4 } from 'uuid';
 import { KeyedObject } from '../../Types';

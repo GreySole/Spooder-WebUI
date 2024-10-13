@@ -1,7 +1,7 @@
 import React from 'react';
-import FormTextInput from '../../Common/input/form/FormTextInput';
+import FormTextInput from '../../common/input/form/FormTextInput';
 import useTwitch from '../../../app/hooks/useTwitch';
-import SaveButton from '../../Common/input/form/SaveButton';
+import SaveButton from '../../common/input/form/SaveButton';
 
 export default function TwitchCredentials() {
   const { getSaveTwitchConfig } = useTwitch();

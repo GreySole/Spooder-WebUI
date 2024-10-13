@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCommentDots, faSpider } from '@fortawesome/free-solid-svg-icons';
 import { useFormContext } from 'react-hook-form';
 import useEvents from '../../../../app/hooks/useEvents';
-import LoadingCircle from '../../../Common/LoadingCircle';
+import LoadingCircle from '../../../common/LoadingCircle';
 import { KeyedObject } from '../../../Types';
 
 interface ToggleGridProps {

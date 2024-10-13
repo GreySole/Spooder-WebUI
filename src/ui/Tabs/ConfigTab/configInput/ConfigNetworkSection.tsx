@@ -1,6 +1,6 @@
 import React from 'react';
-import FormNumberInput from '../../../Common/input/form/FormNumberInput';
-import FormTextInput from '../../../Common/input/form/FormTextInput';
+import FormNumberInput from '../../../common/input/form/FormNumberInput';
+import FormTextInput from '../../../common/input/form/FormTextInput';
 import ExternalHandle from './ExternalHandle';
 import UdpClientList from './UdpClientList';
 

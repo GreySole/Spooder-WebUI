@@ -1,10 +1,10 @@
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
-import FormBoolSwitch from '../../../../Common/input/form/FormBoolSwitch';
+import FormBoolSwitch from '../../../../common/input/form/FormBoolSwitch';
 import { EventTriggerProps, OSCConditionType, OSCHandleType } from '../../../../Types';
 import { buildTriggerKey, buildKey } from '../../FormKeys';
-import FormSelectDropdown from '../../../../Common/input/form/FormSelectDropdown';
-import FormTextInput from '../../../../Common/input/form/FormTextInput';
+import FormSelectDropdown from '../../../../common/input/form/FormSelectDropdown';
+import FormTextInput from '../../../../common/input/form/FormTextInput';
 import OSCTriggerConditions from './OSCTriggerConditions';
 
 interface OSCCondition {

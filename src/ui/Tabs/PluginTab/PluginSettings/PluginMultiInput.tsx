@@ -4,14 +4,14 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useFormContext } from 'react-hook-form';
 import CodeEditor from '@uiw/react-textarea-code-editor';
 import { KeyedObject } from '../../../Types';
-import BoolSwitch from '../../../Common/input/controlled/BoolSwitch';
-import SelectDropdown from '../../../Common/input/controlled/SelectDropdown';
-import RangeInput from '../../../Common/input/controlled/RangeInput';
-import AssetSelect from '../../../Common/input/controlled/AssetSelect';
-import TextAreaInput from '../../../Common/input/controlled/TextAreaInput';
-import UdpSelectDropdown from '../../../Common/input/controlled/UdpSelectDropdown';
-import EventSelect from '../../../Common/input/controlled/EventSelect';
-import OBSSceneItemSelect from '../../../Common/input/controlled/OBSSceneItemSelect';
+import BoolSwitch from '../../../common/input/controlled/BoolSwitch';
+import SelectDropdown from '../../../common/input/controlled/SelectDropdown';
+import RangeInput from '../../../common/input/controlled/RangeInput';
+import AssetSelect from '../../../common/input/controlled/AssetSelect';
+import TextAreaInput from '../../../common/input/controlled/TextAreaInput';
+import UdpSelectDropdown from '../../../common/input/controlled/UdpSelectDropdown';
+import EventSelect from '../../../common/input/controlled/EventSelect';
+import OBSSceneItemSelect from '../../../common/input/controlled/OBSSceneItemSelect';
 import { useState } from 'react';
 
 interface PluginMultiInputProps {

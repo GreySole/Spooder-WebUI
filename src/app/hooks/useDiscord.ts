@@ -1,4 +1,4 @@
-import { get } from 'react-hook-form';
+import { FieldValue, FieldValues, get } from 'react-hook-form';
 import {
   useGetChannelsQuery,
   useGetConfigQuery,
@@ -7,7 +7,7 @@ import {
 } from '../api/discordSlice';
 
 export default function useDiscord() {
-  function getChannels() {
+  function getDiscordChannels() {
     const { data, isLoading, error } = useGetChannelsQuery(null);
     return {
       data,
@@ -16,7 +16,7 @@ export default function useDiscord() {
     };
   }
 
-  function getConfig() {
+  function getDiscordConfig() {
     const { data, isLoading, error } = useGetConfigQuery(null);
     return {
       data,
@@ -25,7 +25,7 @@ export default function useDiscord() {
     };
   }
 
-  function getUser() {
+  function getDiscordUser() {
     const { data, isLoading, error } = useGetUserQuery(null);
     return {
       data,
@@ -37,7 +37,7 @@ export default function useDiscord() {
   function getSaveDiscordConfig() {
     const [saveDiscordConfigMutation, { isLoading, isSuccess, error }] =
       useSaveDiscordConfigMutation();
-    function saveDiscordConfig(form: FormData) {
+    function saveDiscordConfig(form: FieldValues) {
       saveDiscordConfigMutation(form);
     }
 
@@ -45,9 +45,9 @@ export default function useDiscord() {
   }
 
   return {
-    getChannels,
-    getConfig,
-    getUser,
+    getDiscordChannels,
+    getDiscordConfig,
+    getDiscordUser,
     getSaveDiscordConfig,
   };
 }

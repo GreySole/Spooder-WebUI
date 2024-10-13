@@ -1,8 +1,8 @@
 import React from 'react';
 import { OscProvider } from './app/context/OscContext';
 import useServer from './app/hooks/useServer';
-import App from './ui/App/App';
-import LoadingCircle from './ui/Common/LoadingCircle';
+import App from './ui/app/App';
+import LoadingCircle from './ui/common/LoadingCircle';
 
 export default function InitLayer() {
   const { getServerState } = useServer();

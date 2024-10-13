@@ -15,6 +15,7 @@ import {
   useSaveAuthToBroadcasterMutation,
   useSaveTwitchConfigMutation,
 } from '../api/twitchSlice';
+import { convertReactFormToFormData } from '../../ui/common/Helpers';
 
 export default function useTwitch() {
   function getTwitchConfig() {
@@ -80,10 +81,7 @@ export default function useTwitch() {
     const [saveTwitchConfigMutation, { isLoading, isSuccess, error }] =
       useSaveTwitchConfigMutation();
     function saveTwitchConfig(form: FieldValues) {
-      const formData = new FormData();
-      for (const [key, value] of Object.entries(form)) {
-        formData.append(key, value);
-      }
+      const formData = convertReactFormToFormData(form);
       saveTwitchConfigMutation(formData);
     }
     return { saveTwitchConfig, isLoading, isSuccess, error };

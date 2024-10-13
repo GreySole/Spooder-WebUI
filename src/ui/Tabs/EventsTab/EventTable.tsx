@@ -5,14 +5,14 @@ import { useState, useEffect, ReactNode } from 'react';
 import { useFormContext } from 'react-hook-form';
 import useConfig from '../../../app/hooks/useConfig';
 import useEvents from '../../../app/hooks/useEvents';
-import Expandable from '../../Common/Expandable';
+import Expandable from '../../common/Expandable';
 import EventTableFormContextProvider from './context/EventTableFormContext';
 import AddEventInput from './eventCommand/input/AddEventInput';
 import AddGroupInput from './eventCommand/input/AddGroupInput';
 import EventElement from './EventElement';
-import LoadingCircle from '../../Common/LoadingCircle';
+import LoadingCircle from '../../common/LoadingCircle';
 import { useHotkeys } from '../../../app/hooks/useHotkeys';
-import SaveEventsButton from '../../Common/input/form/SaveButton';
+import SaveEventsButton from '../../common/input/form/SaveButton';
 import DeleteGroupButton from './eventCommand/input/DeleteGroupButton';
 
 export default function EventTable() {

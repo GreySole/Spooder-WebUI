@@ -1,11 +1,11 @@
 import React from 'react';
 import useUsers from '../../app/hooks/useUsers';
-import SaveButton from '../Common/input/form/SaveButton';
-import LoadingCircle from '../Common/LoadingCircle';
-import CreatePluginButton from './PluginTab/input/CreatePluginButton';
-import UserTabFormContextProvider from './UserTab/context/UserTabFormContext';
-import UserList from './UserTab/UserList';
-import CreateUserButton from './UserTab/CreateUserButton';
+import SaveButton from '../common/input/form/SaveButton';
+import LoadingCircle from '../common/LoadingCircle';
+import CreatePluginButton from './pluginTab/input/CreatePluginButton';
+import UserTabFormContextProvider from './userTab/context/UserTabFormContext';
+import UserList from './userTab/UserList';
+import CreateUserButton from './userTab/CreateUserButton';
 
 export default function UserTab() {
   const { getUsers, getSaveUsers } = useUsers();

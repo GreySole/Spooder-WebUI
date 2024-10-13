@@ -1,15 +1,15 @@
 import React from 'react';
 import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import EventTableFormContextProvider from './EventsTab/context/EventTableFormContext';
-import AddGroupInput from './EventsTab/eventCommand/input/AddGroupInput';
+import EventTableFormContextProvider from './eventsTab/context/EventTableFormContext';
+import AddGroupInput from './eventsTab/eventCommand/input/AddGroupInput';
 import { useState } from 'react';
-import EventTable from './EventsTab/EventTable';
-import LoadingCircle from '../Common/LoadingCircle';
+import EventTable from './eventsTab/EventTable';
+import LoadingCircle from '../common/LoadingCircle';
 import useEvents from '../../app/hooks/useEvents';
-import DeleteGroupButton from './EventsTab/eventCommand/input/DeleteGroupButton';
+import DeleteGroupButton from './eventsTab/eventCommand/input/DeleteGroupButton';
 import { FieldValues } from 'react-hook-form';
-import SaveButton from '../Common/input/form/SaveButton';
+import SaveButton from '../common/input/form/SaveButton';
 
 export default function EventTab() {
   const { getEvents, getSaveEvents } = useEvents();

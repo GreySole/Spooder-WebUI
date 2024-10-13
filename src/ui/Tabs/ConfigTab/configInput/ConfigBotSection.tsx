@@ -1,5 +1,5 @@
 import React from 'react';
-import FormTextInput from '../../../Common/input/form/FormTextInput';
+import FormTextInput from '../../../common/input/form/FormTextInput';
 
 export default function ConfigBotSection() {
   const baseFormKey = 'bot';

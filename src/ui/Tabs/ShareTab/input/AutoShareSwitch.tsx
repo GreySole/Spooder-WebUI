@@ -1,6 +1,6 @@
 import { useFormContext } from 'react-hook-form';
 import useTwitch from '../../../../app/hooks/useTwitch';
-import BoolSwitch from '../../../Common/input/controlled/BoolSwitch';
+import BoolSwitch from '../../../common/input/controlled/BoolSwitch';
 import React from 'react';
 
 interface AutoShareSwitchProps {

@@ -6,6 +6,7 @@ import {
   useSetShareMutation,
   useVerifyShareTargetMutation,
 } from '../api/shareSlice';
+import { convertReactFormToFormData } from '../../ui/common/Helpers';
 
 export default function useShare() {
   function getShares() {
@@ -69,10 +70,7 @@ export default function useShare() {
     function saveShares(form: FieldValues) {
       console.log('SAVING', form);
 
-      const formData = new FormData();
-      for (const [key, value] of Object.entries(form)) {
-        formData.append(key, value);
-      }
+      const formData = convertReactFormToFormData(form);
 
       saveSharesMutation(formData);
     }

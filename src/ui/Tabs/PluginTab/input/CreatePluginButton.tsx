@@ -1,7 +1,7 @@
 import React from 'react';
 import { faPlusCircle } from '@fortawesome/free-solid-svg-icons';
 import { useState } from 'react';
-import Button from '../../../Common/input/controlled/Button';
+import Button from '../../../common/input/controlled/Button';
 import { usePluginContext } from '../context/PluginTabFormContext';
 import usePlugins from '../../../../app/hooks/usePlugins';
 

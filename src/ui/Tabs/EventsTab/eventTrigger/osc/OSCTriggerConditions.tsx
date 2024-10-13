@@ -2,8 +2,8 @@ import React from 'react';
 import { useFormContext } from 'react-hook-form';
 import { EventTriggerProps, OSCConditionType, OSCHandleType } from '../../../../Types';
 import { buildKey, buildTriggerKey } from '../../FormKeys';
-import FormSelectDropdown from '../../../../Common/input/form/FormSelectDropdown';
-import FormTextInput from '../../../../Common/input/form/FormTextInput';
+import FormSelectDropdown from '../../../../common/input/form/FormSelectDropdown';
+import FormTextInput from '../../../../common/input/form/FormTextInput';
 
 interface TriggerCondition {
   formKey: string;

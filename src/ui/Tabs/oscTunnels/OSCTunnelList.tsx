@@ -1,9 +1,9 @@
 import React from 'react';
-import FormSelectDropdown from '../../Common/input/form/FormSelectDropdown';
-import FormTextInput from '../../Common/input/form/FormTextInput';
+import FormSelectDropdown from '../../common/input/form/FormSelectDropdown';
+import FormTextInput from '../../common/input/form/FormTextInput';
 import useConfig from '../../../app/hooks/useConfig';
 import usePlugins from '../../../app/hooks/usePlugins';
-import LoadingCircle from '../../Common/LoadingCircle';
+import LoadingCircle from '../../common/LoadingCircle';
 import { useFormContext, useWatch } from 'react-hook-form';
 import DeleteOSCTunnelButton from './DeleteOSCTunnelButton';
 import AddTunnelForm from './AddTunnelForm';

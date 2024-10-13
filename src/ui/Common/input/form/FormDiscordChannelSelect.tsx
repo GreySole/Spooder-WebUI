@@ -11,8 +11,8 @@ interface FormDiscordChannelSelectProps {
 
 export default function FormDiscordChannelSelect(props: FormDiscordChannelSelectProps) {
   const { formKey, label } = props;
-  const { getChannels } = useDiscord();
-  const { data: discord, isLoading, error } = getChannels();
+  const { getDiscordChannels } = useDiscord();
+  const { data: discord, isLoading, error } = getDiscordChannels();
   const { watch } = useFormContext();
   const discordVal = watch(formKey, {
     guild: '',

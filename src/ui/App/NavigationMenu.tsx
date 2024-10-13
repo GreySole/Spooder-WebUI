@@ -1,6 +1,6 @@
 import React from 'react';
 import useNavigation from '../../app/hooks/useNavigation';
-import BoolSwitch from '../Common/input/controlled/BoolSwitch';
+import BoolSwitch from '../common/input/controlled/BoolSwitch';
 import usePlugins from '../../app/hooks/usePlugins';
 import TabButton from './TabButton';
 

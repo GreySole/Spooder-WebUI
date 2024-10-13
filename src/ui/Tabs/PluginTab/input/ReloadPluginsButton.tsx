@@ -1,6 +1,6 @@
 import React from 'react';
 import { faSync } from '@fortawesome/free-solid-svg-icons';
-import Button from '../../../Common/input/controlled/Button';
+import Button from '../../../common/input/controlled/Button';
 import { usePluginContext } from '../context/PluginTabFormContext';
 
 export default function ReloadPluginsButton() {

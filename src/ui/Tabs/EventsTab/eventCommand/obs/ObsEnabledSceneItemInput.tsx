@@ -1,9 +1,9 @@
 import React from 'react';
-import FormBoolSwitch from '../../../../Common/input/form/FormBoolSwitch';
+import FormBoolSwitch from '../../../../common/input/form/FormBoolSwitch';
 import { useFormContext } from 'react-hook-form';
 import { buildKey } from '../../FormKeys';
-import FormSelectDropdown from '../../../../Common/input/form/FormSelectDropdown';
-import FormNumberInput from '../../../../Common/input/form/FormNumberInput';
+import FormSelectDropdown from '../../../../common/input/form/FormSelectDropdown';
+import FormNumberInput from '../../../../common/input/form/FormNumberInput';
 import { SelectOption } from '../../../../Types';
 
 interface ObsEnableSceneItemInputProps {

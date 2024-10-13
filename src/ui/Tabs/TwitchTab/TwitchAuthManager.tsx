@@ -1,8 +1,8 @@
 import React from 'react';
 import useTwitch from '../../../app/hooks/useTwitch';
-import LoadingCircle from '../../Common/LoadingCircle';
-import Button from '../../Common/input/controlled/Button';
-import LinkButton from '../../Common/LinkButton';
+import LoadingCircle from '../../common/LoadingCircle';
+import Button from '../../common/input/controlled/Button';
+import LinkButton from '../../common/LinkButton';
 import useConfig from '../../../app/hooks/useConfig';
 
 export default function TwitchAuthManager() {

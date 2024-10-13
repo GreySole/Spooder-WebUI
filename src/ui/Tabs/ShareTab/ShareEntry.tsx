@@ -1,12 +1,12 @@
 import React from 'react';
 import { faPlay, faStop, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import LinkButton from '../../Common/LinkButton';
+import LinkButton from '../../common/LinkButton';
 import ToggleShareButton from './input/ToggleShareButton';
 import { useFormContext } from 'react-hook-form';
 import ShareDiscordForm from './input/ShareDiscordForm';
 import AutoShareSwitch from './input/AutoShareSwitch';
-import FormTextInput from '../../Common/input/form/FormTextInput';
+import FormTextInput from '../../common/input/form/FormTextInput';
 import ShareEntryCommandSettings from './input/ShareEntryCommandSettings';
 import ShareEntryPluginSettings from './input/ShareEntryPluginSettings';
 

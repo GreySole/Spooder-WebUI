@@ -22,12 +22,23 @@ export function useOSC() {
 export function OscProvider(props: OscProviderProps) {
   const { host, port, children } = props;
   const [osc, setOsc] = useState<OSC | undefined>(undefined);
+  const [isReady, setIsReady] = useState(false);
   const [oscListeners, setOscListeners] = useState<KeyedObject[]>([]);
 
   useEffect(() => {
+    console.log('OSC Provider', host, port);
     const newOsc = new OSC({
       plugin: new OSC.WebsocketClientPlugin({ host: host, port: port, secure: false }),
     });
+    newOsc.on('open', () => {
+      console.log('OSC Connected');
+      setIsReady(true);
+    });
+    newOsc.on('close', () => {
+      console.log('OSC Disconnected');
+      setIsReady(false);
+    });
+    newOsc.open();
     setOsc(newOsc);
     return () => {
       osc?.close();
@@ -70,7 +81,7 @@ export function OscProvider(props: OscProviderProps) {
   }
 
   const value = {
-    isReady: osc?.status() === OSC.STATUS.IS_OPEN,
+    isReady,
     addListener,
     removeListener,
     sendOSC,

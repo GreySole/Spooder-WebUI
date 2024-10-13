@@ -1,19 +1,19 @@
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
-import FormAssetSelect from '../../../Common/input/form/FormAssetSelect';
-import FormBoolSwitch from '../../../Common/input/form/FormBoolSwitch';
-import FormEventSelect from '../../../Common/input/form/FormEventSelect';
-import FormOBSSceneItemSelect from '../../../Common/input/form/FormOBSSceneItemSelect';
-import FormRangeInput from '../../../Common/input/form/FormRangeInput';
-import FormTextAreaInput from '../../../Common/input/form/FormTextAreaInput';
-import FormTextInput from '../../../Common/input/form/FormTextInput';
-import FormUdpSelectDropdown from '../../../Common/input/form/FormUdpSelectDropdown';
+import FormAssetSelect from '../../../common/input/form/FormAssetSelect';
+import FormBoolSwitch from '../../../common/input/form/FormBoolSwitch';
+import FormEventSelect from '../../../common/input/form/FormEventSelect';
+import FormOBSSceneItemSelect from '../../../common/input/form/FormOBSSceneItemSelect';
+import FormRangeInput from '../../../common/input/form/FormRangeInput';
+import FormTextAreaInput from '../../../common/input/form/FormTextAreaInput';
+import FormTextInput from '../../../common/input/form/FormTextInput';
+import FormUdpSelectDropdown from '../../../common/input/form/FormUdpSelectDropdown';
 import CodeEditor from '@uiw/react-textarea-code-editor';
 import { KeyedObject } from '../../../Types';
-import FormColorInput from '../../../Common/input/form/FormColorInput';
-import FormCodeInput from '../../../Common/input/form/FormCodeInput';
-import FormDiscordChannelSelect from '../../../Common/input/form/FormDiscordChannelSelect';
-import FormSelectDropdown from '../../../Common/input/form/FormSelectDropdown';
+import FormColorInput from '../../../common/input/form/FormColorInput';
+import FormCodeInput from '../../../common/input/form/FormCodeInput';
+import FormDiscordChannelSelect from '../../../common/input/form/FormDiscordChannelSelect';
+import FormSelectDropdown from '../../../common/input/form/FormSelectDropdown';
 
 interface PluginInputProps {
   pluginName: string;

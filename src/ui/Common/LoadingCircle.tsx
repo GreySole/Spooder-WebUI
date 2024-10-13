@@ -1,5 +1,5 @@
 import React from 'react';
-import DashedCircle from '../Icons/DashedCircle.svg';
+import DashedCircle from '../icons/DashedCircle.svg';
 
 export default function LoadingCircle() {
   return (

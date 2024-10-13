@@ -1,5 +1,5 @@
 import React from 'react';
-import LinkButton from '../../Common/LinkButton';
+import LinkButton from '../../common/LinkButton';
 
 export default function AlertToasterLink() {
   return (

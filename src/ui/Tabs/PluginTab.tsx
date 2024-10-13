@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { PluginProvider } from './PluginTab/context/PluginTabFormContext';
-import CreatePluginButton from './PluginTab/input/CreatePluginButton';
-import InstallPluginButton from './PluginTab/input/InstallPluginButton';
-import PluginList from './PluginTab/PluginList';
+import { PluginProvider } from './pluginTab/context/PluginTabFormContext';
+import CreatePluginButton from './pluginTab/input/CreatePluginButton';
+import InstallPluginButton from './pluginTab/input/InstallPluginButton';
+import PluginList from './pluginTab/PluginList';
 import { faSync } from '@fortawesome/free-solid-svg-icons';
-import Button from '../Common/input/controlled/Button';
-import RefreshAllPluginsButton from './PluginTab/input/RefreshAllPluginsButton';
+import Button from '../common/input/controlled/Button';
+import RefreshAllPluginsButton from './pluginTab/input/RefreshAllPluginsButton';
 
 interface NewPlugin {
   [key: string]: {

@@ -2,7 +2,7 @@ import React from 'react';
 import { faUpload, faTrash, faDownload } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useState } from 'react';
-import BoolSwitch from '../../../Common/input/controlled/BoolSwitch';
+import BoolSwitch from '../../../common/input/controlled/BoolSwitch';
 import BackupPluginsInput from './BackupPluginsInput';
 import BackupSettingsInput from './BackupSettingsInput';
 import RestoreSettingsInput from './RestoreSettingsInput';

@@ -2,7 +2,7 @@ import React from 'react';
 import { usePluginContext } from './context/PluginTabFormContext';
 import AlertToasterLink from './AlertToasterLink';
 import PluginEntry from './PluginEntry';
-import LoadingCircle from '../../Common/LoadingCircle';
+import LoadingCircle from '../../common/LoadingCircle';
 
 export default function PluginList() {
   const { plugins, isReady, reloadPlugins } = usePluginContext();

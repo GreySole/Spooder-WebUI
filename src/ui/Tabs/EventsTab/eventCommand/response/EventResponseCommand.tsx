@@ -2,7 +2,7 @@ import React from 'react';
 import { faQuestionCircle } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useFormContext } from 'react-hook-form';
-import FormBoolSwitch from '../../../../Common/input/form/FormBoolSwitch';
+import FormBoolSwitch from '../../../../common/input/form/FormBoolSwitch';
 import { buildCommandKey, buildKey, buildTriggerKey } from '../../FormKeys';
 import ResponseCommandCheatSheet from './ResponseCommandCheatSheet';
 import useDiscord from '../../../../../app/hooks/useDiscord';

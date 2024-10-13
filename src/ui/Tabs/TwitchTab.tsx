@@ -1,10 +1,10 @@
 import React from 'react';
 import useTwitch from '../../app/hooks/useTwitch';
-import LoadingCircle from '../Common/LoadingCircle';
-import Button from '../Common/input/controlled/Button';
-import TwitchTabFormContextProvider from './TwitchTab/context/TwitchFormContext';
-import TwitchCredentials from './TwitchTab/TwitchCredentials';
-import TwitchAuthManager from './TwitchTab/TwitchAuthManager';
+import LoadingCircle from '../common/LoadingCircle';
+import Button from '../common/input/controlled/Button';
+import TwitchTabFormContextProvider from './twitchTab/context/TwitchFormContext';
+import TwitchCredentials from './twitchTab/TwitchCredentials';
+import TwitchAuthManager from './twitchTab/TwitchAuthManager';
 
 export default function TwitchTab() {
   const { getTwitchConfig, getSaveTwitchConfig, getRevokeToken, getDeleteEventSub } = useTwitch();

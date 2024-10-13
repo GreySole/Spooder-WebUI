@@ -1,6 +1,15 @@
 import React from 'react';
+import { FieldValues } from 'react-hook-form';
 export function $(selector: string) {
   return document.querySelector(selector);
+}
+
+export function convertReactFormToFormData(form: FieldValues) {
+  const formData = new FormData();
+  for (const [key, value] of Object.entries(form)) {
+    formData.append(key, value);
+  }
+  return formData;
 }
 
 export function setClass(el: Element | null, classname: string, bool: boolean) {

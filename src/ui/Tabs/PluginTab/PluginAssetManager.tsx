@@ -12,12 +12,12 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import path from 'path-browserify';
-import { getMediaType, getMediaHTML } from '../../Common/Helpers';
+import { getMediaType, getMediaHTML } from '../../common/Helpers';
 import { useRef, useState } from 'react';
 import { PluginComponentProps } from '../../Types';
 import { usePluginContext } from './context/PluginTabFormContext';
 import usePlugins from '../../../app/hooks/usePlugins';
-import LoadingCircle from '../../Common/LoadingCircle';
+import LoadingCircle from '../../common/LoadingCircle';
 
 export default function PluginAssetManager(props: PluginComponentProps) {
   const { pluginName } = props;

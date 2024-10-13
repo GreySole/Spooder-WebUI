@@ -1,12 +1,12 @@
 import { faTrash, faDownload } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import useServer from '../../../../app/hooks/useServer';
-import LoadingCircle from '../../../Common/LoadingCircle';
-import SelectDropdown from '../../../Common/input/controlled/SelectDropdown';
+import LoadingCircle from '../../../common/LoadingCircle';
+import SelectDropdown from '../../../common/input/controlled/SelectDropdown';
 import React, { useState } from 'react';
 import { useRestorePluginsMutation } from '../../../../app/api/serverSlice';
-import Button from '../../../Common/input/controlled/Button';
-import LinkButton from '../../../Common/LinkButton';
+import Button from '../../../common/input/controlled/Button';
+import LinkButton from '../../../common/LinkButton';
 
 export default function RestorePluginsInput() {
   const { getPluginsBackups, getDeleteBackupPlugins, getRestorePlugins } = useServer();

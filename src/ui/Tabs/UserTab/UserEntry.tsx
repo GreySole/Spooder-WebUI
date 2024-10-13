@@ -1,11 +1,11 @@
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React from 'react';
-import BoolSwitch from '../../Common/input/controlled/BoolSwitch';
+import BoolSwitch from '../../common/input/controlled/BoolSwitch';
 import useUsers from '../../../app/hooks/useUsers';
 import { useFormContext } from 'react-hook-form';
-import Button from '../../Common/input/controlled/Button';
-import FormTextInput from '../../Common/input/form/FormTextInput';
+import Button from '../../common/input/controlled/Button';
+import FormTextInput from '../../common/input/form/FormTextInput';
 
 interface UserEntryProps {
   userKey: string;

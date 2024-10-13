@@ -9,16 +9,16 @@ import {
   faDownload,
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import LinkButton from '../../Common/LinkButton';
+import LinkButton from '../../common/LinkButton';
 import usePlugins from '../../../app/hooks/usePlugins';
 import useToast from '../../../app/hooks/useToast';
 import { PluginComponentProps, ToastType } from '../../Types';
 import PluginInfoView from './PluginInfoView';
-import LoadingCircle from '../../Common/LoadingCircle';
+import LoadingCircle from '../../common/LoadingCircle';
 import PluginSettings from './input/PluginSettings';
 import { usePluginContext } from './context/PluginTabFormContext';
 import PluginAssetManager from './PluginAssetManager';
-import { setClass } from '../../Common/Helpers';
+import { setClass } from '../../common/Helpers';
 
 interface Plugin {
   name: string;

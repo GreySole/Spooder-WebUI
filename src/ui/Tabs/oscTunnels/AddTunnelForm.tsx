@@ -2,8 +2,8 @@ import React from 'react';
 import { useState } from 'react';
 import useConfig from '../../../app/hooks/useConfig';
 import usePlugins from '../../../app/hooks/usePlugins';
-import SelectDropdown from '../../Common/input/controlled/SelectDropdown';
-import TextInput from '../../Common/input/controlled/TextInput';
+import SelectDropdown from '../../common/input/controlled/SelectDropdown';
+import TextInput from '../../common/input/controlled/TextInput';
 import { KeyedObject } from '../../Types';
 import { HotkeysProvider } from '../../../app/hooks/useHotkeys';
 

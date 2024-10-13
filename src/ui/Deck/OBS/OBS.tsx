@@ -6,11 +6,18 @@ import SceneController from './SceneController';
 import SourceControl from './SourceControl';
 import useOBS from '../../../app/hooks/useOBS';
 import { useOSC } from '../../../app/context/OscContext';
+import LoadingCircle from '../../common/LoadingCircle';
 
 export default function OBS() {
   const { isReady: isOSCReady } = useOSC();
   const { getObsSettings } = useOBS();
   const { data: obsData, isLoading: obsLoading, error: obsError } = getObsSettings();
+
+  if (obsLoading) {
+    return <LoadingCircle />;
+  }
+
+  console.log('IS OBS OSC READY', isOSCReady);
 
   if (isOSCReady && obsData.connected) {
     return (

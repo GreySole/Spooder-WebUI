@@ -1,7 +1,7 @@
 import { ReactNode } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import useShare from '../../../app/hooks/useShare';
-import LoadingCircle from '../../Common/LoadingCircle';
+import LoadingCircle from '../../common/LoadingCircle';
 import React from 'react';
 
 interface ShareFormContextProviderProps {

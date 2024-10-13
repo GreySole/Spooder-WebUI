@@ -20,17 +20,6 @@ export default function AppHeader() {
           <FontAwesomeIcon icon={navigationOpen ? faTimes : faBars} size='2x' />
         </div>
         <div className='toast-text'>{toastText}</div>
-        <label>
-          Theme Color:
-          <input
-            type='color'
-            value={themeColor}
-            onChange={(e) => setThemeColor(e.target.value)}
-            title='Change Theme Color'
-            onClick={(e) => e.stopPropagation()}
-          />
-          {/* {(luma(this.state.themeColor) < .01) && <FontAwesomeIcon icon={faWarning} size="1x" />} */}
-        </label>
         <CustomSpooder />
       </div>
     </div>

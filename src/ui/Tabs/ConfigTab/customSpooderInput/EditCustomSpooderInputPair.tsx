@@ -1,6 +1,6 @@
 import React from 'react';
-import FormColorInput from '../../../Common/input/form/FormColorInput';
-import FormTextInput from '../../../Common/input/form/FormTextInput';
+import FormColorInput from '../../../common/input/form/FormColorInput';
+import FormTextInput from '../../../common/input/form/FormTextInput';
 
 interface EditCustomSpooderInputPairProps {
   label: string;

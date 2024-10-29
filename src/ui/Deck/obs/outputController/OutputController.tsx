@@ -3,8 +3,8 @@ import OSC from 'osc-js';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircle, faStream, faCog, faPause, faPlay } from '@fortawesome/free-solid-svg-icons';
 import './OutputController.css';
-import FormBoolSwitch from '../../common/input/form/FormBoolSwitch';
-import { useOSC } from '../../../app/context/OscContext';
+import { useOSC } from '../../../../app/context/OscContext';
+import FormBoolSwitch from '../../../common/input/form/FormBoolSwitch';
 
 export default function OutputController() {
   const { addListener, removeListener, sendOSC } = useOSC();
@@ -42,7 +42,7 @@ export default function OutputController() {
       removeListener('/obs/event/StreamStateChanged');
       removeListener('/obs/status/interval');
     };
-  });
+  }, []);
 
   function getSettings() {
     fetch('/obs/get_output_settings')
@@ -136,20 +136,20 @@ export default function OutputController() {
 
   const streamStatusEl = (
     <div className='output-controller-stream-status'>
-      <h1>{streamStatus.outputTimecode}</h1>
-      <h1>
+      <h2>{streamStatus.outputTimecode}</h2>
+      <h2>
         Skipped: {streamStatus.outputSkippedFrames} (
         {Math.floor((streamStatus.outputSkippedFrames / streamStatus.outputTotalFrames) * 100)}
         %)
-      </h1>
-      <h1>Out Data: {convertBytes(streamStatus.outputBytes)}</h1>
+      </h2>
+      <h2>Out Data: {convertBytes(streamStatus.outputBytes)}</h2>
     </div>
   );
 
   const recordStatusEl = (
     <div className='output-controller-record-status'>
-      <h1>{recordStatus.outputTimecode}</h1>
-      <h1>Out Data: {convertBytes(recordStatus.outputBytes)}</h1>
+      <h2>{recordStatus.outputTimecode}</h2>
+      <h2>Out Data: {convertBytes(recordStatus.outputBytes)}</h2>
     </div>
   );
 

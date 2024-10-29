@@ -1,19 +1,14 @@
 import { faTrash, faDownload } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React, { useState } from 'react';
 import BoolSwitch from '../../../common/input/controlled/BoolSwitch';
-import useServer from '../../../../app/hooks/useServer';
-import {
-  useDeleteBackupSettingsMutation,
-  useRestoreSettingsMutation,
-} from '../../../../app/api/serverSlice';
 import LoadingCircle from '../../../common/LoadingCircle';
 import SelectDropdown from '../../../common/input/controlled/SelectDropdown';
 import LinkButton from '../../../common/LinkButton';
 import Button from '../../../common/input/controlled/Button';
+import useRecovery from '../../../../app/hooks/useRecovery';
 
 export default function RestoreSettingsInput() {
-  const { getSettingsBackups, getDeleteBackupSettings, getRestoreSettings } = useServer();
+  const { getSettingsBackups, getDeleteBackupSettings, getRestoreSettings } = useRecovery();
   const { data, isLoading, error } = getSettingsBackups();
   const { deleteBackupSettings } = getDeleteBackupSettings();
   const { restoreSettings } = getRestoreSettings();

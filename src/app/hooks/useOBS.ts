@@ -2,6 +2,7 @@ import { FieldValues } from 'react-hook-form';
 import {
   useConnectObsMutation,
   useGetObsSettingsQuery,
+  useGetObsStatusQuery,
   useGetScenesQuery,
   useSaveObsSettingsMutation,
 } from '../api/obsSlice';
@@ -10,15 +11,21 @@ import { convertReactFormToFormData } from '../../ui/common/Helpers';
 export default function useOBS() {
   function getConnectObs() {
     const [connectObsMutation, { isLoading, isSuccess, error }] = useConnectObsMutation();
-    function connectObs(host: string, port: number, password: string) {
-      const fd = new FormData();
-      fd.append('host', host);
-      fd.append('port', port.toString());
-      fd.append('password', password);
-      return connectObsMutation(fd);
+    function connectObs(host: string, port: number, password: string, remember: boolean) {
+      return connectObsMutation({
+        host,
+        port,
+        password,
+        remember,
+      });
     }
 
     return { connectObs, isLoading, isSuccess, error };
+  }
+
+  function getObsStatus() {
+    const { data, isLoading, error, refetch } = useGetObsStatusQuery(null);
+    return { data, isLoading, error, refetch };
   }
 
   function getObsSettings() {
@@ -34,8 +41,7 @@ export default function useOBS() {
   async function getSaveObsSettings() {
     const [saveObsSettingsMutation, { isLoading, isSuccess, error }] = useSaveObsSettingsMutation();
     function saveObsSettings(form: FieldValues) {
-      const formData = convertReactFormToFormData(form);
-      return saveObsSettingsMutation(formData);
+      return saveObsSettingsMutation(form);
     }
 
     return { saveObsSettings, isLoading, isSuccess, error };
@@ -43,6 +49,7 @@ export default function useOBS() {
 
   return {
     getConnectObs,
+    getObsStatus,
     getObsSettings,
     getScenes,
     getSaveObsSettings,

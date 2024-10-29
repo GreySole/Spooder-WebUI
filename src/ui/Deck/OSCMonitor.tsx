@@ -21,7 +21,7 @@ interface Log {
 }
 
 export default function OSCMonitor() {
-  const { addListener, removeListener, sendOSC } = useOSC();
+  const { addListener, removeListener, sendOSC, isReady } = useOSC();
   const [typeFilters, setTypeFilters] = useState<String[]>([
     'tcp',
     'udp',
@@ -50,10 +50,15 @@ export default function OSCMonitor() {
       removeListener('/frontend/monitor/plugin');
       removeListener('/frontend/monitor/get/all');
     };
-  });
+  }, []);
+
+  if (!isReady) {
+    return <h1>Hold on...we're connecting to OSC</h1>;
+  }
 
   function getAllLogs(message: any) {
     let logObj = JSON.parse(message.args[0]);
+    console.log(logObj);
     setLogs(logObj.logs);
     setPluginLogs(logObj.pluginLogs);
   }
@@ -164,6 +169,8 @@ export default function OSCMonitor() {
     finalLogs.sort((a: any, b: any) => {
       return a.timestamp - b.timestamp;
     });
+
+    console.log('FINAL LOGS', finalLogs);
 
     for (let l in finalLogs) {
       if (finalLogs[l].type == 'osc') {

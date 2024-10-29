@@ -11,12 +11,14 @@ import toastSlice from './slice/toastSlice';
 import { serverApi } from './api/serverSlice';
 import { shareApi } from './api/shareSlice';
 import { userApi } from './api/userSlice';
+import { recoveryApi } from './api/recoverySlice';
 
 const store = configureStore({
   reducer: {
     navigationSlice,
     themeSlice,
     toastSlice,
+    [recoveryApi.reducerPath]: recoveryApi.reducer,
     [eventApi.reducerPath]: eventApi.reducer,
     [configApi.reducerPath]: configApi.reducer,
     [discordApi.reducerPath]: discordApi.reducer,
@@ -29,6 +31,7 @@ const store = configureStore({
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware()
+      .concat(recoveryApi.middleware)
       .concat(eventApi.middleware)
       .concat(configApi.middleware)
       .concat(discordApi.middleware)

@@ -19,6 +19,8 @@ export default function ConfigTab() {
     return <LoadingCircle />;
   }
 
+  console.log('Config Data', data);
+
   return (
     <div className='config-tab'>
       <div className='non-config-element'>

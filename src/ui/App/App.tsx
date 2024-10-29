@@ -19,8 +19,9 @@ import TwitchTab from '../tabs/TwitchTab';
 import AppHeader from './AppHeader';
 import NavigationMenu from './NavigationMenu';
 import NavigationTabs from './NavigationTabs';
-import OBS from '../deck/obs/OBS';
+import OBS from '../deck/OBS';
 import DiscordTab from '../tabs/DiscordTab';
+import DashboardTab from '../tabs/DashboardTab';
 
 export default function App() {
   const { urlParams, currentTab, stayHere, navigationOpen, setStayHere } = useNavigation();
@@ -66,8 +67,11 @@ export default function App() {
 
   let tabContent = <div>404</div>;
   let appMode = 'setup';
-
+  console.log(currentTab);
   switch (currentTab) {
+    case 'dashboard':
+      tabContent = <DashboardTab />;
+      break;
     case 'commands':
       tabContent = <EventTab />;
       break;
@@ -96,24 +100,10 @@ export default function App() {
       tabContent = <OBS />;
       break;
     case 'osc':
-      appMode = 'deck';
-      if (!serverData.oscConnected) {
-        tabContent = <h1>Hold on...we're connecting to OSC</h1>;
-      } else {
-        tabContent = (
-          <div className='App-content deck'>
-            <OSCMonitor />
-          </div>
-        );
-      }
+      tabContent = <OSCMonitor />;
       break;
     case 'mod':
-      appMode = 'deck';
-      tabContent = (
-        <div className='App-content deck'>
-          <ModUI />
-        </div>
-      );
+      tabContent = <ModUI />;
       break;
   }
 

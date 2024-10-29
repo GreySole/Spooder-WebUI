@@ -74,6 +74,7 @@ export function OscProvider(props: OscProviderProps) {
   }
 
   function sendOSC(address: string, value: any) {
+    console.log('SEND OSC', address, value, osc?.status());
     if (!osc) {
       return;
     }

@@ -1,28 +1,12 @@
 import React, { useState } from 'react';
-import {
-  useBackupPluginsMutation,
-  useCheckInPluginsMutation,
-} from '../../../../app/api/serverSlice';
 import FileInput from '../../../common/input/controlled/FileInput';
 import TextInput from '../../../common/input/controlled/TextInput';
+import useRecovery from '../../../../app/hooks/useRecovery';
 
 export default function BackupPluginsInput() {
-  const [
-    backupPlugins,
-    {
-      isLoading: backupSettingsLoading,
-      isSuccess: backupSettingsSuccess,
-      error: backupSettingsError,
-    },
-  ] = useBackupPluginsMutation();
-  const [
-    checkInPlugins,
-    {
-      isLoading: checkInPluginsLoading,
-      isSuccess: checkInPluginsSuccess,
-      error: checkInPluginsError,
-    },
-  ] = useCheckInPluginsMutation();
+  const { getBackupPlugins, getCheckInPlugins } = useRecovery();
+  const { backupPlugins, isLoading: backupPluginsLoading } = getBackupPlugins();
+  const { checkInPlugins } = getCheckInPlugins();
 
   const [backupName, setBackupName] = useState<string>('');
 
@@ -34,12 +18,8 @@ export default function BackupPluginsInput() {
         value={backupName}
         onInput={(value) => setBackupName(value)}
       />
-      <button
-        type='button'
-        className='link-button-button'
-        onClick={() => backupPlugins(backupName)}
-      >
-        {backupSettingsLoading ? 'Backing up...' : 'Backup Settings Now'}
+      <button type='button' className='link-button-button' onClick={() => backupPlugins()}>
+        {backupPluginsLoading ? 'Backing up...' : 'Backup Settings Now'}
       </button>
       <FileInput label='Import' fileType='.zip' onChange={(files) => checkInPlugins(files[0])} />
     </div>

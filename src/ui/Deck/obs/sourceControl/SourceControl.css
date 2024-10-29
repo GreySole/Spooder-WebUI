@@ -1,0 +1,58 @@
+.deck-component.deck-source-controller {
+  display: flex;
+  flex-flow: column;
+}
+
+.deck-component-container .deck-component.deck-source-controller {
+  flex-wrap: wrap;
+}
+
+.component-source-buttons {
+  display: flex;
+  flex-flow: row;
+  align-items: flex-start;
+  overflow-x: auto;
+}
+
+.source-item,
+.source-group-item {
+  display: flex;
+  flex-flow: column;
+  align-items: center;
+  flex-wrap: nowrap;
+  width: 150px;
+  padding-left: 10px;
+  padding-right: 10px;
+  padding-bottom: 10px;
+}
+
+.source-item-name,
+.source-group-item-name {
+  white-space: nowrap;
+}
+
+.source-group-item-subitems,
+.source-group-item-container {
+  display: flex;
+  flex-wrap: nowrap;
+}
+
+.source-group-item-actions {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+}
+
+.source-group-item-button {
+  padding-left: 10px;
+}
+
+.source-group-container {
+  display: flex;
+  align-items: flex-start;
+}
+
+.source-group-container.expanded {
+  border: solid white 2px;
+  padding: 10px;
+}

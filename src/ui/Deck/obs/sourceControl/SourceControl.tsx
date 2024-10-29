@@ -3,8 +3,8 @@ import OSC from 'osc-js';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEyeSlash, faPlus, faMinus } from '@fortawesome/free-solid-svg-icons';
 import './SourceControl.css';
-import { KeyedObject } from '../../Types';
-import { useOSC } from '../../../app/context/OscContext';
+import { useOSC } from '../../../../app/context/OscContext';
+import { KeyedObject } from '../../../Types';
 
 export default function SourceControl() {
   const { addListener, removeListener, sendOSC } = useOSC();
@@ -35,7 +35,7 @@ export default function SourceControl() {
       removeListener('/obs/event/CurrentPreviewSceneChanged');
       removeListener('/obs/event/SceneItemEnableStateChanged');
     };
-  });
+  }, []);
 
   function programSceneChanged(data: any) {
     sendOSC('/obs/get/scene/itemlist', 1);

@@ -8,6 +8,7 @@ export const navigationSlice = createSlice({
   name: 'navigation',
   initialState: {
     tabOptions: {
+      dashboard: 'Dashboard',
       commands: 'Events',
       plugins: 'Plugins',
       osctunnels: 'Tunnels',
@@ -22,7 +23,7 @@ export const navigationSlice = createSlice({
       osc: 'OSC Monitor',
       mod: 'Mod UI',
     } as TabOptions,
-    currentTab: 'commands',
+    currentTab: 'dashboard',
     navigationOpen: false,
     stayHere: false,
   },

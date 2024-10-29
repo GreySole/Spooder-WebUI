@@ -3,8 +3,8 @@ import OSC from 'osc-js';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTv, faArrowRight, faTableColumns } from '@fortawesome/free-solid-svg-icons';
 import './SceneController.css';
-import { KeyedObject } from '../../Types';
-import { useOSC } from '../../../app/context/OscContext';
+import { KeyedObject } from '../../../Types';
+import { useOSC } from '../../../../app/context/OscContext';
 
 export default function SceneController() {
   const { addListener, removeListener, sendOSC } = useOSC();
@@ -30,7 +30,7 @@ export default function SceneController() {
       removeListener('/obs/event/CurrentProgramSceneChanged');
       removeListener('/obs/event/CurrentPreviewSceneChanged');
     };
-  });
+  }, []);
 
   const [isReady, setIsReady] = useState<Boolean>(false);
 
@@ -87,7 +87,7 @@ export default function SceneController() {
           (currentPreviewScene == scenes[s].sceneName && studioMode == true ? 'preview' : '')
         }
       >
-        <h1>{truncate(scenes[s].sceneName, 12)}</h1>
+        <h2>{truncate(scenes[s].sceneName, 12)}</h2>
         <FontAwesomeIcon icon={faTv} size='2x' />
       </div>,
     );

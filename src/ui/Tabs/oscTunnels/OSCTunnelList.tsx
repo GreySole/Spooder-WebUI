@@ -3,11 +3,11 @@ import FormSelectDropdown from '../../common/input/form/FormSelectDropdown';
 import FormTextInput from '../../common/input/form/FormTextInput';
 import useConfig from '../../../app/hooks/useConfig';
 import usePlugins from '../../../app/hooks/usePlugins';
-import LoadingCircle from '../../common/LoadingCircle';
 import { useFormContext, useWatch } from 'react-hook-form';
 import DeleteOSCTunnelButton from './DeleteOSCTunnelButton';
 import AddTunnelForm from './AddTunnelForm';
 import { KeyedObject } from '../../Types';
+import FormLoader from '../../common/loader/FormLoader';
 
 export default function OSCTunnelList() {
   const { getUdpClients } = useConfig();
@@ -23,7 +23,7 @@ export default function OSCTunnelList() {
   } = getUdpClients();
 
   if (udpClientsLoading || pluginsLoading || udpClientsError || pluginsError) {
-    return <LoadingCircle></LoadingCircle>;
+    return <FormLoader numRows={4} />;
   }
 
   const table = [];

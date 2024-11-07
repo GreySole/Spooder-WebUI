@@ -3,6 +3,7 @@ import useTheme from '../../app/hooks/useTheme';
 
 export default function CustomSpooder() {
   const { customSpooder } = useTheme();
+  console.log(customSpooder);
   return (
     <h1 className='App-title'>
       <span style={{ color: customSpooder.colors.longlegleft }}>
@@ -12,7 +13,6 @@ export default function CustomSpooder() {
         {customSpooder.parts.shortlegleft}
       </span>
       <span style={{ color: customSpooder.colors.bodyleft }}>{customSpooder.parts.bodyleft}</span>
-      <span> </span>
       <span style={{ color: customSpooder.colors.littleeyeleft }}>
         {customSpooder.parts.littleeyeleft}
       </span>
@@ -28,7 +28,6 @@ export default function CustomSpooder() {
       <span style={{ color: customSpooder.colors.littleeyeright }}>
         {customSpooder.parts.littleeyeright}
       </span>
-      <span> </span>
       <span style={{ color: customSpooder.colors.bodyright }}>{customSpooder.parts.bodyright}</span>
       <span style={{ color: customSpooder.colors.shortlegright }}>
         {customSpooder.parts.shortlegright}

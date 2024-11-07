@@ -8,6 +8,15 @@ export const pluginApi = createApi({
     getPlugins: builder.query<PluginsObject, null>({
       query: () => '/plugins/get_list',
     }),
+    getPluginSettings: builder.query<PluginsObject, string>({
+      query: (pluginName: string) => '/plugins/get_plugin_settings?plugin=' + pluginName,
+    }),
+    getPluginSettingsForm: builder.query<PluginsObject, string>({
+      query: (pluginName: string) => '/plugins/get_plugin_settings_form?plugin=' + pluginName,
+    }),
+    getPluginEventsForm: builder.query<PluginsObject, string>({
+      query: (pluginName: string) => '/plugins/get_plugin_events_form?plugin=' + pluginName,
+    }),
     browsePluginAssets: builder.query({
       query: ({ pluginName, assetName }) => ({
         url: `/plugins/browse_plugin_assets?pluginname=${pluginName}&folder=${assetName}`,
@@ -135,6 +144,9 @@ export const {
   useDeletePluginMutation,
   useExportPluginMutation,
   useGetPluginsQuery,
+  useGetPluginSettingsQuery,
+  useGetPluginSettingsFormQuery,
+  useGetPluginEventsFormQuery,
   useInstallPluginMutation,
   useRefreshPluginMutation,
   useRefreshPluginsMutation,

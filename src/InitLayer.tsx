@@ -2,7 +2,7 @@ import React from 'react';
 import { OscProvider } from './app/context/OscContext';
 import useServer from './app/hooks/useServer';
 import App from './ui/app/App';
-import LoadingCircle from './ui/common/LoadingCircle';
+import CircleLoader from './ui/common/loader/CircleLoader';
 
 export default function InitLayer() {
   const { getServerState } = useServer();
@@ -20,7 +20,7 @@ export default function InitLayer() {
   }
 
   if (isLoading) {
-    return <LoadingCircle />;
+    return <CircleLoader />;
   }
 
   return (

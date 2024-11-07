@@ -7,12 +7,12 @@ import EventPluginCommand from './eventCommand/plugin/EventPluginCommand';
 import EventResponseCommand from './eventCommand/response/EventResponseCommand';
 import EventModCommand from './eventCommand/mod/EventModCommand';
 import { useState } from 'react';
-import { Timeline } from '@xzdarcy/react-timeline-editor';
+import { Timeline, TimelineRow } from '@xzdarcy/react-timeline-editor';
 import EventAddCommand from './eventCommand/EventAddCommand';
-import { buildCommandKey, buildKey } from './FormKeys';
+import { buildCommandKey, buildKey, EVENT_KEY } from './FormKeys';
 import { useFormContext } from 'react-hook-form';
-const discordIcon = '../../icons/discord.svg';
-const obsIcon = '../../icons/obs.svg';
+import discordIcon from '../../icons/discord.svg';
+import obsIcon from '../../icons/obs.svg';
 
 interface EventCommandsProps {
   eventName: string;
@@ -20,12 +20,16 @@ interface EventCommandsProps {
 }
 
 export default function EventCommands(props: EventCommandsProps) {
-  const { eventName, eventCommands } = props;
+  const { eventName } = props;
+  const { watch } = useFormContext();
+  const eventCommands = watch(`${EVENT_KEY}.${eventName}.commands`, []);
   let commandElements = [];
   let maxDuration = 1;
   const [timelineZoom, setTimelineZoom] = useState<number>(1);
-  const [timelineData, setTimelineData] = useState([]);
-  const [timelineEffectData, setTimelineEffectData] = useState({
+  const { setValue } = useFormContext();
+
+  const timelineData = [] as TimelineRow[];
+  const timelineEffectData = {
     timed: {
       id: 'timed',
       name: 'Timed',
@@ -34,12 +38,12 @@ export default function EventCommands(props: EventCommandsProps) {
       id: 'nottimed',
       name: 'nottimed',
     },
-  });
-  const { setValue } = useFormContext();
+  };
 
   for (let c = 0; c < eventCommands.length; c++) {
     maxDuration = Math.max(eventCommands[c].delay / 1000, eventCommands[c].duration);
     if (isNaN(maxDuration)) {
+      console.log('MAX DURATION IS NAN');
       maxDuration = 1;
     }
 
@@ -51,25 +55,20 @@ export default function EventCommands(props: EventCommandsProps) {
       id = eventCommands[c].function;
     }
 
-    let delay = isNaN(eventCommands[c].delay) ? 0 : eventCommands[c].delay;
-    let duration = isNaN(eventCommands[c].duration) ? 1 : eventCommands[c].duration;
+    const delay = isNaN(eventCommands[c].delay) ? 0 : eventCommands[c].delay;
+    const duration = isNaN(eventCommands[c].duration) ? 1 : eventCommands[c].duration;
 
-    /*setTimelineData([
-      {
-        id: c,
-        actions: [
-          {
-            id: id,
-            start: delay / 1000,
-            end: eventCommands[c].etype == 'timed' ? delay / 1000 + duration : delay / 1000 + 1,
-            eventname: eventName,
-            eventtype: eventCommands[c].type,
-            commandindex: c,
-            effectId: eventCommands[c].etype == 'timed' ? 'timed' : 'nottimed',
-          },
-        ],
-      },
-    ] as any);*/
+    timelineData.push({
+      id: c.toString(),
+      actions: [
+        {
+          id: id,
+          start: delay / 1000,
+          end: eventCommands[c].etype == 'timed' ? delay / 1000 + duration : delay / 1000 + 1,
+          effectId: eventCommands[c].etype == 'timed' ? 'timed' : 'nottimed',
+        },
+      ],
+    });
 
     let element = null;
     switch (eventCommands[c].type) {
@@ -118,22 +117,15 @@ export default function EventCommands(props: EventCommandsProps) {
 
   function onUpdateTimeline(frames: any) {
     for (let t in frames) {
+      const commandIndex = parseInt(frames[t].id);
       const newDelayValue = Math.floor(frames[t].actions[0].start * 1000);
       const newDurationValue = (
         Math.round((frames[t].actions[0].end - frames[t].actions[0].start) / 0.05) * 0.05
       ).toFixed(2);
 
-      const delayFormKey = buildKey(
-        buildCommandKey(eventName, frames[t].actions[0].commandindex),
-        'delay',
-      );
-      const durationFormKey = buildKey(
-        buildCommandKey(eventName, frames[t].actions[0].commandindex),
-        'duration',
-      );
+      const delayFormKey = buildKey(buildCommandKey(eventName, commandIndex), 'delay');
+      const durationFormKey = buildKey(buildCommandKey(eventName, commandIndex), 'duration');
 
-      eventCommands[frames[t].actions[0].commandindex].delay = newDelayValue;
-      eventCommands[frames[t].actions[0].commandindex].duration = newDurationValue;
       setValue(delayFormKey, newDelayValue);
       setValue(durationFormKey, newDurationValue);
     }
@@ -151,9 +143,9 @@ export default function EventCommands(props: EventCommandsProps) {
         onChange={onUpdateTimeline}
         autoScroll={true}
         scale={timelineZoom}
-        dragLine={true}
+        dragLine={false}
         getActionRender={(action: any, row) => {
-          switch (action.eventtype) {
+          switch (eventCommands[0].type) {
             case 'response':
               return (
                 <div className='prompt'>
@@ -198,9 +190,9 @@ export default function EventCommands(props: EventCommandsProps) {
           }
         }}
       />
-      {timelineZoom}
+      {timelineZoomInput}
       {commandElements}
-      <EventAddCommand onClickAdd={() => addCommand('software')} />
+      <EventAddCommand onClickAdd={addCommand} />
     </label>
   );
 }

@@ -1,13 +1,13 @@
 import React from 'react';
 import useConfig from '../../app/hooks/useConfig';
-import Expandable from '../common/Expandable';
+import Expandable from '../common/layout/Expandable';
 import SaveButton from '../common/input/form/SaveButton';
 import BackupRestore from './configTab/backupRestoreInput/BackupRestore';
 import ConfigBotSection from './configTab/configInput/ConfigBotSection';
 import ConfigNetworkSection from './configTab/configInput/ConfigNetworkSection';
 import ConfigTabFormContextProvider from './configTab/context/ConfigTabFormContext';
 import EditCustomSpooder from './configTab/customSpooderInput/EditCustomSpooder';
-import LoadingCircle from '../common/LoadingCircle';
+import CircleLoader from '../common/loader/CircleLoader';
 import ThemeColor from './configTab/themeColor/ThemeColor';
 
 export default function ConfigTab() {
@@ -16,7 +16,7 @@ export default function ConfigTab() {
   const { saveConfig } = getSaveConfig();
 
   if (isLoading) {
-    return <LoadingCircle />;
+    return <CircleLoader />;
   }
 
   console.log('Config Data', data);

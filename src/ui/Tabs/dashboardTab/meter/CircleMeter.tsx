@@ -1,6 +1,6 @@
 import { format } from 'path-browserify';
 import React from 'react';
-import { formatBytes } from '../../../common/Helpers';
+import { formatBytes } from '../../../util/DataUtil';
 
 interface CircleMeterProps {
   label: string;

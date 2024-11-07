@@ -1,4 +1,5 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { KeyedObject } from '../../ui/Types';
 
 export const twitchApi = createApi({
   reducerPath: 'twitchApi',
@@ -21,6 +22,7 @@ export const twitchApi = createApi({
     }),
     getChannelPointRewards: builder.query({
       query: () => '/get_channelpoint_rewards',
+      transformResponse: (response: KeyedObject) => response.data,
     }),
     getEventSubsByUser: builder.query({
       query: (twitchId: string) => `/get_channelpoint_rewards?twitchid=${twitchId}`,

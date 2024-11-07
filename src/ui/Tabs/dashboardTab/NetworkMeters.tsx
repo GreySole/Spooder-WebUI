@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import Box from '../../common/Box';
+import Box from '../../common/layout/Box';
 import { KeyedObject } from '../../Types';
 import GraphMeter from './meter/GraphMeter';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faDownload, faUpload } from '@fortawesome/free-solid-svg-icons';
-import { formatBytes } from '../../common/Helpers';
+import { formatBytes } from '../../util/DataUtil';
 import NetMeter from './meter/NetMeter';
 
 interface NetworkMetersProps {

@@ -3,18 +3,21 @@ import { useFormContext } from 'react-hook-form';
 import { buildCommandKey, buildKey } from '../../FormKeys';
 import usePlugins from '../../../../../app/hooks/usePlugins';
 import { EventCommandProps } from '../../../../Types';
+import FormTextInput from '../../../../common/input/form/FormTextInput';
+import CustomEventPluginCommand from './CustomEventPluginCommand';
+import FormSelectDropdown from '../../../../common/input/form/FormSelectDropdown';
 
 export default function EventPluginCommand(props: EventCommandProps) {
   const { eventName, commandIndex } = props;
-  const formKey = buildCommandKey(eventName, commandIndex);
-
   const { watch, register } = useFormContext();
 
-  const stopEventFormKey = buildKey(formKey, 'stop_eventname');
-  const stopEventName = watch(stopEventFormKey, '');
+  const formKey = buildCommandKey(eventName, commandIndex);
 
   const pluginNameFormKey = buildKey(formKey, 'pluginname');
   const pluginName = watch(pluginNameFormKey, '');
+
+  const stopEventFormKey = buildKey(formKey, 'stop_eventname');
+  const stopEventName = watch(stopEventFormKey, '');
 
   const eventTypeFormKey = buildKey(formKey, 'etype');
   const eType = watch(eventTypeFormKey, '');
@@ -28,44 +31,53 @@ export default function EventPluginCommand(props: EventCommandProps) {
   const delayFormKey = buildKey(formKey, 'delay');
   const delay = watch(delayFormKey, 0);
 
-  const { getPlugins } = usePlugins();
+  const { getPlugins, getPluginEventsForm } = usePlugins();
   const { data: plugins, isLoading: pluginsLoading, error: pluginsError } = getPlugins();
-  if (pluginsLoading) {
+  const { data: pluginEventsForm, isLoading: pluginEventsFormLoading } =
+    getPluginEventsForm(pluginName);
+
+  if (pluginsLoading || pluginEventsFormLoading) {
     return null;
   }
 
-  let pluginOptions = [<option value={''}>Choose Plugin</option>];
+  let pluginOptions = [{ label: 'None', value: '' }];
   if (plugins != null) {
-    let sortedPlugins: any[] = Object.values(plugins).sort();
+    let sortedPlugins: any[] = Object.keys(plugins).sort();
     for (let p in sortedPlugins) {
-      pluginOptions.push(<option value={sortedPlugins[p]}>{sortedPlugins[p]}</option>);
+      pluginOptions.push({ label: plugins[sortedPlugins[p]].name, value: sortedPlugins[p] });
     }
   }
 
   return (
     <div className='command-props plugin'>
-      <label>
-        Plugin:
-        <select value={pluginName} {...register(pluginNameFormKey)}>
-          {pluginOptions}
-        </select>
-      </label>
-      <label>
-        Event Type:
-        <select value={eType} {...register(eventTypeFormKey)}>
-          <option value='timed'>Timed</option>
-          <option value='oneshot'>One Shot</option>
-        </select>
-      </label>
-      <label>
-        Event Name:
-        <input type='text' value={pluginEventName} {...register(eventNameFormKey)} />
-      </label>
+      <FormSelectDropdown formKey={pluginNameFormKey} label='Plugin:' options={pluginOptions} />
+      <FormSelectDropdown
+        formKey={eventTypeFormKey}
+        label='Event Type:'
+        options={[
+          { label: 'Timed', value: 'timed' },
+          { label: 'One Shot', value: 'oneshot' },
+        ]}
+      />
+      {pluginEventsForm != null ? (
+        <CustomEventPluginCommand
+          formKey={formKey}
+          pluginName={pluginName}
+          eventForm={pluginEventsForm}
+        />
+      ) : (
+        <FormTextInput label='Event Name:' formKey={eventNameFormKey} />
+      )}
       {eType == 'timed' ? (
-        <label>
-          End Event Name:
-          <input type='text' value={stopEventName} {...register(stopEventFormKey)} />
-        </label>
+        pluginEventsForm != null ? (
+          <CustomEventPluginCommand
+            formKey={stopEventFormKey}
+            pluginName={pluginName}
+            eventForm={pluginEventsForm}
+          />
+        ) : (
+          <FormTextInput label='End Event Name:' formKey={stopEventFormKey} />
+        )
       ) : null}
       {eType == 'timed' ? (
         <label>

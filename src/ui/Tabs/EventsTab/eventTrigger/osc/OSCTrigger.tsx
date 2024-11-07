@@ -20,11 +20,21 @@ interface OSCTriggerObject {
 
 export default function OSCTrigger(props: EventTriggerProps) {
   const { eventName } = props;
+  const { watch } = useFormContext();
 
   const oscTriggerKey = buildTriggerKey(eventName, 'osc');
   const enabledKey = buildKey(oscTriggerKey, 'enabled');
+  const enabled = watch(enabledKey, false);
   const addressKey = buildKey(oscTriggerKey, 'address');
   const handleTypeKey = buildKey(oscTriggerKey, 'handletype');
+
+  if (!enabled) {
+    return (
+      <div className='osc-trigger'>
+        <FormBoolSwitch label='OSC:' formKey={enabledKey} />
+      </div>
+    );
+  }
 
   return (
     <div className='osc-trigger'>

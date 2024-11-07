@@ -1,5 +1,5 @@
 import React from 'react';
-import Box from '../../common/Box';
+import Box from '../../common/layout/Box';
 import { KeyedObject } from '../../Types';
 import CircleMeter from './meter/CircleMeter';
 

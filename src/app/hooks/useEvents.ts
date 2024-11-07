@@ -8,7 +8,7 @@ import { buildEventKey, buildKey } from '../../ui/tabs/eventsTab/FormKeys';
 import { EVENTS } from 'react-hook-form/dist/constants';
 import useToast from './useToast';
 import { ToastType } from '../../ui/Types';
-import { convertReactFormToFormData } from '../../ui/common/Helpers';
+import { convertReactFormToFormData } from '../../ui/util/DataUtil';
 
 interface Event {
   name: string;

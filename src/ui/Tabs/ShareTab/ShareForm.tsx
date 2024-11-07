@@ -1,8 +1,8 @@
 import { ReactNode } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import useShare from '../../../app/hooks/useShare';
-import LoadingCircle from '../../common/LoadingCircle';
 import React from 'react';
+import FormLoader from '../../common/loader/FormLoader';
 
 interface ShareFormContextProviderProps {
   children: ReactNode;
@@ -14,7 +14,7 @@ export default function ShareFormContextProvider(props: ShareFormContextProvider
   const { data, isLoading, error } = getShares();
 
   if (isLoading) {
-    return <LoadingCircle />;
+    return <FormLoader numRows={4} />;
   }
 
   const ShareForm = useForm({

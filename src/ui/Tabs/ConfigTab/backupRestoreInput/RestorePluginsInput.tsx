@@ -1,10 +1,10 @@
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
-import LoadingCircle from '../../../common/LoadingCircle';
 import SelectDropdown from '../../../common/input/controlled/SelectDropdown';
 import React, { useState } from 'react';
 import Button from '../../../common/input/controlled/Button';
-import LinkButton from '../../../common/LinkButton';
+import LinkButton from '../../../common/input/general/LinkButton';
 import useRecovery from '../../../../app/hooks/useRecovery';
+import FormLoader from '../../../common/loader/FormLoader';
 
 export default function RestorePluginsInput() {
   const { getPluginsBackups, getDeleteBackupPlugins, getRestorePlugins } = useRecovery();
@@ -14,7 +14,7 @@ export default function RestorePluginsInput() {
   const [selectedBackup, setSelectedBackup] = useState<string>('');
 
   if (isLoading) {
-    return <LoadingCircle />;
+    return <FormLoader numRows={4} />;
   }
 
   const restorePluginsOptions = data.map((pluginName: string) => ({

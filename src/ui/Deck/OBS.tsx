@@ -4,7 +4,7 @@ import VolumeController from './obs/volumeControl/VolumeController';
 import SceneController from './obs/sceneController/SceneController';
 import useOBS from '../../app/hooks/useOBS';
 import { useOSC } from '../../app/context/OscContext';
-import LoadingCircle from '../common/LoadingCircle';
+import CircleLoader from '../common/loader/CircleLoader';
 import OutputController from './obs/outputController/OutputController';
 import SourceControl from './obs/sourceControl/SourceControl';
 import ObsLogin from './obs/login/ObsLogin';
@@ -16,7 +16,7 @@ export default function OBS() {
   const { data: obsData, isLoading: obsLoading, error: obsError } = getObsSettings();
 
   if (obsLoading || statusLoading) {
-    return <LoadingCircle />;
+    return <CircleLoader />;
   }
 
   console.log('IS OBS OSC READY', isOSCReady, obsStatus);

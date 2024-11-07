@@ -22,7 +22,11 @@ export default function TwitchTrigger(props: TwitchTriggerProps) {
   const type = watch(typeKey, '');
 
   if (!enabled) {
-    return null;
+    return (
+      <div className='trigger twitch'>
+        <FormBoolSwitch label='Twitch:' formKey={enabledKey} />
+      </div>
+    );
   }
 
   return (

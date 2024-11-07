@@ -1,19 +1,28 @@
 import React from 'react';
-import PluginSubform from './PluginSubform';
-import PluginInput from './PluginInput';
-import { useForm, FormProvider } from 'react-hook-form';
-import { KeyedObject, PluginComponentProps } from '../../../Types';
-import { usePluginContext } from '../context/PluginTabFormContext';
-import PluginSettingsSaveButton from './PluginSettingsSaveButton';
+import { PluginComponentProps } from '../../../Types';
+import usePlugins from '../../../../app/hooks/usePlugins';
+import SettingsFormContext from './SettingsFormContext';
+import FormLoader from '../../../common/loader/FormLoader';
 
 export default function SettingsForm(props: PluginComponentProps) {
   const { pluginName } = props;
-  const { plugins } = usePluginContext();
-  const plugin = plugins[pluginName];
+  const { getPluginSettings, getPluginSettingsForm } = usePlugins();
+  const { data: pluginSettings, isLoading: valuesLoading } = getPluginSettings(pluginName);
+  const { data: pluginSettingsForm, isLoading: settingsFormLoading } =
+    getPluginSettingsForm(pluginName);
 
-  const values = plugin['settings'];
-  const form = plugin['settings-form'].form;
-  const defaults = plugin['settings-form'].defaults;
+  if (valuesLoading || settingsFormLoading) {
+    return <FormLoader numRows={4} />;
+  }
+
+  if (!pluginSettings || !pluginSettingsForm) {
+    return null;
+  }
+
+  const values = Object.assign({}, pluginSettings);
+
+  const form = pluginSettingsForm.form;
+  const defaults = pluginSettingsForm.defaults;
 
   for (let d in defaults) {
     if (values[d] == null) {
@@ -32,82 +41,7 @@ export default function SettingsForm(props: PluginComponentProps) {
     }
   }
 
-  const SettingsFormContext = useForm({
-    defaultValues: values,
-  });
-
-  function translateCondition(condition: string) {
-    let newCondition = condition;
-    switch (condition.toLowerCase()) {
-      case 'equals':
-        newCondition = '==';
-        break;
-      case 'not equal':
-        newCondition = '!=';
-        break;
-      case 'less than':
-        newCondition = '<';
-        break;
-      case 'greater than':
-        newCondition = '>';
-        break;
-      case 'less than or equal to':
-        newCondition = '<=';
-        break;
-      case 'greater than or equal to':
-        newCondition = '>=';
-        break;
-    }
-    return newCondition;
-  }
-
-  let inputTable = [];
-  for (let e in form) {
-    if (form[e].type == 'subform') {
-      inputTable.push(
-        <PluginSubform
-          formkey={e}
-          pluginName={pluginName}
-          label={form[e].label}
-          form={form[e].form}
-          defaults={defaults[e]}
-        />,
-      );
-    } else {
-      if (form[e].showif) {
-        if (values[form[e].showif.variable] != null) {
-          if (
-            !eval(
-              '' +
-                values[form[e].showif.variable] +
-                translateCondition(form[e].showif.condition) +
-                form[e].showif.value,
-            )
-          ) {
-            continue;
-          }
-        }
-      }
-
-      inputTable.push(
-        <PluginInput
-          formKey={e}
-          pluginName={pluginName}
-          defaultValue={defaults[e]}
-          label={form[e].label}
-          type={form[e].type}
-          options={form[e].options}
-        />,
-      );
-    }
-  }
-
   return (
-    <FormProvider {...SettingsFormContext}>
-      <div className='settings-form-element'>
-        {inputTable}
-        <PluginSettingsSaveButton />
-      </div>
-    </FormProvider>
+    <SettingsFormContext pluginName={pluginName} values={values} form={form} defaults={defaults} />
   );
 }

@@ -24,15 +24,18 @@ export default function CreateShareForm() {
         leaveMessage: '',
         plugins: [],
         commands: [],
-        twitch: {
-          twitchUsername: userData.login,
-          twitchDisplayname: userData.display_name,
-          twitchUserId: userData.id,
-          twitchProfileImageUrl: userData.profile_image_url,
+        notificationPlatforms: {
+          discord: {
+            userId: '',
+            userName: '',
+          },
         },
-        discord: {
-          discordId: '',
-          discordUsername: '',
+        streamPlatforms: {
+          twitch: {
+            userName: userData.login,
+            displayName: userData.display_name,
+            userId: userData.id,
+          },
         },
       };
       setValue(`shares.${uniqueId}`, newShare);

@@ -1,5 +1,5 @@
 import React from 'react';
-import { formatBytes } from '../../../common/Helpers';
+import { formatBytes } from '../../../util/DataUtil';
 
 interface GraphMeterProps {
   data: number[];

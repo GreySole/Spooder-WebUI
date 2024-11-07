@@ -21,7 +21,7 @@ export default function BackupPluginsInput() {
       <button type='button' className='link-button-button' onClick={() => backupPlugins()}>
         {backupPluginsLoading ? 'Backing up...' : 'Backup Settings Now'}
       </button>
-      <FileInput label='Import' fileType='.zip' onChange={(files) => checkInPlugins(files[0])} />
+      <FileInput label='Import' fileType='zip' onChange={(files) => checkInPlugins(files[0])} />
     </div>
   );
 }

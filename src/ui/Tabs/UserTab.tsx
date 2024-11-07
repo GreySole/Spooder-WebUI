@@ -1,7 +1,7 @@
 import React from 'react';
 import useUsers from '../../app/hooks/useUsers';
 import SaveButton from '../common/input/form/SaveButton';
-import LoadingCircle from '../common/LoadingCircle';
+import CircleLoader from '../common/loader/CircleLoader';
 import CreatePluginButton from './pluginTab/input/CreatePluginButton';
 import UserTabFormContextProvider from './userTab/context/UserTabFormContext';
 import UserList from './userTab/UserList';
@@ -13,7 +13,7 @@ export default function UserTab() {
   const { saveUsers } = getSaveUsers();
 
   if (isLoading) {
-    return <LoadingCircle></LoadingCircle>;
+    return <CircleLoader></CircleLoader>;
   }
 
   console.log('USERS', users);

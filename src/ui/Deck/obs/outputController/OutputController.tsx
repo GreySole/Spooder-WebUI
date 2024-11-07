@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import OSC from 'osc-js';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircle, faStream, faCog, faPause, faPlay } from '@fortawesome/free-solid-svg-icons';
-import './OutputController.css';
 import { useOSC } from '../../../../app/context/OscContext';
 import FormBoolSwitch from '../../../common/input/form/FormBoolSwitch';
 

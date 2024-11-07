@@ -4,6 +4,9 @@ import {
   useDeletePluginAssetMutation,
   useDeletePluginMutation,
   useExportPluginMutation,
+  useGetPluginEventsFormQuery,
+  useGetPluginSettingsFormQuery,
+  useGetPluginSettingsQuery,
   useGetPluginsQuery,
   useInstallPluginMutation,
   useRefreshPluginMutation,
@@ -119,6 +122,37 @@ export default function usePlugins() {
     };
   }
 
+  function getPluginSettings(pluginName: string) {
+    const { isLoading, error, data, refetch } = useGetPluginSettingsQuery(pluginName);
+
+    return {
+      isLoading,
+      error,
+      data,
+      refetch,
+    };
+  }
+
+  function getPluginSettingsForm(pluginName: string) {
+    const { isLoading, error, data } = useGetPluginSettingsFormQuery(pluginName);
+
+    return {
+      isLoading,
+      error,
+      data,
+    };
+  }
+
+  function getPluginEventsForm(pluginName: string) {
+    const { isLoading, error, data } = useGetPluginEventsFormQuery(pluginName);
+
+    return {
+      isLoading,
+      error,
+      data,
+    };
+  }
+
   function getPluginAssets(pluginName: string, assetName: string) {
     const { isLoading, error, data, refetch } = useBrowsePluginAssetsQuery({
       pluginName,
@@ -135,6 +169,9 @@ export default function usePlugins() {
   return {
     getInstallPlugin,
     getPlugins,
+    getPluginSettings,
+    getPluginSettingsForm,
+    getPluginEventsForm,
     getPluginAssets,
     getUploadPluginAsset,
     getUploadPluginIcon,

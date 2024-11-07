@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import './VolumeControl.css';
 import { KeyedObject } from '../../../Types';
 import { useOSC } from '../../../../app/context/OscContext';
 import VolumeControl from './VolumeControl';

@@ -1,7 +1,7 @@
 import React from 'react';
 import { faPlay, faStop, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import LinkButton from '../../common/LinkButton';
+import LinkButton from '../../common/input/general/LinkButton';
 import ToggleShareButton from './input/ToggleShareButton';
 import { useFormContext } from 'react-hook-form';
 import ShareDiscordForm from './input/ShareDiscordForm';

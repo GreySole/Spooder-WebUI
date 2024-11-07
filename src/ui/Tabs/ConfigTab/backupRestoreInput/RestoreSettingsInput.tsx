@@ -1,11 +1,11 @@
 import { faTrash, faDownload } from '@fortawesome/free-solid-svg-icons';
 import React, { useState } from 'react';
 import BoolSwitch from '../../../common/input/controlled/BoolSwitch';
-import LoadingCircle from '../../../common/LoadingCircle';
 import SelectDropdown from '../../../common/input/controlled/SelectDropdown';
-import LinkButton from '../../../common/LinkButton';
+import LinkButton from '../../../common/input/general/LinkButton';
 import Button from '../../../common/input/controlled/Button';
 import useRecovery from '../../../../app/hooks/useRecovery';
+import FormLoader from '../../../common/loader/FormLoader';
 
 export default function RestoreSettingsInput() {
   const { getSettingsBackups, getDeleteBackupSettings, getRestoreSettings } = useRecovery();
@@ -16,7 +16,7 @@ export default function RestoreSettingsInput() {
   const [selectedBackup, setSelectedBackup] = useState<string>('');
 
   if (isLoading) {
-    return <LoadingCircle />;
+    return <FormLoader numRows={4} />;
   }
 
   const restoreSettingsOptions = data.map((pluginName: string) => ({

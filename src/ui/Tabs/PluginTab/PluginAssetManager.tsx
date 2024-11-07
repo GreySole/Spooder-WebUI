@@ -12,12 +12,12 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import path from 'path-browserify';
-import { getMediaType, getMediaHTML } from '../../common/Helpers';
+import { getMediaType, getMediaHTML } from '../../util/MediaUtil';
 import { useRef, useState } from 'react';
 import { PluginComponentProps } from '../../Types';
 import { usePluginContext } from './context/PluginTabFormContext';
 import usePlugins from '../../../app/hooks/usePlugins';
-import LoadingCircle from '../../common/LoadingCircle';
+import FormLoader from '../../common/loader/FormLoader';
 
 export default function PluginAssetManager(props: PluginComponentProps) {
   const { pluginName } = props;
@@ -34,7 +34,7 @@ export default function PluginAssetManager(props: PluginComponentProps) {
   const { data, isLoading, error, refetch } = getPluginAssets(pluginName, currentFolder);
 
   if (!isReady || isLoading) {
-    return <LoadingCircle />;
+    return <FormLoader numRows={4} />;
   }
 
   const plugin = plugins?.[pluginName];

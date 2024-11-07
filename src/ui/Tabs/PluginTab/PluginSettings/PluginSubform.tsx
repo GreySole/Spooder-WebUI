@@ -7,9 +7,10 @@ import { useFormContext } from 'react-hook-form';
 import TextInput from '../../../common/input/controlled/TextInput';
 import SelectDropdown from '../../../common/input/controlled/SelectDropdown';
 import { KeyedObject } from '../../../Types';
+import { translateCondition } from '../../../util/ScriptUtil';
 
 interface PluginSubformProps {
-  formkey: string;
+  formKey: string;
   pluginName: string;
   label: string;
   form: any;
@@ -17,10 +18,10 @@ interface PluginSubformProps {
 }
 
 export default function PluginSubform(props: PluginSubformProps) {
-  const { formkey, pluginName, label, form, defaults } = props;
+  const { formKey, pluginName, label, form, defaults } = props;
   const [nameChanges, setNameChanges] = useState<KeyedObject>({});
   const { watch } = useFormContext();
-  const values = watch(formkey);
+  const values = watch(formKey);
   console.log('SUBFORM', form, 'VALUES', values, 'DEFAULTS', defaults);
 
   useEffect(() => {
@@ -59,30 +60,6 @@ export default function PluginSubform(props: PluginSubformProps) {
     }
   }*/
   //console.log("RENDER SUBFORM", subElements, form, this.state.default);
-  function translateCondition(condition: string) {
-    let newCondition = condition;
-    switch (condition.toLowerCase()) {
-      case 'equals':
-        newCondition = '==';
-        break;
-      case 'not equal':
-        newCondition = '!=';
-        break;
-      case 'less than':
-        newCondition = '<';
-        break;
-      case 'greater than':
-        newCondition = '>';
-        break;
-      case 'less than or equal to':
-        newCondition = '<=';
-        break;
-      case 'greater than or equal to':
-        newCondition = '>=';
-        break;
-    }
-    return newCondition;
-  }
 
   const removeForm = (key: string) => {};
 
@@ -120,7 +97,7 @@ export default function PluginSubform(props: PluginSubformProps) {
       subInputs.push(
         !form[fe]['multi-select'] ? (
           <PluginInput
-            formKey={`${formkey}.${se}.${fe}`}
+            formKey={`${formKey}.${se}.${fe}`}
             pluginName={pluginName}
             type={form[fe].type}
             label={form[fe].label}
@@ -129,7 +106,7 @@ export default function PluginSubform(props: PluginSubformProps) {
           />
         ) : (
           <PluginMultiInput
-            formKey={`${formkey}.${se}.${fe}`}
+            formKey={`${formKey}.${se}.${fe}`}
             pluginName={pluginName}
             type={form[fe].type}
             label={form[fe].label}

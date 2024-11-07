@@ -11,7 +11,7 @@ interface FileInputProps {
 
 export default function FileInput(props: FileInputProps) {
   const { label, fileType, onChange } = props;
-  const acceptedFormat = fileType != null ? fileType + '/*' : '*';
+  const acceptedFormat = fileType != null ? fileType : '*';
   const fileRef = useRef<HTMLInputElement>(null);
 
   function handleClick() {

@@ -15,7 +15,7 @@ import {
   useSaveAuthToBroadcasterMutation,
   useSaveTwitchConfigMutation,
 } from '../api/twitchSlice';
-import { convertReactFormToFormData } from '../../ui/common/Helpers';
+import { convertReactFormToFormData } from '../../ui/util/DataUtil';
 
 export default function useTwitch() {
   function getTwitchConfig() {

@@ -1,16 +1,17 @@
 import React from 'react';
-import Expandable from '../../../common/Expandable';
+import Expandable from '../../../common/layout/Expandable';
 import useTheme from '../../../../app/hooks/useTheme';
 
 export default function ThemeColor() {
-  const { themeColor, setThemeColor } = useTheme();
+  const { themeColors, setThemeColor } = useTheme();
+  console.log('THEME COLORS', themeColors);
   return (
     <Expandable label='Theme Color'>
       <label>
         Theme Color:
         <input
           type='color'
-          value={themeColor}
+          value={themeColors.baseColor}
           onChange={(e) => setThemeColor(e.target.value)}
           title='Change Theme Color'
           onClick={(e) => e.stopPropagation()}

@@ -26,6 +26,7 @@ export default function useRecovery() {
   function getCheckInSettings() {
     const [checkInSettingsMutation, { isLoading, isSuccess, error }] = useCheckInSettingsMutation();
     function checkInSettings(file: File) {
+      console.log('checkInSettings', file);
       const fd = new FormData();
       fd.append('file', file);
       checkInSettingsMutation(fd);
@@ -84,9 +85,7 @@ export default function useRecovery() {
   function getRestoreSettings() {
     const [restoreSettingsMutation, { isLoading, isSuccess, error }] = useRestoreSettingsMutation();
     function restoreSettings(backupName: string, selections: KeyedObject) {
-      const fd = new FormData();
-      fd.append('backupName', backupName);
-      fd.append('selections', JSON.stringify(selections));
+      const fd = { backupName, selections };
       restoreSettingsMutation(fd);
     }
     return { restoreSettings, isLoading, isSuccess, error };

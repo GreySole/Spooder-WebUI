@@ -6,7 +6,7 @@ import {
   useSetShareMutation,
   useVerifyShareTargetMutation,
 } from '../api/shareSlice';
-import { convertReactFormToFormData } from '../../ui/common/Helpers';
+import { convertReactFormToFormData } from '../../ui/util/DataUtil';
 
 export default function useShare() {
   function getShares() {

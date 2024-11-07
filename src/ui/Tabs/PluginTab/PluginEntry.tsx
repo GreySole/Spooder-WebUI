@@ -9,16 +9,16 @@ import {
   faDownload,
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import LinkButton from '../../common/LinkButton';
+import LinkButton from '../../common/input/general/LinkButton';
 import usePlugins from '../../../app/hooks/usePlugins';
 import useToast from '../../../app/hooks/useToast';
 import { PluginComponentProps, ToastType } from '../../Types';
 import PluginInfoView from './PluginInfoView';
-import LoadingCircle from '../../common/LoadingCircle';
+import CircleLoader from '../../common/loader/CircleLoader';
 import PluginSettings from './input/PluginSettings';
 import { usePluginContext } from './context/PluginTabFormContext';
 import PluginAssetManager from './PluginAssetManager';
-import { setClass } from '../../common/Helpers';
+import { setClass } from '../../util/deprecated_util';
 
 interface Plugin {
   name: string;
@@ -196,7 +196,7 @@ export default function PluginEntry(props: PluginComponentProps) {
         <div className='plugin-entry' key={pluginName} id={pluginName}>
           <div className='plugin-entry-ui'>
             <div className='plugin-entry-icon spinning'>
-              <LoadingCircle />
+              <CircleLoader />
             </div>
             <div className='plugin-entry-info'>
               <div className='plugin-entry-title'>

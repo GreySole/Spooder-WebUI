@@ -3,44 +3,47 @@ import useNavigation from '../../app/hooks/useNavigation';
 import BoolSwitch from '../common/input/controlled/BoolSwitch';
 import usePlugins from '../../app/hooks/usePlugins';
 import TabButton from './TabButton';
+import Button from '../common/input/controlled/Button';
+import useShare from '../../app/hooks/useShare';
+import { faPlay, faStop } from '@fortawesome/free-solid-svg-icons';
+import FormLoader from '../common/loader/FormLoader';
 
 export default function NavigationMenu() {
-  const {
-    urlParams,
-    setTab,
-    currentTab,
-    tabOptions,
-    deckTabOptions,
-    navigationOpen,
-    setStayHere,
-    setNavigation,
-  } = useNavigation();
+  const { urlParams, tabOptions, deckTabOptions, navigationOpen, setStayHere } = useNavigation();
   const { getRefreshPlugins } = usePlugins();
   const { refreshPlugins } = getRefreshPlugins();
+  const { getShares, getActiveShares } = useShare();
+  const { data: shares, isLoading: sharesLoading } = getShares();
+  const { data: activeShares, isLoading: activeSharesLoading } = getActiveShares();
+
+  if (sharesLoading || activeSharesLoading) {
+    return null;
+  }
+
+  let shareElements = [] as React.JSX.Element[];
+  for (let s in shares) {
+    shareElements.push(
+      <div className='nav-share-entry' key={s}>
+        <label>{shares[s].name}</label>
+        <Button
+          label=''
+          icon={activeShares.includes(s) == false ? faPlay : faStop}
+          iconSize='lg'
+          onClick={() => {}}
+        />
+      </div>,
+    );
+  }
 
   const tabButtons = Object.keys(tabOptions).map((tab: string, index) => {
     const tabLabel = tabOptions[tab];
     return <TabButton key={tab} tabLable={tabLabel} tabName={tab} />;
   });
 
-  const deckButtons = [] as React.JSX.Element[];
-  for (let d in deckTabOptions) {
-    let tabName = deckTabOptions[d];
-    deckButtons.push(
-      <button
-        type='button'
-        name={d}
-        className={'tab-button ' + (currentTab == d ? 'selected' : '')}
-        onClick={() => {
-          setTab(d);
-          setNavigation(false);
-        }}
-        key={Math.random()}
-      >
-        {tabName}
-      </button>,
-    );
-  }
+  const deckButtons = Object.keys(deckTabOptions).map((deck: string, index) => {
+    const deckLabel = deckTabOptions[deck];
+    return <TabButton key={deck} tabLable={deckLabel} tabName={deck} />;
+  });
 
   const navigationTabs = (
     <div className='navigation-tabs-mobile'>
@@ -61,7 +64,7 @@ export default function NavigationMenu() {
       {navigationTabs}
       <div className='chat-actions'>
         <BoolSwitch
-          onChange={() => setStayHere(urlParams.get('tab') != null)}
+          onChange={() => setStayHere(urlParams.get('tab') == null)}
           value={urlParams.get('tab') != null}
           label='Stay Here'
         />
@@ -73,13 +76,13 @@ export default function NavigationMenu() {
         </div>
         <div>
           Chat{' '}
-          <button type='button' className='nav-restart-chat-button' onClick={(restartChat) => {}}>
+          <button type='button' className='nav-restart-chat-button' onClick={() => {}}>
             Restart Chat
           </button>
         </div>
         <div>
           Shares
-          <div className='nav-share-container'></div>
+          <div className='nav-share-container'>{shareElements}</div>
         </div>
       </div>
     </div>

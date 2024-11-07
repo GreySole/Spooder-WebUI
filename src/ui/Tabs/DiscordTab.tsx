@@ -1,7 +1,7 @@
 import React from 'react';
 import useDiscord from '../../app/hooks/useDiscord';
 import SaveButton from '../common/input/form/SaveButton';
-import LoadingCircle from '../common/LoadingCircle';
+import CircleLoader from '../common/loader/CircleLoader';
 import DiscordConfig from './discordTab/input/DiscordConfig';
 import DiscordLoginSettings from './discordTab/input/DiscordLoginSettings';
 import DiscordTabFormContextProvider from './discordTab/context/DiscordTabFormContext';
@@ -12,7 +12,7 @@ export default function DiscordTab() {
   const { data: discordData, isLoading: discordLoading, error: discordError } = getDiscordConfig();
   const { saveDiscordConfig } = getSaveDiscordConfig();
   if (discordLoading) {
-    return <LoadingCircle></LoadingCircle>;
+    return <CircleLoader></CircleLoader>;
   }
 
   if (discordData == null) {

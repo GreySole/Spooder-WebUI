@@ -3,12 +3,13 @@ import { useOSC } from '../../app/context/OscContext';
 import OSC from 'osc-js';
 import React from 'react';
 import { KeyedObject } from '../Types';
-import Box from '../common/Box';
+import Box from '../common/layout/Box';
 import SystemMeters from './dashboardTab/SystemMeters';
 import DiskMeters from './dashboardTab/DiskMeters';
 import NetworkMeters from './dashboardTab/NetworkMeters';
 import { useGetSystemStatusQuery } from '../../app/api/serverSlice';
-import LoadingCircle from '../common/LoadingCircle';
+import CircleLoader from '../common/loader/CircleLoader';
+import FormLoader from '../common/loader/FormLoader';
 
 export default function DashboardTab() {
   const { data, isLoading, error, refetch } = useGetSystemStatusQuery(null);
@@ -25,7 +26,7 @@ export default function DashboardTab() {
   }, []);
 
   if (isLoading) {
-    return <LoadingCircle />;
+    return <CircleLoader />;
   }
 
   return (

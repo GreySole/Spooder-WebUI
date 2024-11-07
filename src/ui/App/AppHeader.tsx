@@ -2,12 +2,10 @@ import { faTimes, faBars } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React from 'react';
 import CustomSpooder from './CustomSpooder';
-import useTheme from '../../app/hooks/useTheme';
 import useNavigation from '../../app/hooks/useNavigation';
 import useToast from '../../app/hooks/useToast';
 
 export default function AppHeader() {
-  const { setThemeColor, themeColor } = useTheme();
   const { navigationOpen, toggleNavigation } = useNavigation();
   const { toastOpen, toastText, toastType } = useToast();
   return (

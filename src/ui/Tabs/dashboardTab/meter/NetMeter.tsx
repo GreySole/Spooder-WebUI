@@ -1,8 +1,8 @@
 import { faDownload } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React from 'react';
-import Box from '../../../common/Box';
-import { formatBytes } from '../../../common/Helpers';
+import Box from '../../../common/layout/Box';
+import { formatBytes } from '../../../util/DataUtil';
 import GraphMeter from './GraphMeter';
 
 interface NetMeterProps {
@@ -15,7 +15,6 @@ interface NetMeterProps {
 
 export default function NetMeter(props: NetMeterProps) {
   const { value, graphData, icon, color, total } = props;
-  console.log(graphData);
   return (
     <Box width='50%' margin='15px' flexFlow={'row'} alignItems={'center'} justifyContent='center'>
       <Box

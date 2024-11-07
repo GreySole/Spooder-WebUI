@@ -7,10 +7,12 @@ import ObsSetInputMuteInput from './ObsSetInputMuteInput';
 import ObsSwitchScenesInput from './ObsSwitchScenesInput';
 import ObsEnableSceneItemInput from './ObsEnabledSceneItemInput';
 import { EventCommandProps } from '../../../../Types';
+import FormSelectDropdown from '../../../../common/input/form/FormSelectDropdown';
 
 export default function EventOBSCommand(props: EventCommandProps) {
   const { eventName, commandIndex } = props;
-  const { getScenes, getObsSettings } = useOBS();
+  const { getScenes, getObsSettings, getObsStatus } = useOBS();
+  const { data: obsStatus, isLoading: obsStatusLoading, error: obsStatusError } = getObsStatus();
   const { data: obsData, isLoading: obsLoading, error: obsError } = getObsSettings();
   const { data: sceneData, isLoading: scenesLoading, error: scenesError } = getScenes();
   const formKey = buildCommandKey(eventName, commandIndex);
@@ -25,10 +27,18 @@ export default function EventOBSCommand(props: EventCommandProps) {
   const eTypeFormKey = buildKey(formKey, 'etype');
   const eType = watch(eTypeFormKey);
 
-  if (obsLoading || scenesLoading || obsError || scenesError) {
+  if (
+    obsLoading ||
+    scenesLoading ||
+    obsError ||
+    scenesError ||
+    obsStatusLoading ||
+    obsStatusError
+  ) {
     return null;
   }
-  if (Object.keys(obsData).length == 0 || obsData.status == 'notconnected') {
+
+  if (obsStatus.connected == false) {
     return (
       <div className='command-props software'>
         <label>
@@ -91,17 +101,17 @@ export default function EventOBSCommand(props: EventCommandProps) {
       break;
   }
 
-  let functionSelect = (
-    <select value={commandFunction} {...register(commandFunctionFormKey)}>
-      <option value='setinputmute'>Set Input Mute</option>
-      <option value='switchscenes'>Switch Scenes</option>
-      <option value='enablesceneitem'>Enable Scene Item</option>
-    </select>
-  );
-
   return (
     <div className='command-props software'>
-      <label>Function: {functionSelect}</label>
+      <FormSelectDropdown
+        label='Function'
+        formKey={commandFunctionFormKey}
+        options={[
+          { value: 'setinputmute', label: 'Set Input Mute' },
+          { value: 'switchscenes', label: 'Switch Scenes' },
+          { value: 'enablesceneitem', label: 'Enable Scene Item' },
+        ]}
+      />
       {commandContent}
     </div>
   );

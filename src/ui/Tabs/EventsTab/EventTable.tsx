@@ -1,26 +1,21 @@
 import React from 'react';
 import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { useState, useEffect, ReactNode } from 'react';
+import { useState } from 'react';
 import { useFormContext } from 'react-hook-form';
-import useConfig from '../../../app/hooks/useConfig';
-import useEvents from '../../../app/hooks/useEvents';
-import Expandable from '../../common/Expandable';
-import EventTableFormContextProvider from './context/EventTableFormContext';
+import Expandable from '../../common/layout/Expandable';
 import AddEventInput from './eventCommand/input/AddEventInput';
-import AddGroupInput from './eventCommand/input/AddGroupInput';
 import EventElement from './EventElement';
-import LoadingCircle from '../../common/LoadingCircle';
-import { useHotkeys } from '../../../app/hooks/useHotkeys';
-import SaveEventsButton from '../../common/input/form/SaveButton';
 import DeleteGroupButton from './eventCommand/input/DeleteGroupButton';
 
 export default function EventTable() {
   const { watch } = useFormContext();
   const [searchText, setSearchText] = useState<string>('');
 
-  const events = watch('events', {});
-  const groups = watch('groups', []);
+  const events = watch('events');
+  const groups = watch('groups');
+
+  console.log('EVENTS', events);
 
   let propKeys = Object.keys(events).sort((a, b) => {
     return events[a].name.toUpperCase() > events[b].name.toUpperCase() ? 1 : -1;

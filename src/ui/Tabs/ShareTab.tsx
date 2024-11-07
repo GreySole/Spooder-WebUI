@@ -1,6 +1,5 @@
 import React from 'react';
-import './ShareTab.css';
-import LoadingCircle from '../common/LoadingCircle';
+import CircleLoader from '../common/loader/CircleLoader';
 import useShare from '../../app/hooks/useShare';
 import ShareTabFormContextProvider from './shareTab/context/ShareTabFormContext';
 import ShareEntry from './shareTab/ShareEntry';
@@ -11,7 +10,7 @@ export default function ShareTab() {
   const { data: shares, isLoading, error } = getShares();
 
   if (isLoading) {
-    return <LoadingCircle></LoadingCircle>;
+    return <CircleLoader></CircleLoader>;
   }
 
   return (

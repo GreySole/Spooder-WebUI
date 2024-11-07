@@ -4,9 +4,18 @@
 
 @import 'navigation';
 
-@import './ui/Tabs/CommandTable.scss';
-@import './ui/Tabs/TwitchTab.scss';
-@import './ui/Tabs/PluginTab.scss';
+@import '../app/EventTab.scss';
+@import '../app/TwitchTab.scss';
+@import '../app/PluginTab.scss';
+@import '../app/ConfigTab.scss';
+@import '../app/UserTab.scss';
+@import '../app/ShareTab.scss';
+@import './LoadingCircle.scss';
+
+@import '../deck/OutputController.scss';
+@import '../deck/SceneController.scss';
+@import '../deck/SourceControl.scss';
+@import '../deck/VolumeControl.scss';
 
 :root {
   --header-height: 70px;

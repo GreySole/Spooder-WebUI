@@ -1,9 +1,9 @@
 import React from 'react';
 import useTwitch from '../../../app/hooks/useTwitch';
-import LoadingCircle from '../../common/LoadingCircle';
 import Button from '../../common/input/controlled/Button';
-import LinkButton from '../../common/LinkButton';
+import LinkButton from '../../common/input/general/LinkButton';
 import useConfig from '../../../app/hooks/useConfig';
+import FormLoader from '../../common/loader/FormLoader';
 
 export default function TwitchAuthManager() {
   const { getConfig } = useConfig();
@@ -15,7 +15,7 @@ export default function TwitchAuthManager() {
   const { revokeToken } = getRevokeToken();
 
   if (twitchConfigLoading || scopesLoading || configLoading || accountsLoading) {
-    return <LoadingCircle></LoadingCircle>;
+    return <FormLoader numRows={4} />;
   }
 
   const chatAuthButton = (

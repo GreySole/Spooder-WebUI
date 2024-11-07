@@ -2,7 +2,7 @@ import React from 'react';
 import { usePluginContext } from './context/PluginTabFormContext';
 import AlertToasterLink from './AlertToasterLink';
 import PluginEntry from './PluginEntry';
-import LoadingCircle from '../../common/LoadingCircle';
+import FormLoader from '../../common/loader/FormLoader';
 
 export default function PluginList() {
   const { plugins, isReady, reloadPlugins } = usePluginContext();
@@ -10,7 +10,7 @@ export default function PluginList() {
   console.log(plugins);
 
   if (!isReady) {
-    return <LoadingCircle />;
+    return <FormLoader numRows={4} />;
   }
 
   let pluginList = [];

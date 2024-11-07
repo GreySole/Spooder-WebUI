@@ -15,9 +15,7 @@ export const recoveryApi = createApi({
         url: '/checkin_settings',
         method: 'post',
         body: form,
-        headers: {
-          'Content-type': 'application/json; charset=UTF-8',
-        },
+        headers: {},
       }),
     }),
     checkInPlugins: builder.mutation({
@@ -25,9 +23,7 @@ export const recoveryApi = createApi({
         url: '/checkin_plugins',
         method: 'post',
         body: form,
-        headers: {
-          'Content-type': 'application/json; charset=UTF-8',
-        },
+        headers: {},
       }),
     }),
     backupSettings: builder.mutation({

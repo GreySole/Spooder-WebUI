@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import OSC from 'osc-js';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEyeSlash, faPlus, faMinus } from '@fortawesome/free-solid-svg-icons';
-import './SourceControl.css';
 import { useOSC } from '../../../../app/context/OscContext';
 import { KeyedObject } from '../../../Types';
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import LoadingCircle from '../common/LoadingCircle';
+import CircleLoader from '../common/loader/CircleLoader';
 import { FormProvider, useForm } from 'react-hook-form';
 import OSCTunnelList from './oscTunnels/OSCTunnelList';
 import SaveTunnelFormButton from './oscTunnels/SaveTunnelFormButton';
@@ -13,7 +13,7 @@ export default function OSCTunnelTab() {
   });
 
   if (tunnelsLoading || tunnelsError) {
-    return <LoadingCircle></LoadingCircle>;
+    return <CircleLoader></CircleLoader>;
   }
 
   return (

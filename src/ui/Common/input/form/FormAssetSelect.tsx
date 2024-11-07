@@ -4,8 +4,8 @@ import usePlugins from '../../../../app/hooks/usePlugins';
 import React, { useRef } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { useUploadPluginAssetMutation } from '../../../../app/api/pluginSlice';
-import LoadingCircle from '../../LoadingCircle';
 import FormSelectDropdown from './FormSelectDropdown';
+import FormLoader from '../../loader/FormLoader';
 
 interface FormAssetSelectProps {
   formKey: string;
@@ -24,8 +24,10 @@ export default function FormAssetSelect(props: FormAssetSelectProps) {
   const { data: assets, isLoading, error, refetch } = getPluginAssets(pluginName, assetFolderPath);
   const fileRef = useRef<HTMLInputElement>(null);
 
+  console.log('ASSETS', pluginName, assetFolderPath);
+
   if (isLoading || error) {
-    return <LoadingCircle />;
+    return <FormLoader numRows={2} />;
   }
 
   const assetOptions = [{ label: 'None', value: '' }];

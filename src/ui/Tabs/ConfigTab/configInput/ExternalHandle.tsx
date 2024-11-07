@@ -1,6 +1,6 @@
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
-import LinkButton from '../../../common/LinkButton';
+import LinkButton from '../../../common/input/general/LinkButton';
 import FormSelectDropdown from '../../../common/input/form/FormSelectDropdown';
 import FormTextInput from '../../../common/input/form/FormTextInput';
 

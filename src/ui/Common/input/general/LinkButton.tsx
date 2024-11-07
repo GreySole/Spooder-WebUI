@@ -1,7 +1,7 @@
 import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faClipboard, faDownload, faSquareArrowUpRight } from '@fortawesome/free-solid-svg-icons';
-import { $, setClass } from './Helpers';
+import { $, setClass } from '../../../util/deprecated_util';
 
 interface LinkButtonProps {
   name?: string;

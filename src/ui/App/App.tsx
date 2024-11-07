@@ -6,7 +6,7 @@ import useServer from '../../app/hooks/useServer';
 import ModUI from '../deck/ModUI';
 import OSCMonitor from '../deck/OSCMonitor';
 import PluginTab from '../tabs/PluginTab';
-import LoadingCircle from '../common/LoadingCircle';
+import CircleLoader from '../common/loader/CircleLoader';
 import BoolSwitch from '../common/input/controlled/BoolSwitch';
 import usePlugins from '../../app/hooks/usePlugins';
 import { useOSC } from '../../app/context/OscContext';
@@ -22,25 +22,32 @@ import NavigationTabs from './NavigationTabs';
 import OBS from '../deck/OBS';
 import DiscordTab from '../tabs/DiscordTab';
 import DashboardTab from '../tabs/DashboardTab';
+import useTheme from '../../app/hooks/useTheme';
+import FormLoader from '../common/loader/FormLoader';
 
 export default function App() {
-  const { urlParams, currentTab, stayHere, navigationOpen, setStayHere } = useNavigation();
+  const { currentTab } = useNavigation();
+  const { setCustomSpooder, refreshThemeColors } = useTheme();
   const { getServerState } = useServer();
   const { data: serverData, isLoading: serverLoading, error: serverError } = getServerState();
   const { addListener, removeListener } = useOSC();
   const { getRefreshPlugins } = usePlugins();
-  const { refreshPlugins } = getRefreshPlugins();
 
   useEffect(() => {
     addListener('/obs/status/connection', (message: any) => {});
+    ``;
+    refreshThemeColors();
+    if (serverData?.themes?.spooderpet) {
+      setCustomSpooder(serverData.themes.spooderpet.parts, serverData.themes.spooderpet.colors);
+    }
 
     return () => {
       removeListener('/obs/status/connection');
     };
-  }, []);
+  }, [serverData]);
 
   if (serverLoading) {
-    return <LoadingCircle />;
+    return <CircleLoader />;
   }
 
   if (serverData.isExternal) {
@@ -112,54 +119,12 @@ export default function App() {
       <div id='tabContent'>{tabContent}</div>
     </div>
   );
-  let shareElements = [] as React.JSX.Element[];
-  for (let s in serverData.shares) {
-    shareElements.push(
-      <div className='nav-share-entry' key={s}>
-        <label>{s}</label>
-        <button
-          name={s}
-          className={
-            'nav-share-button ' + (serverData.shares[s] == false ? 'save-button' : 'delete-button')
-          }
-          onClick={() => {}}
-        >
-          <FontAwesomeIcon icon={serverData.shares[s] == false ? faPlay : faStop} size='lg' />
-        </button>
-      </div>,
-    );
-  }
 
   return (
     <div className='App'>
       <AppHeader />
-      <div className={'navigation-menu ' + (navigationOpen ? 'open' : '')}>
-        <NavigationTabs />
-        <NavigationMenu />
-        <div className='chat-actions'>
-          <BoolSwitch
-            onChange={() => setStayHere(urlParams.get('tab') == null)}
-            value={urlParams.get('tab') != null}
-            label='Stay Here'
-          />
-          <div>
-            Plugins{' '}
-            <button type='button' className='nav-restart-chat-button' onClick={refreshPlugins}>
-              Refresh Plugins
-            </button>
-          </div>
-          <div>
-            Chat{' '}
-            <button type='button' className='nav-restart-chat-button' onClick={() => {}}>
-              Restart Chat
-            </button>
-          </div>
-          <div>
-            Shares
-            <div className='nav-share-container'>{shareElements}</div>
-          </div>
-        </div>
-      </div>
+      <NavigationTabs />
+      <NavigationMenu />
 
       {appContent}
     </div>

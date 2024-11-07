@@ -70,3 +70,12 @@ export interface ChatTriggerConditionObject {
   sub: boolean;
   vip: boolean;
 }
+
+export interface ThemeColors {
+  baseColor: string;
+  buttonFontColor: string;
+  colorAnalogousCW: string;
+  colorAnalogousCCW: string;
+  buttonFontColorAnalogousCW: string;
+  buttonFontColorAnalogousCCW: string;
+}

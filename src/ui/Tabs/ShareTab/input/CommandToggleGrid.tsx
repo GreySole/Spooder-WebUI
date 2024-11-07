@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCommentDots, faSpider } from '@fortawesome/free-solid-svg-icons';
 import { useFormContext } from 'react-hook-form';
 import useEvents from '../../../../app/hooks/useEvents';
-import LoadingCircle from '../../../common/LoadingCircle';
+import CircleLoader from '../../../common/loader/CircleLoader';
 import { KeyedObject } from '../../../Types';
 
 interface ToggleGridProps {
@@ -18,7 +18,7 @@ export default function CommandToggleGrid(props: ToggleGridProps) {
   const selected = watch(`${formKey}.commands`, []);
 
   if (isLoading) {
-    return <LoadingCircle />;
+    return <CircleLoader />;
   }
 
   const onToggleChange = (element: string, isSelected: boolean) => {

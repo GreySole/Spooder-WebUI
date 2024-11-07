@@ -1,6 +1,6 @@
 import React from 'react';
 import useTwitch from '../../app/hooks/useTwitch';
-import LoadingCircle from '../common/LoadingCircle';
+import CircleLoader from '../common/loader/CircleLoader';
 import Button from '../common/input/controlled/Button';
 import TwitchTabFormContextProvider from './twitchTab/context/TwitchFormContext';
 import TwitchCredentials from './twitchTab/TwitchCredentials';
@@ -13,7 +13,7 @@ export default function TwitchTab() {
   const { deleteEventSub } = getDeleteEventSub();
 
   if (isLoadingTwitchConfig) {
-    return <LoadingCircle />;
+    return <CircleLoader />;
   }
 
   console.log('TWITCH', twitchConfig);

@@ -23,9 +23,9 @@ export const navigationSlice = createSlice({
       osc: 'OSC Monitor',
       mod: 'Mod UI',
     } as TabOptions,
-    currentTab: 'dashboard',
+    currentTab: new URLSearchParams(window.location.search).get('tab') ?? 'dashboard',
     navigationOpen: false,
-    stayHere: false,
+    stayHere: window.location.search.includes('tab'),
   },
   reducers: {
     _setTab: (state, action) => {
@@ -38,6 +38,7 @@ export const navigationSlice = createSlice({
       state.navigationOpen = action.payload.isOpen;
     },
     _setStayHere: (state, action) => {
+      console.log('SETTING STATE', action.payload.stayHere);
       state.stayHere = action.payload.stayHere;
     },
   },

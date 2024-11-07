@@ -1,14 +1,12 @@
 import { useState } from 'react';
 import { useFormContext } from 'react-hook-form';
-import useEvents from '../../../../app/hooks/useEvents';
-import LoadingCircle from '../../../common/LoadingCircle';
-import CommandToggleGrid from './CommandToggleGrid';
 import useShare from '../../../../app/hooks/useShare';
 import Button from '../../../common/input/controlled/Button';
 import SaveButton from '../../../common/input/form/SaveButton';
 import usePlugins from '../../../../app/hooks/usePlugins';
 import PluginToggleGrid from './PluginToggleGrid';
 import React from 'react';
+import FormLoader from '../../../common/loader/FormLoader';
 
 interface ShareEntrySettingsProps {
   shareKey: string;
@@ -25,7 +23,7 @@ export default function ShareEntryPluginSettings(props: ShareEntrySettingsProps)
   const [openSettings, setOpenSettings] = useState(false);
 
   if (isLoading) {
-    return <LoadingCircle />;
+    return <FormLoader numRows={4} />;
   }
 
   const saveAndCloseShare = () => {

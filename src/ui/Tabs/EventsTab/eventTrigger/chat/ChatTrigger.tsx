@@ -11,18 +11,14 @@ interface ChatTriggerProps {
 
 export default function ChatTrigger(props: ChatTriggerProps) {
   const { eventName } = props;
-  const { watch, register } = useFormContext();
+  const { watch } = useFormContext();
 
   const chatTriggerKey = buildTriggerKey(eventName, 'chat');
-
   const enabledKey = buildKey(chatTriggerKey, 'enabled');
   const enabled = watch(enabledKey, false);
 
   const searchKey = buildKey(chatTriggerKey, 'search');
-  const search = watch(searchKey, false);
-
   const commandKey = buildKey(chatTriggerKey, 'command');
-  const command = watch(commandKey, '');
 
   if (!enabled) {
     return (

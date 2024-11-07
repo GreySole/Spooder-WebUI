@@ -1,7 +1,8 @@
 import { Tuple } from '@reduxjs/toolkit';
 import { useDispatch, useSelector } from 'react-redux';
 import { IRootState } from '../store';
-import { _setCustomSpooder, _setThemeColor } from '../slice/themeSlice';
+import { _setCustomSpooder, _setThemeColors } from '../slice/themeSlice';
+import { KeyedObject, ThemeColors } from '../../ui/Types';
 
 const RED = 0.2126;
 const GREEN = 0.7152;
@@ -82,12 +83,32 @@ const hslToRgb = (h: number, s: number, l: number) => {
   return rgb as Tuple;
 };
 
-const setThemeColors = (color: string) => {
-  localStorage.setItem('themeColor', JSON.stringify(color));
+const applyThemeColors = (colors: KeyedObject) => {
+  const {
+    baseColor,
+    buttonFontColor,
+    colorAnalogousCW,
+    colorAnalogousCCW,
+    buttonFontColorAnalogousCW,
+    buttonFontColorAnalogousCCW,
+  } = colors;
 
-  document.documentElement.style.setProperty('--color-primary', color);
-  document.documentElement.style.setProperty('--button-font-color', contrastingColor(color));
+  document.documentElement.style.setProperty('--color-primary', baseColor);
+  document.documentElement.style.setProperty('--button-font-color', buttonFontColor);
 
+  document.documentElement.style.setProperty('--color-analogous-cw', colorAnalogousCW);
+  document.documentElement.style.setProperty('--color-analogous-ccw', colorAnalogousCCW);
+  document.documentElement.style.setProperty(
+    '--button-font-color-analogous-cw',
+    buttonFontColorAnalogousCW,
+  );
+  document.documentElement.style.setProperty(
+    '--button-font-color-analogous-ccw',
+    buttonFontColorAnalogousCCW,
+  );
+};
+
+const calculateThemeColors = (color: string) => {
   const rgbArray = hexToRGBArray(color);
   // Convert the color to HSL array
   const hslColor = rgbToHsl(rgbArray[0], rgbArray[1], rgbArray[2]);
@@ -102,30 +123,31 @@ const setThemeColors = (color: string) => {
   const ccwRgbColor = hslToRgb(ccwHslColor[0], ccwHslColor[1], ccwHslColor[2]);
   const ccwAnalogousColor = rgbToHex(ccwRgbColor[0], ccwRgbColor[1], ccwRgbColor[2]);
 
-  document.documentElement.style.setProperty('--color-analogous-cw', cwAnalogousColor);
-  document.documentElement.style.setProperty('--color-analogous-ccw', ccwAnalogousColor);
-  document.documentElement.style.setProperty(
-    '--button-font-color-analogous-cw',
-    contrastingColor(cwAnalogousColor),
-  );
-  document.documentElement.style.setProperty(
-    '--button-font-color-analogous-ccw',
-    contrastingColor(ccwAnalogousColor),
-  );
+  return {
+    baseColor: color,
+    buttonFontColor: contrastingColor(color),
+    colorAnalogousCW: cwAnalogousColor,
+    colorAnalogousCCW: ccwAnalogousColor,
+    buttonFontColorAnalogousCW: contrastingColor(cwAnalogousColor),
+    buttonFontColorAnalogousCCW: contrastingColor(ccwAnalogousColor),
+  } as ThemeColors;
 };
 
 export default function useTheme() {
   const dispatch = useDispatch();
-  const themeColor = useSelector((state: IRootState) => state.themeSlice.themeColor);
+  const themeColors = useSelector(
+    (state: IRootState) => state.themeSlice.themeColors as ThemeColors,
+  );
   const customSpooder = useSelector((state: IRootState) => state.themeSlice.customSpooder);
 
   function setThemeColor(color: string) {
-    dispatch(_setThemeColor({ themeColor: color }));
-    setThemeColors(color);
+    console.log(color, calculateThemeColors(color));
+    dispatch(_setThemeColors(calculateThemeColors(color)));
+    applyThemeColors(themeColors);
   }
 
   function refreshThemeColors() {
-    setThemeColors(themeColor);
+    applyThemeColors(themeColors);
   }
 
   function setCustomSpooder(parts: any, colors: any) {
@@ -133,7 +155,7 @@ export default function useTheme() {
   }
 
   return {
-    themeColor,
+    themeColors,
     customSpooder,
     setThemeColor,
     refreshThemeColors,

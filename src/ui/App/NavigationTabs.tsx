@@ -5,13 +5,11 @@ import useNavigation from '../../app/hooks/useNavigation';
 export default function NavigationTabs() {
   const { tabOptions, setTab, currentTab } = useNavigation();
 
-  return (
-    <div className='navigation-tabs'>
-      {
-        Object.entries(tabOptions).forEach(([key, label]) => (
-          <TabButton tabName={key} tabLable={label} />
-        ))!
-      }
-    </div>
-  );
+  console.log('TAB OPTIONS', tabOptions);
+
+  const tabButtons = Object.entries(tabOptions).map(([key, label]) => (
+    <TabButton tabName={key} tabLable={label} />
+  ));
+
+  return <div className='navigation-tabs'>{tabButtons}</div>;
 }

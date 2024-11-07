@@ -21,12 +21,18 @@ export default function useNavigation() {
   }
 
   function setNavigation(isOpen: boolean) {
-    console.log('SETTING NAV', isOpen);
-    dispatch(_setNavigation(isOpen));
+    dispatch(_setNavigation({ isOpen }));
   }
 
-  function setStayHere(stayHere: boolean) {
-    dispatch(_setStayHere(stayHere));
+  function setStayHere(isStaying: boolean) {
+    if (isStaying) {
+      urlParams.set('tab', currentTab);
+      window.history.replaceState({}, '', `${window.location.pathname}?${urlParams}`);
+    } else {
+      urlParams.delete('tab');
+      window.history.replaceState({}, '', `${window.location.pathname}`);
+    }
+    dispatch(_setStayHere({ stayHere: isStaying }));
   }
 
   return {

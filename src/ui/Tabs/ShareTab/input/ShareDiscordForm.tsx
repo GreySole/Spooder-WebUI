@@ -17,12 +17,12 @@ export default function ShareDiscordForm(props: ShareDiscordFormProps) {
   const [openAddDiscord, setOpenAddDiscord] = useState(false);
 
   const removeDiscord = () => {
-    setValue(`${shareKey}.discord.id`, null);
-    setValue(`${shareKey}.discord.username`, null);
+    setValue(`${shareKey}.notificationPlatforms.discord.userId`, null);
+    setValue(`${shareKey}.notificationPlatforms.discord.username`, null);
   };
-  if (share.discord.id == null && openAddDiscord) {
+  if (share.notificationPlatforms.discord.userId == null && !openAddDiscord) {
     return <Button label='Add Discord' onClick={() => setOpenAddDiscord(true)} />;
-  } else if (share.discord.id == null && openAddDiscord) {
+  } else if (share.notificationPlatforms.discord.userId == null && openAddDiscord) {
     return (
       <div className='share-discord-label'>
         <TextInput
@@ -36,11 +36,8 @@ export default function ShareDiscordForm(props: ShareDiscordFormProps) {
   } else {
     return (
       <div className='share-discord-label'>
-        <Button
-          label={'Discord ' + share.discord.username}
-          icon={faTrash}
-          onClick={() => removeDiscord()}
-        />
+        {'Discord ' + share.notificationPlatforms.discord.username}
+        <Button label='' icon={faTrash} onClick={() => removeDiscord()} />
       </div>
     );
   }

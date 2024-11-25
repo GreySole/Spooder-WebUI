@@ -4,8 +4,8 @@ export const discordApi = createApi({
   reducerPath: 'discordApi',
   baseQuery: fetchBaseQuery({ baseUrl: window.location.origin }),
   endpoints: (builder) => ({
-    getChannels: builder.query({
-      query: () => '/discord/get_channels',
+    getGuilds: builder.query({
+      query: () => '/discord/get_guilds',
     }),
     getConfig: builder.query({
       query: () => '/discord/config',
@@ -27,7 +27,7 @@ export const discordApi = createApi({
 });
 
 export const {
-  useGetChannelsQuery,
+  useGetGuildsQuery,
   useGetConfigQuery,
   useGetUserQuery,
   useSaveDiscordConfigMutation,

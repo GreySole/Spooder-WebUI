@@ -1,6 +1,6 @@
 import React from 'react';
 import TabButton from './TabButton';
-import useNavigation from '../../app/hooks/useNavigation';
+import useNavigation from '../../../app/hooks/useNavigation';
 
 export default function NavigationTabs() {
   const { tabOptions, setTab, currentTab } = useNavigation();

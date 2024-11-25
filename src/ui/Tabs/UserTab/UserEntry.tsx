@@ -14,12 +14,12 @@ interface UserEntryProps {
 export default function UserEntry(props: UserEntryProps) {
   const { userKey } = props;
   const { watch, setValue, unregister } = useFormContext();
-  const user = watch(`trusted_users.${userKey}`);
+  const userPermissions = watch(`trusted_users.permissions.${userKey}`);
   const hasPassword = watch(`trusted_users_pw.${userKey}`, false);
   const { getResetPassword } = useUsers();
   const { resetPassword } = getResetPassword();
 
-  console.log('UserEntry', userKey, user, hasPassword);
+  console.log('UserEntry', userKey, userPermissions, hasPassword);
 
   const safeDeleteUserPassword = () => {
     const deleteConfirm = confirm(
@@ -35,7 +35,9 @@ export default function UserEntry(props: UserEntryProps) {
     const deleteConfirm = confirm(`Are you sure you want to delete ${userKey}?`);
 
     if (deleteConfirm == true) {
-      unregister(`trusted_users.${userKey}`);
+      unregister(`trusted_users.permissions.${userKey}`);
+      unregister(`trusted_users.verify.twitch.${userKey}`);
+      unregister(`trusted_users.verify.discord.${userKey}`);
       unregister(`trusted_users_pw.${userKey}`);
     }
   };
@@ -47,28 +49,29 @@ export default function UserEntry(props: UserEntryProps) {
     } else {
       newPermissions.push(permission);
     }
-    setValue(`trusted_users.${userKey}.permission`, newPermissions);
+    setValue(`trusted_users.permissions.${userKey}`, newPermissions);
   };
 
   return (
     <div key={userKey} className='user-container'>
       <div className='user-entry'>
-        <FormTextInput formKey={`trusted_users.${userKey}.username`} label='Username' />
+        <FormTextInput formKey={`trusted_users.usernames.${userKey}`} label='Username' />
+        <FormTextInput formKey={`trusted_users.displaynames.${userKey}`} label='Display Name' />
         <div className='user-section'>
           <BoolSwitch
             label='Admin'
-            value={user.permission.includes('a')}
+            value={userPermissions.includes('a')}
             onChange={() => togglePermission('a')}
           />
           <BoolSwitch
             label='Mod UI'
-            value={user.permission.includes('m')}
+            value={userPermissions.includes('m')}
             onChange={() => togglePermission('m')}
           />
         </div>
-        <FormTextInput formKey={`trusted_users.${userKey}.verify.twitch`} label='Twitch Username' />
+        <FormTextInput formKey={`trusted_users.verify.twitch.${userKey}`} label='Twitch Username' />
         <FormTextInput
-          formKey={`trusted_users.${userKey}.verify.discord`}
+          formKey={`trusted_users.verify.discord.${userKey}`}
           label='Discord User ID'
         />
       </div>

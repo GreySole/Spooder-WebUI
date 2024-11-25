@@ -29,6 +29,7 @@ export default function FormTextInput(props: TextInputProps) {
     <label htmlFor={`text-${formKey}`}>
       {label}
       <input
+        style={{ width: '100%' }}
         id={`text-${formKey}`}
         className='text-input'
         type={password ? 'password' : 'text'}

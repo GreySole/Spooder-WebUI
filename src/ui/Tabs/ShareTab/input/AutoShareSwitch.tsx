@@ -12,7 +12,7 @@ export default function AutoShareSwitch(props: AutoShareSwitchProps) {
   const { watch } = useFormContext();
   const share = watch(shareKey);
   const { getEventSubsByUser, getDeleteEventSub, getInitEventSub } = useTwitch();
-  const { data, isLoading, error } = getEventSubsByUser(share.twitch.id);
+  const { data, isLoading, error } = getEventSubsByUser(share.streamPlatforms.twitch.userId);
   const { deleteEventSub } = getDeleteEventSub();
   const { initEventSub } = getInitEventSub();
 
@@ -27,8 +27,8 @@ export default function AutoShareSwitch(props: AutoShareSwitchProps) {
       deleteEventSub(data['stream.online'].id);
       deleteEventSub(data['stream.offline'].id);
     } else {
-      initEventSub('stream.online', share.twitch.id);
-      initEventSub('stream.offline', share.twitch.id);
+      initEventSub('stream.online', share.streamPlatforms.twitch.userId);
+      initEventSub('stream.offline', share.streamPlatforms.twitch.userId);
     }
   };
 

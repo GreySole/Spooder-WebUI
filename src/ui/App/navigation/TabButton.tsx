@@ -1,5 +1,5 @@
 import React from 'react';
-import useNavigation from '../../app/hooks/useNavigation';
+import useNavigation from '../../../app/hooks/useNavigation';
 
 interface TabButtonProps {
   tabName: string;

@@ -33,20 +33,18 @@ export default function TwitchAuthManager() {
     />
   );
 
-  return twitchConfig['token'] != null ? (
+  return linkedAccounts.botUser != null ? (
     <div key='twitchmanage' className='twitchmanage-form'>
       <div className='twitch-bot'>
         <label>CHAT BOT</label>
         <div className='twitch-pfp'>
           <img
             height='150px'
-            src={
-              linkedAccounts.botUser != null ? linkedAccounts.botUser[0].profile_image_url : null
-            }
+            src={linkedAccounts.botUser != null ? linkedAccounts.botUser.profile_image_url : null}
           />
         </div>
         <div className='twitch-username'>
-          {linkedAccounts.botUser != null ? linkedAccounts.botUser[0].display_name : ''}
+          {linkedAccounts.botUser != null ? linkedAccounts.botUser.display_name : ''}
         </div>
 
         {chatAuthButton}
@@ -58,14 +56,14 @@ export default function TwitchAuthManager() {
             height='150px'
             src={
               linkedAccounts?.broadcasterUser != null
-                ? linkedAccounts.broadcasterUser[0].profile_image_url
+                ? linkedAccounts.broadcasterUser.profile_image_url
                 : null
             }
           />
         </div>
         <div className='twitch-username'>
           {linkedAccounts.broadcasterUser != null
-            ? linkedAccounts.broadcasterUser[0].display_name
+            ? linkedAccounts.broadcasterUser.display_name
             : ''}
         </div>
 

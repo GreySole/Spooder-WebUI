@@ -1,14 +1,14 @@
 import { FieldValue, FieldValues, get } from 'react-hook-form';
 import {
-  useGetChannelsQuery,
   useGetConfigQuery,
+  useGetGuildsQuery,
   useGetUserQuery,
   useSaveDiscordConfigMutation,
 } from '../api/discordSlice';
 
 export default function useDiscord() {
-  function getDiscordChannels() {
-    const { data, isLoading, error } = useGetChannelsQuery(null);
+  function getDiscordGuilds() {
+    const { data, isLoading, error } = useGetGuildsQuery(null);
     return {
       data,
       isLoading,
@@ -45,7 +45,7 @@ export default function useDiscord() {
   }
 
   return {
-    getDiscordChannels,
+    getDiscordGuilds,
     getDiscordConfig,
     getDiscordUser,
     getSaveDiscordConfig,

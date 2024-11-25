@@ -33,6 +33,7 @@ export default function TextInput(props: TextInputProps) {
       {label}
       <input
         id={`text-${key}`}
+        style={{ width: '100%' }}
         className='text-input'
         placeholder={placeholder}
         type={password ? 'password' : 'text'}

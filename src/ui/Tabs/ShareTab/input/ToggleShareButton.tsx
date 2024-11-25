@@ -23,9 +23,19 @@ export default function ToggleShareButton(props: ToggleShareButtonProps) {
   return (
     <>
       {!isActive ? (
-        <Button label='' icon={faPlay} onClick={() => setShare(shareKey, true, '')} />
+        <Button
+          label='Start'
+          icon={faPlay}
+          iconSize='lg'
+          onClick={() => setShare(shareKey, true, '')}
+        />
       ) : (
-        <Button label='' icon={faStop} onClick={() => setShare(shareKey, false, '')} />
+        <Button
+          label='Stop'
+          icon={faStop}
+          iconSize='lg'
+          onClick={() => setShare(shareKey, false, '')}
+        />
       )}
     </>
   );

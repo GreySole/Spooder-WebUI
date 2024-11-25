@@ -18,12 +18,12 @@ export default function ResponseDiscordSpecialFields(props: EventResponseCommand
   const { eventName, formKey } = props;
   const { watch, register } = useFormContext();
   const { verifyResponseScript } = useEvents();
-  const { getDiscordChannels } = useDiscord();
+  const { getDiscordGuilds } = useDiscord();
   const {
     data: channelData,
     isLoading: channelsLoading,
     error: channelsError,
-  } = getDiscordChannels();
+  } = getDiscordGuilds();
   if (channelsLoading) {
     return null;
   }

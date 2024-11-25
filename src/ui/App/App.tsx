@@ -17,13 +17,14 @@ import ShareTab from '../tabs/ShareTab';
 import UserTab from '../tabs/UserTab';
 import TwitchTab from '../tabs/TwitchTab';
 import AppHeader from './AppHeader';
-import NavigationMenu from './NavigationMenu';
-import NavigationTabs from './NavigationTabs';
+import NavigationMenu from './navigation/NavigationMenu';
+import NavigationTabs from './navigation/NavigationTabs';
 import OBS from '../deck/OBS';
 import DiscordTab from '../tabs/DiscordTab';
 import DashboardTab from '../tabs/DashboardTab';
 import useTheme from '../../app/hooks/useTheme';
 import FormLoader from '../common/loader/FormLoader';
+import ModuleTab from '../tabs/ModuleTab';
 
 export default function App() {
   const { currentTab } = useNavigation();
@@ -96,6 +97,9 @@ export default function App() {
       break;
     case 'users':
       tabContent = <UserTab />;
+      break;
+    case 'module':
+      tabContent = <ModuleTab />;
       break;
     case 'discord':
       tabContent = <DiscordTab />;

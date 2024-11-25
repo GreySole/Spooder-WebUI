@@ -11,13 +11,10 @@ interface FormDiscordChannelSelectProps {
 
 export default function FormDiscordChannelSelect(props: FormDiscordChannelSelectProps) {
   const { formKey, label } = props;
-  const { getDiscordChannels } = useDiscord();
-  const { data: discord, isLoading, error } = getDiscordChannels();
+  const { getDiscordGuilds } = useDiscord();
+  const { data: guilds, isLoading, error } = getDiscordGuilds();
   const { watch } = useFormContext();
-  const discordVal = watch(formKey, {
-    guild: '',
-    channel: '',
-  });
+  const destGuild = watch(`${formKey}.destguild`, '');
 
   if (isLoading || error) {
     return null;
@@ -26,22 +23,22 @@ export default function FormDiscordChannelSelect(props: FormDiscordChannelSelect
   let guildOptions: SelectOption[] = [{ value: '', label: 'Select Guild' }];
   let channelOptions: SelectOption[] = [{ value: '', label: 'Select Channel' }];
 
-  if (Object.keys(discord).length > 0) {
-    for (let d in discord) {
-      guildOptions.push({ value: d, label: discord[d].name });
+  if (Object.keys(guilds).length > 0) {
+    for (let d in guilds) {
+      guildOptions.push({ value: d, label: guilds[d].name });
     }
 
-    if (discordVal.guild != '' && discord[discordVal.guild] != null) {
-      for (let c in discord[discordVal.guild].channels) {
-        channelOptions.push({ value: c, label: discord[discordVal.guild].channels[c].name });
+    if (destGuild != '' && guilds[destGuild] != null) {
+      for (let c in guilds[destGuild].channels) {
+        channelOptions.push({ value: c, label: guilds[destGuild].channels[c].name });
       }
     }
 
     return (
       <label>
         {label}
-        <FormSelectDropdown formKey={`${formKey}.guild`} options={guildOptions} />
-        <FormSelectDropdown formKey={`${formKey}.channel`} options={channelOptions} />
+        <FormSelectDropdown formKey={`${formKey}.destguild`} options={guildOptions} />
+        <FormSelectDropdown formKey={`${formKey}.destchannel`} options={channelOptions} />
       </label>
     );
   } else {

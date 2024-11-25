@@ -8,8 +8,8 @@ export default function UserList() {
 
   return (
     <>
-      {Object.keys(users).map((userKey: string) => {
-        return <UserEntry userKey={userKey} />;
+      {Object.values(users.usernames).map((userKey) => {
+        return <UserEntry userKey={userKey as string} />;
       })}
     </>
   );

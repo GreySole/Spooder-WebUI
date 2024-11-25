@@ -1,7 +1,7 @@
 import { faTimes, faBars } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React from 'react';
-import CustomSpooder from './CustomSpooder';
+import CustomSpooder from './navigation/CustomSpooder';
 import useNavigation from '../../app/hooks/useNavigation';
 import useToast from '../../app/hooks/useToast';
 

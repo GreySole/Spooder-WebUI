@@ -2,6 +2,7 @@ import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faClipboard, faDownload, faSquareArrowUpRight } from '@fortawesome/free-solid-svg-icons';
 import { $, setClass } from '../../../util/deprecated_util';
+import Button from '../controlled/Button';
 
 interface LinkButtonProps {
   name?: string;
@@ -97,16 +98,5 @@ export default function LinkButton(props: LinkButtonProps) {
   } else if (mode == 'download') {
     iconLink = faDownload;
   }
-  return (
-    <div className='link-button'>
-      <button
-        id={'linkButton-' + name}
-        className={'link-button-button ' + mode + ' ' + (iconOnly ? 'icononly' : '')}
-        type='button'
-        onClick={clickLink}
-      >
-        {label} <FontAwesomeIcon icon={iconLink} size='lg' />
-      </button>
-    </div>
-  );
+  return <Button label={label} icon={iconLink} iconSize='lg' onClick={() => clickLink()} />;
 }

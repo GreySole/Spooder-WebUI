@@ -1,12 +1,12 @@
 import React from 'react';
-import useNavigation from '../../app/hooks/useNavigation';
-import BoolSwitch from '../common/input/controlled/BoolSwitch';
-import usePlugins from '../../app/hooks/usePlugins';
+import useNavigation from '../../../app/hooks/useNavigation';
+import BoolSwitch from '../../common/input/controlled/BoolSwitch';
+import usePlugins from '../../../app/hooks/usePlugins';
 import TabButton from './TabButton';
-import Button from '../common/input/controlled/Button';
-import useShare from '../../app/hooks/useShare';
+import Button from '../../common/input/controlled/Button';
+import useShare from '../../../app/hooks/useShare';
 import { faPlay, faStop } from '@fortawesome/free-solid-svg-icons';
-import FormLoader from '../common/loader/FormLoader';
+import useTwitch from '../../../app/hooks/useTwitch';
 
 export default function NavigationMenu() {
   const { urlParams, tabOptions, deckTabOptions, navigationOpen, setStayHere } = useNavigation();
@@ -68,18 +68,8 @@ export default function NavigationMenu() {
           value={urlParams.get('tab') != null}
           label='Stay Here'
         />
-        <div>
-          Plugins{' '}
-          <button type='button' className='nav-restart-chat-button' onClick={refreshPlugins}>
-            Refresh Plugins
-          </button>
-        </div>
-        <div>
-          Chat{' '}
-          <button type='button' className='nav-restart-chat-button' onClick={() => {}}>
-            Restart Chat
-          </button>
-        </div>
+        <Button label='Refresh Plugins' onClick={refreshPlugins} />
+        <Button label='Restart Chat' onClick={() => {}} />
         <div>
           Shares
           <div className='nav-share-container'>{shareElements}</div>

@@ -31,13 +31,13 @@ export default function CommandToggleGrid(props: ToggleGridProps) {
     setValue(formKey, newSelected);
   };
 
-  const gridItems = chatCommands.map((element: string) => (
+  const gridItems = Object.keys(chatCommands).map((element: string) => (
     <div
       className={'toggle-grid-element ' + (selected.includes(element) ? 'selected' : '')}
       onClick={() => onToggleChange(element, !selected.includes(element))}
     >
       <FontAwesomeIcon icon={faCommentDots} size='2x' />
-      <label>{element}</label>
+      <label>{chatCommands[element].command}</label>
     </div>
   ));
 

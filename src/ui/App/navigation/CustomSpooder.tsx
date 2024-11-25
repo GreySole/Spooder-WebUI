@@ -1,5 +1,5 @@
 import React from 'react';
-import useTheme from '../../app/hooks/useTheme';
+import useTheme from '../../../app/hooks/useTheme';
 
 export default function CustomSpooder() {
   const { customSpooder } = useTheme();

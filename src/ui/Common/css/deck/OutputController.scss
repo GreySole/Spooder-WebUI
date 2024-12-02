@@ -1,3 +1,5 @@
+@import "../core/animations.scss";
+
 .deck-component.deck-output-controller{
     display:flex;
     flex-flow:column;
@@ -47,19 +49,6 @@
     animation: recordingPaused 1s infinite;
 }
 
-@keyframes streamReconnecting{
-    0% {background-color:var(--button-obs-color)}
-    49% {background-color:var(--button-obs-color)}
-    50% {background-color:var(--button-obs-streaming)}
-    99% {background-color:var(--button-obs-streaming)}
-}
-
-@keyframes recordingPaused{
-    0% {background-color:var(--button-obs-color)}
-    49% {background-color:var(--button-obs-color)}
-    50% {background-color:var(--button-obs-recording)}
-    99% {background-color:var(--button-obs-recording)}
-}
 .deck-output-controller{
     display:flex;
     flex-flow:row;

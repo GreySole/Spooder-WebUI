@@ -2,20 +2,29 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
 export const discordApi = createApi({
   reducerPath: 'discordApi',
-  baseQuery: fetchBaseQuery({ baseUrl: window.location.origin }),
+  baseQuery: fetchBaseQuery({ baseUrl: window.location.origin + '/discord' }),
   endpoints: (builder) => ({
     getGuilds: builder.query({
-      query: () => '/discord/get_guilds',
+      query: () => '/get_guilds',
     }),
     getConfig: builder.query({
-      query: () => '/discord/config',
+      query: () => '/config',
     }),
     getUser: builder.query({
-      query: () => '/discord/user',
+      query: () => '/user',
+    }),
+    verifyDiscordTarget: builder.mutation({
+      query: (discordId) => ({
+        url: '/user?userid=' + discordId,
+        method: 'get',
+        headers: {
+          'Content-type': 'application/json; charset=UTF-8',
+        },
+      }),
     }),
     saveDiscordConfig: builder.mutation({
       query: (form) => ({
-        url: '/discord/save_discord_config',
+        url: '/save_discord_config',
         method: 'post',
         body: form,
         headers: {

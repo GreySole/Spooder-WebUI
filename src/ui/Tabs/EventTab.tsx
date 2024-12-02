@@ -5,6 +5,7 @@ import EventTable from './eventsTab/EventTable';
 import CircleLoader from '../common/loader/CircleLoader';
 import useEvents from '../../app/hooks/useEvents';
 import SaveButton from '../common/input/form/SaveButton';
+import Box from '../common/layout/Box';
 
 export default function EventTab() {
   const { getEvents, getSaveEvents } = useEvents();
@@ -16,9 +17,11 @@ export default function EventTab() {
   }
   return (
     <EventTableFormContextProvider defaultEvents={events} defaultGroups={groups}>
-      <EventTable />
-      <AddGroupInput />
-      <SaveButton saveFunction={saveEvents} />
+      <Box flexFlow='column' width='inherit'>
+        <EventTable />
+        <AddGroupInput />
+        <SaveButton saveFunction={saveEvents} />
+      </Box>
     </EventTableFormContextProvider>
   );
 }

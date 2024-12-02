@@ -28,7 +28,13 @@ export default function ModuleTab() {
   };
 
   return module === '' ? (
-    <Box flexFlow='row' alignItems='center' justifyContent='center'>
+    <Box
+      width='100%'
+      flexFlow='row'
+      alignItems='center'
+      justifyContent='space-evenly'
+      padding='medium'
+    >
       <Button
         label={modules.stream.twitch.name}
         icon={modules.stream.twitch.icon}

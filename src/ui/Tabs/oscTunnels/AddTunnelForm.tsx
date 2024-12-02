@@ -6,6 +6,7 @@ import SelectDropdown from '../../common/input/controlled/SelectDropdown';
 import TextInput from '../../common/input/controlled/TextInput';
 import { KeyedObject } from '../../Types';
 import { HotkeysProvider } from '../../../app/hooks/useHotkeys';
+import Stack from '../../common/layout/Stack';
 
 interface AddTunnelFormProps {
   onAddOSCTunnel: (newTunnel: KeyedObject) => void;
@@ -46,7 +47,7 @@ export default function AddTunnelForm(props: AddTunnelFormProps) {
 
   return (
     <div className='add-osc-var'>
-      <div className='config-variable'>
+      <Stack spacing='small'>
         <TextInput label='Name' value={name} onInput={(value) => setName(value)} jsonFriendly />
         <SelectDropdown
           label='Handler From'
@@ -89,7 +90,7 @@ export default function AddTunnelForm(props: AddTunnelFormProps) {
           onInput={(value) => setAddressFrom(value)}
         />
         <TextInput label='Address To' value={addressTo} onInput={(value) => setAddressTo(value)} />
-      </div>
+      </Stack>
       <HotkeysProvider enter={() => handleAddButton()}>
         <button type='button' className='add-button' onClick={() => handleAddButton()}>
           Add

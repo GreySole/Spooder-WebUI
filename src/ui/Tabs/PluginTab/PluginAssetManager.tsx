@@ -18,6 +18,13 @@ import { PluginComponentProps } from '../../Types';
 import { usePluginContext } from './context/PluginTabFormContext';
 import usePlugins from '../../../app/hooks/usePlugins';
 import FormLoader from '../../common/loader/FormLoader';
+import useTheme from '../../../app/hooks/useTheme';
+import Columns from '../../common/layout/Columns';
+import ButtonRow from '../../common/input/general/ButtonRow';
+import TypeFace from '../../common/layout/TypeFace';
+import Box from '../../common/layout/Box';
+import Border from '../../common/layout/Border';
+import Stack from '../../common/layout/Stack';
 
 export default function PluginAssetManager(props: PluginComponentProps) {
   const { pluginName } = props;
@@ -25,6 +32,7 @@ export default function PluginAssetManager(props: PluginComponentProps) {
   const { getDeletePluginAsset, getUploadPluginAsset, getPluginAssets } = usePlugins();
   const { deletePluginAsset } = getDeletePluginAsset();
   const { uploadPluginAsset, error: pluginUploadError } = getUploadPluginAsset();
+  const { themeConstants } = useTheme();
 
   const audioPreviewRef = useRef<HTMLMediaElement>(null);
   const [assetFilePreview, setAssetFilePreview] = useState<string>('');
@@ -100,8 +108,8 @@ export default function PluginAssetManager(props: PluginComponentProps) {
     if (fileType == null) {
       folderTable.push(
         <div
-          className='asset-entry'
-          key={data[p]}
+          className={'asset-entry' + (assetFilePreview.endsWith(data[p]) ? ' selected' : '')}
+          key={data[p] + (assetFilePreview.endsWith(data[p]) ? ' selected' : '')}
           id={data[p]}
           onClick={() => selectAsset(data[p])}
           onDoubleClick={() => browseFolder(data[p])}
@@ -117,7 +125,12 @@ export default function PluginAssetManager(props: PluginComponentProps) {
       fileIcon = <FontAwesomeIcon icon={faVolumeHigh} />;
     }
     fileTable.push(
-      <div className='asset-entry' key={data[p]} id={data[p]} onClick={() => selectAsset(data[p])}>
+      <div
+        className={'asset-entry' + (assetFilePreview.endsWith(data[p]) ? ' selected' : '')}
+        key={data[p]}
+        id={data[p]}
+        onClick={() => selectAsset(data[p])}
+      >
         {fileIcon}
         {data[p].substring(data[p].lastIndexOf('/') + 1)}
       </div>,
@@ -125,74 +138,57 @@ export default function PluginAssetManager(props: PluginComponentProps) {
   }
 
   let previewHTML = null;
-  let previewAudio = '';
+  let previewAudio = null;
   if (assetFilePreview != null) {
     if (getMediaType(assetFilePreview) == 'sound') {
       previewAudio = path.join(plugin.assetPath, assetFilePreview);
+      previewHTML = null;
     } else {
+      previewAudio = null;
       previewHTML = getMediaHTML(path.join(plugin.assetPath, assetFilePreview));
     }
   }
 
   return (
-    <div className='asset-container'>
-      <div className='asset-buttons'>
-        <button className='asset-button upload'>
-          <FontAwesomeIcon icon={faArrowLeft} size='lg' />
-        </button>
-        <button
-          className='asset-button'
-          onClick={() => {
-            browseFolder('..');
-          }}
-        >
-          <FontAwesomeIcon icon={faArrowUp} size='lg' />
-        </button>
-        <button
-          className='asset-button'
-          onClick={() => {
-            browseFolder('/');
-          }}
-        >
-          <FontAwesomeIcon icon={faHouse} size='lg' />
-        </button>
-        <button
-          className='asset-button refresh'
-          onClick={() => {
-            browseFolder('');
-          }}
-        >
-          <FontAwesomeIcon icon={faSync} size='lg' />
-        </button>
-      </div>
-      <div className='asset-folder-text'>{plugin.assetBrowserPath}</div>
-      <div className='asset-select'>
-        <div className='asset-fileselect'>
-          {folderTable}
-          {fileTable}
-        </div>
-        <div className='asset-preview'>
-          {previewHTML}
-          <audio id='audioPreview' ref={audioPreviewRef} controls>
-            <source src={previewAudio}></source>
-          </audio>
-        </div>
-      </div>
-      <div className='asset-buttons'>
-        <div className='asset-button upload' onClick={handleAssetUploadClick} plugin-name={name}>
-          <FontAwesomeIcon icon={faUpload} size='lg' />
-        </div>
-        <div className='asset-button delete' onClick={deleteAsset}>
-          <FontAwesomeIcon icon={faTrash} size='lg' />
-        </div>
-      </div>
-      <input
-        type='file'
-        id='input-file'
-        plugin-name={pluginName}
-        onChange={(e) => uploadPluginAssetClick(e?.target?.files?.[0])}
-        style={{ display: 'none' }}
-      />
-    </div>
+    <Border borderWidth='2px' borderColor={themeConstants.assets}>
+      <Box width='100%' height='50%' flexFlow='column' padding='medium'>
+        <Stack spacing='small'>
+          <ButtonRow
+            buttons={[
+              { icon: faArrowLeft, iconSize: 'lg', onClick: () => browseFolder('..') },
+              { icon: faArrowUp, iconSize: 'lg', onClick: () => browseFolder('/') },
+              { icon: faHouse, iconSize: 'lg', onClick: () => browseFolder('/') },
+              { icon: faSync, iconSize: 'lg', onClick: () => browseFolder('') },
+            ]}
+          />
+          <TypeFace fontSize='24px'>{plugin.assetBrowserPath}</TypeFace>
+          <Box classes={['asset-select']} justifyContent='space-between' alignItems='center'>
+            <Box width='50%' height='100%' flexFlow='column'>
+              {folderTable}
+              {fileTable}
+            </Box>
+            <Box height='100%' width='50%' justifyContent='center' alignItems='center'>
+              {previewHTML}
+              <audio id='audioPreview' ref={audioPreviewRef} controls>
+                {previewAudio ? <source src={previewAudio}></source> : null}
+              </audio>
+            </Box>
+          </Box>
+          <ButtonRow
+            buttons={[
+              { icon: faUpload, iconSize: 'lg', onClick: handleAssetUploadClick },
+              { icon: faTrash, iconSize: 'lg', onClick: deleteAsset, color: themeConstants.delete },
+            ]}
+          />
+          <input
+            type='file'
+            id='input-file'
+            plugin-name={pluginName}
+            onChange={(e) => uploadPluginAssetClick(e?.target?.files?.[0])}
+            style={{ display: 'none' }}
+          />
+        </Stack>
+      </Box>
+    </Border>
   );
 }

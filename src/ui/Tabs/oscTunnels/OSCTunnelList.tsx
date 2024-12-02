@@ -8,6 +8,9 @@ import DeleteOSCTunnelButton from './DeleteOSCTunnelButton';
 import AddTunnelForm from './AddTunnelForm';
 import { KeyedObject } from '../../Types';
 import FormLoader from '../../common/loader/FormLoader';
+import Stack from '../../common/layout/Stack';
+import Box from '../../common/layout/Box';
+import Columns from '../../common/layout/Columns';
 
 export default function OSCTunnelList() {
   const { getUdpClients } = useConfig();
@@ -50,8 +53,8 @@ export default function OSCTunnelList() {
 
   for (let s in tunnels) {
     table.push(
-      <div className='config-variable' key={s}>
-        <div className='config-variable-ui'>
+      <Columns spacing='medium' key={s}>
+        <Stack spacing='medium'>
           <label>{s}</label>
           <FormSelectDropdown
             formKey={`${s}.handlerFrom`}
@@ -78,17 +81,15 @@ export default function OSCTunnelList() {
           ) : null}
           <FormTextInput formKey={`${s}.addressFrom`} label='Address From' />
           <FormTextInput formKey={`${s}.addressTo`} label='Address To' />
-        </div>
-        <div className='config-variable-buttons'>
-          <DeleteOSCTunnelButton formKey={s} />
-        </div>
-      </div>,
+        </Stack>
+        <DeleteOSCTunnelButton formKey={s} />
+      </Columns>,
     );
   }
 
   return (
     <>
-      {table}
+      <Box>{table}</Box>
       <AddTunnelForm onAddOSCTunnel={(newTunnels) => onAddOSCTunnel(newTunnels)} />
     </>
   );

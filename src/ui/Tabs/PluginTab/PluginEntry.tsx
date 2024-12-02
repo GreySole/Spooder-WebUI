@@ -7,6 +7,7 @@ import {
   faCog,
   faFile,
   faDownload,
+  faPlug,
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import LinkButton from '../../common/input/general/LinkButton';
@@ -19,6 +20,14 @@ import PluginSettings from './input/PluginSettings';
 import { usePluginContext } from './context/PluginTabFormContext';
 import PluginAssetManager from './PluginAssetManager';
 import { setClass } from '../../util/deprecated_util';
+import TypeFace from '../../common/layout/TypeFace';
+import Columns from '../../common/layout/Columns';
+import Button from '../../common/input/controlled/Button';
+import Box from '../../common/layout/Box';
+import Stack from '../../common/layout/Stack';
+import ImageFile from '../../common/input/general/ImageFile';
+import ButtonRow from '../../common/input/general/ButtonRow';
+import { set } from 'react-hook-form';
 
 interface Plugin {
   name: string;
@@ -71,6 +80,8 @@ export default function PluginEntry(props: PluginComponentProps) {
   }
 
   function pluginInfo(plugin: string) {
+    setPluginSettingsOpen('');
+    setPluginAssetsOpen('');
     if (plugin == pluginInfoOpen) {
       setPluginInfoOpen('');
     } else {
@@ -79,6 +90,8 @@ export default function PluginEntry(props: PluginComponentProps) {
   }
 
   function pluginSettings(plugin: string) {
+    setPluginInfoOpen('');
+    setPluginAssetsOpen('');
     if (plugin == pluginSettingsOpen) {
       setPluginSettingsOpen('');
     } else {
@@ -87,6 +100,8 @@ export default function PluginEntry(props: PluginComponentProps) {
   }
 
   function pluginAssets(plugin: string) {
+    setPluginInfoOpen('');
+    setPluginSettingsOpen('');
     if (plugin == pluginAssetsOpen) {
       setPluginAssetsOpen('');
     } else {
@@ -109,15 +124,6 @@ export default function PluginEntry(props: PluginComponentProps) {
 
     reloadPlugins();
   }
-
-  /*async function savePluginClick(pluginName: string, newData: any) {
-    await savePlugin(pluginName, newData);
-    if (!error) {
-      showToast(`${pluginName} saved!`, ToastType.SAVE);
-    } else {
-      showToast(`${pluginName} save failed!`, ToastType.ERROR);
-    }
-  }*/
 
   async function exportPluginClick(pluginName: string) {
     exportPlugin(pluginName);
@@ -158,114 +164,118 @@ export default function PluginEntry(props: PluginComponentProps) {
       />,
     );
   }
-  if (plugin.status) {
-    if (plugin.status == 'failed') {
-      return (
-        <div className='plugin-entry' key={pluginName} id={pluginName}>
-          <div className='plugin-entry-ui'>
-            <div className='plugin-entry-icon'>
-              <FontAwesomeIcon
-                className='plugin-status-icon'
-                icon={faTriangleExclamation}
-                size='lg'
-              />
-            </div>
-            <div className='plugin-entry-info'>
-              <div className='plugin-entry-title'>
-                {plugin.name}
-                <div className='plugin-entry-subtitle'>{'by ' + plugin.author}</div>
-              </div>
-              <div className='plugin-entry-subtitle'>{plugin.message}</div>
-            </div>
-            <div className='plugin-button-ui'>
-              <div className='plugin-button info' onClick={() => pluginInfo(pluginName)}>
-                <FontAwesomeIcon icon={faCircleInfo} size='lg' />
-              </div>
-              <div className='plugin-button delete' onClick={() => deletePlugin(pluginName)}>
-                <FontAwesomeIcon icon={faTrash} size='lg' />
-              </div>
-            </div>
-          </div>
-          <div className='plugin-info-view'>
-            <PluginInfoView pluginName={pluginName} />
-          </div>
-        </div>
-      );
-    } else {
-      return (
-        <div className='plugin-entry' key={pluginName} id={pluginName}>
-          <div className='plugin-entry-ui'>
-            <div className='plugin-entry-icon spinning'>
-              <CircleLoader />
-            </div>
-            <div className='plugin-entry-info'>
-              <div className='plugin-entry-title'>
-                {plugin.name}
-                <div className='plugin-entry-subtitle'>{'by ' + plugin.author}</div>
-              </div>
-              <div className='plugin-entry-subtitle'>{plugin.message}</div>
-            </div>
-          </div>
-        </div>
-      );
-    }
-  } else {
+  if (plugin.status == 'ok') {
+    return (
+      <Stack spacing='small'>
+        <Box justifyContent='space-between' padding='small'>
+          <Columns spacing='medium' padding='small'>
+            <ImageFile
+              src={window.location.origin + '/icons/' + pluginName + '.png'}
+              fallbackIcon={faPlug}
+            />
+            <Stack spacing='medium'>
+              <Columns spacing='medium'>
+                <TypeFace fontSize='32px'>{plugin.name}</TypeFace>
+                <TypeFace fontSize='18px'>{plugin.version + ' by ' + plugin.author}</TypeFace>
+              </Columns>
+              <div className='plugin-entry-links'>{pluginLinks}</div>
+            </Stack>
+          </Columns>
+          <Columns spacing='none' padding='small'>
+            <ButtonRow
+              buttons={[
+                {
+                  icon: faCircleInfo,
+                  iconSize: '2x',
+                  color: 'gray',
+                  isActive: pluginInfoOpen === pluginName,
+                  onClick: () => pluginInfo(pluginName),
+                },
+                {
+                  icon: faCog,
+                  iconSize: '2x',
+                  color: '#090',
+                  isActive: pluginSettingsOpen === pluginName,
+                  onClick: () => pluginSettings(pluginName),
+                },
+                {
+                  icon: faFile,
+                  iconSize: '2x',
+                  color: '#008080',
+                  isActive: pluginAssetsOpen === pluginName,
+                  onClick: () => pluginAssets(pluginName),
+                },
+                {
+                  icon: faDownload,
+                  iconSize: '2x',
+                  color: '#000',
+                  isLink: true,
+                  linkName: pluginName,
+                  link: '/export_plugin/' + pluginName,
+                  isActive: false,
+                },
+                {
+                  icon: faTrash,
+                  iconSize: '2x',
+                  color: '#8f2525',
+                  isActive: false,
+                  onClick: () => deletePlugin(pluginName),
+                },
+              ]}
+            />
+          </Columns>
+        </Box>
+        {pluginInfoOpen === pluginName ? <PluginInfoView pluginName={pluginName} /> : null}
+        {pluginSettingsOpen === pluginName ? <PluginSettings pluginName={pluginName} /> : null}
+        {pluginAssetsOpen === pluginName ? <PluginAssetManager pluginName={pluginName} /> : null}
+      </Stack>
+    );
+  } else if (plugin.status == 'failed') {
     return (
       <div className='plugin-entry' key={pluginName} id={pluginName}>
         <div className='plugin-entry-ui'>
           <div className='plugin-entry-icon'>
-            <img
-              src={window.location.origin + '/icons/' + pluginName + '.png'}
-              onError={imgError}
+            <FontAwesomeIcon
+              className='plugin-status-icon'
+              icon={faTriangleExclamation}
+              size='lg'
             />
-            <FontAwesomeIcon icon={faSpider} size='lg' className='plugin-default-icon' />
           </div>
           <div className='plugin-entry-info'>
             <div className='plugin-entry-title'>
-              {plugin.name}
-              <div className='plugin-entry-subtitle'>{plugin.version + ' by ' + plugin.author}</div>
+              <TypeFace>{plugin.name}</TypeFace>
+              <TypeFace>{'by ' + plugin.author}</TypeFace>
             </div>
-            <div className='plugin-entry-links'>{pluginLinks}</div>
+            <div className='plugin-entry-subtitle'>{plugin.message}</div>
           </div>
           <div className='plugin-button-ui'>
             <div className='plugin-button info' onClick={() => pluginInfo(pluginName)}>
               <FontAwesomeIcon icon={faCircleInfo} size='lg' />
             </div>
-            <div className='plugin-button settings' onClick={() => pluginSettings(pluginName)}>
-              <FontAwesomeIcon icon={faCog} size='lg' />
-            </div>
-            <div className='plugin-button upload' onClick={() => pluginAssets(pluginName)}>
-              <FontAwesomeIcon icon={faFile} size='lg' />
-            </div>
-            <a
-              className='link-override'
-              href={'/export_plugin/' + pluginName}
-              download={pluginName + '.zip'}
-            >
-              <div className='plugin-button export'>
-                <FontAwesomeIcon icon={faDownload} size='lg' />
-              </div>
-            </a>
             <div className='plugin-button delete' onClick={() => deletePlugin(pluginName)}>
               <FontAwesomeIcon icon={faTrash} size='lg' />
             </div>
-            <input
-              type='file'
-              id='input-icon'
-              plugin-name={pluginName}
-              onChange={(e) => replacePluginIcon(pluginName, e?.target?.files?.[0])}
-              style={{ display: 'none' }}
-            />
           </div>
         </div>
         <div className='plugin-info-view'>
-          {pluginInfoOpen === pluginName ? <PluginInfoView pluginName={pluginName} /> : null}
+          <PluginInfoView pluginName={pluginName} />
         </div>
-        <div className='plugin-entry-settings'>
-          {pluginSettingsOpen === pluginName ? <PluginSettings pluginName={pluginName} /> : null}
-        </div>
-        <div className='plugin-asset-manager'>
-          {pluginAssetsOpen === pluginName ? <PluginAssetManager pluginName={pluginName} /> : null}
+      </div>
+    );
+  } else {
+    return (
+      <div className='plugin-entry' key={pluginName} id={pluginName}>
+        <div className='plugin-entry-ui'>
+          <div className='plugin-entry-icon spinning'>
+            <CircleLoader />
+          </div>
+          <div className='plugin-entry-info'>
+            <div className='plugin-entry-title'>
+              {plugin.name}
+              <div className='plugin-entry-subtitle'>{'by ' + plugin.author}</div>
+            </div>
+            <div className='plugin-entry-subtitle'>{plugin.message}</div>
+          </div>
         </div>
       </div>
     );

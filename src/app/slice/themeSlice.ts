@@ -14,6 +14,14 @@ export const themeSlice = createSlice({
             buttonFontColorAnalogousCW: '#fff',
             buttonFontColorAnalogousCCW: '#fff',
           },
+    themeVariables:
+      localStorage.getItem('themeVariables') != null
+        ? JSON.parse(localStorage.getItem('themeVariables')!)
+        : {
+            hue: 0,
+            saturation: 0.5,
+            isDarkTheme: true,
+          },
     customSpooder: {
       parts: {
         bigeyeleft: '',
@@ -83,6 +91,18 @@ export const themeSlice = createSlice({
       state.themeColors = action.payload;
       localStorage.setItem('themeColors', JSON.stringify(action.payload));
     },
+    _setHue: (state, action) => {
+      state.themeVariables.hue = action.payload;
+      localStorage.setItem('themeVariables', JSON.stringify(state.themeVariables));
+    },
+    _setSaturation: (state, action) => {
+      state.themeVariables.saturation = action.payload;
+      localStorage.setItem('themeVariables', JSON.stringify(state.themeVariables));
+    },
+    _setMode: (state, action) => {
+      state.themeVariables.isDarkTheme = action.payload;
+      localStorage.setItem('themeVariables', JSON.stringify(state.themeVariables));
+    },
     _setCustomSpooder: (state, action) => {
       if (action.payload.colors) {
         Object.assign(state.customSpooder.colors, action.payload.colors);
@@ -94,6 +114,7 @@ export const themeSlice = createSlice({
   },
 });
 
-export const { _setThemeColors, _setCustomSpooder } = themeSlice.actions;
+export const { _setThemeColors, _setCustomSpooder, _setHue, _setSaturation, _setMode } =
+  themeSlice.actions;
 
 export default themeSlice.reducer;

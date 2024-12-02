@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import {
   useBrowsePluginAssetsQuery,
   useCreatePluginMutation,
@@ -16,6 +17,7 @@ import {
   useUploadPluginAssetMutation,
   useUploadPluginIconMutation,
 } from '../api/pluginSlice';
+import { NewPlugin } from '../../ui/Types';
 
 export default function usePlugins() {
   function getInstallPlugin() {
@@ -98,8 +100,18 @@ export default function usePlugins() {
 
   function getCreatePlugin() {
     const [createPluginMutation, { isLoading, isSuccess, error }] = useCreatePluginMutation();
-    function createPlugin(form: FormData) {
-      createPluginMutation(form);
+    function createPlugin(
+      internalName: string,
+      pluginName: string,
+      author: string,
+      description: string,
+    ) {
+      const fd = new FormData();
+      fd.append('internalName', internalName);
+      fd.append('pluginName', pluginName);
+      fd.append('author', author);
+      fd.append('description', description);
+      createPluginMutation(fd);
     }
     return { createPlugin, isLoading, isSuccess, error };
   }

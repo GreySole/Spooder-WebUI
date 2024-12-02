@@ -1,101 +1,53 @@
 import { Tuple } from '@reduxjs/toolkit';
 import { useDispatch, useSelector } from 'react-redux';
 import { IRootState } from '../store';
-import { _setCustomSpooder, _setThemeColors } from '../slice/themeSlice';
-import { KeyedObject, ThemeColors } from '../../ui/Types';
+import {
+  _setCustomSpooder,
+  _setThemeColors,
+  _setHue,
+  _setSaturation,
+  _setMode,
+} from '../slice/themeSlice';
+import { KeyedObject, ThemeColors, ThemeVariables } from '../../ui/Types';
+import {
+  hexToRGBArray,
+  rgbToHsl,
+  hslToRgb,
+  rgbToHex,
+  fullLuminance,
+  setLuminance,
+  contrastingColor,
+} from '../../ui/util/ColorUtil';
+import { useEffect } from 'react';
 
-const RED = 0.2126;
-const GREEN = 0.7152;
-const BLUE = 0.0722;
-
-const GAMMA = 2.4;
-
-function luminance(r: number, g: number, b: number) {
-  let a = [r, g, b].map((v) => {
-    v /= 255;
-    return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, GAMMA);
-  });
-  return a[0] * RED + a[1] * GREEN + a[2] * BLUE;
-}
-
-function luma(color: string | []) {
-  // color can be a hx string or an array of RGB values 0-255
-  let rgb = typeof color === 'string' ? hexToRGBArray(color) : color;
-  return luminance(rgb[0], rgb[1], rgb[2]);
-}
-
-function contrastingColor(color: string) {
-  let lum1 = luma('#fff');
-  let lum2 = luma(color);
-  let brightest = Math.max(lum1, lum2);
-  let darkest = Math.min(lum1, lum2);
-
-  let contrastRatio = (brightest + 0.05) / (darkest + 0.05);
-
-  return `#${contrastRatio <= 4.5 ? '000' : 'fff'}`;
-}
-
-const rgbToHex = (r: number, g: number, b: number) =>
-  `#${((r << 16) + (g << 8) + b).toString(16).padStart(6, '0')}`;
-
-function hexToRGBArray(color: string) {
-  color = color.replace('#', '');
-  if (color.length === 3)
-    color =
-      color.charAt(0) +
-      color.charAt(0) +
-      color.charAt(1) +
-      color.charAt(1) +
-      color.charAt(2) +
-      color.charAt(2);
-  else if (color.length !== 6) throw 'Invalid hex color: ' + color;
-  let rgb = [] as Number[];
-  for (let i = 0; i <= 2; i++) rgb[i] = parseInt(color.substr(i * 2, 2), 16);
-
-  return rgb as Tuple;
-}
-
-const rgbToHsl = (r: number, g: number, b: number) => {
-  r /= 255;
-  g /= 255;
-  b /= 255;
-  const l = Math.max(r, g, b);
-  const s = l - Math.min(r, g, b);
-  const h = s ? (l === r ? (g - b) / s : l === g ? 2 + (b - r) / s : 4 + (r - g) / s) : 0;
-  const hsl = [
-    60 * h < 0 ? 60 * h + 360 : 60 * h,
-    100 * (s ? (l <= 0.5 ? s / (2 * l - s) : s / (2 - (2 * l - s))) : 0),
-    (100 * (2 * l - s)) / 2,
-  ];
-
-  return hsl as Tuple;
-};
-
-const hslToRgb = (h: number, s: number, l: number) => {
-  s /= 100;
-  l /= 100;
-  const k = (n: number) => (n + h / 30) % 12;
-  const a = s * Math.min(l, 1 - l);
-  const f = (n: number) => l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
-
-  const rgb = [f(0), f(8), f(4)].map((v) => Math.round(v * 255));
-
-  return rgb as Tuple;
-};
-
-const applyThemeColors = (colors: KeyedObject) => {
+const applyThemeColors = (colors: ThemeColors) => {
   const {
     baseColor,
+    backgroundColorFar,
+    backgroundColorNear,
+    buttonBackgroundColor,
+    buttonBorderColor,
     buttonFontColor,
     colorAnalogousCW,
     colorAnalogousCCW,
+    darkColorAnalogousCCW,
+    darkColorAnalogousCW,
     buttonFontColorAnalogousCW,
     buttonFontColorAnalogousCCW,
+    inputTextColor,
+    inputBackgroundColor,
   } = colors;
 
   document.documentElement.style.setProperty('--color-primary', baseColor);
+  document.documentElement.style.setProperty('--color-background-far', backgroundColorFar);
+  document.documentElement.style.setProperty('--color-background-near', backgroundColorNear);
+  document.documentElement.style.setProperty('--button-background-color', buttonBackgroundColor);
+  document.documentElement.style.setProperty('--button-border-color', buttonBorderColor);
+  document.documentElement.style.setProperty('--button-font-color', buttonFontColor);
   document.documentElement.style.setProperty('--button-font-color', buttonFontColor);
 
+  document.documentElement.style.setProperty('--color-dark-analogous-cw', darkColorAnalogousCW);
+  document.documentElement.style.setProperty('--color-dark-analogous-ccw', darkColorAnalogousCCW);
   document.documentElement.style.setProperty('--color-analogous-cw', colorAnalogousCW);
   document.documentElement.style.setProperty('--color-analogous-ccw', colorAnalogousCCW);
   document.documentElement.style.setProperty(
@@ -106,9 +58,12 @@ const applyThemeColors = (colors: KeyedObject) => {
     '--button-font-color-analogous-ccw',
     buttonFontColorAnalogousCCW,
   );
+
+  document.documentElement.style.setProperty('--input-text-color', inputTextColor);
+  document.documentElement.style.setProperty('--input-background-color', inputBackgroundColor);
 };
 
-const calculateThemeColors = (color: string) => {
+/*const calculateThemeColors = (color: string) => {
   const rgbArray = hexToRGBArray(color);
   // Convert the color to HSL array
   const hslColor = rgbToHsl(rgbArray[0], rgbArray[1], rgbArray[2]);
@@ -131,6 +86,47 @@ const calculateThemeColors = (color: string) => {
     buttonFontColorAnalogousCW: contrastingColor(cwAnalogousColor),
     buttonFontColorAnalogousCCW: contrastingColor(ccwAnalogousColor),
   } as ThemeColors;
+};*/
+
+const calculateThemeColors = (color: string, isDarkTheme: boolean) => {
+  const rgbArray = hexToRGBArray(color);
+  // Convert the color to HSL array
+  const hslColor = rgbToHsl(rgbArray[0], rgbArray[1], rgbArray[2]);
+
+  // Calculate the clockwise analogous color
+  const cwHslColor = hslColor.map((v, i) => (i === 0 ? (v + 30) % 360 : v));
+  const cwRgbColor = hslToRgb(cwHslColor[0], cwHslColor[1], cwHslColor[2]);
+  const cwAnalogousColor = rgbToHex(cwRgbColor[0], cwRgbColor[1], cwRgbColor[2]);
+
+  // Calculate the counterclockwise analogous color
+  const ccwHslColor = hslColor.map((v, i) => (i === 0 ? (v - 30) % 360 : v));
+  const ccwRgbColor = hslToRgb(ccwHslColor[0], ccwHslColor[1], ccwHslColor[2]);
+  const ccwAnalogousColor = rgbToHex(ccwRgbColor[0], ccwRgbColor[1], ccwRgbColor[2]);
+
+  const baseColor = fullLuminance(color);
+  const backgroundColorFar = setLuminance(baseColor, 0.05);
+  const backgroundColorNear = setLuminance(baseColor, 0.1);
+  const buttonBackgroundColor = setLuminance(baseColor, 0.2);
+  const buttonBorderColor = baseColor;
+
+  console.log('DARK THEME', isDarkTheme, isDarkTheme ? '#fff' : '#000');
+
+  return {
+    baseColor: baseColor,
+    backgroundColorFar,
+    backgroundColorNear,
+    buttonBackgroundColor,
+    buttonBorderColor,
+    buttonFontColor: isDarkTheme ? '#fff' : '#000',
+    darkColorAnalogousCW: setLuminance(cwAnalogousColor, 0.2),
+    darkColorAnalogousCCW: setLuminance(ccwAnalogousColor, 0.2),
+    colorAnalogousCW: cwAnalogousColor,
+    colorAnalogousCCW: ccwAnalogousColor,
+    buttonFontColorAnalogousCW: isDarkTheme ? '#fff' : '#000',
+    buttonFontColorAnalogousCCW: isDarkTheme ? '#fff' : '#000',
+    inputTextColor: isDarkTheme ? '#fff' : '#000',
+    inputBackgroundColor: isDarkTheme ? '#000' : '#fff',
+  } as ThemeColors;
 };
 
 export default function useTheme() {
@@ -138,11 +134,56 @@ export default function useTheme() {
   const themeColors = useSelector(
     (state: IRootState) => state.themeSlice.themeColors as ThemeColors,
   );
+
+  const themeConstants = {
+    settings: '#090',
+    assets: '#008080',
+    delete: '#8f2525',
+  };
+
+  const themeVariables = useSelector(
+    (state: IRootState) => state.themeSlice.themeVariables as ThemeVariables,
+  );
   const customSpooder = useSelector((state: IRootState) => state.themeSlice.customSpooder);
 
+  useEffect(() => {
+    setThemeHue(themeVariables.hue);
+    setThemeSaturation(themeVariables.saturation);
+    setThemeMode(themeVariables.isDarkTheme);
+  }, []);
+
+  function setThemeHue(hue: number) {
+    const newRgb = hslToRgb(hue * 360, themeVariables.saturation * 100, 50);
+    const newColors = calculateThemeColors(
+      rgbToHex(newRgb[0], newRgb[1], newRgb[2]),
+      themeVariables.isDarkTheme,
+    );
+    dispatch(_setHue(hue));
+    dispatch(_setThemeColors(newColors));
+    applyThemeColors(newColors);
+  }
+
+  function setThemeSaturation(saturation: number) {
+    const newRgb = hslToRgb(themeVariables.hue * 360, saturation * 100, 50);
+    const newColors = calculateThemeColors(
+      rgbToHex(newRgb[0], newRgb[1], newRgb[2]),
+      themeVariables.isDarkTheme,
+    );
+    dispatch(_setSaturation(saturation));
+    dispatch(_setThemeColors(newColors));
+    applyThemeColors(newColors);
+  }
+
+  function setThemeMode(isDarkTheme: boolean) {
+    dispatch(_setMode(isDarkTheme));
+    const newColors = calculateThemeColors(themeColors.baseColor, isDarkTheme);
+    dispatch(_setThemeColors(newColors));
+    applyThemeColors(newColors);
+  }
+
   function setThemeColor(color: string) {
-    console.log(color, calculateThemeColors(color));
-    dispatch(_setThemeColors(calculateThemeColors(color)));
+    console.log(color, calculateThemeColors(color, true));
+    dispatch(_setThemeColors(calculateThemeColors(color, true)));
     applyThemeColors(themeColors);
   }
 
@@ -156,8 +197,13 @@ export default function useTheme() {
 
   return {
     themeColors,
+    themeConstants,
+    themeVariables,
     customSpooder,
     setThemeColor,
+    setThemeHue,
+    setThemeMode,
+    setThemeSaturation,
     refreshThemeColors,
     setCustomSpooder,
   };

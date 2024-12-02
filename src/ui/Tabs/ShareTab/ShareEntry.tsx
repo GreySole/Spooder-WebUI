@@ -7,24 +7,17 @@ import {
   faStop,
   faTrash,
 } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import LinkButton from '../../common/input/general/LinkButton';
 import ToggleShareButton from './input/ToggleShareButton';
 import { useFormContext } from 'react-hook-form';
-import ShareDiscordForm from './input/ShareDiscordForm';
-import AutoShareSwitch from './input/AutoShareSwitch';
-import FormTextInput from '../../common/input/form/FormTextInput';
-import ShareEntryCommandSettings from './input/ShareEntryCommandSettings';
-import ShareEntryPluginSettings from './input/ShareEntryPluginSettings';
 import Box from '../../common/layout/Box';
 import Button from '../../common/input/controlled/Button';
-import TwitchIcon from '../../icons/TwitchIcon';
-import DiscordIcon from '../../icons/DiscordIcon';
 import Columns from '../../common/layout/Columns';
 import Stack from '../../common/layout/Stack';
 import TypeFace from '../../common/layout/TypeFace';
-import ShareTabContainer from './tab/ShareTabContent';
 import ShareTabContent from './tab/ShareTabContent';
+import TwitchIcon from '../../icons/twitch.svg';
+import DiscordIcon from '../../icons/discord.svg';
 
 interface ShareEntryProps {
   shareKey: string;
@@ -43,12 +36,12 @@ export default function ShareEntry(props: ShareEntryProps) {
 
   return (
     <Box classes={['share-entry']} key={shareKey} flexFlow='column'>
-      <Box width='100%' justifyContent='space-between'>
+      <Box width='100%' justifyContent='space-between' marginBottom='medium'>
         <Box flexFlow='row' alignItems='center' width='100%'>
           <img src={share.streamPlatforms.twitch.profilePic} width={100} height={100} />
-          <Box flexFlow='column' margin='10px'>
-            <Stack spacing='10px'>
-              <Columns spacing='20px'>
+          <Box flexFlow='column' margin='small' marginLeft='medium'>
+            <Stack spacing='medium'>
+              <Columns spacing='large'>
                 <Button
                   icon={faHome}
                   width='75px'
@@ -68,14 +61,14 @@ export default function ShareEntry(props: ShareEntryProps) {
                   onClick={() => setTab('plugins')}
                 />
                 <Button
-                  icon={<TwitchIcon />}
+                  icon={TwitchIcon}
                   width='75px'
                   height='50px'
                   iconSize='25px'
                   onClick={() => setTab('twitch')}
                 />
                 <Button
-                  icon={<DiscordIcon />}
+                  icon={DiscordIcon}
                   width='75px'
                   height='50px'
                   iconSize='25px'
@@ -88,7 +81,7 @@ export default function ShareEntry(props: ShareEntryProps) {
                   onClick={() => removeShareEntry()}
                 />
               </Columns>
-              <Columns spacing='10px'>
+              <Columns spacing='small'>
                 <TypeFace fontSize='32px'>{share.streamPlatforms.twitch.displayName}</TypeFace>
                 <LinkButton
                   iconOnly={true}

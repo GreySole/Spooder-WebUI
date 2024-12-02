@@ -1,15 +1,19 @@
 import React from 'react';
 import FormTextInput from '../../../common/input/form/FormTextInput';
+import Stack from '../../../common/layout/Stack';
+import Expandable from '../../../common/layout/Expandable';
 
 export default function ConfigBotSection() {
   const baseFormKey = 'bot';
 
   return (
-    <div className='config-section'>
-      <FormTextInput formKey={`${baseFormKey}.owner_name`} label='Owner Name' />
-      <FormTextInput formKey={`${baseFormKey}.bot_name`} label='Bot Name' />
-      <FormTextInput formKey={`${baseFormKey}.help_command`} label='Help Command' />
-      <FormTextInput formKey={`${baseFormKey}.introduction`} label='Introduction' />
-    </div>
+    <Expandable label='Bot'>
+      <Stack spacing='medium' padding='medium'>
+        <FormTextInput formKey={`${baseFormKey}.owner_name`} label='Owner Name' />
+        <FormTextInput formKey={`${baseFormKey}.bot_name`} label='Bot Name' />
+        <FormTextInput formKey={`${baseFormKey}.help_command`} label='Help Command' />
+        <FormTextInput width='100%' formKey={`${baseFormKey}.introduction`} label='Introduction' />
+      </Stack>
+    </Expandable>
   );
 }

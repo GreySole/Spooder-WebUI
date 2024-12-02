@@ -4,6 +4,8 @@ import { FormProvider, useForm } from 'react-hook-form';
 import OSCTunnelList from './oscTunnels/OSCTunnelList';
 import SaveTunnelFormButton from './oscTunnels/SaveTunnelFormButton';
 import useConfig from '../../app/hooks/useConfig';
+import Box from '../common/layout/Box';
+import Stack from '../common/layout/Stack';
 
 export default function OSCTunnelTab() {
   const { getOSCTunnels } = useConfig();
@@ -17,11 +19,11 @@ export default function OSCTunnelTab() {
   }
 
   return (
-    <div className='config-tab'>
-      <FormProvider {...oscTunnelForm}>
+    <FormProvider {...oscTunnelForm}>
+      <Stack spacing='medium'>
         <OSCTunnelList />
         <SaveTunnelFormButton />
-      </FormProvider>
-    </div>
+      </Stack>
+    </FormProvider>
   );
 }

@@ -3,33 +3,21 @@ import { PluginProvider } from './pluginTab/context/PluginTabFormContext';
 import CreatePluginButton from './pluginTab/input/CreatePluginButton';
 import InstallPluginButton from './pluginTab/input/InstallPluginButton';
 import PluginList from './pluginTab/PluginList';
-import { faSync } from '@fortawesome/free-solid-svg-icons';
-import Button from '../common/input/controlled/Button';
 import RefreshAllPluginsButton from './pluginTab/input/RefreshAllPluginsButton';
-
-interface NewPlugin {
-  [key: string]: {
-    name: string;
-    author: string;
-    description: string;
-    status: string;
-    message: string;
-  };
-}
+import Columns from '../common/layout/Columns';
+import Box from '../common/layout/Box';
 
 export default function PluginTab() {
-  const [newPlugins, setNewPlugins] = useState<NewPlugin>({});
-
   return (
     <PluginProvider>
-      <div className='plugin-element'>
-        <div className='plugin-install-button'>
+      <Box flexFlow='column' width='100%'>
+        <Columns spacing='medium' padding='small'>
           <CreatePluginButton />
           <InstallPluginButton />
           <RefreshAllPluginsButton />
-        </div>
+        </Columns>
         <PluginList />
-      </div>
+      </Box>
     </PluginProvider>
   );
 }

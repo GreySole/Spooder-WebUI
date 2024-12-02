@@ -5,15 +5,17 @@ import { $, setClass } from '../../../util/deprecated_util';
 import Button from '../controlled/Button';
 
 interface LinkButtonProps {
+  className?: string;
   name?: string;
   label?: string;
+  iconSize?: string;
   link: string;
   mode: 'newtab' | 'copy' | 'download';
   iconOnly?: boolean;
 }
 
 export default function LinkButton(props: LinkButtonProps) {
-  const { name, label, link, mode, iconOnly } = props;
+  const { className, name, label, link, mode, iconOnly, iconSize } = props;
 
   function clickLink() {
     if (mode === 'newtab') {
@@ -98,5 +100,13 @@ export default function LinkButton(props: LinkButtonProps) {
   } else if (mode == 'download') {
     iconLink = faDownload;
   }
-  return <Button label={label} icon={iconLink} iconSize='lg' onClick={() => clickLink()} />;
+  return (
+    <Button
+      className={className}
+      label={label}
+      icon={iconLink}
+      iconSize={iconSize ?? 'lg'}
+      onClick={() => clickLink()}
+    />
+  );
 }

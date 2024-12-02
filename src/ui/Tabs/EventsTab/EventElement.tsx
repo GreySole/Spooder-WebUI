@@ -11,6 +11,8 @@ import EventTriggers from './EventTriggers';
 import FormNumberInput from '../../common/input/form/FormNumberInput';
 import FormSelectDropdown from '../../common/input/form/FormSelectDropdown';
 import DeleteEventButton from './eventCommand/input/DeleteEventButton';
+import SvgIcon from '../../icons/SvgIcon';
+import TwitchIcon from '../../icons/twitch.svg';
 
 interface EventElementProps {
   eventName: string;
@@ -18,7 +20,7 @@ interface EventElementProps {
 
 export default function EventElement(props: EventElementProps) {
   const { eventName } = props;
-  const { getValues } = useFormContext();
+  const { getValues, watch } = useFormContext();
   const event = getValues(`${EVENT_KEY}.${eventName}`);
   const groups = getValues(GROUP_KEY);
   const eventTriggers = event.triggers;
@@ -32,7 +34,7 @@ export default function EventElement(props: EventElementProps) {
   }
 
   if (eventTriggers.twitch.enabled) {
-    triggerIcons.push(<FontAwesomeIcon icon={faAward} />);
+    triggerIcons.push(<SvgIcon src={TwitchIcon} fill={'white'} width='32px' height='32px' />);
   }
 
   if (eventTriggers.osc?.enabled) {
@@ -40,6 +42,7 @@ export default function EventElement(props: EventElementProps) {
   }
   const eventKey = buildEventKey(eventName);
   const nameKey = buildKey(eventKey, 'name');
+  const name = watch(nameKey);
   const descriptionKey = buildKey(eventKey, 'description');
   const groupKey = buildKey(eventKey, 'group');
   const cooldownKey = buildKey(eventKey, 'cooldown');
@@ -47,30 +50,28 @@ export default function EventElement(props: EventElementProps) {
   const cooldownNotificationKey = buildKey(eventKey, 'cooldownnotification');
 
   return (
-    <div className={'command-element'}>
-      <EventExpandable label={eventName} triggerIcons={triggerIcons}>
-        <div className={'command-section'}>
-          <label>Internal Name: {eventName}</label>
-          <FormTextInput label='Name:' formKey={nameKey} />
-          <FormTextInput label='Description:' formKey={descriptionKey} />
-          <FormSelectDropdown label='Event Type:' formKey={groupKey} options={groupOptions} />
-          <FormNumberInput label='Duration (Seconds):' formKey={cooldownKey} />
-          <FormBoolSwitch label='Notify Activation in Chat:' formKey={chatNotificationKey} />
-          <FormBoolSwitch
-            label='Tell How Much Time Left for Cooldown:'
-            formKey={cooldownNotificationKey}
-          />
-          <label className='field-section'>
-            Trigger:
-            <EventTriggers eventName={eventName} />
-          </label>
-          <EventCommands eventName={eventName} eventCommands={eventCommands} />
+    <EventExpandable label={name} triggerIcons={triggerIcons}>
+      <div className={'command-section'}>
+        <label>Internal Name: {eventName}</label>
+        <FormTextInput label='Name:' formKey={nameKey} />
+        <FormTextInput label='Description:' formKey={descriptionKey} />
+        <FormSelectDropdown label='Event Type:' formKey={groupKey} options={groupOptions} />
+        <FormNumberInput label='Duration (Seconds):' formKey={cooldownKey} />
+        <FormBoolSwitch label='Notify Activation in Chat:' formKey={chatNotificationKey} />
+        <FormBoolSwitch
+          label='Tell How Much Time Left for Cooldown:'
+          formKey={cooldownNotificationKey}
+        />
+        <label className='field-section'>
+          Trigger:
+          <EventTriggers eventName={eventName} />
+        </label>
+        <EventCommands eventName={eventName} eventCommands={eventCommands} />
 
-          <div className='delete-event-div'>
-            <DeleteEventButton eventName={eventName} />
-          </div>
+        <div className='delete-event-div'>
+          <DeleteEventButton eventName={eventName} />
         </div>
-      </EventExpandable>
-    </div>
+      </div>
+    </EventExpandable>
   );
 }

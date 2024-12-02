@@ -7,6 +7,9 @@ import Expandable from '../../common/layout/Expandable';
 import AddEventInput from './eventCommand/input/AddEventInput';
 import EventElement from './EventElement';
 import DeleteGroupButton from './eventCommand/input/DeleteGroupButton';
+import Box from '../../common/layout/Box';
+import Columns from '../../common/layout/Columns';
+import SearchBar from '../../common/input/general/SearchBar';
 
 export default function EventTable() {
   const { watch } = useFormContext();
@@ -14,8 +17,6 @@ export default function EventTable() {
 
   const events = watch('events');
   const groups = watch('groups');
-
-  console.log('EVENTS', events);
 
   let propKeys = Object.keys(events).sort((a, b) => {
     return events[a].name.toUpperCase() > events[b].name.toUpperCase() ? 1 : -1;
@@ -54,40 +55,24 @@ export default function EventTable() {
     }
 
     return (
-      <div key={groupName} className='command-group'>
-        <Expandable label={groupName}>
-          <div className={'command-group-content'}>
-            <div
-              className='command-group-actions'
-              onClick={(e) => {
-                e.stopPropagation();
-              }}
-            >
-              <AddEventInput groupName={groupName} />
-              <div className='delete-event-div'>
-                <DeleteGroupButton groupName={groupName} />
-              </div>
-            </div>
-            {groupObjects[groupName]}
-          </div>
-        </Expandable>
-      </div>
+      <Expandable label={groupName}>
+        <Box flexFlow='column'>
+          <Columns spacing='medium'>
+            <AddEventInput groupName={groupName} />
+            <DeleteGroupButton groupName={groupName} />
+          </Columns>
+
+          {groupObjects[groupName]}
+        </Box>
+      </Expandable>
     );
   });
 
   return (
-    <>
-      <div className='event-search'>
-        <FontAwesomeIcon icon={faMagnifyingGlass} className='event-search-icon' size='lg' />
-        <input
-          type='search'
-          className='event-search-bar'
-          placeholder='Search Events...'
-          onInput={(e: React.ChangeEvent<HTMLInputElement>) => setSearchText(e.target.value)}
-        />
-      </div>
+    <Box flexFlow='column'>
+      <SearchBar placeholder='Search Events...' onSearch={setSearchText} />
       <div className='event-container'>{groupElements}</div>
-    </>
+    </Box>
   );
 }
 

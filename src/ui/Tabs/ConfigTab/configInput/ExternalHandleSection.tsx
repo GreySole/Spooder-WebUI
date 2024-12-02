@@ -3,16 +3,17 @@ import { useFormContext } from 'react-hook-form';
 import LinkButton from '../../../common/input/general/LinkButton';
 import FormSelectDropdown from '../../../common/input/form/FormSelectDropdown';
 import FormTextInput from '../../../common/input/form/FormTextInput';
+import Stack from '../../../common/layout/Stack';
+import Expandable from '../../../common/layout/Expandable';
 
-export default function ExternalHandle() {
+export default function ExternalHandleSection() {
   const { watch } = useFormContext();
   const baseFormKey = 'network';
   const externalHandle = watch(`${baseFormKey}.externalhandle`, 'ngrok');
   const externalHTTPUrl = watch(`${baseFormKey}.external_http_url`, '');
   return (
-    <div className='config-variable'>
-      <label>
-        Public Access
+    <Expandable label='Public Hosting'>
+      <Stack spacing='medium' padding='medium'>
         <FormSelectDropdown
           label='External Handle'
           formKey={`${baseFormKey}.externalhandle`}
@@ -22,17 +23,15 @@ export default function ExternalHandle() {
           ]}
         />
         {externalHandle === 'ngrok' ? (
-          <>
-            <FormTextInput formKey={`${baseFormKey}.ngrokauthtoken`} />
-          </>
+          <FormTextInput formKey={`${baseFormKey}.ngrokauthtoken`} />
         ) : (
           <>
             <FormTextInput formKey={`${baseFormKey}.external_http_url`} />
             <FormTextInput formKey={`${baseFormKey}.external_tcp_url`} />
           </>
         )}
-      </label>
-      <LinkButton label={'Copy Mod URL'} mode='copy' link={externalHTTPUrl + '/mod'} />
-    </div>
+        <LinkButton label={'Copy Mod URL'} mode='copy' link={externalHTTPUrl + '/mod'} />
+      </Stack>
+    </Expandable>
   );
 }

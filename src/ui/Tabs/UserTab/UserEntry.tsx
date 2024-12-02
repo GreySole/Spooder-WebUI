@@ -6,6 +6,8 @@ import useUsers from '../../../app/hooks/useUsers';
 import { useFormContext } from 'react-hook-form';
 import Button from '../../common/input/controlled/Button';
 import FormTextInput from '../../common/input/form/FormTextInput';
+import Columns from '../../common/layout/Columns';
+import Box from '../../common/layout/Box';
 
 interface UserEntryProps {
   userKey: string;
@@ -75,7 +77,7 @@ export default function UserEntry(props: UserEntryProps) {
           label='Discord User ID'
         />
       </div>
-      <div className='user-actions'>
+      <div>
         <Button label={''} icon={faTrash} iconSize='lg' onClick={() => deleteUser()} />
         {hasPassword ? (
           <Button label='Reset Password' onClick={() => safeDeleteUserPassword()} />

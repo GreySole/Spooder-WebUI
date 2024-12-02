@@ -1,30 +1,24 @@
-import { faPlay, faStop } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import useNavigation from '../../app/hooks/useNavigation';
 import useServer from '../../app/hooks/useServer';
 import ModUI from '../deck/ModUI';
 import OSCMonitor from '../deck/OSCMonitor';
 import PluginTab from '../tabs/PluginTab';
 import CircleLoader from '../common/loader/CircleLoader';
-import BoolSwitch from '../common/input/controlled/BoolSwitch';
-import usePlugins from '../../app/hooks/usePlugins';
 import { useOSC } from '../../app/context/OscContext';
 import EventTab from '../tabs/EventTab';
 import ConfigTab from '../tabs/ConfigTab';
 import OSCTunnelTab from '../tabs/OSCTunnelTab';
 import ShareTab from '../tabs/ShareTab';
 import UserTab from '../tabs/UserTab';
-import TwitchTab from '../tabs/TwitchTab';
 import AppHeader from './AppHeader';
 import NavigationMenu from './navigation/NavigationMenu';
 import NavigationTabs from './navigation/NavigationTabs';
 import OBS from '../deck/OBS';
-import DiscordTab from '../tabs/DiscordTab';
 import DashboardTab from '../tabs/DashboardTab';
 import useTheme from '../../app/hooks/useTheme';
-import FormLoader from '../common/loader/FormLoader';
 import ModuleTab from '../tabs/ModuleTab';
+import Box from '../common/layout/Box';
 
 export default function App() {
   const { currentTab } = useNavigation();
@@ -32,11 +26,9 @@ export default function App() {
   const { getServerState } = useServer();
   const { data: serverData, isLoading: serverLoading, error: serverError } = getServerState();
   const { addListener, removeListener } = useOSC();
-  const { getRefreshPlugins } = usePlugins();
 
   useEffect(() => {
     addListener('/obs/status/connection', (message: any) => {});
-    ``;
     refreshThemeColors();
     if (serverData?.themes?.spooderpet) {
       setCustomSpooder(serverData.themes.spooderpet.parts, serverData.themes.spooderpet.colors);
@@ -74,8 +66,6 @@ export default function App() {
   }
 
   let tabContent = <div>404</div>;
-  let appMode = 'setup';
-  console.log(currentTab);
   switch (currentTab) {
     case 'dashboard':
       tabContent = <DashboardTab />;
@@ -101,12 +91,6 @@ export default function App() {
     case 'module':
       tabContent = <ModuleTab />;
       break;
-    case 'discord':
-      tabContent = <DiscordTab />;
-      break;
-    case 'twitch':
-      tabContent = <TwitchTab />;
-      break;
     case 'obs':
       tabContent = <OBS />;
       break;
@@ -118,19 +102,14 @@ export default function App() {
       break;
   }
 
-  const appContent = (
-    <div className={'App-content ' + appMode}>
-      <div id='tabContent'>{tabContent}</div>
-    </div>
-  );
-
   return (
-    <div className='App'>
+    <Box classes={['App']} flexFlow='column'>
       <AppHeader />
       <NavigationTabs />
       <NavigationMenu />
-
-      {appContent}
-    </div>
+      <Box padding='medium' width='100%'>
+        {tabContent}
+      </Box>
+    </Box>
   );
 }

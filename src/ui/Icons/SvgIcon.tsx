@@ -1,16 +1,28 @@
 import React from 'react';
-import { ReactNode } from 'react';
-import TwitchIcon from './twitch.svg';
+import { ReactSVG } from 'react-svg';
 
 interface SvgIconProps {
   fill: string;
   width?: string;
   height?: string;
-  children: ReactNode;
+  src: string;
 }
 
 export default function SvgIcon(props: SvgIconProps) {
-  const { fill, width, height, children } = props;
+  const { fill, width, height, src } = props;
 
-  return <div style={{ width: width, height: height, fill: fill }}>{children}</div>;
+  return (
+    <ReactSVG
+      src={src}
+      beforeInjection={(svg) => {
+        svg.setAttribute('width', width?.toString() || '100%');
+        svg.setAttribute('height', height?.toString() || '100%');
+        if (fill) {
+          svg.setAttribute('fill', fill);
+        }
+      }}
+    />
+  );
+
+  //return <div style={{ width: width, height: height, fill: fill }}>{children}</div>;
 }

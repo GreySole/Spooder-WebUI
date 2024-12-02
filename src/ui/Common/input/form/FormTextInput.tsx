@@ -3,6 +3,7 @@ import { useFormContext } from 'react-hook-form';
 
 interface TextInputProps {
   formKey: string;
+  width?: string;
   label?: string;
   charLimit?: number;
   jsonFriendly?: boolean;
@@ -10,7 +11,7 @@ interface TextInputProps {
 }
 
 export default function FormTextInput(props: TextInputProps) {
-  const { formKey, label, charLimit, jsonFriendly, password } = props;
+  const { formKey, label, width, charLimit, jsonFriendly, password } = props;
   const { watch, register } = useFormContext();
   const value = watch(formKey);
 
@@ -29,7 +30,7 @@ export default function FormTextInput(props: TextInputProps) {
     <label htmlFor={`text-${formKey}`}>
       {label}
       <input
-        style={{ width: '100%' }}
+        style={{ width: width }}
         id={`text-${formKey}`}
         className='text-input'
         type={password ? 'password' : 'text'}

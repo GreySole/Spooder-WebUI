@@ -20,9 +20,9 @@ select {
 	padding: 0.5rem;
 	border-radius: var(--interactive-radius);
 
-	color: var(--black);
+	color: var(--input-text-color);
 
-	background-color: var(--white);
+	background-color: var(--input-background-color);
 	outline-offset: 0px;
 
 	box-shadow: 0 0 0 1px var(--gray-900);
@@ -67,7 +67,8 @@ button {
 	--button-color: var(--color-primary);
 
 	color: var(--button-font-color);
-	background-color: var(--button-color);
+	background-color: var(--button-background-color);
+	outline: solid 2px var(--button-border-color);
 	font-size: 20px;
 
 	padding: 0.5rem 1rem;
@@ -81,12 +82,14 @@ button {
 
 	&.add-button {
 		color: var(--button-font-color-analogous-cw);
-		--button-color: var(--color-analogous-cw);
+		background-color: var(--color-dark-analogous-cw);
+		--button-color: var(--color-dark-analogous-cw);
 	}
 
 	&.save-button {
 		color: var(--button-font-color-analogous-ccw);
-		--button-color: var(--color-analogous-ccw);
+		background-color: var(--color-dark-analogous-ccw);
+		--button-color: var(--color-dark-analogous-ccw);
 	}
 
 	&.command-button {
@@ -95,19 +98,21 @@ button {
 
 	&.delete-button {
 		color: var(--white) !important;
+		background-color: var(--color-delete);
 		--button-color: var(--color-delete) !important;
 	}
 }
 
 select {
 	appearance: none;
-	background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="black" width="18px" height="18px"><path d="M7 10l5 5 5-5z"/></svg>');
 	background-repeat: no-repeat;
 	background-position: right 0.5rem center;
 	background-size: 1.5rem;
+	padding-right:2rem;
 
 	option {
-		color: var(--black);
+		color: var(--input-text-color);
+		background-color: var(--input-background-color);
 	}
 }
 

@@ -8,7 +8,7 @@
 	flex-flow: row;
 	width: 100%;
 	justify-content: space-between;
-	background-color: var(--gray-900);
+	background-color: var(--color-background-far);
 	user-select: none;
 	cursor: pointer;
 	transition: background-color 0.5s;
@@ -23,7 +23,7 @@
     }
 
     &:hover {
-        background-color: darken(map-get($colors, gray-900), 5%);
+        background-color: var(--button-background-color);
 
         .navigation-open-button {
             transform: scale(1.2);
@@ -42,7 +42,7 @@
 	position: fixed;
 	top: var(--header-height);
 	width: 100vw;
-	background-color: rgba(0, 0, 0, 0.75);
+	background-color: var(--color-background-far);
 	z-index: 10;
 	opacity: 0;
 	max-height: 0;
@@ -54,20 +54,8 @@
 		max-height: 100%;
 		pointer-events: all;
 
-        background-color: color-mix(in hsl, var(--color-primary), var(--black) 50%);
+        background-color: var(--color-background-near);
 	}
-
-    .nav-restart-chat-button {
-        margin: 10px;
-        font-size: 24px;
-        border-radius: 10px;
-        background-color: var(--color-primary);
-
-        &:hover {
-            filter: brightness(1.3);
-            cursor: pointer;
-        }
-    }
 }
 
 .navigation-tabs {
@@ -78,20 +66,21 @@
 
 	padding-top: 1.25rem;
 
+	background-color: var(--color-background-far);
+
 	> button.tab-button {
 		--tab-pop: 0rem;
 
 		position: relative;
 
         color: var(--white);
-		background-color: var(--gray-800);
+		background-color: var(--color-background-far);
 
 		cursor: pointer;
 
 		margin-top: calc(-1 * var(--tab-pop));
 		padding: 0.5rem 1.25rem calc(0.5rem + var(--tab-pop));
 		border-radius: var(--interactive-radius) var(--interactive-radius) 0 0;
-		border: 0 solid var(--gray-700);
 		border-width: 1px 1px 0;
 
         box-shadow: 0 0 0 0 rgba(map-get($colors, black), $alpha: 1);
@@ -104,7 +93,7 @@
         &:focus,
         &:focus-visible {
 			--tab-pop: 0.75rem;
-			background-color: var(--gray-700);
+			background-color: var(--color-background-near);
 
             box-shadow: 0 0 1rem 0 rgba(map-get($colors, black), $alpha: .5);
 
@@ -119,7 +108,7 @@
 
 		&.selected {
 			--tab-pop: 0.5rem;
-			background-color: var(--gray-900);
+			background-color: var(--color-background-near);
 
             filter: brightness(1);
 
@@ -135,7 +124,7 @@
 	flex-flow: column;
 	flex-wrap: wrap;
 	font-size: 24px;
-	background-color: rgba(0, 0, 0, 1);
+	background-color: var(--color-background-far);
 	button {
 		margin: 10px;
 		padding: 10px;

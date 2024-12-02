@@ -9,39 +9,39 @@ import ConfigTabFormContextProvider from './configTab/context/ConfigTabFormConte
 import EditCustomSpooder from './configTab/customSpooderInput/EditCustomSpooder';
 import CircleLoader from '../common/loader/CircleLoader';
 import ThemeColor from './configTab/themeColor/ThemeColor';
+import ExternalHandleSection from './configTab/configInput/ExternalHandleSection';
+import UdpClientSection from './configTab/configInput/UdpClientSection';
+import Stack from '../common/layout/Stack';
+import Box from '../common/layout/Box';
 
 export default function ConfigTab() {
   const { getConfig, getSaveConfig } = useConfig();
   const { data, isLoading, error } = getConfig();
-  const { saveConfig } = getSaveConfig();
 
   if (isLoading) {
     return <CircleLoader />;
   }
 
-  console.log('Config Data', data);
-
   return (
-    <div className='config-tab'>
-      <div className='non-config-element'>
+    <Box width='inherit'>
+      <Stack spacing='medium'>
+        <ConfigTabFormContextProvider defaultConfig={data}>
+          <Stack spacing='medium'>
+            <ConfigBotSection />
+            <ConfigNetworkSection />
+            <ExternalHandleSection />
+            <UdpClientSection />
+          </Stack>
+        </ConfigTabFormContextProvider>
         <ThemeColor />
-      </div>
-      <div className='non-config-element'>
         <Expandable label='Customize Spooder'>
           <EditCustomSpooder />
         </Expandable>
-      </div>
-      <div className='non-config-element'>
         <Expandable label='Backup/Restore'>
           <BackupRestore />
         </Expandable>
-      </div>
-      <ConfigTabFormContextProvider defaultConfig={data}>
-        <ConfigBotSection />
-        <ConfigNetworkSection />
-        <SaveButton saveFunction={saveConfig} />
-      </ConfigTabFormContextProvider>
-    </div>
+      </Stack>
+    </Box>
   );
 }
 

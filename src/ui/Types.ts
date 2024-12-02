@@ -73,9 +73,44 @@ export interface ChatTriggerConditionObject {
 
 export interface ThemeColors {
   baseColor: string;
+  backgroundColorFar: string;
+  backgroundColorNear: string;
   buttonFontColor: string;
+  buttonBackgroundColor: string;
+  buttonBorderColor: string;
   colorAnalogousCW: string;
   colorAnalogousCCW: string;
+  darkColorAnalogousCW: string;
+  darkColorAnalogousCCW: string;
   buttonFontColorAnalogousCW: string;
   buttonFontColorAnalogousCCW: string;
+  inputTextColor: string;
+  inputBackgroundColor: string;
+}
+
+export interface ThemeVariables {
+  hue: number;
+  saturation: number;
+  isDarkTheme: boolean;
+}
+
+export enum StyleSize {
+  none = '0px',
+  xsmall = '4px',
+  small = '8px',
+  medium = '16px',
+  large = '24px',
+  xlarge = '32px',
+}
+
+export type StyleSizeType = 'none' | 'xsmall' | 'small' | 'medium' | 'large' | 'xlarge';
+
+export interface NewPlugin {
+  [key: string]: {
+    name: string;
+    author: string;
+    description: string;
+    status: string;
+    message: string;
+  };
 }

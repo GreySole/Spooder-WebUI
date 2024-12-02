@@ -4,20 +4,21 @@ import { useState } from 'react';
 import Button from '../../../common/input/controlled/Button';
 import { usePluginContext } from '../context/PluginTabFormContext';
 import usePlugins from '../../../../app/hooks/usePlugins';
+import TextInput from '../../../common/input/controlled/TextInput';
+import Stack from '../../../common/layout/Stack';
+import Box from '../../../common/layout/Box';
 
 export default function CreatePluginButton() {
   const [isOpen, setIsOpen] = useState(false);
-  const [createForm, setCreateForm] = useState({
-    pluginname: '',
-    author: '',
-    description: '',
-  });
+  const [createPluginName, setCreatePluginName] = useState('');
+  const [createPluginAuthor, setCreatePluginAuthor] = useState('');
+  const [createPluginDescription, setCreatePluginDescription] = useState('');
   const { plugins, newPlugins, setNewPlugins } = usePluginContext();
   const { getCreatePlugin } = usePlugins();
   const { createPlugin } = getCreatePlugin();
 
   function createPluginClick() {
-    let internalName = createForm.pluginname
+    let internalName = createPluginName
       .toLowerCase()
       .replaceAll(/[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/g, '')
       .replaceAll(' ', '_');
@@ -36,36 +37,23 @@ export default function CreatePluginButton() {
       }
     }
 
-    const fd = new FormData();
-    fd.append('internalName', internalName);
-    fd.append('pluginName', createForm.pluginname);
-    fd.append('author', createForm.author);
-    fd.append('description', createForm.description);
-    createPlugin(fd);
+    createPlugin(internalName, createPluginName, createPluginAuthor, createPluginDescription);
 
-    let newNewPlugins = Object.assign({}, plugins);
-    newPlugins[internalName] = {
-      name: createForm.pluginname,
-      author: createForm.author,
-      description: createForm.description,
-      status: 'start',
-      message: 'installing...',
-    };
+    setNewPlugins({
+      ...newPlugins,
+      [internalName]: {
+        name: createPluginName,
+        author: createPluginAuthor,
+        description: createPluginDescription,
+        status: 'start',
+        message: 'installing...',
+      },
+    });
+    setCreatePluginName('');
+    setCreatePluginAuthor('');
+    setCreatePluginDescription('');
+  }
 
-    let newOpenCreate = {
-      isOpen: false,
-      pluginname: '',
-      author: '',
-      description: '',
-    };
-    setNewPlugins(newNewPlugins);
-    setCreateForm(newOpenCreate);
-  }
-  function onCreateFormInput(name: string, value: any) {
-    let newOpenCreate = Object.assign(createForm);
-    newOpenCreate[name] = value;
-    setCreateForm(newOpenCreate);
-  }
   return (
     <>
       <Button
@@ -75,37 +63,24 @@ export default function CreatePluginButton() {
         iconSize='lg'
       />
       {isOpen ? (
-        <div className='plugin-create-element'>
-          <form onSubmit={createPluginClick}>
-            <label>
-              Name
-              <input
-                type='text'
-                name='pluginname'
-                onChange={(e) => onCreateFormInput(e.target.name, e.target.value)}
-              />
-            </label>
-            <label>
-              Author
-              <input
-                type='text'
-                name='author'
-                onChange={(e) => onCreateFormInput(e.target.name, e.target.value)}
-              />
-            </label>
-            <label>
-              Description
-              <input
-                type='text'
-                name='description'
-                onChange={(e) => onCreateFormInput(e.target.name, e.target.value)}
-              />
-            </label>
-            <button type='submit' id='createPluginButton' className='save-button'>
-              Create
-            </button>
-          </form>
-        </div>
+        <Stack spacing='medium'>
+          <TextInput
+            label='Name'
+            onInput={(value) => setCreatePluginName(value)}
+            value={createPluginName}
+          />
+          <TextInput
+            label='Author'
+            onInput={(value) => setCreatePluginAuthor(value)}
+            value={createPluginAuthor}
+          />
+          <TextInput
+            label='Description'
+            onInput={(value) => setCreatePluginDescription(value)}
+            value={createPluginDescription}
+          />
+          <Button label='Create' onClick={createPluginClick} />
+        </Stack>
       ) : null}
     </>
   );

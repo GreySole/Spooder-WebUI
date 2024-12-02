@@ -6,6 +6,13 @@ import useToast from '../../../app/hooks/useToast';
 import { ToastType } from '../../Types';
 import usePlugins from '../../../app/hooks/usePlugins';
 import { usePluginContext } from './context/PluginTabFormContext';
+import Border from '../../common/layout/Border';
+import useTheme from '../../../app/hooks/useTheme';
+import Button from '../../common/input/controlled/Button';
+import Columns from '../../common/layout/Columns';
+import Stack from '../../common/layout/Stack';
+import Box from '../../common/layout/Box';
+import TypeFace from '../../common/layout/TypeFace';
 
 interface PluginInfoViewProps {
   pluginName: string;
@@ -40,17 +47,14 @@ export default function PluginInfoView(props: PluginInfoViewProps) {
   let dependenciesElements = null;
   let dependenciesElement = null;
   if (Object.keys(plugin.dependencies).length > 0) {
-    dependenciesElements = [];
-    for (let d in plugin.dependencies) {
-      dependenciesElements.push(
-        <div className='info-dependencies-entry'>
-          {d}:{plugin.dependencies[d]}
-        </div>,
-      );
-    }
+    dependenciesElements = plugin.dependencies.map((d: any) => (
+      <Box>
+        {d}:{plugin.dependencies[d]}
+      </Box>
+    ));
     dependenciesElement = (
-      <div className='info-dependencies'>
-        <label>Dependencies</label>
+      <Box flexFlow='column'>
+        <TypeFace fontSize='24px'>Dependencies</TypeFace>
         {dependenciesElements}
         <div>
           <label>
@@ -63,31 +67,39 @@ export default function PluginInfoView(props: PluginInfoViewProps) {
             </button>
           </label>
         </div>
-      </div>
+      </Box>
     );
   } else {
     dependenciesElement = (
-      <div className='info-dependencies'>
-        <label>Dependencies</label>
-        None
-      </div>
+      <Box flexFlow='column'>
+        <TypeFace fontSize='24px'>Dependencies</TypeFace>
+        <TypeFace fontSize='16px'>None</TypeFace>
+      </Box>
     );
   }
   return (
-    <div className='info-container'>
-      <div className='info-description'>
-        <label>Description</label>
-        {plugin.description}
-      </div>
-      {dependenciesElement}
-      <div className='info-actions'>
-        <div className='add-button' onClick={() => refreshSinglePluginClick(pluginName)}>
-          <FontAwesomeIcon icon={faSync} size='lg' /> Refresh
-        </div>
-        <div className='add-button' onClick={handleIconUploadClick} plugin-name={name}>
-          <FontAwesomeIcon icon={faImage} size='lg' /> Change Icon
-        </div>
-      </div>
-    </div>
+    <Border borderWidth='2px' borderColor='gray'>
+      <Stack spacing='medium' padding='small'>
+        <Stack spacing='small'>
+          <TypeFace fontSize='24px'>Description</TypeFace>
+          <TypeFace fontSize='16px'>{plugin.description}</TypeFace>
+        </Stack>
+        {dependenciesElement}
+        <Columns spacing='small' padding='small'>
+          <Button
+            label='Reload Plugin'
+            icon={faSync}
+            iconSize='lg'
+            onClick={() => refreshSinglePluginClick(pluginName)}
+          />
+          <Button
+            label='Replace Icon'
+            icon={faImage}
+            iconSize='lg'
+            onClick={handleIconUploadClick}
+          />
+        </Columns>
+      </Stack>
+    </Border>
   );
 }

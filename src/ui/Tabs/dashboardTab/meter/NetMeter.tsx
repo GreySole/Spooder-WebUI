@@ -16,11 +16,11 @@ interface NetMeterProps {
 export default function NetMeter(props: NetMeterProps) {
   const { value, graphData, icon, color, total } = props;
   return (
-    <Box width='50%' margin='15px' flexFlow={'row'} alignItems={'center'} justifyContent='center'>
+    <Box width='50%' margin='medium' flexFlow={'row'} alignItems={'center'} justifyContent='center'>
       <Box
         width='15%'
         height='200px'
-        margin='0 10px 0 0'
+        marginRight='small'
         flexFlow={'column'}
         justifyContent='space-between'
       >

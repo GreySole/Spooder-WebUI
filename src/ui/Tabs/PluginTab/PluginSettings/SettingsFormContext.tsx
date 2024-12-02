@@ -5,6 +5,10 @@ import PluginInput from './PluginInput';
 import PluginSettingsSaveButton from './PluginSettingsSaveButton';
 import PluginSubform from './PluginSubform';
 import { translateCondition } from '../../../util/ScriptUtil';
+import Stack from '../../../common/layout/Stack';
+import Expandable from '../../../common/layout/Expandable';
+import Border from '../../../common/layout/Border';
+import useTheme from '../../../../app/hooks/useTheme';
 
 interface SettingsFormContextProps {
   pluginName: string;
@@ -15,6 +19,7 @@ interface SettingsFormContextProps {
 
 export default function SettingsFormContext(props: SettingsFormContextProps) {
   const { pluginName, values, form, defaults } = props;
+  const { themeConstants } = useTheme();
 
   const SettingsFormContext = useForm({
     defaultValues: values,
@@ -24,13 +29,15 @@ export default function SettingsFormContext(props: SettingsFormContextProps) {
   for (let e in form) {
     if (form[e].type == 'subform') {
       inputTable.push(
-        <PluginSubform
-          formKey={e}
-          pluginName={pluginName}
-          label={form[e].label}
-          form={form[e].form}
-          defaults={defaults[e]}
-        />,
+        <Expandable label={form[e].label}>
+          <PluginSubform
+            formKey={e}
+            pluginName={pluginName}
+            label={form[e].label}
+            form={form[e].form}
+            defaults={defaults[e]}
+          />
+        </Expandable>,
       );
     } else {
       if (form[e].showif) {
@@ -63,10 +70,12 @@ export default function SettingsFormContext(props: SettingsFormContextProps) {
 
   return (
     <FormProvider {...SettingsFormContext}>
-      <div className='settings-form-element'>
-        {inputTable}
-        <PluginSettingsSaveButton />
-      </div>
+      <Border borderWidth='2px' borderColor={themeConstants.settings}>
+        <Stack spacing='medium' padding='medium'>
+          {inputTable}
+          <PluginSettingsSaveButton />
+        </Stack>
+      </Border>
     </FormProvider>
   );
 }

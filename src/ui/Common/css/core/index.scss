@@ -19,14 +19,10 @@
 
 :root {
   --header-height: 70px;
-
   --interactive-radius: 0.5rem;
 }
 
-::-webkit-scrollbar {
-  display: block;
-  width: 15px;
-}
+
 * {
   &:hover {
     &::-webkit-scrollbar {
@@ -35,6 +31,10 @@
   }
   border: 0;
   box-shadow: none;
+}
+::-webkit-scrollbar {
+  display: block;
+  width: 15px;
 }
 ::-webkit-scrollbar-track {
   background-color: var(--btn-color);
@@ -63,7 +63,7 @@ body {
   font-size: 16px;
 
   overflow-y: overlay;
-  background-color: var(--gray-900);
+  background-color: var(--color-background-near);
 
   color: var(--white);
 }
@@ -71,6 +71,40 @@ body {
 #ModUIViewer {
   width: 100%;
   height: 95vh;
+}
+
+.box{
+  border-radius:var(--interactive-radius)
+}
+
+.expandable-label{
+  font-size:24px;
+}
+
+.expandable:not(.open):hover{
+  background-color: var(--color-background-far);
+}
+
+.expandable.open{
+  background-color: var(--color-background-far);
+}
+
+.expandable.event:not(.open):hover{
+  background-color: var(--button-background-color);
+  outline: 2px solid var(--button-border-color);
+}
+
+.expandable.event.open .expandable-label:hover{
+  background-color: var(--button-background-color);
+}
+
+.expandable.event.open{
+  background-color: var(--color-background-near);
+  outline: 2px solid var(--button-border-color);
+}
+
+.border-component{
+  border-radius: var(--interactive-radius);
 }
 
 .locals-only {
@@ -94,12 +128,15 @@ body {
 }
 
 .App-header {
+  position:relative;
   display: flex;
   flex-flow: column;
   align-items: center;
   margin-bottom: var(--header-height);
   justify-content: space-between;
+  z-index: 3;
 }
+
 .App-content.deck {
   .navigation-tabs {
     display: none;

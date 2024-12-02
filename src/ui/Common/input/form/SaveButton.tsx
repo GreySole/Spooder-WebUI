@@ -1,6 +1,7 @@
 import React from 'react';
 import { FieldValues, useFormContext } from 'react-hook-form';
 import { HotkeysProvider } from '../../../../app/hooks/useHotkeys';
+import Button from '../controlled/Button';
 
 interface SaveButtonProps {
   saveFunction: (form: FieldValues) => void;
@@ -12,12 +13,7 @@ export default function SaveButton(props: SaveButtonProps) {
 
   return (
     <HotkeysProvider save={() => saveFunction(getValues())}>
-      <div className='save-commands'>
-        <button type='button' className='save-button' onClick={() => saveFunction(getValues())}>
-          Save
-        </button>
-        <div id='saveStatusText' className='save-status'></div>
-      </div>
+      <Button label='Save' onClick={() => saveFunction(getValues())} />
     </HotkeysProvider>
   );
 }

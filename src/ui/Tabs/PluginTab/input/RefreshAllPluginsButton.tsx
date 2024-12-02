@@ -5,12 +5,5 @@ import { usePluginContext } from '../context/PluginTabFormContext';
 
 export default function RefreshAllPluginsButton() {
   const { reloadPlugins } = usePluginContext();
-  return (
-    <div className='plugin-install-button'>
-      <div className='save-div'>
-        <Button label='Refresh All Plugins' onClick={reloadPlugins} icon={faSync} iconSize='lg' />
-        <div className='save-status'></div>
-      </div>
-    </div>
-  );
+  return <Button label='Refresh All Plugins' onClick={reloadPlugins} icon={faSync} iconSize='lg' />;
 }

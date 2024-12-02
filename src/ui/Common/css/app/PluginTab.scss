@@ -1,31 +1,10 @@
+@import "../core/animations.scss";
+
 .settings-form-element {
 	display: flex;
 	flex-flow: column;
 	border-top: solid 2px var(--border-settings-color);
 	border-bottom: solid 2px var(--border-settings-color);
-}
-
-@keyframes newglow {
-	0% {
-		background-color: transparent;
-	}
-	50% {
-		background-color: var(--button-save-color);
-	}
-	0% {
-		background-color: transparent;
-	}
-}
-
-@keyframes deleted {
-	0% {
-		max-height: 500px;
-		clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%);
-	}
-	100% {
-		max-height: 0;
-		clip-path: polygon(0% 0%, 100% 0%, 100% 0%, 0% 0%);
-	}
 }
 
 .new {
@@ -218,32 +197,17 @@
 	background-color: var(--button-delete-color);
 }
 
-.plugin-button.settings {
-	background-color: var(--button-color);
+.plugin-button{
+	border-radius:0;
+	width:75px;
 }
 
-.plugin-button.info {
-	background-color: var(--button-color);
+.plugin-button.start {
 	border-radius: 10px 0 0 10px;
 }
 
-.plugin-button.delete {
+.plugin-button.end {
 	border-radius: 0 10px 10px 0;
-	background-color: var(--button-color);
-}
-
-.plugin-button.upload,
-.plugin-button.export,
-.asset-button {
-	background-color: var(--button-color);
-}
-
-.asset-button.refresh {
-	border-radius: 0 10px 10px 0;
-}
-
-.plugin-button.export a {
-	color: var(--text-color);
 }
 
 .plugin-install-button {
@@ -272,7 +236,7 @@
 }
 
 .asset-entry {
-	background-color: var(--asset-entry-color);
+	background-color: var(--color-background-far);
 	padding: 15px;
 	user-select: none;
 	cursor: pointer;
@@ -283,19 +247,15 @@
 }
 
 .asset-entry:hover {
-	background-color: var(--asset-entry-hover-color);
+	background-color: var(--button-background-color);
 }
 
 .asset-entry.selected {
-	background-color: var(--asset-entry-selected-color);
+	background-color: var(--button-border-color);
 }
 
 .asset-select {
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
 	height: 500px;
-	border-bottom: solid 2px var(--border-assets-color);
 }
 
 .asset-fileselect {
@@ -320,12 +280,12 @@
 	margin: auto;
 }
 
-.asset-preview #audioPreview {
+#audioPreview {
 	display: none;
 }
 
-.asset-preview #audioPreview[file] {
-	display: block;
+#audioPreview:has(source) {
+    display: block !important;
 }
 
 .asset-buttons {
@@ -355,17 +315,6 @@
 	animation-duration: 2s;
 	animation-iteration-count: infinite;
 	animation-timing-function: linear;
-}
-
-@keyframes spin {
-	0% {
-		filter: hue-rotate(0deg);
-		transform: rotate(0deg);
-	}
-	100% {
-		filter: hue-rotate(360deg);
-		transform: rotate(360deg);
-	}
 }
 
 @media screen and (max-width: 600px) {

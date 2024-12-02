@@ -6,6 +6,7 @@ import CreatePluginButton from './pluginTab/input/CreatePluginButton';
 import UserTabFormContextProvider from './userTab/context/UserTabFormContext';
 import UserList from './userTab/UserList';
 import CreateUserButton from './userTab/CreateUserButton';
+import Box from '../common/layout/Box';
 
 export default function UserTab() {
   const { getUsers, getSaveUsers } = useUsers();
@@ -20,15 +21,11 @@ export default function UserTab() {
 
   return (
     <UserTabFormContextProvider users={users}>
-      <div className='users-tab'>
+      <Box flexFlow='column'>
         <CreateUserButton />
-        <div className='users-table'>
-          <UserList />
-        </div>
-        <div className='save-commands'>
-          <SaveButton saveFunction={saveUsers} />
-        </div>
-      </div>
+        <UserList />
+        <SaveButton saveFunction={saveUsers} />
+      </Box>
     </UserTabFormContextProvider>
   );
 }

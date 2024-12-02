@@ -3,6 +3,7 @@ import React from 'react';
 interface TextInputProps {
   key?: string;
   value: string;
+  width?: string;
   label?: string;
   placeholder?: string;
   charLimit?: number;
@@ -12,7 +13,8 @@ interface TextInputProps {
 }
 
 export default function TextInput(props: TextInputProps) {
-  const { key, value, label, placeholder, charLimit, jsonFriendly, password, onInput } = props;
+  const { key, value, label, width, placeholder, charLimit, jsonFriendly, password, onInput } =
+    props;
   function _onInput(value: string) {
     if (charLimit !== undefined) {
       if (value.length > charLimit) {
@@ -33,7 +35,7 @@ export default function TextInput(props: TextInputProps) {
       {label}
       <input
         id={`text-${key}`}
-        style={{ width: '100%' }}
+        style={{ width: width }}
         className='text-input'
         placeholder={placeholder}
         type={password ? 'password' : 'text'}

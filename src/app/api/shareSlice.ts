@@ -2,26 +2,17 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
 export const shareApi = createApi({
   reducerPath: 'shareApi',
-  baseQuery: fetchBaseQuery({ baseUrl: window.location.origin }),
+  baseQuery: fetchBaseQuery({ baseUrl: window.location.origin + '/shares' }),
   endpoints: (builder) => ({
     getShares: builder.query({
-      query: () => '/shares/list',
+      query: () => '/list',
     }),
     getActiveShares: builder.query({
-      query: () => '/shares/active_shares',
+      query: () => '/active_shares',
     }),
     verifyShareTarget: builder.mutation({
       query: (shareUser) => ({
-        url: '/shares/verify_share_target?shareuser=' + shareUser,
-        method: 'get',
-        headers: {
-          'Content-type': 'application/json; charset=UTF-8',
-        },
-      }),
-    }),
-    verifyDiscordTarget: builder.mutation({
-      query: (discordId) => ({
-        url: '/discord/user?userid=' + discordId,
+        url: '/verify_share_target?shareuser=' + shareUser,
         method: 'get',
         headers: {
           'Content-type': 'application/json; charset=UTF-8',
@@ -30,7 +21,7 @@ export const shareApi = createApi({
     }),
     setShare: builder.mutation({
       query: (form) => ({
-        url: '/shares/set_share',
+        url: '/set_share',
         method: 'post',
         body: form,
         headers: {
@@ -40,7 +31,7 @@ export const shareApi = createApi({
     }),
     saveShares: builder.mutation({
       query: (form) => ({
-        url: '/shares/save_shares',
+        url: '/save_shares',
         method: 'post',
         body: form,
         headers: {

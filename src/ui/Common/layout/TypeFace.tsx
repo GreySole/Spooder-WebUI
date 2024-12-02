@@ -1,8 +1,8 @@
 import { Properties } from 'csstype';
-import React from 'react';
+import React, { ReactNode } from 'react';
 
 interface TypeFaceProps {
-  children: React.JSX.Element[] | React.JSX.Element;
+  children: ReactNode;
   color?: Properties['color'];
   fontSize?: Properties['fontSize'];
   fontWeight?: Properties['fontWeight'];
@@ -17,6 +17,7 @@ interface TypeFaceProps {
   wordSpacing?: Properties['wordSpacing'];
   textShadow?: Properties['textShadow'];
   textOverflow?: Properties['textOverflow'];
+  userSelect?: Properties['userSelect'];
 }
 
 export default function TypeFace({ children, ...styles }: TypeFaceProps) {

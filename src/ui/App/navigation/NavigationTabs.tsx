@@ -1,15 +1,15 @@
 import React from 'react';
 import TabButton from './TabButton';
 import useNavigation from '../../../app/hooks/useNavigation';
+import Columns from '../../common/layout/Columns';
+import Box from '../../common/layout/Box';
 
 export default function NavigationTabs() {
-  const { tabOptions, setTab, currentTab } = useNavigation();
-
-  console.log('TAB OPTIONS', tabOptions);
+  const { tabOptions } = useNavigation();
 
   const tabButtons = Object.entries(tabOptions).map(([key, label]) => (
     <TabButton tabName={key} tabLable={label} />
   ));
 
-  return <div className='navigation-tabs'>{tabButtons}</div>;
+  return <Box classes={['navigation-tabs']}>{tabButtons}</Box>;
 }

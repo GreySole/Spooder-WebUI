@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faTrash } from '@fortawesome/free-solid-svg-icons';
 import PluginInput from './PluginInput';
 import PluginMultiInput from './PluginMultiInput';
@@ -8,6 +7,11 @@ import TextInput from '../../../common/input/controlled/TextInput';
 import SelectDropdown from '../../../common/input/controlled/SelectDropdown';
 import { KeyedObject } from '../../../Types';
 import { translateCondition } from '../../../util/ScriptUtil';
+import Stack from '../../../common/layout/Stack';
+import Button from '../../../common/input/controlled/Button';
+import Box from '../../../common/layout/Box';
+import EventExpandable from '../../eventsTab/eventCommand/EventExpandable';
+import useTheme from '../../../../app/hooks/useTheme';
 
 interface PluginSubformProps {
   formKey: string;
@@ -20,7 +24,7 @@ interface PluginSubformProps {
 export default function PluginSubform(props: PluginSubformProps) {
   const { formKey, pluginName, label, form, defaults } = props;
   const [nameChanges, setNameChanges] = useState<KeyedObject>({});
-  const { watch } = useFormContext();
+  const { watch, setValue } = useFormContext();
   const values = watch(formKey);
   console.log('SUBFORM', form, 'VALUES', values, 'DEFAULTS', defaults);
 
@@ -32,38 +36,27 @@ export default function PluginSubform(props: PluginSubformProps) {
     setNameChanges(newNames);
   }, []);
 
-  /*for (let v in values) {
-    for (let d in defaults) {
-      //console.log("DVs",values[v][d]);
-      if (values[v][d] == null) {
-        if (typeof defaults[d] == 'object') {
-          values[v][d] = {};
-        } else {
-          values[v][d] = defaults[d];
-        }
-      }
-      if (
-        Array.isArray(defaults[d]) &&
-        !Array.isArray(values[v][d]) &&
-        typeof values[v][d] != 'object'
-      ) {
-        values[v][d] = [values[v][d]];
-      } else if (
-        Array.isArray(defaults[d]) &&
-        !Array.isArray(values[v][d]) &&
-        typeof values[v][d] == 'object'
-      ) {
-        values[v][d] = Object.values(values[v][d]);
-      } else if (!Array.isArray(defaults[d]) && Array.isArray(values[v][d])) {
-        values[v][d] = values[v][d][0];
-      }
-    }
-  }*/
-  //console.log("RENDER SUBFORM", subElements, form, this.state.default);
+  const removeForm = (key: string) => {
+    const newValues = { ...values };
+    delete newValues[key];
+    setValue(formKey, newValues);
+    const newNames = { ...nameChanges };
+    delete newNames[key];
+    setNameChanges(newNames);
+  };
 
-  const removeForm = (key: string) => {};
-
-  const addForm = () => {};
+  const addForm = () => {
+    const newValues = { ...values };
+    const defaultValue = { ...defaults };
+    delete defaultValue['keyname'];
+    newValues['newform1'] = Object.assign({}, defaults[formKey]);
+    console.log('DEFAULTS', defaults[formKey]);
+    setValue(formKey, newValues);
+    setNameChanges({
+      ...nameChanges,
+      newform1: 'newform1',
+    });
+  };
 
   let subClones = [];
   for (let se in values) {
@@ -97,6 +90,7 @@ export default function PluginSubform(props: PluginSubformProps) {
       subInputs.push(
         !form[fe]['multi-select'] ? (
           <PluginInput
+            key={`${formKey}.${se}.${fe}`}
             formKey={`${formKey}.${se}.${fe}`}
             pluginName={pluginName}
             type={form[fe].type}
@@ -106,6 +100,7 @@ export default function PluginSubform(props: PluginSubformProps) {
           />
         ) : (
           <PluginMultiInput
+            key={`${formKey}.${se}.${fe}`}
             formKey={`${formKey}.${se}.${fe}`}
             pluginName={pluginName}
             type={form[fe].type}
@@ -156,23 +151,20 @@ export default function PluginSubform(props: PluginSubformProps) {
     }
 
     subClones.push(
-      <div className='settings-subform-clone'>
-        {keyInput}
-        {subInputs}
-        <button className='delete-button' onClick={() => removeForm(se)}>
-          <FontAwesomeIcon icon={faTrash} />
-        </button>
-      </div>,
+      <EventExpandable label={nameChanges[se]} key={`${formKey}.${se}`}>
+        <Stack spacing='medium' padding='medium'>
+          {keyInput}
+          {subInputs}
+          <Button icon={faTrash} onClick={() => removeForm(se)} />
+        </Stack>
+      </EventExpandable>,
     );
   }
-  //console.log("RETURNING SUB CLONES", subClones);
+
   return (
-    <div className='settings-subform'>
-      <label className='settings-subform-label'>{label}</label>
-      <div className='settings-subform-clones'>{subClones}</div>
-      <button className='add-button' onClick={addForm}>
-        <FontAwesomeIcon icon={faPlus} />
-      </button>
-    </div>
+    <Box flexFlow='column'>
+      <Box flexFlow='column'>{subClones}</Box>
+      <Button icon={faPlus} onClick={addForm} />
+    </Box>
   );
 }

@@ -210,14 +210,6 @@ option {
 	flex-flow: column;
 }
 
-.command-element .expandable:not(.expanded) .expandable-label:hover {
-	background-color: var(--gray-700);
-}
-
-.command-element .expandable.expanded .expandable-label {
-	background-color: var(--gray-800);
-}
-
 .command-actions {
 	margin-left: 15px;
 	align-self: flex-end;
@@ -381,20 +373,6 @@ option {
 .command-group {
 	font-size: 30px;
 	border-bottom: var(--border-color) 1px solid;
-}
-
-.command-group .expandable-label:hover {
-	cursor: pointer;
-	background-color: var(--gray-700);
-}
-
-.command-group .expandable-label {
-	margin-bottom: 10px;
-	display: flex;
-	flex-flow: row;
-	align-items: center;
-	padding: 10px;
-	padding-left: 5px;
 }
 
 .command-group-actions {

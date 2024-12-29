@@ -1,5 +1,5 @@
 import { Properties } from 'csstype';
-import React, { ReactNode } from 'react';
+import React, { forwardRef, ReactNode } from 'react';
 import { StyleSize, StyleSizeType } from '../../Types';
 
 interface BoxProps {
@@ -10,61 +10,71 @@ interface BoxProps {
   flexFlow?: Properties['flexFlow'];
   alignItems?: Properties['alignItems'];
   justifyContent?: Properties['justifyContent'];
-  padding?: StyleSizeType;
-  paddingTop?: StyleSizeType;
-  paddingRight?: StyleSizeType;
-  paddingBottom?: StyleSizeType;
-  paddingLeft?: StyleSizeType;
-  margin?: StyleSizeType;
-  marginTop?: StyleSizeType;
-  marginRight?: StyleSizeType;
-  marginBottom?: StyleSizeType;
-  marginLeft?: StyleSizeType;
+  overflow?: Properties['overflow'];
+  padding?: StyleSizeType | string;
+  paddingTop?: StyleSizeType | string;
+  paddingRight?: StyleSizeType | string;
+  paddingBottom?: StyleSizeType | string;
+  paddingLeft?: StyleSizeType | string;
+  margin?: StyleSizeType | string;
+  marginTop?: StyleSizeType | string;
+  marginRight?: StyleSizeType | string;
+  marginBottom?: StyleSizeType | string;
+  marginLeft?: StyleSizeType | string;
   onClick?: (e: React.MouseEvent<HTMLDivElement>) => void;
 }
 
-export default function Box({
-  children,
-  classes,
-  onClick,
-  width,
-  height,
-  flexFlow,
-  alignItems,
-  justifyContent,
-  ...styles
-}: BoxProps) {
+export default forwardRef<HTMLDivElement, BoxProps>(function Box(
+  {
+    children,
+    classes,
+    onClick,
+    width,
+    height,
+    flexFlow,
+    alignItems,
+    justifyContent,
+    overflow,
+    ...styles
+  },
+  ref,
+) {
+  const resolveStyleSize = (value: StyleSizeType | string | undefined) => {
+    return value && value in StyleSize ? StyleSize[value as StyleSizeType] : value;
+  };
+
   const paddingStyle = styles.padding
     ? {
-        paddingTop: StyleSize[styles.padding],
-        paddingRight: StyleSize[styles.padding],
-        paddingBottom: StyleSize[styles.padding],
-        paddingLeft: StyleSize[styles.padding],
+        paddingTop: resolveStyleSize(styles.padding),
+        paddingRight: resolveStyleSize(styles.padding),
+        paddingBottom: resolveStyleSize(styles.padding),
+        paddingLeft: resolveStyleSize(styles.padding),
       }
     : {
-        paddingTop: styles.paddingTop ? StyleSize[styles.paddingTop] : undefined,
-        paddingRight: styles.paddingRight ? StyleSize[styles.paddingRight] : undefined,
-        paddingBottom: styles.paddingBottom ? StyleSize[styles.paddingBottom] : undefined,
-        paddingLeft: styles.paddingLeft ? StyleSize[styles.paddingLeft] : undefined,
+        paddingTop: resolveStyleSize(styles.paddingTop),
+        paddingRight: resolveStyleSize(styles.paddingRight),
+        paddingBottom: resolveStyleSize(styles.paddingBottom),
+        paddingLeft: resolveStyleSize(styles.paddingLeft),
       };
 
   const marginStyle = styles.margin
     ? {
-        marginTop: StyleSize[styles.margin],
-        marginRight: StyleSize[styles.margin],
-        marginBottom: StyleSize[styles.margin],
-        marginLeft: StyleSize[styles.margin],
+        marginTop: resolveStyleSize(styles.margin),
+        marginRight: resolveStyleSize(styles.margin),
+        marginBottom: resolveStyleSize(styles.margin),
+        marginLeft: resolveStyleSize(styles.margin),
       }
     : {
-        marginTop: styles.marginTop ? StyleSize[styles.marginTop] : undefined,
-        marginRight: styles.marginRight ? StyleSize[styles.marginRight] : undefined,
-        marginBottom: styles.marginBottom ? StyleSize[styles.marginBottom] : undefined,
-        marginLeft: styles.marginLeft ? StyleSize[styles.marginLeft] : undefined,
+        marginTop: resolveStyleSize(styles.marginTop),
+        marginRight: resolveStyleSize(styles.marginRight),
+        marginBottom: resolveStyleSize(styles.marginBottom),
+        marginLeft: resolveStyleSize(styles.marginLeft),
       };
 
   return (
     <div
       className={'box ' + (classes ? classes.join(' ') : '')}
+      ref={ref}
       onClick={onClick}
       style={{
         display: 'flex',
@@ -74,7 +84,7 @@ export default function Box({
         width: width || undefined,
         height: height || undefined,
         boxSizing: 'border-box',
-        overflow: 'auto',
+        overflow: overflow || undefined,
         ...paddingStyle,
         ...marginStyle,
       }}
@@ -82,4 +92,4 @@ export default function Box({
       {children}
     </div>
   );
-}
+});

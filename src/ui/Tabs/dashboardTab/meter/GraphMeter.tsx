@@ -1,5 +1,6 @@
 import React from 'react';
 import { formatBytes } from '../../../util/DataUtil';
+import useTheme from '../../../../app/hooks/useTheme';
 
 interface GraphMeterProps {
   data: number[];
@@ -14,6 +15,7 @@ export default function GraphMeter({ data, color = 'blue', width, height }: Grap
   const maxDataValue = Math.max(...data);
   const minDataValue = Math.min(...data);
   const dataRange = maxDataValue - minDataValue;
+  const { themeVariables } = useTheme();
 
   const points = data
     .map((value, index) => {
@@ -25,7 +27,11 @@ export default function GraphMeter({ data, color = 'blue', width, height }: Grap
 
   return (
     <svg width={width} height={height} style={{ border: '1px solid white' }}>
-      <rect width={paddedWidth} height={paddedHeight} fill='black' />
+      <rect
+        width={paddedWidth}
+        height={paddedHeight}
+        fill={themeVariables.isDarkTheme ? 'black' : 'white'}
+      />
       <text x={paddedWidth + 5} y={height * 0.1} fill='white' fontSize={height * 0.1}>
         {formatBytes(maxDataValue, 0)}
       </text>

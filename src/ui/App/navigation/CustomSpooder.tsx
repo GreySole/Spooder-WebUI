@@ -1,11 +1,11 @@
 import React from 'react';
 import useTheme from '../../../app/hooks/useTheme';
+import TypeFace from '../../common/layout/TypeFace';
 
 export default function CustomSpooder() {
-  const { customSpooder } = useTheme();
-  console.log(customSpooder);
+  const { customSpooder, isMobileDevice } = useTheme();
   return (
-    <h1 className='App-title'>
+    <TypeFace fontSize={isMobileDevice ? 'large' : 'xlarge'}>
       <span style={{ color: customSpooder.colors.longlegleft }}>
         {customSpooder.parts.longlegleft}
       </span>
@@ -35,6 +35,6 @@ export default function CustomSpooder() {
       <span style={{ color: customSpooder.colors.longlegright }}>
         {customSpooder.parts.longlegright}
       </span>
-    </h1>
+    </TypeFace>
   );
 }

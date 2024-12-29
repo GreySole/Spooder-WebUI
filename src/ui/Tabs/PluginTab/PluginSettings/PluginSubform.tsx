@@ -12,6 +12,7 @@ import Button from '../../../common/input/controlled/Button';
 import Box from '../../../common/layout/Box';
 import EventExpandable from '../../eventsTab/eventCommand/EventExpandable';
 import useTheme from '../../../../app/hooks/useTheme';
+import Expandable from '../../../common/layout/Expandable';
 
 interface PluginSubformProps {
   formKey: string;
@@ -152,7 +153,7 @@ export default function PluginSubform(props: PluginSubformProps) {
 
     subClones.push(
       <EventExpandable label={nameChanges[se]} key={`${formKey}.${se}`}>
-        <Stack spacing='medium' padding='medium'>
+        <Stack spacing='medium' padding='xsmall'>
           {keyInput}
           {subInputs}
           <Button icon={faTrash} onClick={() => removeForm(se)} />
@@ -162,9 +163,11 @@ export default function PluginSubform(props: PluginSubformProps) {
   }
 
   return (
-    <Box flexFlow='column'>
-      <Box flexFlow='column'>{subClones}</Box>
-      <Button icon={faPlus} onClick={addForm} />
-    </Box>
+    <Expandable label={label}>
+      <Box flexFlow='column'>
+        <Box flexFlow='column'>{subClones}</Box>
+        <Button icon={faPlus} onClick={addForm} />
+      </Box>
+    </Expandable>
   );
 }

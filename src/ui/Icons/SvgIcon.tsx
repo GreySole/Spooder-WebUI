@@ -23,6 +23,4 @@ export default function SvgIcon(props: SvgIconProps) {
       }}
     />
   );
-
-  //return <div style={{ width: width, height: height, fill: fill }}>{children}</div>;
 }

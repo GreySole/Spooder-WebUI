@@ -7,6 +7,7 @@ import {
   _setHue,
   _setSaturation,
   _setMode,
+  _setIsMobileDevice,
 } from '../slice/themeSlice';
 import { KeyedObject, ThemeColors, ThemeVariables } from '../../ui/Types';
 import {
@@ -18,7 +19,7 @@ import {
   setLuminance,
   contrastingColor,
 } from '../../ui/util/ColorUtil';
-import { useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 
 const applyThemeColors = (colors: ThemeColors) => {
   const {
@@ -109,7 +110,7 @@ const calculateThemeColors = (color: string, isDarkTheme: boolean) => {
   const buttonBackgroundColor = setLuminance(baseColor, 0.2);
   const buttonBorderColor = baseColor;
 
-  console.log('DARK THEME', isDarkTheme, isDarkTheme ? '#fff' : '#000');
+  //console.log('DARK THEME', isDarkTheme, isDarkTheme ? '#fff' : '#000');
 
   return {
     baseColor: baseColor,
@@ -134,6 +135,7 @@ export default function useTheme() {
   const themeColors = useSelector(
     (state: IRootState) => state.themeSlice.themeColors as ThemeColors,
   );
+  const isMobileDevice = useSelector((state: IRootState) => state.themeSlice.isMobileDevice);
 
   const themeConstants = {
     settings: '#090',
@@ -146,11 +148,17 @@ export default function useTheme() {
   );
   const customSpooder = useSelector((state: IRootState) => state.themeSlice.customSpooder);
 
+  const handleResize = useCallback(() => {
+    dispatch(_setIsMobileDevice());
+  }, []);
+
   useEffect(() => {
     setThemeHue(themeVariables.hue);
     setThemeSaturation(themeVariables.saturation);
     setThemeMode(themeVariables.isDarkTheme);
-  }, []);
+
+    window.addEventListener('resize', handleResize);
+  }, [handleResize]);
 
   function setThemeHue(hue: number) {
     const newRgb = hslToRgb(hue * 360, themeVariables.saturation * 100, 50);
@@ -200,6 +208,7 @@ export default function useTheme() {
     themeConstants,
     themeVariables,
     customSpooder,
+    isMobileDevice,
     setThemeColor,
     setThemeHue,
     setThemeMode,

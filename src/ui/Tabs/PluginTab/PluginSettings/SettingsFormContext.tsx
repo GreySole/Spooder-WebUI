@@ -29,15 +29,13 @@ export default function SettingsFormContext(props: SettingsFormContextProps) {
   for (let e in form) {
     if (form[e].type == 'subform') {
       inputTable.push(
-        <Expandable label={form[e].label}>
-          <PluginSubform
-            formKey={e}
-            pluginName={pluginName}
-            label={form[e].label}
-            form={form[e].form}
-            defaults={defaults[e]}
-          />
-        </Expandable>,
+        <PluginSubform
+          formKey={e}
+          pluginName={pluginName}
+          label={form[e].label}
+          form={form[e].form}
+          defaults={defaults[e]}
+        />,
       );
     } else {
       if (form[e].showif) {

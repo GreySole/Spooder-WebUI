@@ -1,27 +1,25 @@
 import React from 'react';
 import EventTableFormContextProvider from './eventsTab/context/EventTableFormContext';
-import AddGroupInput from './eventsTab/eventCommand/input/AddGroupInput';
 import EventTable from './eventsTab/EventTable';
 import CircleLoader from '../common/loader/CircleLoader';
 import useEvents from '../../app/hooks/useEvents';
-import SaveButton from '../common/input/form/SaveButton';
 import Box from '../common/layout/Box';
+import { EventTableModalProvider } from './eventsTab/context/EventTableModalContext';
 
 export default function EventTab() {
-  const { getEvents, getSaveEvents } = useEvents();
-  const { events, groups, isLoading, error } = getEvents();
-  const { saveEvents } = getSaveEvents();
+  const { getEvents } = useEvents();
+  const { events, groups, isLoading } = getEvents();
 
   if (isLoading) {
     return <CircleLoader />;
   }
   return (
     <EventTableFormContextProvider defaultEvents={events} defaultGroups={groups}>
-      <Box flexFlow='column' width='inherit'>
-        <EventTable />
-        <AddGroupInput />
-        <SaveButton saveFunction={saveEvents} />
-      </Box>
+      <EventTableModalProvider>
+        <Box flexFlow='column' width='inherit' marginBottom='var(--footer-height)'>
+          <EventTable />
+        </Box>
+      </EventTableModalProvider>
     </EventTableFormContextProvider>
   );
 }

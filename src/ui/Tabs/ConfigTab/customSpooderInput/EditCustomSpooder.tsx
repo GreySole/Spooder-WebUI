@@ -3,12 +3,13 @@ import useTheme from '../../../../app/hooks/useTheme';
 import EditCustomSpooderForm from './EditCustomSpooderForm';
 import EditCustomSpooderInputPair from './EditCustomSpooderInputPair';
 import Columns from '../../../common/layout/Columns';
+import Stack from '../../../common/layout/Stack';
 
 export default function EditCustomSpooder() {
   const { customSpooder } = useTheme();
   return (
     <EditCustomSpooderForm data={customSpooder}>
-      <div className='custom-spooder-ui'>
+      <Stack spacing='medium'>
         <Columns spacing='medium' padding='small'>
           <EditCustomSpooderInputPair label={'Long Leg Left'} partName={'longlegleft'} />
           <EditCustomSpooderInputPair label={'Short Leg Left'} partName={'shortlegleft'} />
@@ -24,13 +25,7 @@ export default function EditCustomSpooder() {
           <EditCustomSpooderInputPair label={'Short Leg Right'} partName={'shortlegright'} />
           <EditCustomSpooderInputPair label={'Long Leg Right'} partName={'longlegright'} />
         </Columns>
-        <div className='save-commands'>
-          <button type='button' id='saveSpooderButton' className='save-button'>
-            Save
-          </button>
-          <div id='spooderSaveStatusText' className='save-status'></div>
-        </div>
-      </div>
+      </Stack>
     </EditCustomSpooderForm>
   );
 }

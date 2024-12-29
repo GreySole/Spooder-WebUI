@@ -7,6 +7,7 @@ import './ui/common/css/core/index.scss';
 
 const rootElement = document.getElementById('app');
 const root = createRoot(rootElement!);
+//root.render(<FixedHeaderPage />);
 root.render(
   <Provider store={store}>
     <InitLayer />

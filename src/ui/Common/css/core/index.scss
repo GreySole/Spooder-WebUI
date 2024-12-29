@@ -3,6 +3,8 @@
 @import 'inputs';
 
 @import 'navigation';
+@import 'footer';
+@import 'modal';
 
 @import '../app/EventTab.scss';
 @import '../app/TwitchTab.scss';
@@ -19,9 +21,11 @@
 
 :root {
   --header-height: 70px;
+  --navigation-tabs-height: 70px;
+  --footer-height: 70px;
   --interactive-radius: 0.5rem;
+  font-size: 16px;
 }
-
 
 * {
   &:hover {
@@ -60,7 +64,6 @@
 
 body {
   font-family: var(--font-family);
-  font-size: 16px;
 
   overflow-y: overlay;
   background-color: var(--color-background-near);
@@ -94,7 +97,7 @@ body {
   outline: 2px solid var(--button-border-color);
 }
 
-.expandable.event.open .expandable-label:hover{
+.expandable.event.open .expandable-header:hover{
   background-color: var(--button-background-color);
 }
 
@@ -277,9 +280,8 @@ body {
   .App-title {
     font-size: 24px;
   }
-  .App {
-    .navigation-tabs {
-      display: none;
-    }
+  .navigation-tabs {
+    --navigation-tabs-height: 0px;
+    display: none;
   }
 }

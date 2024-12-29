@@ -4,14 +4,29 @@ import React from 'react';
 import CustomSpooder from './navigation/CustomSpooder';
 import useNavigation from '../../app/hooks/useNavigation';
 import useToast from '../../app/hooks/useToast';
+import NavigationTabs from './navigation/NavigationTabs';
+import Box from '../common/layout/Box';
+import useTheme from '../../app/hooks/useTheme';
 
-export default function AppHeader() {
+export default function Header() {
   const { navigationOpen, toggleNavigation } = useNavigation();
   const { toastOpen, toastText, toastType } = useToast();
+  const { isMobileDevice } = useTheme();
   return (
-    <div className='App-header'>
-      <div
-        className={`top-header ${toastType} ${toastOpen ? 'toast-open' : ''}`}
+    <Box
+      classes={[`top-header ${toastType} ${toastOpen ? 'toast-open' : ''}`]}
+      width='100%'
+      flexFlow='column'
+      justifyContent='center'
+    >
+      <Box
+        classes={['navigation-bar']}
+        flexFlow='row nowrap'
+        width='100%'
+        justifyContent='space-between'
+        alignItems='center'
+        paddingLeft='small'
+        paddingRight='small'
         onClick={toggleNavigation}
       >
         <div className='navigation-open-button'>
@@ -19,7 +34,8 @@ export default function AppHeader() {
         </div>
         <div className='toast-text'>{toastText}</div>
         <CustomSpooder />
-      </div>
-    </div>
+      </Box>
+      {!isMobileDevice ? <NavigationTabs /> : null}
+    </Box>
   );
 }

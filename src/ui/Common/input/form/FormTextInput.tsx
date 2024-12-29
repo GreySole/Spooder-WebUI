@@ -5,13 +5,14 @@ interface TextInputProps {
   formKey: string;
   width?: string;
   label?: string;
+  placeholder?: string;
   charLimit?: number;
   jsonFriendly?: boolean;
   password?: boolean;
 }
 
 export default function FormTextInput(props: TextInputProps) {
-  const { formKey, label, width, charLimit, jsonFriendly, password } = props;
+  const { formKey, label, width, placeholder, charLimit, jsonFriendly, password } = props;
   const { watch, register } = useFormContext();
   const value = watch(formKey);
 
@@ -22,19 +23,19 @@ export default function FormTextInput(props: TextInputProps) {
       }
     }
     if (jsonFriendly) {
-      return value.replace(/[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/, '').replace(' ', '_');
+      return value.replaceAll(/[`!@#$%^&*()+\-=\[\]{};':"\\|,.<>\/?~]/g, '').replaceAll(' ', '_');
     }
     return value;
   }
   return (
-    <label htmlFor={`text-${formKey}`}>
+    <label htmlFor={`text-${label}`}>
       {label}
       <input
-        style={{ width: width }}
-        id={`text-${formKey}`}
+        id={`text-${label}`}
+        style={{ width: width, fontSize: '1rem' }}
         className='text-input'
+        placeholder={placeholder}
         type={password ? 'password' : 'text'}
-        value={value}
         {...register(formKey, { setValueAs: _onInput })}
       />
     </label>

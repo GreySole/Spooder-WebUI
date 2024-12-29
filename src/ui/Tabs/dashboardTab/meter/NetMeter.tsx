@@ -4,6 +4,7 @@ import React from 'react';
 import Box from '../../../common/layout/Box';
 import { formatBytes } from '../../../util/DataUtil';
 import GraphMeter from './GraphMeter';
+import useTheme from '../../../../app/hooks/useTheme';
 
 interface NetMeterProps {
   value: number;
@@ -15,8 +16,15 @@ interface NetMeterProps {
 
 export default function NetMeter(props: NetMeterProps) {
   const { value, graphData, icon, color, total } = props;
+  const { isMobileDevice } = useTheme();
   return (
-    <Box width='50%' margin='medium' flexFlow={'row'} alignItems={'center'} justifyContent='center'>
+    <Box
+      width={isMobileDevice ? '100%' : '50%'}
+      margin='medium'
+      flexFlow={'row'}
+      alignItems={'center'}
+      justifyContent='center'
+    >
       <Box
         width='15%'
         height='200px'

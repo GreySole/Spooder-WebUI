@@ -3,8 +3,10 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faClipboard, faDownload, faSquareArrowUpRight } from '@fortawesome/free-solid-svg-icons';
 import { $, setClass } from '../../../util/deprecated_util';
 import Button from '../controlled/Button';
+import { StyleSize } from '../../../Types';
 
 interface LinkButtonProps {
+  width?: string;
   className?: string;
   name?: string;
   label?: string;
@@ -15,7 +17,7 @@ interface LinkButtonProps {
 }
 
 export default function LinkButton(props: LinkButtonProps) {
-  const { className, name, label, link, mode, iconOnly, iconSize } = props;
+  const { width, className, name, label, link, mode, iconOnly, iconSize } = props;
 
   function clickLink() {
     if (mode === 'newtab') {
@@ -102,10 +104,11 @@ export default function LinkButton(props: LinkButtonProps) {
   }
   return (
     <Button
+      width={width}
       className={className}
       label={label}
       icon={iconLink}
-      iconSize={iconSize ?? 'lg'}
+      iconSize={iconSize ?? StyleSize.large}
       onClick={() => clickLink()}
     />
   );

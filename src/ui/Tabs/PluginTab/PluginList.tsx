@@ -3,6 +3,7 @@ import { usePluginContext } from './context/PluginTabFormContext';
 import AlertToasterLink from './AlertToasterLink';
 import PluginEntry from './PluginEntry';
 import FormLoader from '../../common/loader/FormLoader';
+import Stack from '../../common/layout/Stack';
 
 export default function PluginList() {
   const { plugins, isReady, reloadPlugins } = usePluginContext();
@@ -28,5 +29,9 @@ export default function PluginList() {
     }
   }
 
-  return <div className='plugin-list'>{pluginList}</div>;
+  return (
+    <Stack spacing='medium' padding='medium'>
+      {pluginList}
+    </Stack>
+  );
 }

@@ -1,7 +1,6 @@
 import React from 'react';
 
 interface TextInputProps {
-  key?: string;
   value: string;
   width?: string;
   label?: string;
@@ -9,13 +8,13 @@ interface TextInputProps {
   charLimit?: number;
   jsonFriendly?: boolean;
   password?: boolean;
-  onInput: (value: string) => void;
+  onInput?: (value: string) => void;
 }
 
 export default function TextInput(props: TextInputProps) {
-  const { key, value, label, width, placeholder, charLimit, jsonFriendly, password, onInput } =
-    props;
+  const { value, label, width, placeholder, charLimit, jsonFriendly, password, onInput } = props;
   function _onInput(value: string) {
+    if (!onInput) return;
     if (charLimit !== undefined) {
       if (value.length > charLimit) {
         onInput(value.substring(0, charLimit));
@@ -23,7 +22,6 @@ export default function TextInput(props: TextInputProps) {
       }
     }
     if (jsonFriendly) {
-      console.log('JSON FRIENDLY');
       onInput(value.replaceAll(/[`!@#$%^&*()+\-=\[\]{};':"\\|,.<>\/?~]/g, '').replaceAll(' ', '_'));
       return;
     }
@@ -31,11 +29,11 @@ export default function TextInput(props: TextInputProps) {
     return;
   }
   return (
-    <label htmlFor={`text-${key}`}>
+    <label htmlFor={`text-${label}`}>
       {label}
       <input
-        id={`text-${key}`}
-        style={{ width: width }}
+        id={`text-${label}`}
+        style={{ width: width, fontSize: '1rem' }}
         className='text-input'
         placeholder={placeholder}
         type={password ? 'password' : 'text'}

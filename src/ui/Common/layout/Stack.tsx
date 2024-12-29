@@ -1,10 +1,14 @@
 import React from 'react';
 import { ReactNode } from 'react';
 import { StyleSize, StyleSizeType } from '../../Types';
+import { Properties } from 'csstype';
 
 interface StackProps {
   children: ReactNode;
   spacing: StyleSizeType;
+  width?: Properties['width'];
+  height?: Properties['height'];
+  dividers?: boolean;
   padding?: StyleSizeType;
   paddingTop?: StyleSizeType;
   paddingRight?: StyleSizeType;
@@ -18,7 +22,7 @@ interface StackProps {
 }
 
 export default function Stack(props: StackProps) {
-  const { children, spacing, ...styles } = props;
+  const { children, spacing, dividers, width, height, ...styles } = props;
 
   const paddingStyle = styles.padding
     ? {
@@ -54,8 +58,8 @@ export default function Stack(props: StackProps) {
         display: 'flex',
         flexDirection: 'column',
         gap: StyleSize[spacing],
-        width: 'inherit',
-        height: 'inherit',
+        width: width,
+        height: height,
         ...paddingStyle,
         ...marginStyle,
       }}

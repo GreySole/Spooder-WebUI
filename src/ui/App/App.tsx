@@ -11,7 +11,7 @@ import ConfigTab from '../tabs/ConfigTab';
 import OSCTunnelTab from '../tabs/OSCTunnelTab';
 import ShareTab from '../tabs/ShareTab';
 import UserTab from '../tabs/UserTab';
-import AppHeader from './AppHeader';
+import Header from './Header';
 import NavigationMenu from './navigation/NavigationMenu';
 import NavigationTabs from './navigation/NavigationTabs';
 import OBS from '../deck/OBS';
@@ -19,13 +19,16 @@ import DashboardTab from '../tabs/DashboardTab';
 import useTheme from '../../app/hooks/useTheme';
 import ModuleTab from '../tabs/ModuleTab';
 import Box from '../common/layout/Box';
+import useFooter from '../../app/hooks/useFooter';
+import ThemeTab from '../tabs/ThemeTab';
 
 export default function App() {
   const { currentTab } = useNavigation();
-  const { setCustomSpooder, refreshThemeColors } = useTheme();
+  const { setCustomSpooder, refreshThemeColors, isMobileDevice } = useTheme();
   const { getServerState } = useServer();
   const { data: serverData, isLoading: serverLoading, error: serverError } = getServerState();
   const { addListener, removeListener } = useOSC();
+  const { showFooter } = useFooter();
 
   useEffect(() => {
     addListener('/obs/status/connection', (message: any) => {});
@@ -100,14 +103,28 @@ export default function App() {
     case 'mod':
       tabContent = <ModUI />;
       break;
+    case 'theme':
+      tabContent = <ThemeTab />;
+      break;
   }
 
+  const height = `calc(100dvh - var(--header-height)${isMobileDevice ? '' : ' - var(--navigation-tabs-height)'})`;
+
   return (
-    <Box classes={['App']} flexFlow='column'>
-      <AppHeader />
-      <NavigationTabs />
+    <Box flexFlow='column'>
+      <Header />
       <NavigationMenu />
-      <Box padding='medium' width='100%'>
+      <Box
+        width='100%'
+        height={height}
+        marginTop={
+          isMobileDevice
+            ? 'calc(var(--header-height)'
+            : 'calc(var(--header-height) + var(--navigation-tabs-height))'
+        }
+        flexFlow='column'
+        overflow='auto'
+      >
         {tabContent}
       </Box>
     </Box>

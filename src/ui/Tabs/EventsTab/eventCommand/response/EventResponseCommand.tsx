@@ -10,6 +10,11 @@ import CodeEditor from '@uiw/react-textarea-code-editor';
 import useEvents from '../../../../../app/hooks/useEvents';
 import { useState } from 'react';
 import { EventCommandProps } from '../../../../Types';
+import FormNumberInput from '../../../../common/input/form/FormNumberInput';
+import FormCodeInput from '../../../../common/input/form/FormCodeInput';
+import Button from '../../../../common/input/controlled/Button';
+import TextInput from '../../../../common/input/controlled/TextInput';
+import { HotkeysProvider } from '../../../../../app/hooks/useHotkeys';
 
 export default function EventResponseCommand(props: EventCommandProps) {
   const { eventName, commandIndex } = props;
@@ -26,42 +31,27 @@ export default function EventResponseCommand(props: EventCommandProps) {
   const [inputMessage, setInputMessage] = useState<string>('');
 
   return (
-    <div className='command-props response'>
+    <HotkeysProvider enter={() => verifyResponseScript(eventName, message, inputMessage)}>
       <label className='response-code-ui field-section'>
         <ResponseCommandCheatSheet />
-        <CodeEditor
-          className='response-code-editor'
-          language='js'
-          value={message}
-          placeholder="return 'Hello '+event.displayName"
-          {...register(messageFormKey)}
-        />
-        <input
-          className='response-code-input'
-          type='text'
+        <FormCodeInput label='Message:' formKey={messageFormKey} />
+        <TextInput
+          //className='response-code-input'
           placeholder='Input text'
           value={inputMessage}
-          onInput={(e: React.ChangeEvent<HTMLInputElement>) => setInputMessage(e.target.value)}
+          onInput={(value) => setInputMessage(value)}
         />
         <div className='response-code-output'></div>
         <div className='verify-message'>
-          <button
+          <Button
+            label='Verify Script'
             className='verify-message-button save-button'
-            onKeyDown={(e) => {
-              if (e.code == 'Enter') {
-                verifyResponseScript(eventName, message, inputMessage);
-              }
-            }}
             onClick={() => verifyResponseScript(eventName, message, inputMessage)}
-          >
-            Verify Script
-          </button>
+          />
         </div>
       </label>
-      <label>
-        Delay (Milliseconds):
-        <input value={delay} type='number' {...register(delayFormKey)} />
-      </label>
-    </div>
+
+      <FormNumberInput label='Delay (Milliseconds):' formKey={delayFormKey} />
+    </HotkeysProvider>
   );
 }

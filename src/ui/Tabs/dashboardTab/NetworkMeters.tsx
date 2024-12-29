@@ -6,6 +6,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faDownload, faUpload } from '@fortawesome/free-solid-svg-icons';
 import { formatBytes } from '../../util/DataUtil';
 import NetMeter from './meter/NetMeter';
+import useTheme from '../../../app/hooks/useTheme';
 
 interface NetworkMetersProps {
   networkUsage: KeyedObject;
@@ -15,6 +16,7 @@ export default function NetworkMeters(props: NetworkMetersProps) {
   const { networkUsage } = props;
   const [downSpeedGraphData, setDownSpeedGraphData] = useState([0] as number[]);
   const [upSpeedGraphData, setUpSpeedGraphData] = useState([0] as number[]);
+  const { isMobileDevice, themeColors } = useTheme();
 
   useEffect(() => {
     if (!networkUsage.downSpeed || !networkUsage.upSpeed) {
@@ -42,17 +44,22 @@ export default function NetworkMeters(props: NetworkMetersProps) {
   return (
     <Box flexFlow='column' alignItems={'center'}>
       <h1>Network</h1>
-      <Box width='100%' flexFlow={'row'} alignItems={'center'} justifyContent='center'>
+      <Box
+        width='100%'
+        flexFlow={isMobileDevice ? 'column' : 'row'}
+        alignItems={'center'}
+        justifyContent='center'
+      >
         <NetMeter
           value={networkUsage.downSpeed}
-          color='blue'
+          color={themeColors.colorAnalogousCCW}
           icon={faDownload}
           graphData={downSpeedGraphData}
           total={networkUsage.down}
         />
         <NetMeter
           value={networkUsage.upSpeed}
-          color='purple'
+          color={themeColors.colorAnalogousCW}
           icon={faUpload}
           graphData={upSpeedGraphData}
           total={networkUsage.up}

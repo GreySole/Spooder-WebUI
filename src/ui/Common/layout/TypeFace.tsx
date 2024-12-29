@@ -1,10 +1,11 @@
 import { Properties } from 'csstype';
 import React, { ReactNode } from 'react';
+import { StyleSize, StyleSizeType } from '../../Types';
 
 interface TypeFaceProps {
   children: ReactNode;
   color?: Properties['color'];
-  fontSize?: Properties['fontSize'];
+  fontSize?: StyleSizeType;
   fontWeight?: Properties['fontWeight'];
   textAlign?: Properties['textAlign'];
   fontFamily?: Properties['fontFamily'];
@@ -21,5 +22,15 @@ interface TypeFaceProps {
 }
 
 export default function TypeFace({ children, ...styles }: TypeFaceProps) {
-  return <div style={styles}>{children}</div>;
+  const fontSize = styles.fontSize ? StyleSize[styles.fontSize] : '1rem';
+  return (
+    <div
+      style={{
+        ...styles,
+        fontSize,
+      }}
+    >
+      {children}
+    </div>
+  );
 }

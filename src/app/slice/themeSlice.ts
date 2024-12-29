@@ -3,6 +3,7 @@ import { createSlice } from '@reduxjs/toolkit';
 export const themeSlice = createSlice({
   name: 'theme',
   initialState: {
+    isMobileDevice: /Mobi|Android/i.test(window.navigator.userAgent) || window.innerWidth <= 900,
     themeColors:
       localStorage.getItem('themeColors') != null
         ? JSON.parse(localStorage.getItem('themeColors')!)
@@ -87,7 +88,6 @@ export const themeSlice = createSlice({
   },
   reducers: {
     _setThemeColors: (state, action) => {
-      console.log('SET THEME COLORS', action);
       state.themeColors = action.payload;
       localStorage.setItem('themeColors', JSON.stringify(action.payload));
     },
@@ -103,6 +103,10 @@ export const themeSlice = createSlice({
       state.themeVariables.isDarkTheme = action.payload;
       localStorage.setItem('themeVariables', JSON.stringify(state.themeVariables));
     },
+    _setIsMobileDevice: (state) => {
+      state.isMobileDevice =
+        /Mobi|Android/i.test(window.navigator.userAgent) || window.innerWidth <= 900;
+    },
     _setCustomSpooder: (state, action) => {
       if (action.payload.colors) {
         Object.assign(state.customSpooder.colors, action.payload.colors);
@@ -114,7 +118,13 @@ export const themeSlice = createSlice({
   },
 });
 
-export const { _setThemeColors, _setCustomSpooder, _setHue, _setSaturation, _setMode } =
-  themeSlice.actions;
+export const {
+  _setThemeColors,
+  _setCustomSpooder,
+  _setHue,
+  _setSaturation,
+  _setMode,
+  _setIsMobileDevice,
+} = themeSlice.actions;
 
 export default themeSlice.reducer;

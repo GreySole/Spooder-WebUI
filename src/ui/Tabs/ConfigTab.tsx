@@ -1,21 +1,16 @@
 import React from 'react';
 import useConfig from '../../app/hooks/useConfig';
 import Expandable from '../common/layout/Expandable';
-import SaveButton from '../common/input/form/SaveButton';
 import BackupRestore from './configTab/backupRestoreInput/BackupRestore';
-import ConfigBotSection from './configTab/configInput/ConfigBotSection';
-import ConfigNetworkSection from './configTab/configInput/ConfigNetworkSection';
 import ConfigTabFormContextProvider from './configTab/context/ConfigTabFormContext';
-import EditCustomSpooder from './configTab/customSpooderInput/EditCustomSpooder';
 import CircleLoader from '../common/loader/CircleLoader';
-import ThemeColor from './configTab/themeColor/ThemeColor';
-import ExternalHandleSection from './configTab/configInput/ExternalHandleSection';
-import UdpClientSection from './configTab/configInput/UdpClientSection';
 import Stack from '../common/layout/Stack';
 import Box from '../common/layout/Box';
+import ConfigForm from './configTab/configInput/ConfigForm';
 
 export default function ConfigTab() {
   const { getConfig, getSaveConfig } = useConfig();
+  const { saveConfig } = getSaveConfig();
   const { data, isLoading, error } = getConfig();
 
   if (isLoading) {
@@ -23,20 +18,11 @@ export default function ConfigTab() {
   }
 
   return (
-    <Box width='inherit'>
-      <Stack spacing='medium'>
+    <Box flexFlow='column' width='inherit' marginBottom='var(--footer-height)'>
+      <Stack width='inherit' spacing='medium'>
         <ConfigTabFormContextProvider defaultConfig={data}>
-          <Stack spacing='medium'>
-            <ConfigBotSection />
-            <ConfigNetworkSection />
-            <ExternalHandleSection />
-            <UdpClientSection />
-          </Stack>
+          <ConfigForm />
         </ConfigTabFormContextProvider>
-        <ThemeColor />
-        <Expandable label='Customize Spooder'>
-          <EditCustomSpooder />
-        </Expandable>
         <Expandable label='Backup/Restore'>
           <BackupRestore />
         </Expandable>

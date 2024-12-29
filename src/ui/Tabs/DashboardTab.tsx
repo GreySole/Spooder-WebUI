@@ -10,6 +10,7 @@ import NetworkMeters from './dashboardTab/NetworkMeters';
 import { useGetSystemStatusQuery } from '../../app/api/serverSlice';
 import CircleLoader from '../common/loader/CircleLoader';
 import FormLoader from '../common/loader/FormLoader';
+import Stack from '../common/layout/Stack';
 
 export default function DashboardTab() {
   const { data, isLoading, error, refetch } = useGetSystemStatusQuery(null);
@@ -30,10 +31,10 @@ export default function DashboardTab() {
   }
 
   return (
-    <Box flexFlow='column'>
+    <Stack spacing='medium'>
       <SystemMeters cpuUsage={data.cpu} ramUsage={data.memory} />
       <DiskMeters diskUsage={data.disk} />
       <NetworkMeters networkUsage={data.net} />
-    </Box>
+    </Stack>
   );
 }

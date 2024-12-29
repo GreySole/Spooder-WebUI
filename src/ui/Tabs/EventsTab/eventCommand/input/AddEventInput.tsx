@@ -4,6 +4,8 @@ import { EVENT_KEY } from '../../FormKeys';
 import { useState } from 'react';
 import { HotkeysProvider } from '../../../../../app/hooks/useHotkeys';
 import { SpooderEvent } from '../../../../Types';
+import Button from '../../../../common/input/controlled/Button';
+import Box from '../../../../common/layout/Box';
 
 interface AddEventButtonProps {
   groupName: string;
@@ -31,7 +33,7 @@ export default function AddEventInput(props: AddEventButtonProps) {
       return;
     }
 
-    let newEvent = {
+    const newEvent = {
       name: newKey,
       description: '',
       group: eventGroup,
@@ -59,24 +61,23 @@ export default function AddEventInput(props: AddEventButtonProps) {
 
   return (
     <HotkeysProvider enter={() => (inputFocused ? addEvent(addEventName, groupName) : null)}>
-      <input
-        type='text'
-        className={`event-key-input ${checkEventTaken(addEventName) ? 'error' : ''}`}
-        id='eventkey'
-        placeholder='Event name'
-        value={addEventName}
-        onInput={(e: React.ChangeEvent<HTMLInputElement>) => setAddEventName(e.target.value)}
-        onFocus={() => setInputFocused(true)}
-        onBlur={() => setInputFocused(false)}
-      />
-      <button
-        type='button'
-        id='addEventButton'
-        className='add-button'
-        onClick={() => addEvent(addEventName, groupName)}
-      >
-        Add
-      </button>
+      <Box paddingTop='small' paddingBottom='small' paddingLeft='none'>
+        <input
+          type='text'
+          className={`event-key-input ${checkEventTaken(addEventName) ? 'error' : ''}`}
+          id='eventkey'
+          placeholder='Event name'
+          value={addEventName}
+          onInput={(e: React.ChangeEvent<HTMLInputElement>) => setAddEventName(e.target.value)}
+          onFocus={() => setInputFocused(true)}
+          onBlur={() => setInputFocused(false)}
+        />
+        <Button
+          className='add-button'
+          label='Add'
+          onClick={() => addEvent(addEventName, groupName)}
+        />
+      </Box>
     </HotkeysProvider>
   );
 }

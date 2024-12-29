@@ -12,12 +12,14 @@ import { serverApi } from './api/serverSlice';
 import { shareApi } from './api/shareSlice';
 import { userApi } from './api/userSlice';
 import { recoveryApi } from './api/recoverySlice';
+import footerSlice from './slice/footerSlice';
 
 const store = configureStore({
   reducer: {
     navigationSlice,
     themeSlice,
     toastSlice,
+    footerSlice,
     [recoveryApi.reducerPath]: recoveryApi.reducer,
     [eventApi.reducerPath]: eventApi.reducer,
     [configApi.reducerPath]: configApi.reducer,

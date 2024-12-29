@@ -54,7 +54,7 @@ export default function PluginInfoView(props: PluginInfoViewProps) {
     ));
     dependenciesElement = (
       <Box flexFlow='column'>
-        <TypeFace fontSize='24px'>Dependencies</TypeFace>
+        <TypeFace fontSize='large'>Dependencies</TypeFace>
         {dependenciesElements}
         <div>
           <label>
@@ -72,8 +72,8 @@ export default function PluginInfoView(props: PluginInfoViewProps) {
   } else {
     dependenciesElement = (
       <Box flexFlow='column'>
-        <TypeFace fontSize='24px'>Dependencies</TypeFace>
-        <TypeFace fontSize='16px'>None</TypeFace>
+        <TypeFace fontSize='large'>Dependencies</TypeFace>
+        <TypeFace fontSize='medium'>None</TypeFace>
       </Box>
     );
   }
@@ -81,8 +81,8 @@ export default function PluginInfoView(props: PluginInfoViewProps) {
     <Border borderWidth='2px' borderColor='gray'>
       <Stack spacing='medium' padding='small'>
         <Stack spacing='small'>
-          <TypeFace fontSize='24px'>Description</TypeFace>
-          <TypeFace fontSize='16px'>{plugin.description}</TypeFace>
+          <TypeFace fontSize='large'>Description</TypeFace>
+          <TypeFace fontSize='medium'>{plugin.description}</TypeFace>
         </Stack>
         {dependenciesElement}
         <Columns spacing='small' padding='small'>

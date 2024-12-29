@@ -1,25 +1,35 @@
 import React, { useState } from 'react';
+import SelectDropdown from '../../../common/input/controlled/SelectDropdown';
+import { useFormContext } from 'react-hook-form';
 
 interface EventAddCommandProps {
-  onClickAdd: (commandType: string) => void;
+  eventName: string;
 }
 
 export default function EventAddCommand(props: EventAddCommandProps) {
-  const { onClickAdd } = props;
+  const { eventName } = props;
+  const { setValue, getValues } = useFormContext();
   const [selectedType, setSelectedType] = useState<string>('');
+
+  const addEventCommand = (commandType: string) => {
+    const eventCommands = getValues(`events.${eventName}.commands`);
+  };
+
   return (
     <label className='add-command field-section'>
       <div className='add-command-fields'>
-        <label>
-          Command Type:
-          <select id='addCommandType' name='type' onChange={(e) => setSelectedType(e.target.value)}>
-            <option value={'response'}>Reponse</option>
-            <option value={'plugin'}>Plugin</option>
-            <option value={'software'}>Software</option>
-            <option value={'obs'}>OBS</option>
-            <option value={'mod'}>Moderation</option>
-          </select>
-        </label>
+        <SelectDropdown
+          label='Command Type:'
+          options={[
+            { value: 'response', label: 'Response' },
+            { value: 'plugin', label: 'Plugin' },
+            { value: 'software', label: 'Software' },
+            { value: 'obs', label: 'OBS' },
+            { value: 'mod', label: 'Moderation' },
+          ]}
+          onChange={(value) => setSelectedType(value)}
+          value={selectedType}
+        />
       </div>
       <div className='add-command-actions'>
         <button
@@ -27,7 +37,7 @@ export default function EventAddCommand(props: EventAddCommandProps) {
           id='addCommandButton'
           value={selectedType}
           className='add-button'
-          onClick={() => onClickAdd(selectedType)}
+          onClick={() => addEventCommand(selectedType)}
         >
           Add
         </button>

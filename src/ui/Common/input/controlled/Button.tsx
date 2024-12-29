@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { SizeProp } from '@fortawesome/fontawesome-svg-core';
-import SvgIcon from '../../../icons/SvgIcon';
 import useTheme from '../../../../app/hooks/useTheme';
+import { getIcon } from '../../../util/MediaUtil';
+import { IconProp } from '@fortawesome/fontawesome-svg-core';
 
 interface ButtonProps {
   className?: string;
@@ -10,31 +9,12 @@ interface ButtonProps {
   width?: string;
   height?: string;
   disabled?: boolean;
-  icon?: any;
+  icon?: IconProp | string;
   iconSize?: string;
   iconPosition?: 'left' | 'right' | 'top' | 'bottom';
   color?: string;
   colorOnHover?: boolean;
   onClick: () => void;
-}
-
-function getIcon(icon: any, isDarkTheme: boolean, size?: string) {
-  size = size ? size : '100px';
-  if (typeof icon === 'object' && 'icon' in icon) {
-    // If icon is a FontAwesome icon prop
-    return <FontAwesomeIcon icon={icon} size={size as SizeProp} />;
-  } else if (typeof icon === 'string') {
-    if (icon.endsWith('.svg')) {
-      // If icon is a React component
-      return (
-        <SvgIcon fill={isDarkTheme ? 'white' : 'black'} width={size} height={size} src={icon} />
-      );
-    }
-    // If icon is a string (URL)
-    return <img src={icon} width={size} height={size} />;
-  } else {
-    return null; // or handle the error case as needed
-  }
 }
 
 export default function Button(props: ButtonProps) {
@@ -57,10 +37,10 @@ export default function Button(props: ButtonProps) {
   let flexFlow = 'left';
 
   switch (iconPosition) {
-    case 'left':
+    case 'right':
       flexFlow = 'row';
       break;
-    case 'right':
+    case 'left':
       flexFlow = 'row-reverse';
       break;
     case 'top':
@@ -82,8 +62,9 @@ export default function Button(props: ButtonProps) {
         width,
         height,
         display: 'flex',
-        gap: '16px',
+        gap: '1rem',
         flexFlow,
+        fontSize: '1rem',
         alignItems: 'center',
         justifyContent: 'center',
         backgroundColor: colorOnHover ? (isHovered ? color : undefined) : color,

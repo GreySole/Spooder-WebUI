@@ -16,7 +16,6 @@ import obsIcon from '../../icons/obs.svg';
 
 interface EventCommandsProps {
   eventName: string;
-  eventCommands: any[];
 }
 
 export default function EventCommands(props: EventCommandsProps) {
@@ -137,7 +136,7 @@ export default function EventCommands(props: EventCommandsProps) {
     <label className='field-section'>
       Commands:
       <Timeline
-        // style={{ width: '75%', height: '200px' }}
+        //style={{ width: '100%', height: '200px' }}
         editorData={timelineData}
         effects={timelineEffectData}
         onChange={onUpdateTimeline}
@@ -192,7 +191,7 @@ export default function EventCommands(props: EventCommandsProps) {
       />
       {timelineZoomInput}
       {commandElements}
-      <EventAddCommand onClickAdd={addCommand} />
+      <EventAddCommand eventName={eventName} />
     </label>
   );
 }

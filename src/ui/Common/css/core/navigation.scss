@@ -2,12 +2,7 @@
 	z-index: 2;
 	display: flex;
 	position: fixed;
-	padding: 0 0.5rem;
-	height: var(--header-height);
-	align-items: center;
-	flex-flow: row;
-	width: 100%;
-	justify-content: space-between;
+	height: calc(var(--header-height) + var(--navigation-tab-height));
 	background-color: var(--color-background-far);
 	user-select: none;
 	cursor: pointer;
@@ -21,14 +16,6 @@
         transform: scale(1);
         transition: transform 0.2s ease-in-out;
     }
-
-    &:hover {
-        background-color: var(--button-background-color);
-
-        .navigation-open-button {
-            transform: scale(1.2);
-        }
-    }
 }
 .top-header.save {
 	background-color: rgb(0, 70, 0);
@@ -36,6 +23,19 @@
 
 .nav-share-container {
 	overflow-y: auto;
+}
+
+.navigation-bar{
+	transition: background-color 0.5s;
+	border-radius: 0 0 var(--interactive-radius) var(--interactive-radius) !important;
+	height:var(--header-height);
+	&:hover {
+        background-color: var(--button-background-color);
+
+        .navigation-open-button {
+            transform: scale(1.2);
+        }
+    }
 }
 
 .navigation-menu {
@@ -64,7 +64,7 @@
 
     overflow: hidden;
 
-	padding-top: 1.25rem;
+	padding-top: 20px;
 
 	background-color: var(--color-background-far);
 
@@ -79,9 +79,8 @@
 		cursor: pointer;
 
 		margin-top: calc(-1 * var(--tab-pop));
-		padding: 0.5rem 1.25rem calc(0.5rem + var(--tab-pop));
+		padding: 0.5rem 1.1rem calc(0.5rem + var(--tab-pop));
 		border-radius: var(--interactive-radius) var(--interactive-radius) 0 0;
-		border-width: 1px 1px 0;
 
         box-shadow: 0 0 0 0 rgba(map-get($colors, black), $alpha: 1);
 

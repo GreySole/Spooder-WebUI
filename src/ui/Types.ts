@@ -1,3 +1,9 @@
+export interface FilterProps {
+  label: string;
+  icon: any;
+  value: string;
+}
+
 export enum ToastType {
   SAVE = 'toast-save',
   ERROR = 'toast-error',
@@ -95,12 +101,12 @@ export interface ThemeVariables {
 }
 
 export enum StyleSize {
-  none = '0px',
-  xsmall = '4px',
-  small = '8px',
-  medium = '16px',
-  large = '24px',
-  xlarge = '32px',
+  none = '0rem',
+  xsmall = '0.25rem',
+  small = '0.5rem',
+  medium = '1rem',
+  large = '1.5rem',
+  xlarge = '2rem',
 }
 
 export type StyleSizeType = 'none' | 'xsmall' | 'small' | 'medium' | 'large' | 'xlarge';

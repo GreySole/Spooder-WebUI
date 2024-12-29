@@ -34,7 +34,7 @@ export default function UdpClientSection() {
           {Object.keys(udpClients).map((key) => (
             <Columns spacing='medium'>
               <Stack spacing='medium'>
-                <TypeFace fontSize={StyleSize.large}>{key}</TypeFace>
+                <TypeFace fontSize='large'>{key}</TypeFace>
                 <Stack spacing='medium' marginLeft='medium'>
                   <FormTextInput label='Name:' formKey={`${baseFormKey}.${key}.name`} />
                   <FormTextInput label='IP:' formKey={`${baseFormKey}.${key}.ip`} />

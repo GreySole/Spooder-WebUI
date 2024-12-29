@@ -3,6 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import useShare from '../../../../app/hooks/useShare';
 import Button from '../../../common/input/controlled/Button';
 import React from 'react';
+import Box from '../../../common/layout/Box';
 
 interface ToggleShareButtonProps {
   shareKey: string;
@@ -21,7 +22,7 @@ export default function ToggleShareButton(props: ToggleShareButtonProps) {
   const isActive = activeShares.some((share: string) => share.replaceAll('#', '') === shareKey);
 
   return (
-    <>
+    <Box padding='small'>
       {!isActive ? (
         <Button
           label='Start'
@@ -37,6 +38,6 @@ export default function ToggleShareButton(props: ToggleShareButtonProps) {
           onClick={() => setShare(shareKey, false, '')}
         />
       )}
-    </>
+    </Box>
   );
 }

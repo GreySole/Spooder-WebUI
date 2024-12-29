@@ -19,7 +19,6 @@ import { usePluginContext } from './context/PluginTabFormContext';
 import usePlugins from '../../../app/hooks/usePlugins';
 import FormLoader from '../../common/loader/FormLoader';
 import useTheme from '../../../app/hooks/useTheme';
-import Columns from '../../common/layout/Columns';
 import ButtonRow from '../../common/input/general/ButtonRow';
 import TypeFace from '../../common/layout/TypeFace';
 import Box from '../../common/layout/Box';
@@ -151,7 +150,7 @@ export default function PluginAssetManager(props: PluginComponentProps) {
 
   return (
     <Border borderWidth='2px' borderColor={themeConstants.assets}>
-      <Box width='100%' height='50%' flexFlow='column' padding='medium'>
+      <Box width='100%' flexFlow='column' padding='medium'>
         <Stack spacing='small'>
           <ButtonRow
             buttons={[
@@ -161,7 +160,7 @@ export default function PluginAssetManager(props: PluginComponentProps) {
               { icon: faSync, iconSize: 'lg', onClick: () => browseFolder('') },
             ]}
           />
-          <TypeFace fontSize='24px'>{plugin.assetBrowserPath}</TypeFace>
+          <TypeFace fontSize='large'>{plugin.assetBrowserPath}</TypeFace>
           <Box classes={['asset-select']} justifyContent='space-between' alignItems='center'>
             <Box width='50%' height='100%' flexFlow='column'>
               {folderTable}

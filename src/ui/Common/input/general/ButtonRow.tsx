@@ -2,6 +2,7 @@ import React from 'react';
 import LinkButton from './LinkButton';
 import Button from '../controlled/Button';
 import Columns from '../../layout/Columns';
+import TypeFace from '../../layout/TypeFace';
 
 interface ButtonRowButton {
   icon: any;
@@ -31,6 +32,7 @@ export default function ButtonRow(props: ButtonRowProps) {
     if (button.isLink) {
       return (
         <LinkButton
+          width='5rem'
           className={className}
           mode='download'
           name={button.linkName + '.zip'}
@@ -42,6 +44,7 @@ export default function ButtonRow(props: ButtonRowProps) {
     } else {
       return (
         <Button
+          width='5rem'
           className={className}
           icon={button.icon}
           iconSize={button.iconSize}
@@ -54,8 +57,10 @@ export default function ButtonRow(props: ButtonRowProps) {
   });
 
   return (
-    <Columns spacing='none' padding='small'>
-      {buttonMap}
-    </Columns>
+    <TypeFace fontSize='medium'>
+      <Columns spacing='none' padding='small'>
+        {buttonMap}
+      </Columns>
+    </TypeFace>
   );
 }

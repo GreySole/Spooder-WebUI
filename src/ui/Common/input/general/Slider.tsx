@@ -25,8 +25,9 @@ const Slider: React.FC<SliderProps> = ({ value, orientation, gradient, onChange 
   };
 
   const handlePointerMove = useCallback(
-    (event: MouseEvent) => {
+    (event: PointerEvent) => {
       if (!sliderRef.current || !knobRef.current || !grabbed) return;
+      event.preventDefault();
 
       const sliderRect = sliderRef.current.getBoundingClientRect();
       let newValue = 0;
@@ -46,30 +47,32 @@ const Slider: React.FC<SliderProps> = ({ value, orientation, gradient, onChange 
 
   const throttledPointerMove = useCallback(throttle(handlePointerMove, 500), [handlePointerMove]);
 
-  const handlePointerDown = useCallback(
-    (e: any) => {
-      console.log('GRABBED');
-      document.addEventListener('pointerup', handlePointerUp);
-      setGrabbed(true);
-      handlePointerMove(e);
-    },
-    [handlePointerMove],
-  );
-
-  const handlePointerUp = useCallback((e: any) => {
+  const handlePointerUp = useCallback((event: PointerEvent) => {
+    event.preventDefault();
     console.log('RELEASED');
-    handlePointerMove(e);
+    handlePointerMove(event);
     setGrabbed(false);
     document.removeEventListener('pointerup', handlePointerUp);
   }, []);
 
+  const handlePointerDown = useCallback(
+    (event: any) => {
+      event.preventDefault();
+      console.log('GRABBED');
+      document.addEventListener('pointerup', handlePointerUp);
+      setGrabbed(true);
+      handlePointerMove(event);
+    },
+    [handlePointerMove],
+  );
+
   useEffect(() => {
-    document.addEventListener('pointermove', throttledPointerMove);
+    document.addEventListener('pointermove', handlePointerMove);
 
     return () => {
-      document.removeEventListener('pointermove', throttledPointerMove);
+      document.removeEventListener('pointermove', handlePointerMove);
     };
-  }, [throttledPointerMove]);
+  }, [handlePointerMove]);
 
   const getKnobColor = () => {
     const gradientColors = gradient.split(',').map((color) => color.trim());
@@ -134,8 +137,8 @@ const Slider: React.FC<SliderProps> = ({ value, orientation, gradient, onChange 
     <div
       ref={sliderRef}
       className={`slider ${orientation}`}
-      onMouseDown={handlePointerDown}
-      style={sliderStyle}
+      onPointerDown={handlePointerDown}
+      style={{ userSelect: 'none', ...sliderStyle }}
     >
       <div
         ref={knobRef}

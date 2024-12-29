@@ -1,4 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
+import { themeSlice } from './themeSlice';
 
 interface TabOptions {
   [key: string]: string;
@@ -8,13 +9,14 @@ export const navigationSlice = createSlice({
   name: 'navigation',
   initialState: {
     tabOptions: {
-      dashboard: 'Dashboard',
+      dashboard: 'Home',
       commands: 'Events',
       plugins: 'Plugins',
       osctunnels: 'Tunnels',
       module: 'Modules',
       users: 'Users',
-      sharing: 'Sharing',
+      sharing: 'Share',
+      theme: 'Theme',
       config: 'Config',
     } as TabOptions,
     deckTabOptions: {

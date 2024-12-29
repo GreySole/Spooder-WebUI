@@ -11,12 +11,14 @@ import FormLoader from '../../common/loader/FormLoader';
 import Stack from '../../common/layout/Stack';
 import Box from '../../common/layout/Box';
 import Columns from '../../common/layout/Columns';
+import Border from '../../common/layout/Border';
+import TypeFace from '../../common/layout/TypeFace';
 
 export default function OSCTunnelList() {
   const { getUdpClients } = useConfig();
   const { getPlugins } = usePlugins();
-  const { watch, setValue, control, getValues } = useFormContext();
-  const tunnels = watch('tunnels', {});
+  const { watch, setValue, getValues } = useFormContext();
+  const tunnels = watch();
 
   const { data: plugins, isLoading: pluginsLoading, error: pluginsError } = getPlugins();
   const {
@@ -35,7 +37,7 @@ export default function OSCTunnelList() {
 
   const onAddOSCTunnel = (newTunnel: KeyedObject) => {
     console.log('Adding new tunnel', newTunnel);
-    setValue(`tunnels.${newTunnel.name}`, newTunnel);
+    setValue(`${newTunnel.name}`, newTunnel);
     console.log(getValues());
   };
 
@@ -53,44 +55,46 @@ export default function OSCTunnelList() {
 
   for (let s in tunnels) {
     table.push(
-      <Columns spacing='medium' key={s}>
-        <Stack spacing='medium'>
-          <label>{s}</label>
-          <FormSelectDropdown
-            formKey={`${s}.handlerFrom`}
-            label='Handler From'
-            options={[
-              { value: 'tcp', label: 'TCP (Overlays)' },
-              { value: 'udp', label: 'UDP' },
-            ]}
-          />
-          <FormSelectDropdown
-            formKey={`${s}.handlerTo`}
-            label='Handler To'
-            options={[
-              { value: 'tcp', label: 'TCP (Overlays)' },
-              { value: 'plugin', label: 'Plugin' },
-              { value: 'udp', label: 'UDP' },
-            ]}
-          />
-          {tunnels[s]['handlerTo'] == 'udp' ? (
-            <FormSelectDropdown formKey={`${s}.clientTo`} options={clientTable} />
-          ) : null}
-          {tunnels[s]['handlerTo'] == 'plugin' ? (
-            <FormSelectDropdown formKey={`${s}.clientTo`} options={pluginTable} />
-          ) : null}
-          <FormTextInput formKey={`${s}.addressFrom`} label='Address From' />
-          <FormTextInput formKey={`${s}.addressTo`} label='Address To' />
-        </Stack>
-        <DeleteOSCTunnelButton formKey={s} />
-      </Columns>,
+      <Border borderWidth='2px' borderColor='grey' borderBottom key={s}>
+        <Columns spacing='medium' padding='small'>
+          <Stack spacing='medium'>
+            <TypeFace fontSize='medium'>{s}</TypeFace>
+            <FormSelectDropdown
+              formKey={`${s}.handlerFrom`}
+              label='Handler From'
+              options={[
+                { value: 'tcp', label: 'TCP (Overlays)' },
+                { value: 'udp', label: 'UDP' },
+              ]}
+            />
+            <FormSelectDropdown
+              formKey={`${s}.handlerTo`}
+              label='Handler To'
+              options={[
+                { value: 'tcp', label: 'TCP (Overlays)' },
+                { value: 'plugin', label: 'Plugin' },
+                { value: 'udp', label: 'UDP' },
+              ]}
+            />
+            {tunnels[s]['handlerTo'] == 'udp' ? (
+              <FormSelectDropdown formKey={`${s}.clientTo`} options={clientTable} />
+            ) : null}
+            {tunnels[s]['handlerTo'] == 'plugin' ? (
+              <FormSelectDropdown formKey={`${s}.clientTo`} options={pluginTable} />
+            ) : null}
+            <FormTextInput formKey={`${s}.addressFrom`} label='Address From' />
+            <FormTextInput formKey={`${s}.addressTo`} label='Address To' />
+          </Stack>
+          <DeleteOSCTunnelButton formKey={s} />
+        </Columns>
+      </Border>,
     );
   }
 
   return (
-    <>
-      <Box>{table}</Box>
+    <Stack spacing='medium'>
+      {table}
       <AddTunnelForm onAddOSCTunnel={(newTunnels) => onAddOSCTunnel(newTunnels)} />
-    </>
+    </Stack>
   );
 }

@@ -12,7 +12,7 @@ export default function DiskMeters(props: DiskMetersProps) {
   return (
     <Box flexFlow={'column'} alignItems={'center'} justifyContent={'center'}>
       <h1>Disk</h1>
-      <Box flexFlow={'row'} alignItems={'center'} justifyContent={'center'}>
+      <Box flexFlow={'row wrap'} alignItems={'center'} justifyContent={'center'}>
         {diskUsage.map((disk: KeyedObject) => {
           return (
             <CircleMeter

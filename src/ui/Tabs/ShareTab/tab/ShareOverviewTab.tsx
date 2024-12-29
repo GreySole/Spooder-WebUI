@@ -13,10 +13,10 @@ export default function ShareOverviewTab({ shareKey }: ShareEntryProps) {
   const share = watch(shareKey);
 
   return (
-    <Box padding='small'>
-      <Stack spacing='small'>
-        <FormTextInput formKey={`${shareKey}.joinMessage`} label='Join Message' />
-        <FormTextInput formKey={`${shareKey}.leaveMessage`} label='Leave Message' />
+    <Box width='100%' padding='small'>
+      <Stack width='inherit' spacing='small'>
+        <FormTextInput width='100%' formKey={`${shareKey}.joinMessage`} label='Join Message' />
+        <FormTextInput width='100%' formKey={`${shareKey}.leaveMessage`} label='Leave Message' />
       </Stack>
     </Box>
   );

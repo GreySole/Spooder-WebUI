@@ -11,13 +11,13 @@ interface SearchBarProps {
 export default function SearchBar({ placeholder, onSearch }: SearchBarProps) {
   const { themeVariables } = useTheme();
   return (
-    <div>
+    <div style={{ position: 'relative' }}>
       <div
         style={{
           position: 'absolute',
           color: themeVariables.isDarkTheme ? 'white' : 'black',
           marginTop: '10px',
-          marginLeft: '5px',
+          marginLeft: '10px',
         }}
       >
         <FontAwesomeIcon icon={faMagnifyingGlass} size='lg' />
@@ -25,7 +25,7 @@ export default function SearchBar({ placeholder, onSearch }: SearchBarProps) {
       <input
         type='search'
         placeholder={placeholder}
-        style={{ paddingLeft: '30px' }}
+        style={{ paddingLeft: '40px' }}
         onInput={(e: React.ChangeEvent<HTMLInputElement>) => onSearch(e.target.value)}
       />
     </div>

@@ -1,10 +1,13 @@
 import React from 'react';
 import { ReactNode } from 'react';
 import { StyleSize, StyleSizeType } from '../../Types';
+import { Properties } from 'csstype';
 
 interface ColumnsProps {
   children: ReactNode;
   spacing: StyleSizeType;
+  overflow?: Properties['overflow'];
+  width?: Properties['width'];
   onClick?: (e: React.MouseEvent<HTMLDivElement>) => void;
   padding?: StyleSizeType;
   paddingTop?: StyleSizeType;
@@ -19,7 +22,7 @@ interface ColumnsProps {
 }
 
 export default function Columns(props: ColumnsProps) {
-  const { children, spacing, onClick, ...styles } = props;
+  const { children, spacing, overflow, width, onClick, ...styles } = props;
   const paddingStyle = styles.padding
     ? {
         paddingTop: StyleSize[styles.padding],
@@ -51,12 +54,12 @@ export default function Columns(props: ColumnsProps) {
     <div
       style={{
         display: 'flex',
-        flexDirection: 'row',
+        flexFlow: 'row',
         alignItems: 'center',
         gap: StyleSize[spacing],
-        width: 'inherit',
+        width: width,
         height: 'inherit',
-        overflow: 'auto',
+        overflow: overflow,
         ...paddingStyle,
         ...marginStyle,
       }}

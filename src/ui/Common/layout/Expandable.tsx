@@ -10,20 +10,21 @@ interface ExpandableProps {
   label: string;
   children: ReactNode;
   fontSize?: StyleSizeType;
+  forceOpen?: boolean;
 }
 
 export default function Expandable(props: ExpandableProps) {
-  const { label, fontSize, children } = props;
+  const { label, fontSize, forceOpen, children } = props;
   const [open, setOpen] = useState<boolean>(false);
   return (
-    <Box classes={['expandable' + (open ? ' open' : '')]} flexFlow='column' padding='medium'>
+    <Box classes={['expandable' + (open ? ' open' : '')]} flexFlow='column' padding='small'>
       <Columns spacing='medium' onClick={(e) => setOpen(!open)}>
-        <TypeFace fontSize={fontSize ? StyleSize[fontSize] : StyleSize.xlarge} userSelect='none'>
+        <TypeFace fontSize={fontSize ?? 'xlarge'} userSelect='none'>
           {label}
         </TypeFace>
-        <FontAwesomeIcon icon={open ? faCaretUp : faCaretDown} size='lg' />
+        <FontAwesomeIcon icon={open || forceOpen ? faCaretUp : faCaretDown} size='lg' />
       </Columns>
-      {open ? children : undefined}
+      {open || forceOpen ? children : undefined}
     </Box>
   );
 }

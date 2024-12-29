@@ -17,8 +17,8 @@ export default function ShareTab() {
 
   return (
     <ShareTabFormContextProvider shares={shares}>
-      <Stack spacing='medium'>
-        <Box flexFlow='column' width='inherit' padding='small'>
+      <Stack spacing='medium' width='100%'>
+        <Box flexFlow='column' padding='small'>
           {Object.keys(shares).map((s: string) => {
             return <ShareEntry key={s} shareKey={s}></ShareEntry>;
           })}

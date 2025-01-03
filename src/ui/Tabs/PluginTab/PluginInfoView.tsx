@@ -1,18 +1,11 @@
 import React from 'react';
 import { faSync, faImage } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useRef } from 'react';
 import useToast from '../../../app/hooks/useToast';
 import { ToastType } from '../../Types';
+import { Box, TypeFace, Border, Stack, Columns, Button } from '@greysole/spooder-component-library';
 import usePlugins from '../../../app/hooks/usePlugins';
 import { usePluginContext } from './context/PluginTabFormContext';
-import Border from '../../common/layout/Border';
-import useTheme from '../../../app/hooks/useTheme';
-import Button from '../../common/input/controlled/Button';
-import Columns from '../../common/layout/Columns';
-import Stack from '../../common/layout/Stack';
-import Box from '../../common/layout/Box';
-import TypeFace from '../../common/layout/TypeFace';
 
 interface PluginInfoViewProps {
   pluginName: string;

@@ -1,7 +1,5 @@
+import { Stack, FormTextInput, FormColorInput } from '@greysole/spooder-component-library';
 import React from 'react';
-import FormColorInput from '../../../common/input/form/FormColorInput';
-import FormTextInput from '../../../common/input/form/FormTextInput';
-import Stack from '../../../common/layout/Stack';
 
 interface EditCustomSpooderInputPairProps {
   label: string;

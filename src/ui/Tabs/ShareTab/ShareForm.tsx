@@ -2,7 +2,7 @@ import { ReactNode } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import useShare from '../../../app/hooks/useShare';
 import React from 'react';
-import FormLoader from '../../common/loader/FormLoader';
+import { FormLoader } from '@greysole/spooder-component-library';
 
 interface ShareFormContextProviderProps {
   children: ReactNode;

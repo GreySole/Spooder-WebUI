@@ -1,10 +1,12 @@
+import {
+  Expandable,
+  Stack,
+  FormSelectDropdown,
+  FormTextInput,
+  LinkButton,
+} from '@greysole/spooder-component-library';
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
-import LinkButton from '../../../common/input/general/LinkButton';
-import FormSelectDropdown from '../../../common/input/form/FormSelectDropdown';
-import FormTextInput from '../../../common/input/form/FormTextInput';
-import Stack from '../../../common/layout/Stack';
-import Expandable from '../../../common/layout/Expandable';
 
 export default function ExternalHandleSection() {
   const { watch } = useFormContext();

@@ -5,12 +5,10 @@ import {
   faVolumeHigh,
 } from '@fortawesome/free-solid-svg-icons';
 import React, { useState } from 'react';
-import Button from '../../../common/input/controlled/Button';
-import RangeInput from '../../../common/input/controlled/RangeInput';
-import VolumeMeter from './VolumeMeter';
-import { set } from 'react-hook-form';
 import { useOSC } from '../../../../app/context/OscContext';
 import { useObsWebsocketContext } from './VolumeContext';
+import { RangeInput, Button } from '@greysole/spooder-component-library';
+import VolumeMeter from './VolumeMeter';
 
 interface VolumeControlProps {
   meterIndex: string;

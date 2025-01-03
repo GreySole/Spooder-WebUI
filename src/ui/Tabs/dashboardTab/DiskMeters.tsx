@@ -1,7 +1,7 @@
 import React from 'react';
-import Box from '../../common/layout/Box';
 import { KeyedObject } from '../../Types';
 import CircleMeter from './meter/CircleMeter';
+import { Box } from '@greysole/spooder-component-library';
 
 interface DiskMetersProps {
   diskUsage: KeyedObject[];

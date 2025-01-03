@@ -1,11 +1,10 @@
-import React, { useState } from 'react';
+import { Box, Columns } from '@greysole/spooder-component-library';
+import React from 'react';
 import { PluginProvider } from './pluginTab/context/PluginTabFormContext';
 import CreatePluginButton from './pluginTab/input/CreatePluginButton';
-import InstallPluginButton from './pluginTab/input/InstallPluginButton';
-import PluginList from './pluginTab/PluginList';
-import RefreshAllPluginsButton from './pluginTab/input/RefreshAllPluginsButton';
-import Columns from '../common/layout/Columns';
-import Box from '../common/layout/Box';
+import InstallPluginButton from './PluginTab/input/InstallPluginButton';
+import RefreshAllPluginsButton from './PluginTab/input/RefreshAllPluginsButton';
+import PluginList from './PluginTab/PluginList';
 
 export default function PluginTab() {
   return (

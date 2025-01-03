@@ -1,7 +1,6 @@
-import { format } from 'path-browserify';
 import React from 'react';
-import { formatBytes } from '../../../util/DataUtil';
 import useTheme from '../../../../app/hooks/useTheme';
+import { formatBytes } from '@greysole/spooder-component-library';
 
 interface CircleMeterProps {
   label: string;

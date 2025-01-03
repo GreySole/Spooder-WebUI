@@ -1,8 +1,10 @@
+import {
+  Expandable,
+  Stack,
+  FormTextInput,
+  FormNumberInput,
+} from '@greysole/spooder-component-library';
 import React from 'react';
-import FormNumberInput from '../../../common/input/form/FormNumberInput';
-import FormTextInput from '../../../common/input/form/FormTextInput';
-import Stack from '../../../common/layout/Stack';
-import Expandable from '../../../common/layout/Expandable';
 
 export default function ConfigNetworkSection() {
   const baseFormKey = 'network';

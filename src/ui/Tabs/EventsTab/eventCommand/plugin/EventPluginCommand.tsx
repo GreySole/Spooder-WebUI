@@ -3,9 +3,8 @@ import { useFormContext } from 'react-hook-form';
 import { buildCommandKey, buildKey } from '../../FormKeys';
 import usePlugins from '../../../../../app/hooks/usePlugins';
 import { EventCommandProps } from '../../../../Types';
-import FormTextInput from '../../../../common/input/form/FormTextInput';
+import { FormSelectDropdown, FormTextInput } from '@greysole/spooder-component-library';
 import CustomEventPluginCommand from './CustomEventPluginCommand';
-import FormSelectDropdown from '../../../../common/input/form/FormSelectDropdown';
 
 export default function EventPluginCommand(props: EventCommandProps) {
   const { eventName, commandIndex } = props;

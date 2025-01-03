@@ -2,8 +2,7 @@ import React from 'react';
 import { usePluginContext } from './context/PluginTabFormContext';
 import AlertToasterLink from './AlertToasterLink';
 import PluginEntry from './PluginEntry';
-import FormLoader from '../../common/loader/FormLoader';
-import Stack from '../../common/layout/Stack';
+import { FormLoader, Stack } from '@greysole/spooder-component-library';
 
 export default function PluginList() {
   const { plugins, isReady, reloadPlugins } = usePluginContext();

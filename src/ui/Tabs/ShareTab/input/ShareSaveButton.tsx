@@ -1,6 +1,6 @@
 import React from 'react';
 import useShare from '../../../../app/hooks/useShare';
-import SaveButton from '../../../common/input/form/SaveButton';
+import { SaveButton } from '@greysole/spooder-component-library';
 
 export default function ShareSaveButton() {
   const { getSaveShares } = useShare();

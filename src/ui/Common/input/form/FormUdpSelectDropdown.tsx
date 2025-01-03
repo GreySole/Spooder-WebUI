@@ -1,6 +1,6 @@
 import React from 'react';
 import useConfig from '../../../../app/hooks/useConfig';
-import FormSelectDropdown from './FormSelectDropdown';
+import { FormSelectDropdown } from '@greysole/spooder-component-library';
 
 interface FormUdpSelectDropdownProps {
   formKey: string;

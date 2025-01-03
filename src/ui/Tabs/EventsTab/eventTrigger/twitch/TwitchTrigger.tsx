@@ -1,9 +1,9 @@
 import React from 'react';
-import FormBoolSwitch from '../../../../common/input/form/FormBoolSwitch';
 import { useFormContext } from 'react-hook-form';
 import { buildKey, buildTriggerKey } from '../../FormKeys';
 import TwitchTriggerType from './TwitchTriggerType';
 import TwitchTriggerTypeReward from './TwitchTriggerTypeReward';
+import { FormBoolSwitch } from '@greysole/spooder-component-library';
 
 interface TwitchTriggerProps {
   eventName: string;

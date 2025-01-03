@@ -11,8 +11,8 @@ import { Timeline, TimelineRow } from '@xzdarcy/react-timeline-editor';
 import EventAddCommand from './eventCommand/EventAddCommand';
 import { buildCommandKey, buildKey, EVENT_KEY } from './FormKeys';
 import { useFormContext } from 'react-hook-form';
-import discordIcon from '../../icons/discord.svg';
-import obsIcon from '../../icons/obs.svg';
+import OBSIcon from '@greysole/spooder-component-library/dist/types/icons/OBSIcon';
+import DiscordIcon from '@greysole/spooder-component-library/dist/types/icons/DiscordIcon';
 
 interface EventCommandsProps {
   eventName: string;
@@ -168,14 +168,14 @@ export default function EventCommands(props: EventCommandsProps) {
             case 'obs':
               return (
                 <div className='prompt'>
-                  <img width={25} height={25} src={obsIcon} />
+                  <img width={25} height={25} src={OBSIcon} />
                   <label>{action.id}</label>
                 </div>
               );
             case 'discord':
               return (
                 <div className='prompt'>
-                  <img width={25} height={25} src={discordIcon} />
+                  <img width={25} height={25} src={DiscordIcon} />
                   <label>{action.id}</label>
                 </div>
               );

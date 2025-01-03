@@ -1,12 +1,10 @@
 import { useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import useShare from '../../../../app/hooks/useShare';
-import Button from '../../../common/input/controlled/Button';
-import SaveButton from '../../../common/input/form/SaveButton';
 import usePlugins from '../../../../app/hooks/usePlugins';
 import PluginToggleGrid from './PluginToggleGrid';
 import React from 'react';
-import FormLoader from '../../../common/loader/FormLoader';
+import { FormLoader, SaveButton, Button } from '@greysole/spooder-component-library';
 
 interface ShareEntrySettingsProps {
   shareKey: string;

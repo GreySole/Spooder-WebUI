@@ -4,8 +4,7 @@ import { EVENT_KEY } from '../../FormKeys';
 import { useState } from 'react';
 import { HotkeysProvider } from '../../../../../app/hooks/useHotkeys';
 import { SpooderEvent } from '../../../../Types';
-import Button from '../../../../common/input/controlled/Button';
-import Box from '../../../../common/layout/Box';
+import { Box, Button } from '@greysole/spooder-component-library';
 
 interface AddEventButtonProps {
   groupName: string;

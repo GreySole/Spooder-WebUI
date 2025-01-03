@@ -1,10 +1,8 @@
 import React from 'react';
-import EditCustomSpooder from './configTab/customSpooderInput/EditCustomSpooder';
-import ThemeColor from './configTab/themeColor/ThemeColor';
 import { Footer } from '../app/Footer';
-import Box from '../common/layout/Box';
-import SaveButton from '../common/input/form/SaveButton';
-import ResetButton from '../common/input/form/ResetButton';
+import { Box, ResetButton, SaveButton } from '@greysole/spooder-component-library';
+import EditCustomSpooder from './ConfigTab/customSpooderInput/EditCustomSpooder';
+import ThemeColor from './ConfigTab/themeColor/ThemeColor';
 
 export default function ThemeTab() {
   return (

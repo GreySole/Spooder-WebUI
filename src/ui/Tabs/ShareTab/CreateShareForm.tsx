@@ -1,13 +1,11 @@
 import React from 'react';
 import { faPlusCircle } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useState } from 'react';
-import TextInput from '../../common/input/controlled/TextInput';
 import { useFormContext } from 'react-hook-form';
 import { v4 as uuidv4 } from 'uuid';
 import useShare from '../../../app/hooks/useShare';
 import { KeyedObject } from '../../Types';
-import Button from '../../common/input/controlled/Button';
+import { Button, TextInput } from '@greysole/spooder-component-library';
 
 export default function CreateShareForm() {
   const [isOpen, setIsOpen] = useState(false);

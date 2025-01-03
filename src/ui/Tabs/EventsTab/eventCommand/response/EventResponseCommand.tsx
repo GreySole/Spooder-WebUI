@@ -1,20 +1,17 @@
 import React from 'react';
-import { faQuestionCircle } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useFormContext } from 'react-hook-form';
-import FormBoolSwitch from '../../../../common/input/form/FormBoolSwitch';
 import { buildCommandKey, buildKey, buildTriggerKey } from '../../FormKeys';
-import ResponseCommandCheatSheet from './ResponseCommandCheatSheet';
-import useDiscord from '../../../../../app/hooks/useDiscord';
-import CodeEditor from '@uiw/react-textarea-code-editor';
 import useEvents from '../../../../../app/hooks/useEvents';
 import { useState } from 'react';
 import { EventCommandProps } from '../../../../Types';
-import FormNumberInput from '../../../../common/input/form/FormNumberInput';
-import FormCodeInput from '../../../../common/input/form/FormCodeInput';
-import Button from '../../../../common/input/controlled/Button';
-import TextInput from '../../../../common/input/controlled/TextInput';
 import { HotkeysProvider } from '../../../../../app/hooks/useHotkeys';
+import {
+  FormCodeInput,
+  TextInput,
+  Button,
+  FormNumberInput,
+} from '@greysole/spooder-component-library';
+import ResponseCommandCheatSheet from './ResponseCommandCheatSheet';
 
 export default function EventResponseCommand(props: EventCommandProps) {
   const { eventName, commandIndex } = props;

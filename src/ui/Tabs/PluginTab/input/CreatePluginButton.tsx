@@ -1,12 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { faPlusCircle } from '@fortawesome/free-solid-svg-icons';
-import { useState } from 'react';
-import Button from '../../../common/input/controlled/Button';
 import { usePluginContext } from '../context/PluginTabFormContext';
 import usePlugins from '../../../../app/hooks/usePlugins';
-import TextInput from '../../../common/input/controlled/TextInput';
-import Stack from '../../../common/layout/Stack';
-import Box from '../../../common/layout/Box';
+import { Button, Stack, TextInput } from '@greysole/spooder-component-library';
 
 export default function CreatePluginButton() {
   const [isOpen, setIsOpen] = useState(false);

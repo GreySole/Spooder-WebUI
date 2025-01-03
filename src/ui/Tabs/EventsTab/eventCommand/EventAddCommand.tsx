@@ -1,5 +1,5 @@
+import { SelectDropdown } from '@greysole/spooder-component-library';
 import React, { useState } from 'react';
-import SelectDropdown from '../../../common/input/controlled/SelectDropdown';
 import { useFormContext } from 'react-hook-form';
 
 interface EventAddCommandProps {

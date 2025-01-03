@@ -2,11 +2,9 @@ import React from 'react';
 import { useState } from 'react';
 import useConfig from '../../../app/hooks/useConfig';
 import usePlugins from '../../../app/hooks/usePlugins';
-import SelectDropdown from '../../common/input/controlled/SelectDropdown';
-import TextInput from '../../common/input/controlled/TextInput';
 import { KeyedObject } from '../../Types';
 import { HotkeysProvider } from '../../../app/hooks/useHotkeys';
-import Stack from '../../common/layout/Stack';
+import { Stack, TextInput, SelectDropdown } from '@greysole/spooder-component-library';
 
 interface AddTunnelFormProps {
   onAddOSCTunnel: (newTunnel: KeyedObject) => void;

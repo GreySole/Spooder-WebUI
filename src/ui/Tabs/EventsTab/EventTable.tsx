@@ -1,22 +1,23 @@
 import React from 'react';
 import { useState } from 'react';
 import { useFormContext } from 'react-hook-form';
-import Expandable from '../../common/layout/Expandable';
-import AddEventInput from './eventCommand/input/AddEventInput';
-import EventElement from './EventElement';
-import DeleteGroupButton from './eventCommand/input/DeleteGroupButton';
-import Box from '../../common/layout/Box';
-import Columns from '../../common/layout/Columns';
-import SearchBar from '../../common/input/general/SearchBar';
-import SaveButton from '../../common/input/form/SaveButton';
-import AddGroupInput from './eventCommand/input/AddGroupInput';
-import useEvents from '../../../app/hooks/useEvents';
-import ResetButton from '../../common/input/form/ResetButton';
-import { Footer } from '../../app/Footer';
-import FilterButton from '../../common/input/general/FilterButton';
 import { faComment, faNetworkWired } from '@fortawesome/free-solid-svg-icons';
-import TwitchIcon from '../../icons/twitch.svg';
-import { FilterProps } from '../../Types';
+import {
+  Expandable,
+  Box,
+  Columns,
+  SearchBar,
+  FilterButton,
+  ResetButton,
+  SaveButton,
+} from '@greysole/spooder-component-library';
+import useEvents from '../../../app/hooks/useEvents';
+import { Footer } from '../../app/Footer';
+import AddEventInput from './eventCommand/input/AddEventInput';
+import AddGroupInput from './eventCommand/input/AddGroupInput';
+import DeleteGroupButton from './eventCommand/input/DeleteGroupButton';
+import EventElement from './EventElement';
+import TwitchIcon from '@greysole/spooder-component-library/dist/types/icons/TwitchIcon';
 
 export default function EventTable() {
   const { watch, formState } = useFormContext();

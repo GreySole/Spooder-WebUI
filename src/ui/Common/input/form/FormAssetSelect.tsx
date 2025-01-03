@@ -4,8 +4,7 @@ import usePlugins from '../../../../app/hooks/usePlugins';
 import React, { useRef } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { useUploadPluginAssetMutation } from '../../../../app/api/pluginSlice';
-import FormSelectDropdown from './FormSelectDropdown';
-import FormLoader from '../../loader/FormLoader';
+import { FormLoader, FormSelectDropdown } from '@greysole/spooder-component-library';
 
 interface FormAssetSelectProps {
   formKey: string;

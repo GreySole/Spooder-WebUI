@@ -5,8 +5,8 @@ import CustomSpooder from './navigation/CustomSpooder';
 import useNavigation from '../../app/hooks/useNavigation';
 import useToast from '../../app/hooks/useToast';
 import NavigationTabs from './navigation/NavigationTabs';
-import Box from '../common/layout/Box';
 import useTheme from '../../app/hooks/useTheme';
+import { Box } from '@greysole/spooder-component-library';
 
 export default function Header() {
   const { navigationOpen, toggleNavigation } = useNavigation();

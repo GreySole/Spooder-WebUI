@@ -1,16 +1,17 @@
 import React from 'react';
 import useNavigation from '../../../app/hooks/useNavigation';
-import BoolSwitch from '../../common/input/controlled/BoolSwitch';
-import usePlugins from '../../../app/hooks/usePlugins';
-import TabButton from './TabButton';
-import Button from '../../common/input/controlled/Button';
-import useShare from '../../../app/hooks/useShare';
 import { faPlay, faStop } from '@fortawesome/free-solid-svg-icons';
-import useTwitch from '../../../app/hooks/useTwitch';
-import Box from '../../common/layout/Box';
-import TypeFace from '../../common/layout/TypeFace';
-import Stack from '../../common/layout/Stack';
-import Columns from '../../common/layout/Columns';
+import {
+  Columns,
+  TypeFace,
+  Button,
+  Box,
+  Stack,
+  BoolSwitch,
+} from '@greysole/spooder-component-library';
+import usePlugins from '../../../app/hooks/usePlugins';
+import useShare from '../../../app/hooks/useShare';
+import TabButton from './TabButton';
 
 export default function NavigationMenu() {
   const { urlParams, tabOptions, deckTabOptions, navigationOpen, setStayHere } = useNavigation();

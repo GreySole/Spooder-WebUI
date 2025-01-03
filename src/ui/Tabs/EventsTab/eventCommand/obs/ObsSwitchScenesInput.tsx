@@ -1,10 +1,8 @@
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
 import { buildKey } from '../../FormKeys';
-import { ReactNode } from 'react';
-import FormNumberInput from '../../../../common/input/form/FormNumberInput';
-import FormSelectDropdown from '../../../../common/input/form/FormSelectDropdown';
 import { SelectOption } from '../../../../Types';
+import { FormSelectDropdown, FormNumberInput } from '@greysole/spooder-component-library';
 
 interface ObsSwitchScenesInputProps {
   formKey: string;

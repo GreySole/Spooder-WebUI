@@ -2,7 +2,7 @@ import { faFileImport } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import usePlugins from '../../../../app/hooks/usePlugins';
 import React, { useRef } from 'react';
-import SelectDropdown from './SelectDropdown';
+import { SelectDropdown } from '@greysole/spooder-component-library';
 
 interface AssetSelectProps {
   label?: string;

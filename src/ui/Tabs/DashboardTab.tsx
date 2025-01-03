@@ -1,16 +1,10 @@
-import { useEffect, useState } from 'react';
-import { useOSC } from '../../app/context/OscContext';
-import OSC from 'osc-js';
+import { CircleLoader, Stack } from '@greysole/spooder-component-library';
+import { useEffect } from 'react';
 import React from 'react';
-import { KeyedObject } from '../Types';
-import Box from '../common/layout/Box';
-import SystemMeters from './dashboardTab/SystemMeters';
+import { useGetSystemStatusQuery } from '../../app/api/serverSlice';
 import DiskMeters from './dashboardTab/DiskMeters';
 import NetworkMeters from './dashboardTab/NetworkMeters';
-import { useGetSystemStatusQuery } from '../../app/api/serverSlice';
-import CircleLoader from '../common/loader/CircleLoader';
-import FormLoader from '../common/loader/FormLoader';
-import Stack from '../common/layout/Stack';
+import SystemMeters from './dashboardTab/SystemMeters';
 
 export default function DashboardTab() {
   const { data, isLoading, error, refetch } = useGetSystemStatusQuery(null);

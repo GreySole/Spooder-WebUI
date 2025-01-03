@@ -1,7 +1,7 @@
 import React from 'react';
 import { faSync } from '@fortawesome/free-solid-svg-icons';
-import Button from '../../../common/input/controlled/Button';
 import { usePluginContext } from '../context/PluginTabFormContext';
+import { Button } from '@greysole/spooder-component-library';
 
 export default function RefreshAllPluginsButton() {
   const { reloadPlugins } = usePluginContext();

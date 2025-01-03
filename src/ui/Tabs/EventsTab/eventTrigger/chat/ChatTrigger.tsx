@@ -1,9 +1,8 @@
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
-import FormBoolSwitch from '../../../../common/input/form/FormBoolSwitch';
 import { buildKey, buildTriggerKey } from '../../FormKeys';
 import ChatTriggerCondition from './ChatTriggerCondition';
-import FormTextInput from '../../../../common/input/form/FormTextInput';
+import { FormBoolSwitch, FormTextInput } from '@greysole/spooder-component-library';
 
 interface ChatTriggerProps {
   eventName: string;

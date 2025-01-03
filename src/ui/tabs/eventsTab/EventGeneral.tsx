@@ -1,12 +1,14 @@
 import { useFormContext } from 'react-hook-form';
 import { buildEventKey, buildKey, EVENT_KEY, GROUP_KEY } from './FormKeys';
 import React from 'react';
-import FormBoolSwitch from '../../common/input/form/FormBoolSwitch';
-import FormNumberInput from '../../common/input/form/FormNumberInput';
-import FormSelectDropdown from '../../common/input/form/FormSelectDropdown';
-import FormTextInput from '../../common/input/form/FormTextInput';
-import Stack from '../../common/layout/Stack';
-import TypeFace from '../../common/layout/TypeFace';
+import {
+  Stack,
+  TypeFace,
+  FormTextInput,
+  FormSelectDropdown,
+  FormNumberInput,
+  FormBoolSwitch,
+} from '@greysole/spooder-component-library';
 
 interface EventGeneralProps {
   eventName: string;

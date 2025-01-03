@@ -1,6 +1,5 @@
+import { TextInput, NumberInput } from '@greysole/spooder-component-library';
 import React, { useState } from 'react';
-import TextInput from '../../../common/input/controlled/TextInput';
-import NumberInput from '../../../common/input/controlled/NumberInput';
 import { useFormContext } from 'react-hook-form';
 
 export default function AddUdpClient() {

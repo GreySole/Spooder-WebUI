@@ -1,10 +1,9 @@
 import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCommentDots, faSpider } from '@fortawesome/free-solid-svg-icons';
+import { faCommentDots } from '@fortawesome/free-solid-svg-icons';
 import { useFormContext } from 'react-hook-form';
 import useEvents from '../../../../app/hooks/useEvents';
-import CircleLoader from '../../../common/loader/CircleLoader';
-import { KeyedObject } from '../../../Types';
+import { CircleLoader } from '@greysole/spooder-component-library';
 
 interface ToggleGridProps {
   formKey: string;

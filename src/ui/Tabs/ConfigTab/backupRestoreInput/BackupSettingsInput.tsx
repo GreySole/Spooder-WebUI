@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
-import FileInput from '../../../common/input/controlled/FileInput';
-import TextInput from '../../../common/input/controlled/TextInput';
 import useRecovery from '../../../../app/hooks/useRecovery';
+import { TextInput, FileInput } from '@greysole/spooder-component-library';
 
 export default function BackupSettingsInput() {
   const { getBackupSettings, getCheckInSettings } = useRecovery();

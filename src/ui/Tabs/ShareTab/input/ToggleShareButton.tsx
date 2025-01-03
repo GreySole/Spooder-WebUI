@@ -1,9 +1,7 @@
 import { faPlay, faStop } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import useShare from '../../../../app/hooks/useShare';
-import Button from '../../../common/input/controlled/Button';
+import { Box, Button } from '@greysole/spooder-component-library';
 import React from 'react';
-import Box from '../../../common/layout/Box';
 
 interface ToggleShareButtonProps {
   shareKey: string;

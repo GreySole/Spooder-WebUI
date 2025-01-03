@@ -1,7 +1,5 @@
+import { Expandable, Stack, FormTextInput } from '@greysole/spooder-component-library';
 import React from 'react';
-import FormTextInput from '../../../common/input/form/FormTextInput';
-import Stack from '../../../common/layout/Stack';
-import Expandable from '../../../common/layout/Expandable';
 
 export default function ConfigBotSection() {
   const baseFormKey = 'bot';

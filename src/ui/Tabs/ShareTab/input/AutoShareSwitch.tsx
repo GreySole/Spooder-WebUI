@@ -1,7 +1,7 @@
 import { useFormContext } from 'react-hook-form';
 import useTwitch from '../../../../app/hooks/useTwitch';
-import BoolSwitch from '../../../common/input/controlled/BoolSwitch';
 import React from 'react';
+import { BoolSwitch } from '@greysole/spooder-component-library';
 
 interface AutoShareSwitchProps {
   shareKey: string;

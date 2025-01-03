@@ -1,6 +1,5 @@
 import React from 'react';
 import useNavigation from '../../../app/hooks/useNavigation';
-import Box from '../../common/layout/Box';
 
 interface TabButtonProps {
   tabName: string;

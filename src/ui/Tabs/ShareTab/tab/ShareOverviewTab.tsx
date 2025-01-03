@@ -1,8 +1,6 @@
+import { Box, Stack, FormTextInput } from '@greysole/spooder-component-library';
 import React from 'react';
-import FormTextInput from '../../../common/input/form/FormTextInput';
 import { useFormContext } from 'react-hook-form';
-import Stack from '../../../common/layout/Stack';
-import Box from '../../../common/layout/Box';
 
 interface ShareEntryProps {
   shareKey: string;

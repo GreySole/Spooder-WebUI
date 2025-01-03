@@ -1,8 +1,8 @@
 import React from 'react';
 import { PluginComponentProps } from '../../../Types';
 import usePlugins from '../../../../app/hooks/usePlugins';
+import { FormLoader } from '@greysole/spooder-component-library';
 import SettingsFormContext from './SettingsFormContext';
-import FormLoader from '../../../common/loader/FormLoader';
 
 export default function SettingsForm(props: PluginComponentProps) {
   const { pluginName } = props;

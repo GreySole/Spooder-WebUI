@@ -1,10 +1,10 @@
 import { faHome, faComment, faPlug, faTrash } from '@fortawesome/free-solid-svg-icons';
 import React from 'react';
-import ButtonRow from '../../../common/input/general/ButtonRow';
 import useTheme from '../../../../app/hooks/useTheme';
-import TwitchIcon from '../../../icons/twitch.svg';
-import DiscordIcon from '../../../icons/discord.svg';
 import { StyleSize } from '../../../Types';
+import { ButtonRow } from '@greysole/spooder-component-library';
+import DiscordIcon from '@greysole/spooder-component-library/dist/types/icons/DiscordIcon';
+import TwitchIcon from '@greysole/spooder-component-library/dist/types/icons/TwitchIcon';
 
 interface ShareCategoryButtonRowProps {
   tab: string;

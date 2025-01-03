@@ -1,8 +1,7 @@
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
 import UserEntry from './UserEntry';
-import Box from '../../common/layout/Box';
-import Stack from '../../common/layout/Stack';
+import { Stack } from '@greysole/spooder-component-library';
 
 export default function UserList() {
   const { watch } = useFormContext();

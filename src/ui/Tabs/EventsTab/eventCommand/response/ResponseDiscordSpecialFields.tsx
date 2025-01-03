@@ -2,12 +2,11 @@ import React from 'react';
 import { useFormContext } from 'react-hook-form';
 import useDiscord from '../../../../../app/hooks/useDiscord';
 import { buildKey } from '../../FormKeys';
-import FormBoolSwitch from '../../../../common/input/form/FormBoolSwitch';
 import ResponseCommandCheatSheet from './ResponseCommandCheatSheet';
 import useEvents from '../../../../../app/hooks/useEvents';
 import { useState } from 'react';
 import CodeEditor from '@uiw/react-textarea-code-editor';
-import FormTextInput from '../../../../common/input/form/FormTextInput';
+import { FormBoolSwitch, FormTextInput } from '@greysole/spooder-component-library';
 
 interface EventResponseCommandProps {
   eventName: string;

@@ -1,11 +1,9 @@
+import { CircleLoader, Stack, Box } from '@greysole/spooder-component-library';
 import React from 'react';
-import CircleLoader from '../common/loader/CircleLoader';
 import useShare from '../../app/hooks/useShare';
-import ShareTabFormContextProvider from './shareTab/context/ShareTabFormContext';
-import ShareEntry from './shareTab/ShareEntry';
-import ShareSaveButton from './shareTab/input/ShareSaveButton';
-import Box from '../common/layout/Box';
-import Stack from '../common/layout/Stack';
+import ShareTabFormContextProvider from './ShareTab/context/ShareTabFormContext';
+import ShareSaveButton from './ShareTab/input/ShareSaveButton';
+import ShareEntry from './ShareTab/ShareEntry';
 
 export default function ShareTab() {
   const { getShares } = useShare();

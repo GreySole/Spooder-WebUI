@@ -1,7 +1,7 @@
 import React from 'react';
 import { OscProvider } from './app/context/OscContext';
 import useServer from './app/hooks/useServer';
-import App from './ui/app/App';
+import App from './ui/App/App';
 import CircleLoader from './ui/common/loader/CircleLoader';
 
 export default function InitLayer() {

@@ -1,9 +1,9 @@
 import { faPlusCircle } from '@fortawesome/free-solid-svg-icons';
 import React from 'react';
-import Button from '../../common/input/controlled/Button';
 import { useFormContext } from 'react-hook-form';
 import { v4 as uuidv4 } from 'uuid';
 import { KeyedObject } from '../../Types';
+import { Button } from '@greysole/spooder-component-library';
 
 export default function CreateUserButton() {
   const { setValue, watch } = useFormContext();

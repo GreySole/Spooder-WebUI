@@ -1,8 +1,8 @@
 import React from 'react';
 import { faFileImport } from '@fortawesome/free-solid-svg-icons';
-import Button from '../../../common/input/controlled/Button';
 import { useRef } from 'react';
 import usePlugins from '../../../../app/hooks/usePlugins';
+import { Button } from '@greysole/spooder-component-library';
 
 export default function InstallPluginButton() {
   const hiddenFileInput = useRef<HTMLInputElement>(null);

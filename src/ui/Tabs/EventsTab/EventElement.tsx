@@ -1,36 +1,24 @@
 import React from 'react';
 import {
   faCommentDots,
-  faAward,
   faNetworkWired,
   faTrash,
   faSquarePen,
 } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import FormBoolSwitch from '../../common/input/form/FormBoolSwitch';
+import {
+  getIcon,
+  Border,
+  Box,
+  Columns,
+  TypeFace,
+  ButtonRow,
+} from '@greysole/spooder-component-library';
+import useTheme from '@greysole/spooder-component-library/dist/types/context/ThemeContext';
 import { useFormContext } from 'react-hook-form';
-import { buildEventKey, buildKey, EVENT_KEY, GROUP_KEY } from './FormKeys';
-import EventExpandable from './eventCommand/EventExpandable';
-import EventCommands from './EventCommands';
-import FormTextInput from '../../common/input/form/FormTextInput';
-import EventTriggers from './EventTriggers';
-import FormNumberInput from '../../common/input/form/FormNumberInput';
-import FormSelectDropdown from '../../common/input/form/FormSelectDropdown';
-import DeleteEventButton from './eventCommand/input/DeleteEventButton';
-import SvgIcon from '../../icons/SvgIcon';
-import TwitchIcon from '../../icons/twitch.svg';
-import TypeFace from '../../common/layout/TypeFace';
-import Stack from '../../common/layout/Stack';
-import Modal from '../../common/input/general/Modal';
-import EventGeneral from './EventGeneral';
-import Box from '../../common/layout/Box';
-import ButtonRow from '../../common/input/general/ButtonRow';
 import { StyleSize } from '../../Types';
-import Columns from '../../common/layout/Columns';
-import { getIcon } from '../../util/MediaUtil';
-import useTheme from '../../../app/hooks/useTheme';
-import Border from '../../common/layout/Border';
 import { useEventTableModal } from './context/EventTableModalContext';
+import { EVENT_KEY, buildEventKey, buildKey } from './FormKeys';
+import TwitchIcon from '@greysole/spooder-component-library/dist/types/icons/TwitchIcon';
 
 interface EventElementProps {
   eventName: string;

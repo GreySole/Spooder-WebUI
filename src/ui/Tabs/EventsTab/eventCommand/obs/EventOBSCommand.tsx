@@ -2,12 +2,11 @@ import React from 'react';
 import { useFormContext } from 'react-hook-form';
 import useOBS from '../../../../../app/hooks/useOBS';
 import { buildCommandKey, buildKey } from '../../FormKeys';
-import FormBoolSwitch from '../../../../common/input/form/FormBoolSwitch';
+import { EventCommandProps } from '../../../../Types';
+import { FormSelectDropdown } from '@greysole/spooder-component-library';
+import ObsEnableSceneItemInput from './ObsEnabledSceneItemInput';
 import ObsSetInputMuteInput from './ObsSetInputMuteInput';
 import ObsSwitchScenesInput from './ObsSwitchScenesInput';
-import ObsEnableSceneItemInput from './ObsEnabledSceneItemInput';
-import { EventCommandProps } from '../../../../Types';
-import FormSelectDropdown from '../../../../common/input/form/FormSelectDropdown';
 
 export default function EventOBSCommand(props: EventCommandProps) {
   const { eventName, commandIndex } = props;

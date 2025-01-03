@@ -1,10 +1,8 @@
-import { faDownload } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React from 'react';
-import Box from '../../../common/layout/Box';
-import { formatBytes } from '../../../util/DataUtil';
 import GraphMeter from './GraphMeter';
 import useTheme from '../../../../app/hooks/useTheme';
+import { Box, formatBytes } from '@greysole/spooder-component-library';
 
 interface NetMeterProps {
   value: number;

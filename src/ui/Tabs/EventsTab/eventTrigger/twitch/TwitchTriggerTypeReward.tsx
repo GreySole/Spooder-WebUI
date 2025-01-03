@@ -1,9 +1,9 @@
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
 import useTwitch from '../../../../../app/hooks/useTwitch';
-import FormBoolSwitch from '../../../../common/input/form/FormBoolSwitch';
 import { buildKey, buildTriggerKey } from '../../FormKeys';
 import { EventTriggerProps } from '../../../../Types';
+import { FormBoolSwitch } from '@greysole/spooder-component-library';
 
 interface ChannelPointReward {
   id: string;

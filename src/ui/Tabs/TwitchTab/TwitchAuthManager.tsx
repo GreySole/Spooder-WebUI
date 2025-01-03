@@ -1,9 +1,7 @@
 import React from 'react';
 import useTwitch from '../../../app/hooks/useTwitch';
-import Button from '../../common/input/controlled/Button';
-import LinkButton from '../../common/input/general/LinkButton';
+import { FormLoader, LinkButton, Button } from '@greysole/spooder-component-library';
 import useConfig from '../../../app/hooks/useConfig';
-import FormLoader from '../../common/loader/FormLoader';
 
 export default function TwitchAuthManager() {
   const { getConfig } = useConfig();

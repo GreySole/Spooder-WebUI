@@ -1,8 +1,8 @@
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
 import { EVENT_KEY } from '../../FormKeys';
-import Button from '../../../../common/input/controlled/Button';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
+import { Button } from '@greysole/spooder-component-library';
 
 interface DeleteEventButtonProps {
   eventName: string;

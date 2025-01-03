@@ -1,9 +1,8 @@
 import { useState } from 'react';
 import { useFormContext } from 'react-hook-form';
-import TextInput from '../../../common/input/controlled/TextInput';
-import Button from '../../../common/input/controlled/Button';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import React from 'react';
+import { Button, TextInput } from '@greysole/spooder-component-library';
 
 interface ShareDiscordFormProps {
   shareKey: string;

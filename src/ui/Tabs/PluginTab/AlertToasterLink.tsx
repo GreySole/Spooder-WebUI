@@ -1,5 +1,5 @@
+import { LinkButton } from '@greysole/spooder-component-library';
 import React from 'react';
-import LinkButton from '../../common/input/general/LinkButton';
 
 export default function AlertToasterLink() {
   return (

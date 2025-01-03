@@ -1,11 +1,9 @@
 import React from 'react';
-import Box from '../../../../common/layout/Box';
 import { KeyedObject } from '../../../../Types';
 import PluginInput from '../../../pluginTab/PluginSettings/PluginInput';
 import PluginSubform from '../../../pluginTab/PluginSettings/PluginSubform';
 import { useFormContext } from 'react-hook-form';
-import { translateCondition } from '../../../../util/ScriptUtil';
-import FormSelectDropdown from '../../../../common/input/form/FormSelectDropdown';
+import { FormSelectDropdown, translateCondition } from '@greysole/spooder-component-library';
 
 interface CustomEventPluginCommandProps {
   formKey: string;

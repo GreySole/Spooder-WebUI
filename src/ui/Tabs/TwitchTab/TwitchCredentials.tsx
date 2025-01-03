@@ -1,7 +1,6 @@
+import { FormTextInput, SaveButton } from '@greysole/spooder-component-library';
 import React from 'react';
-import FormTextInput from '../../common/input/form/FormTextInput';
 import useTwitch from '../../../app/hooks/useTwitch';
-import SaveButton from '../../common/input/form/SaveButton';
 
 export default function TwitchCredentials() {
   const { getSaveTwitchConfig } = useTwitch();

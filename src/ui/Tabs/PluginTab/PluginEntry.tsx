@@ -1,20 +1,22 @@
 import React from 'react';
 import { faTriangleExclamation, faPlug } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import LinkButton from '../../common/input/general/LinkButton';
-import { PluginComponentProps, ToastType } from '../../Types';
-import PluginInfoView from './PluginInfoView';
-import PluginSettings from './input/PluginSettings';
+import {
+  LinkButton,
+  Border,
+  Stack,
+  Box,
+  Columns,
+  ImageFile,
+  TypeFace,
+} from '@greysole/spooder-component-library';
+import useTheme from '@greysole/spooder-component-library/dist/types/context/ThemeContext';
+import { PluginComponentProps } from '../../Types';
 import { usePluginContext } from './context/PluginTabFormContext';
-import PluginAssetManager from './PluginAssetManager';
-import TypeFace from '../../common/layout/TypeFace';
-import Columns from '../../common/layout/Columns';
-import Box from '../../common/layout/Box';
-import Stack from '../../common/layout/Stack';
-import ImageFile from '../../common/input/general/ImageFile';
 import PluginButtonRow from './input/PluginButtonRow';
-import useTheme from '../../../app/hooks/useTheme';
-import Border from '../../common/layout/Border';
+import PluginSettings from './input/PluginSettings';
+import PluginAssetManager from './PluginAssetManager';
+import PluginInfoView from './PluginInfoView';
 
 interface Plugin {
   name: string;

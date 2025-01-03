@@ -2,10 +2,7 @@ import React from 'react';
 import { useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { HotkeysProvider } from '../../../../../app/hooks/useHotkeys';
-import Columns from '../../../../common/layout/Columns';
-import Button from '../../../../common/input/controlled/Button';
-import TextInput from '../../../../common/input/controlled/TextInput';
-import TypeFace from '../../../../common/layout/TypeFace';
+import { Columns, TypeFace, TextInput, Button } from '@greysole/spooder-component-library';
 
 export default function AddGroupInput() {
   const { setValue, getValues } = useFormContext();

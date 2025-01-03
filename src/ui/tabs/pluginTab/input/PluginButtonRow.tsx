@@ -6,10 +6,10 @@ import {
   faTrash,
 } from '@fortawesome/free-solid-svg-icons';
 import React from 'react';
-import ButtonRow from '../../../common/input/general/ButtonRow';
 import { usePluginContext } from '../context/PluginTabFormContext';
 import usePlugins from '../../../../app/hooks/usePlugins';
 import { StyleSize } from '../../../Types';
+import { ButtonRow } from '@greysole/spooder-component-library';
 
 interface PluginButtonRowProps {
   pluginName: string;

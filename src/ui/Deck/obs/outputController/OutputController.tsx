@@ -3,7 +3,7 @@ import OSC from 'osc-js';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircle, faStream, faCog, faPause, faPlay } from '@fortawesome/free-solid-svg-icons';
 import { useOSC } from '../../../../app/context/OscContext';
-import FormBoolSwitch from '../../../common/input/form/FormBoolSwitch';
+import { FormBoolSwitch } from '@greysole/spooder-component-library';
 
 export default function OutputController() {
   const { addListener, removeListener, sendOSC } = useOSC();

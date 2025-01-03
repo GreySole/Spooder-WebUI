@@ -1,10 +1,7 @@
 import React, { ReactNode, useState } from 'react';
-import Columns from '../../../common/layout/Columns';
-import Box from '../../../common/layout/Box';
-import { StyleSize } from '../../../Types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faX } from '@fortawesome/free-solid-svg-icons';
-import TypeFace from '../../../common/layout/TypeFace';
+import { Box, TypeFace, Columns } from '@greysole/spooder-component-library';
 
 interface ExpandableProps {
   label: string;

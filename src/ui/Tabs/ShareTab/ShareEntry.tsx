@@ -1,26 +1,17 @@
-import React, { useState } from 'react';
 import {
-  faComment,
-  faHome,
-  faPlay,
-  faPlug,
-  faStop,
-  faTrash,
-} from '@fortawesome/free-solid-svg-icons';
-import LinkButton from '../../common/input/general/LinkButton';
-import ToggleShareButton from './input/ToggleShareButton';
+  Box,
+  ImageFile,
+  Stack,
+  Columns,
+  TypeFace,
+  LinkButton,
+} from '@greysole/spooder-component-library';
+import useTheme from '@greysole/spooder-component-library/dist/types/context/ThemeContext';
+import React, { useState } from 'react';
 import { useFormContext } from 'react-hook-form';
-import Box from '../../common/layout/Box';
-import Columns from '../../common/layout/Columns';
-import Stack from '../../common/layout/Stack';
-import TypeFace from '../../common/layout/TypeFace';
-import ShareTabContent from './tab/ShareTabContent';
-import TwitchIcon from '../../icons/twitch.svg';
-import DiscordIcon from '../../icons/discord.svg';
-import ButtonRow from '../../common/input/general/ButtonRow';
-import ImageFile from '../../common/input/general/ImageFile';
-import useTheme from '../../../app/hooks/useTheme';
 import ShareCategoryButtonRow from './input/ShareCategoryButtonRow';
+import ToggleShareButton from './input/ToggleShareButton';
+import ShareTabContent from './tab/ShareTabContent';
 
 interface ShareEntryProps {
   shareKey: string;

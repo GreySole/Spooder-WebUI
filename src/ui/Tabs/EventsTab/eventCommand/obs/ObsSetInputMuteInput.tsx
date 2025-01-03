@@ -1,11 +1,12 @@
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
-import FormBoolSwitch from '../../../../common/input/form/FormBoolSwitch';
 import { buildKey } from '../../FormKeys';
-import { ReactNode } from 'react';
-import FormNumberInput from '../../../../common/input/form/FormNumberInput';
-import FormSelectDropdown from '../../../../common/input/form/FormSelectDropdown';
 import { SelectOption } from '../../../../Types';
+import {
+  FormSelectDropdown,
+  FormBoolSwitch,
+  FormNumberInput,
+} from '@greysole/spooder-component-library';
 
 interface ObsSetInputMuteInputProps {
   formKey: string;

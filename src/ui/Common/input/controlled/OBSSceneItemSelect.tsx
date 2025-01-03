@@ -1,10 +1,9 @@
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
 import useOBS from '../../../../app/hooks/useOBS';
-import { buildKey } from '../../../tabs/eventsTab/FormKeys';
-import SelectDropdown from './SelectDropdown';
 import { KeyedObject } from '../../../Types';
 import { useState } from 'react';
+import { SelectDropdown } from '@greysole/spooder-component-library';
 
 interface OBSChannelSelectProps {
   label: string;

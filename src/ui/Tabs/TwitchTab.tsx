@@ -1,10 +1,9 @@
 import React from 'react';
 import useTwitch from '../../app/hooks/useTwitch';
-import CircleLoader from '../common/loader/CircleLoader';
-import Button from '../common/input/controlled/Button';
 import TwitchTabFormContextProvider from './twitchTab/context/TwitchFormContext';
 import TwitchCredentials from './twitchTab/TwitchCredentials';
 import TwitchAuthManager from './twitchTab/TwitchAuthManager';
+import { CircleLoader, Button } from '@greysole/spooder-component-library';
 
 export default function TwitchTab() {
   const { getTwitchConfig, getSaveTwitchConfig, getRevokeToken, getDeleteEventSub } = useTwitch();

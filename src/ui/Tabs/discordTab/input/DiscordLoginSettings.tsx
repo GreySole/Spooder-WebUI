@@ -1,5 +1,5 @@
+import { FormTextInput } from '@greysole/spooder-component-library';
 import React from 'react';
-import FormTextInput from '../../../common/input/form/FormTextInput';
 
 export default function DiscordLoginSettings() {
   return (

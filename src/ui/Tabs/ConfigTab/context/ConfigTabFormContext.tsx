@@ -1,7 +1,5 @@
 import React, { ReactNode } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
-import useEvents from '../../../../app/hooks/useEvents';
-import CircleLoader from '../../../common/loader/CircleLoader';
 import { KeyedObject } from '../../../Types';
 
 interface ConfigTabContextProviderProps {

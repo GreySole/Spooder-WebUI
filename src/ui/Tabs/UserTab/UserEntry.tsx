@@ -1,13 +1,8 @@
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { FormTextInput, BoolSwitch, Button } from '@greysole/spooder-component-library';
 import React from 'react';
-import BoolSwitch from '../../common/input/controlled/BoolSwitch';
-import useUsers from '../../../app/hooks/useUsers';
 import { useFormContext } from 'react-hook-form';
-import Button from '../../common/input/controlled/Button';
-import FormTextInput from '../../common/input/form/FormTextInput';
-import Columns from '../../common/layout/Columns';
-import Box from '../../common/layout/Box';
+import useUsers from '../../../app/hooks/useUsers';
 
 interface UserEntryProps {
   userKey: string;

@@ -1,6 +1,6 @@
 import React from 'react';
 import useConfig from '../../../../app/hooks/useConfig';
-import SelectDropdown from './SelectDropdown';
+import { SelectDropdown } from '@greysole/spooder-component-library';
 
 interface UdpSelectDropdownProps {
   label?: string;

@@ -1,7 +1,7 @@
 // filepath: /c:/Users/zasur/Documents/GitHub/Spooder-WebUI/src/context/FooterContext.tsx
-import React, { createContext, useContext, useState, ReactNode, useRef } from 'react';
-import Box from '../common/layout/Box';
-import { TransitionGroup, CSSTransition } from 'react-transition-group';
+import { Box } from '@greysole/spooder-component-library';
+import React, { ReactNode, useRef } from 'react';
+import { CSSTransition } from 'react-transition-group';
 
 interface FooterProps {
   showFooter: boolean;

@@ -1,12 +1,9 @@
 import React from 'react';
 import useUsers from '../../app/hooks/useUsers';
-import SaveButton from '../common/input/form/SaveButton';
-import CircleLoader from '../common/loader/CircleLoader';
-import CreatePluginButton from './pluginTab/input/CreatePluginButton';
 import UserTabFormContextProvider from './userTab/context/UserTabFormContext';
 import UserList from './userTab/UserList';
 import CreateUserButton from './userTab/CreateUserButton';
-import Box from '../common/layout/Box';
+import { CircleLoader, Box, SaveButton } from '@greysole/spooder-component-library';
 
 export default function UserTab() {
   const { getUsers, getSaveUsers } = useUsers();

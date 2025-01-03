@@ -460,6 +460,7 @@ class ConfigTab extends React.Component{
 								<select name={ss} sectionname={s} defaultValue={this.state.config[s][ss]} onChange={this.handleChange}>
 									<option value="ngrok">Ngrok</option>
 									<option value="manual">Enter Manually</option>
+									<option value="motherwolf">Motherwolf (Beta)</option>
 								</select>
 								</label></div>);
 						}else{
@@ -467,6 +468,9 @@ class ConfigTab extends React.Component{
 								break;
 							}
 							if(this.state.config[s]["externalhandle"] != "ngrok" && (ss == "ngrokauthtoken")){
+								break;
+							}
+							if(this.state.config[s]["externalhandle"] != "motherwolf" && (ss == "mw_subdomain" || ss == "mw_token")){
 								break;
 							}
 							let inputType = "text";

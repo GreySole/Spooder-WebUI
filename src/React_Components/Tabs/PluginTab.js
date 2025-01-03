@@ -1,4 +1,6 @@
 import React from 'react';
+import './PluginTab.css';
+import '../PluginSettings/SettingsForm.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCog, faTrash, faPlusCircle, faUpload, faSync, faSpider, 
 	faFile, faDownload, faFileImport, faCircleInfo, faArrowLeft, faHouse, faArrowUp,

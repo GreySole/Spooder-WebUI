@@ -44,7 +44,7 @@ class DiscordTab extends React.Component{
 			}else{
 				newDiscord.config[name[0]][name[1]] = s.target.value;
 			}
-
+			
 		}else{
             if(s.target.type == "checkbox"){
 				newDiscord.config[name] = s.target.checked;
@@ -62,7 +62,7 @@ class DiscordTab extends React.Component{
 			headers: {'Content-Type': 'application/json', 'Accept':'application/json'},
 			body: JSON.stringify(newDiscord)
 		};
-
+		
 		fetch('/discord/saveDiscordConfig', requestOptions)
 		.then(response => response.json())
 		.then(data => {
@@ -80,7 +80,7 @@ class DiscordTab extends React.Component{
 		}
         let guildOptions = [<option value={""}>Select Guild</option>];
         let channelOptions = [<option value={""}>Select Channel</option>];
-
+        
         if(this.state.guilds != null){
             if(this.state.config.autosendngrok?.enabled){
                 for(let g in this.state.guilds){
@@ -89,7 +89,7 @@ class DiscordTab extends React.Component{
                     )
                 }
             }
-
+            
             if(this.state.config.autosendngrok?.enabled){
                 if(this.state.config.autosendngrok.destguild != null && this.state.config.autosendngrok.destguild != ""){
                     for(let c in this.state.guilds[this.state.config.autosendngrok.destguild].channels){
@@ -100,7 +100,7 @@ class DiscordTab extends React.Component{
                 }
             }
         }
-
+        
         let autoNgrokFields = this.state.config?.autosendngrok?.enabled != false?<div className="config-variable">
                 <label>
                     Server
@@ -115,7 +115,7 @@ class DiscordTab extends React.Component{
                     </select>
                 </label>
             </div>:null;
-
+        
         let loginFields = <>
                     <div className="config-variable">
                         <label>
@@ -154,7 +154,7 @@ class DiscordTab extends React.Component{
                     </label>
                 </div>
             </>
-            :<div className="config-variable">
+            :<div class="config-variable">
                 Discord isn't logged in. Input your bot token and invite the bot to your server to assign a channel to auto send Ngrok links.
             </div>}
         </>;

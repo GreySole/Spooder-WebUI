@@ -27,7 +27,7 @@
     --button-delete-color: #CD5C5C;
     --button-add-color: #5C5CCD;
     --button-save-color:#268626;
-    --color-primary:#0099CC;
+    --button-plugin-color:#0099CC;
 
     --button-obs-color:#555555;
     --button-obs-streaming:#0099CC;
@@ -51,8 +51,8 @@
     --border-settings-color:#009900;
     --border-assets-color:#008080;
 
-    --gray-700:#222222;
-    --gray-800:#222222;
+    --command-hover-color:#222222;
+    --command-expanded-color:#222222;
 
     --input-field-color:#111111;
 }
@@ -333,7 +333,7 @@ input::placeholder {
 }
 
 .tab-button.selected {
-
+    
     background-color: var(--tab-active-color);
 }
 

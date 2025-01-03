@@ -6,12 +6,14 @@
 .twitch-credentials{
     display:flex;
     flex-flow:column;
-    label{
-        margin:5px;
-    }
-    input{
-        margin-left:5px;
-    }
+}
+
+.twitch-credentials label{
+    margin:5px;
+}
+
+.twitch-credentials input{
+    margin-left:5px;
 }
 
 .twitch-bot,

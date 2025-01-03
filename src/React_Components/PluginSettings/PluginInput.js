@@ -190,7 +190,7 @@ class PluginInput extends React.Component{
                     )
                 }
                 input = <label key={this.state.keyname}>
-                    <select name={this.state.keyname} onChange={changeCB}>
+                    <select name={this.state.keyname} defaultValue={value} onChange={changeCB}>
                         {udpOptions}
                     </select>
                 </label>
@@ -205,7 +205,7 @@ class PluginInput extends React.Component{
                     );
                     input = 
                     <label key={this.state.keyname}>
-                        <select name={this.state.keyname} onChange={changeCB}>
+                        <select name={this.state.keyname} defaultValue={value} onChange={changeCB}>
                             {eventOptions}
                         </select>
                     </label>;

@@ -1,9 +1,9 @@
 import React from 'react';
 import useConfig from '../../app/hooks/useConfig';
 import { CircleLoader, Box, Stack, Expandable } from '@greysole/spooder-component-library';
-import BackupRestore from './ConfigTab/backupRestoreInput/BackupRestore';
-import ConfigForm from './ConfigTab/configInput/ConfigForm';
-import ConfigTabFormContextProvider from './ConfigTab/context/ConfigTabFormContext';
+import BackupRestore from './configTab/backupRestoreInput/BackupRestore';
+import ConfigForm from './configTab/configInput/ConfigForm';
+import ConfigTabFormContextProvider from './configTab/context/ConfigTabFormContext';
 
 export default function ConfigTab() {
   const { getConfig, getSaveConfig } = useConfig();

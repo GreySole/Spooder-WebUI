@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import OSC from 'osc-js';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTv, faArrowRight, faTableColumns } from '@fortawesome/free-solid-svg-icons';
 import { KeyedObject } from '../../../Types';
-import { useOSC } from '../../../../app/context/OscContext';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { useOSC } from '@greysole/spooder-component-library';
 
 export default function SceneController() {
   const { addListener, removeListener, sendOSC } = useOSC();

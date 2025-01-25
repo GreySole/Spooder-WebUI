@@ -9,8 +9,8 @@ import {
   Columns,
   ImageFile,
   TypeFace,
+  useTheme,
 } from '@greysole/spooder-component-library';
-import useTheme from '@greysole/spooder-component-library/dist/types/context/ThemeContext';
 import { PluginComponentProps } from '../../Types';
 import { usePluginContext } from './context/PluginTabFormContext';
 import PluginButtonRow from './input/PluginButtonRow';

@@ -1,9 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import OSC from 'osc-js';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircle, faStream, faCog, faPause, faPlay } from '@fortawesome/free-solid-svg-icons';
-import { useOSC } from '../../../../app/context/OscContext';
-import { FormBoolSwitch } from '@greysole/spooder-component-library';
+import { FormBoolSwitch, useOSC } from '@greysole/spooder-component-library';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 export default function OutputController() {
   const { addListener, removeListener, sendOSC } = useOSC();

@@ -1,6 +1,6 @@
 import React from 'react';
-import useTheme from '../../../app/hooks/useTheme';
-import TypeFace from '../../common/layout/TypeFace';
+import { TypeFace } from '@greysole/spooder-component-library';
+import { useTheme } from '@greysole/spooder-component-library';
 
 export default function CustomSpooder() {
   const { customSpooder, isMobileDevice } = useTheme();

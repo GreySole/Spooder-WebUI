@@ -11,7 +11,7 @@ interface OBSChannelSelectProps {
   onChange: (value: string) => void;
 }
 
-export default function FormOBSSceneItemSelect(props: OBSChannelSelectProps) {
+export default function OBSSceneItemSelect(props: OBSChannelSelectProps) {
   const { label, value, onChange } = props;
   const { getScenes } = useOBS();
   const { watch } = useFormContext();

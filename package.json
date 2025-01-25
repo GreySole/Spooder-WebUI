@@ -13,7 +13,7 @@
     "@fortawesome/fontawesome-svg-core": "^6.1.1",
     "@fortawesome/free-solid-svg-icons": "^6.1.1",
     "@fortawesome/react-fontawesome": "^0.1.18",
-    "@greysole/spooder-component-library": "^0.1.2",
+    "@greysole/spooder-component-library": "^0.1.15",
     "@reduxjs/toolkit": "^2.2.5",
     "@typescript-eslint/parser": "^5.62.0",
     "@uiw/react-textarea-code-editor": "^2.0.6",
@@ -23,8 +23,8 @@
     "path-browserify": "^1.0.1",
     "prettier": "^3.3.2",
     "prettier-eslint": "^16.3.0",
-    "react": "^18.1.0",
-    "react-dom": "^18.1.0",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
     "react-hook-form": "^7.52.0",
     "react-redux": "^9.1.2",
     "react-svg": "^16.2.0",
@@ -33,6 +33,7 @@
     "sass": "^1.72.0",
     "spooder-webui": "file:",
     "tinycolor2": "^1.4.2",
+    "tslib": "^2.8.1",
     "uuid": "^10.0.0"
   },
   "devDependencies": {
@@ -44,6 +45,10 @@
     "@types/uuid": "^10.0.0",
     "react-scripts": "^5.0.1",
     "typescript": "^5.6.2"
+  },
+  "resolutions": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
   },
   "overrides": {
     "typescript": "^5.6.2"

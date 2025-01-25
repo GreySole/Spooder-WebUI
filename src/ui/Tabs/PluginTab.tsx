@@ -2,9 +2,9 @@ import { Box, Columns } from '@greysole/spooder-component-library';
 import React from 'react';
 import { PluginProvider } from './pluginTab/context/PluginTabFormContext';
 import CreatePluginButton from './pluginTab/input/CreatePluginButton';
-import InstallPluginButton from './PluginTab/input/InstallPluginButton';
-import RefreshAllPluginsButton from './PluginTab/input/RefreshAllPluginsButton';
-import PluginList from './PluginTab/PluginList';
+import InstallPluginButton from './pluginTab/input/InstallPluginButton';
+import RefreshAllPluginsButton from './pluginTab/input/RefreshAllPluginsButton';
+import PluginList from './pluginTab/PluginList';
 
 export default function PluginTab() {
   return (

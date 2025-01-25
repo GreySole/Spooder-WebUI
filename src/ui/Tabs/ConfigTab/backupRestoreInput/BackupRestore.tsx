@@ -1,12 +1,8 @@
 import React from 'react';
-import { faUpload, faTrash, faDownload } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { useState } from 'react';
-import BoolSwitch from '../../../common/input/controlled/BoolSwitch';
 import BackupPluginsInput from './BackupPluginsInput';
 import BackupSettingsInput from './BackupSettingsInput';
-import RestoreSettingsInput from './RestoreSettingsInput';
 import RestorePluginsInput from './RestorePluginsInput';
+import RestoreSettingsInput from './RestoreSettingsInput';
 
 export default function BackupRestore() {
   return (

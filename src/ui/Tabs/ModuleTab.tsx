@@ -1,9 +1,7 @@
 import { useState } from 'react';
 import ModuleWrapper from './moduleTab/ModuleWrapper';
 import React from 'react';
-import { Box, Button } from '@greysole/spooder-component-library';
-import TwitchIcon from '@greysole/spooder-component-library/dist/types/icons/TwitchIcon';
-import DiscordIcon from '@greysole/spooder-component-library/dist/types/icons/DiscordIcon';
+import { Box, Button, DiscordIcon, TwitchIcon } from '@greysole/spooder-component-library';
 
 export default function ModuleTab() {
   const [module, setModule] = useState('');

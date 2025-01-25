@@ -1,10 +1,7 @@
 import React from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { KeyedObject } from '../../../Types';
-import FormTextInput from '../../../common/input/form/FormTextInput';
-import FormBoolSwitch from '../../../common/input/form/FormBoolSwitch';
-import Button from '../../../common/input/controlled/Button';
-import useOBS from '../../../../app/hooks/useOBS';
+import { FormTextInput, FormBoolSwitch } from '@greysole/spooder-component-library';
 import ObsConnectButton from './ObsConnectButton';
 
 interface ObsLoginProps {

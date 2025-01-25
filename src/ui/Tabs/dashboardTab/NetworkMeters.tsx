@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import useTheme from '../../../app/hooks/useTheme';
 import { faDownload, faUpload } from '@fortawesome/free-solid-svg-icons';
-import { Box } from '@greysole/spooder-component-library';
+import { Box, useTheme } from '@greysole/spooder-component-library';
 import { KeyedObject } from '../../Types';
 import NetMeter from './meter/NetMeter';
 

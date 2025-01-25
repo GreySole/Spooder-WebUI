@@ -3,11 +3,10 @@ import React from 'react';
 import VolumeController from './obs/volumeControl/VolumeController';
 import SceneController from './obs/sceneController/SceneController';
 import useOBS from '../../app/hooks/useOBS';
-import { useOSC } from '../../app/context/OscContext';
-import CircleLoader from '../common/loader/CircleLoader';
 import OutputController from './obs/outputController/OutputController';
 import SourceControl from './obs/sourceControl/SourceControl';
 import ObsLogin from './obs/login/ObsLogin';
+import { CircleLoader, useOSC } from '@greysole/spooder-component-library';
 
 export default function OBS() {
   const { isReady: isOSCReady } = useOSC();

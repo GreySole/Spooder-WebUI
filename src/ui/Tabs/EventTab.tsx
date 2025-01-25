@@ -2,8 +2,8 @@ import React from 'react';
 import { EventTableModalProvider } from './eventsTab/context/EventTableModalContext';
 import { CircleLoader, Box } from '@greysole/spooder-component-library';
 import useEvents from '../../app/hooks/useEvents';
-import EventTableFormContextProvider from './EventsTab/context/EventTableFormContext';
-import EventTable from './EventsTab/EventTable';
+import EventTableFormContextProvider from './eventsTab/context/EventTableFormContext';
+import EventTable from './eventsTab/EventTable';
 
 export default function EventTab() {
   const { getEvents } = useEvents();

@@ -1,6 +1,5 @@
 import React from 'react';
-import useTheme from '../../../../app/hooks/useTheme';
-import { formatBytes } from '@greysole/spooder-component-library';
+import { formatBytes, useTheme } from '@greysole/spooder-component-library';
 
 interface GraphMeterProps {
   data: number[];

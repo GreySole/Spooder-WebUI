@@ -6,7 +6,6 @@ import {
   useGetScenesQuery,
   useSaveObsSettingsMutation,
 } from '../api/obsSlice';
-import { convertReactFormToFormData } from '../../ui/util/DataUtil';
 
 export default function useOBS() {
   function getConnectObs() {

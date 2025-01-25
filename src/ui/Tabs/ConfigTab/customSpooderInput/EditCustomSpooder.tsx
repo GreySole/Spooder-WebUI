@@ -1,6 +1,5 @@
 import React from 'react';
-import useTheme from '../../../../app/hooks/useTheme';
-import { Stack, Columns } from '@greysole/spooder-component-library';
+import { Stack, Columns, useTheme } from '@greysole/spooder-component-library';
 import EditCustomSpooderForm from './EditCustomSpooderForm';
 import EditCustomSpooderInputPair from './EditCustomSpooderInputPair';
 

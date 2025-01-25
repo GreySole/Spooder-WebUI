@@ -5,13 +5,9 @@ import useEvents from '../../../../../app/hooks/useEvents';
 import { useState } from 'react';
 import { EventCommandProps } from '../../../../Types';
 import { HotkeysProvider } from '../../../../../app/hooks/useHotkeys';
-import {
-  FormCodeInput,
-  TextInput,
-  Button,
-  FormNumberInput,
-} from '@greysole/spooder-component-library';
+import { TextInput, Button, FormNumberInput } from '@greysole/spooder-component-library';
 import ResponseCommandCheatSheet from './ResponseCommandCheatSheet';
+import FormCodeInput from '../../../../common/input/form/FormCodeInput';
 
 export default function EventResponseCommand(props: EventCommandProps) {
   const { eventName, commandIndex } = props;

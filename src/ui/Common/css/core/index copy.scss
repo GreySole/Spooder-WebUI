@@ -1,6 +1,4 @@
-@import '_colors';
 @import 'navigation';
-@import 'footer';
 
 @import '../app/EventTab.scss';
 @import '../app/TwitchTab.scss';
@@ -8,6 +6,7 @@
 @import '../app/ConfigTab.scss';
 @import '../app/UserTab.scss';
 @import '../app/ShareTab.scss';
+@import './LoadingCircle.scss';
 
 @import '../deck/OutputController.scss';
 @import '../deck/SceneController.scss';
@@ -71,37 +70,37 @@ body {
   height: 95vh;
 }
 
-.box {
-  border-radius: var(--interactive-radius);
+.box{
+  border-radius:var(--interactive-radius)
 }
 
-.expandable-label {
-  font-size: 24px;
+.expandable-label{
+  font-size:24px;
 }
 
-.expandable:not(.open):hover {
+.expandable:not(.open):hover{
   background-color: var(--color-background-far);
 }
 
-.expandable.open {
+.expandable.open{
   background-color: var(--color-background-far);
 }
 
-.expandable.event:not(.open):hover {
+.expandable.event:not(.open):hover{
   background-color: var(--button-background-color);
   outline: 2px solid var(--button-border-color);
 }
 
-.expandable.event.open .expandable-header:hover {
+.expandable.event.open .expandable-header:hover{
   background-color: var(--button-background-color);
 }
 
-.expandable.event.open {
+.expandable.event.open{
   background-color: var(--color-background-near);
   outline: 2px solid var(--button-border-color);
 }
 
-.border-component {
+.border-component{
   border-radius: var(--interactive-radius);
 }
 
@@ -126,7 +125,7 @@ body {
 }
 
 .App-header {
-  position: relative;
+  position:relative;
   display: flex;
   flex-flow: column;
   align-items: center;

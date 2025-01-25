@@ -1,6 +1,5 @@
-import { Box, Stack, Slider, BoolSwitch } from '@greysole/spooder-component-library';
-import useTheme from '@greysole/spooder-component-library/dist/types/context/ThemeContext';
 import React from 'react';
+import { Box, Stack, Slider, BoolSwitch, useTheme } from '@greysole/spooder-component-library';
 
 export default function ThemeColor() {
   const { themeColors, themeVariables, setThemeHue, setThemeMode, setThemeSaturation } = useTheme();

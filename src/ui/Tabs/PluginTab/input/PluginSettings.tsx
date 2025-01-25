@@ -1,4 +1,4 @@
-import SettingsForm from '../PluginSettings/SettingsForm';
+import SettingsForm from '../pluginSettings/SettingsForm';
 import { PluginComponentProps } from '../../../Types';
 import React from 'react';
 

@@ -1,8 +1,7 @@
 import { faMinus, faPlus, faVolumeMute, faVolumeHigh } from '@fortawesome/free-solid-svg-icons';
 import React, { ReactNode, useState } from 'react';
 import VolumeMeter from './VolumeMeter';
-import { useOSC } from '../../../../app/context/OscContext';
-import { Button } from '@greysole/spooder-component-library';
+import { Button, useOSC } from '@greysole/spooder-component-library';
 
 interface VolumeGroupMeterProps {
   groupName: string;

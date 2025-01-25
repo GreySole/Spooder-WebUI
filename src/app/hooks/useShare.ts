@@ -6,7 +6,7 @@ import {
   useSetShareMutation,
   useVerifyShareTargetMutation,
 } from '../api/shareSlice';
-import { convertReactFormToFormData } from '../../ui/util/DataUtil';
+import { convertReactFormToFormData } from '@greysole/spooder-component-library';
 
 export default function useShare() {
   function getShares() {

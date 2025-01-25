@@ -5,8 +5,8 @@ import {
   Columns,
   TypeFace,
   LinkButton,
+  useTheme,
 } from '@greysole/spooder-component-library';
-import useTheme from '@greysole/spooder-component-library/dist/types/context/ThemeContext';
 import React, { useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import ShareCategoryButtonRow from './input/ShareCategoryButtonRow';

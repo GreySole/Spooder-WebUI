@@ -1,9 +1,8 @@
 import { faArrowDown } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React, { useEffect, useState } from 'react';
 import { KeyedObject } from '../Types';
-import { useOSC } from '../../app/context/OscContext';
-import { BoolSwitch } from '@greysole/spooder-component-library';
+import { BoolSwitch, useOSC } from '@greysole/spooder-component-library';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 interface Log {
   name: string;

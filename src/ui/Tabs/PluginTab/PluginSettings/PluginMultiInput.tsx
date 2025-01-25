@@ -12,9 +12,9 @@ import {
   RangeInput,
   TextAreaInput,
 } from '@greysole/spooder-component-library';
-import EventSelect from '../../../Common/input/controlled/EventSelect';
-import UdpSelectDropdown from '../../../Common/input/controlled/UdpSelectDropdown';
 import AssetSelect from '../../../common/input/controlled/AssetSelect';
+import UdpSelectDropdown from '../../../common/input/controlled/UdpSelectDropdown';
+import EventSelect from '../../../common/input/controlled/EventSelect';
 
 interface PluginMultiInputProps {
   pluginName: string;

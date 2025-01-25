@@ -15,7 +15,7 @@ import {
   useSaveAuthToBroadcasterMutation,
   useSaveTwitchConfigMutation,
 } from '../api/twitchSlice';
-import { convertReactFormToFormData } from '../../ui/util/DataUtil';
+import { convertReactFormToFormData } from '@greysole/spooder-component-library';
 
 export default function useTwitch() {
   function getTwitchConfig() {

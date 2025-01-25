@@ -1,10 +1,7 @@
 import { faHome, faComment, faPlug, faTrash } from '@fortawesome/free-solid-svg-icons';
 import React from 'react';
-import useTheme from '../../../../app/hooks/useTheme';
 import { StyleSize } from '../../../Types';
-import { ButtonRow } from '@greysole/spooder-component-library';
-import DiscordIcon from '@greysole/spooder-component-library/dist/types/icons/DiscordIcon';
-import TwitchIcon from '@greysole/spooder-component-library/dist/types/icons/TwitchIcon';
+import { ButtonRow, DiscordIcon, TwitchIcon, useTheme } from '@greysole/spooder-component-library';
 
 interface ShareCategoryButtonRowProps {
   tab: string;
@@ -17,6 +14,7 @@ export default function ShareCategoryButtonRow(props: ShareCategoryButtonRowProp
   const { themeColors, themeConstants } = useTheme();
 
   const iconSize = StyleSize.large;
+  console.log(DiscordIcon, TwitchIcon);
 
   return (
     <ButtonRow
@@ -43,14 +41,14 @@ export default function ShareCategoryButtonRow(props: ShareCategoryButtonRowProp
           onClick: () => setTab('plugins'),
         },
         {
-          icon: TwitchIcon,
+          icon: <TwitchIcon />,
           iconSize: iconSize,
           color: themeColors.backgroundColorNear,
           isActive: tab === 'twitch',
           onClick: () => setTab('twitch'),
         },
         {
-          icon: DiscordIcon,
+          icon: <DiscordIcon />,
           iconSize: iconSize,
           color: themeColors.backgroundColorNear,
           isActive: tab === 'discord',

@@ -13,7 +13,7 @@ interface AssetSelectProps {
   onChange: (value: string) => void;
 }
 
-export default function FormAssetSelect(props: AssetSelectProps) {
+export default function AssetSelect(props: AssetSelectProps) {
   const { label, assetType, pluginName, assetFolderPath, value, onChange } = props;
   const acceptedFormat = assetType != null ? assetType + '/*' : '*';
   const { getPluginAssets, getUploadPluginAsset } = usePlugins();

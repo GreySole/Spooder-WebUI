@@ -1,8 +1,7 @@
 import React from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
 import { KeyedObject } from '../../../Types';
-import useTheme from '../../../../app/hooks/useTheme';
-import { translateCondition, Border, Stack } from '@greysole/spooder-component-library';
+import { translateCondition, Border, Stack, useTheme } from '@greysole/spooder-component-library';
 import PluginInput from './PluginInput';
 import PluginSettingsSaveButton from './PluginSettingsSaveButton';
 import PluginSubform from './PluginSubform';

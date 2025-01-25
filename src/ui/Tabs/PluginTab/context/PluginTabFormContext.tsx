@@ -3,7 +3,7 @@ import { ReactNode, createContext, useContext, useEffect, useState } from 'react
 import usePlugins from '../../../../app/hooks/usePlugins';
 import { PluginsObject, ToastType } from '../../../Types';
 import useToast from '../../../../app/hooks/useToast';
-import { useOSC } from '../../../../app/context/OscContext';
+import { useOSC } from '@greysole/spooder-component-library';
 
 export const PluginContext = createContext({
   plugins: {} as PluginsObject,

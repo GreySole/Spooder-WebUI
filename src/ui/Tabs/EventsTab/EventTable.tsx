@@ -10,6 +10,7 @@ import {
   FilterButton,
   ResetButton,
   SaveButton,
+  TwitchIcon,
 } from '@greysole/spooder-component-library';
 import useEvents from '../../../app/hooks/useEvents';
 import { Footer } from '../../app/Footer';
@@ -17,7 +18,6 @@ import AddEventInput from './eventCommand/input/AddEventInput';
 import AddGroupInput from './eventCommand/input/AddGroupInput';
 import DeleteGroupButton from './eventCommand/input/DeleteGroupButton';
 import EventElement from './EventElement';
-import TwitchIcon from '@greysole/spooder-component-library/dist/types/icons/TwitchIcon';
 
 export default function EventTable() {
   const { watch, formState } = useFormContext();

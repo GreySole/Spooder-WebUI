@@ -1,10 +1,10 @@
 import React, { createContext, useState, useContext, ReactNode } from 'react';
-import Modal from '../../../common/input/general/Modal';
 import EventGeneral from '../EventGeneral';
 import EventCommands from '../EventCommands';
 import EventTriggers from '../EventTriggers';
 import { useFormContext } from 'react-hook-form';
 import { EVENT_KEY } from '../FormKeys';
+import { Modal } from '@greysole/spooder-component-library';
 
 interface EventModalContextProps {
   open: () => void;

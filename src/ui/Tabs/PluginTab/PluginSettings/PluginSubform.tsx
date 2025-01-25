@@ -12,8 +12,8 @@ import {
 } from '@greysole/spooder-component-library';
 import { useFormContext } from 'react-hook-form';
 import { KeyedObject } from '../../../Types';
-import EventExpandable from '../../EventsTab/eventCommand/EventExpandable';
 import PluginMultiInput from './PluginMultiInput';
+import EventExpandable from '../../eventsTab/eventCommand/EventExpandable';
 
 interface PluginSubformProps {
   formKey: string;

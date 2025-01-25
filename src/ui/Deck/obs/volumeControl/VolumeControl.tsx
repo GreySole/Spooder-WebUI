@@ -5,9 +5,8 @@ import {
   faVolumeHigh,
 } from '@fortawesome/free-solid-svg-icons';
 import React, { useState } from 'react';
-import { useOSC } from '../../../../app/context/OscContext';
 import { useObsWebsocketContext } from './VolumeContext';
-import { RangeInput, Button } from '@greysole/spooder-component-library';
+import { RangeInput, Button, useOSC } from '@greysole/spooder-component-library';
 import VolumeMeter from './VolumeMeter';
 
 interface VolumeControlProps {

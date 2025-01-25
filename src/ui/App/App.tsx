@@ -1,30 +1,29 @@
 import React, { useEffect } from 'react';
+import { useOSC } from '@greysole/spooder-component-library';
+import { useTheme } from '@greysole/spooder-component-library';
 import useNavigation from '../../app/hooks/useNavigation';
 import useServer from '../../app/hooks/useServer';
+import { CircleLoader, Box } from '@greysole/spooder-component-library';
+import useFooter from '../../app/hooks/useFooter';
 import ModUI from '../deck/ModUI';
+import OBS from '../deck/OBS';
 import OSCMonitor from '../deck/OSCMonitor';
-import PluginTab from '../tabs/PluginTab';
-import CircleLoader from '../common/loader/CircleLoader';
-import { useOSC } from '../../app/context/OscContext';
-import EventTab from '../tabs/EventTab';
 import ConfigTab from '../tabs/ConfigTab';
+import DashboardTab from '../tabs/DashboardTab';
+import EventTab from '../tabs/EventTab';
+import ModuleTab from '../tabs/ModuleTab';
 import OSCTunnelTab from '../tabs/OSCTunnelTab';
+import PluginTab from '../tabs/PluginTab';
 import ShareTab from '../tabs/ShareTab';
+import ThemeTab from '../tabs/ThemeTab';
 import UserTab from '../tabs/UserTab';
 import Header from './Header';
 import NavigationMenu from './navigation/NavigationMenu';
-import NavigationTabs from './navigation/NavigationTabs';
-import OBS from '../deck/OBS';
-import DashboardTab from '../tabs/DashboardTab';
-import useTheme from '../../app/hooks/useTheme';
-import ModuleTab from '../tabs/ModuleTab';
-import Box from '../common/layout/Box';
-import useFooter from '../../app/hooks/useFooter';
-import ThemeTab from '../tabs/ThemeTab';
 
 export default function App() {
   const { currentTab } = useNavigation();
   const { setCustomSpooder, refreshThemeColors, isMobileDevice } = useTheme();
+
   const { getServerState } = useServer();
   const { data: serverData, isLoading: serverLoading, error: serverError } = getServerState();
   const { addListener, removeListener } = useOSC();

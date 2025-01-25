@@ -1,8 +1,7 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React from 'react';
 import GraphMeter from './GraphMeter';
-import useTheme from '../../../../app/hooks/useTheme';
-import { Box, formatBytes } from '@greysole/spooder-component-library';
+import { Box, formatBytes, useTheme } from '@greysole/spooder-component-library';
 
 interface NetMeterProps {
   value: number;

@@ -11,8 +11,7 @@ import { Timeline, TimelineRow } from '@xzdarcy/react-timeline-editor';
 import EventAddCommand from './eventCommand/EventAddCommand';
 import { buildCommandKey, buildKey, EVENT_KEY } from './FormKeys';
 import { useFormContext } from 'react-hook-form';
-import OBSIcon from '@greysole/spooder-component-library/dist/types/icons/OBSIcon';
-import DiscordIcon from '@greysole/spooder-component-library/dist/types/icons/DiscordIcon';
+import { OBSIcon, DiscordIcon } from '@greysole/spooder-component-library';
 
 interface EventCommandsProps {
   eventName: string;

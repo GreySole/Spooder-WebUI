@@ -12,13 +12,13 @@ import {
   Columns,
   TypeFace,
   ButtonRow,
+  useTheme,
+  TwitchIcon,
 } from '@greysole/spooder-component-library';
-import useTheme from '@greysole/spooder-component-library/dist/types/context/ThemeContext';
 import { useFormContext } from 'react-hook-form';
 import { StyleSize } from '../../Types';
 import { useEventTableModal } from './context/EventTableModalContext';
 import { EVENT_KEY, buildEventKey, buildKey } from './FormKeys';
-import TwitchIcon from '@greysole/spooder-component-library/dist/types/icons/TwitchIcon';
 
 interface EventElementProps {
   eventName: string;

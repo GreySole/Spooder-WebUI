@@ -1,0 +1,29 @@
+.box.footer{
+  position:fixed;
+  bottom:0;
+  background-color:var(--color-background-far);
+  outline: solid 2px var(--button-border-color);
+  border-radius: var(--interactive-radius) var(--interactive-radius) 0 0;
+  max-height:0;
+}
+
+.slide-appear{
+  max-height:0 !important;
+}
+
+.slide-enter {
+  max-height:0 !important;
+}
+.slide-enter-active,
+.slide-enter-done {
+  max-height:var(--footer-height) !important;
+  transition: transform, max-height 300ms;
+}
+.slide-exit {
+  max-height:var(--footer-height) !important;
+}
+.slide-exit-active,
+.slide-exit-done {
+  max-height:0 !important;
+  transition: transform, max-height 300ms;
+}

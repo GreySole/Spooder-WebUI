@@ -1,10 +1,12 @@
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
-import SelectDropdown from '../../../common/input/controlled/SelectDropdown';
+import {
+  FormLoader,
+  SelectDropdown,
+  Button,
+  LinkButton,
+} from '@greysole/spooder-component-library';
 import React, { useState } from 'react';
-import Button from '../../../common/input/controlled/Button';
-import LinkButton from '../../../common/input/general/LinkButton';
 import useRecovery from '../../../../app/hooks/useRecovery';
-import FormLoader from '../../../common/loader/FormLoader';
 
 export default function RestorePluginsInput() {
   const { getPluginsBackups, getDeleteBackupPlugins, getRestorePlugins } = useRecovery();

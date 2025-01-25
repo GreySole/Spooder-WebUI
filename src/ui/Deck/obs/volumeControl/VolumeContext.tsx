@@ -8,7 +8,7 @@ import React, {
   useState,
 } from 'react';
 import { KeyedObject } from '../../../Types';
-import { useOSC } from '../../../../app/context/OscContext';
+import { useOSC } from '@greysole/spooder-component-library';
 
 export const ObsWebsocketContext = createContext({
   inputs: {} as KeyedObject,

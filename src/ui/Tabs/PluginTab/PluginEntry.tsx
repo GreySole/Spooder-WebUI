@@ -79,12 +79,14 @@ export default function PluginEntry(props: PluginComponentProps) {
               <ImageFile
                 src={window.location.origin + '/icons/' + pluginName + '.png'}
                 fallbackIcon={faPlug}
+                width='100px'
+                height='100px'
               />
             ) : (
               <FontAwesomeIcon
                 className='plugin-status-icon'
                 icon={faTriangleExclamation}
-                size='lg'
+                style={{ width: '100px', height: '100px' }}
               />
             )}
 
@@ -93,7 +95,7 @@ export default function PluginEntry(props: PluginComponentProps) {
                 <TypeFace fontSize='xlarge'>{plugin.name}</TypeFace>
                 <TypeFace fontSize='medium'>{plugin.version + ' by ' + plugin.author}</TypeFace>
               </Stack>
-              <div className='plugin-entry-links'>{pluginLinks}</div>
+              <Columns spacing='medium'>{pluginLinks}</Columns>
             </Stack>
           </Columns>
           <PluginButtonRow pluginName={pluginName} status={plugin.status} />

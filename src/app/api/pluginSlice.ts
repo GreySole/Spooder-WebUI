@@ -33,9 +33,6 @@ export const pluginApi = createApi({
         url: '/plugins/install_plugin',
         method: 'post',
         body: form,
-        headers: {
-          'Content-type': 'application/json; charset=UTF-8',
-        },
       }),
     }),
     uploadPluginAsset: builder.mutation({

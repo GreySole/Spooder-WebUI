@@ -1,116 +1,113 @@
-@import "../core/animations.scss";
-
-.deck-component.deck-output-controller{
-    display:flex;
-    flex-flow:column;
+.deck-component.deck-output-controller {
+  display: flex;
+  flex-flow: column;
 }
 
-.output-controller-buttons{
-    display:flex;
-    flex-flow:row;
-    justify-content: space-evenly;
+.output-controller-buttons {
+  display: flex;
+  flex-flow: row;
+  justify-content: space-evenly;
 }
 
-.controller-record-buttons{
-    display:flex;
-    flex-flow:row;
+.controller-record-buttons {
+  display: flex;
+  flex-flow: row;
 }
 
-.output-controller-button{
-    display:flex;
-    align-items:center;
-    justify-content: center;
-    width:85px;
-    height:85px;
-    border-radius:10px;
-    margin-right:10px;
-    background-color:var(--button-obs-color);
+.output-controller-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 85px;
+  height: 85px;
+  border-radius: 10px;
+  margin-right: 10px;
+  background-color: var(--button-obs-color);
 }
 
-.output-controller-button:hover{
-    filter:brightness(1.2);
+.output-controller-button:hover {
+  filter: brightness(1.2);
 }
 
-.output-controller-button.streaming{
-    background-color:var(--button-obs-streaming);
+.output-controller-button.streaming {
+  background-color: var(--button-obs-streaming);
 }
 
 .output-controller-button.streaming.reconnecting,
-.output-controller-button.reconnecting{
-    animation: streamReconnecting 1s infinite;
+.output-controller-button.reconnecting {
+  animation: streamReconnecting 1s infinite;
 }
 
-.output-controller-button.recording{
-    background-color:var(--button-obs-recording);
+.output-controller-button.recording {
+  background-color: var(--button-obs-recording);
 }
 
 .output-controller-button.recording.paused,
-.output-controller-button.paused{
-    animation: recordingPaused 1s infinite;
+.output-controller-button.paused {
+  animation: recordingPaused 1s infinite;
 }
 
-.deck-output-controller{
-    display:flex;
-    flex-flow:row;
-    justify-content: space-evenly;
+.deck-output-controller {
+  display: flex;
+  flex-flow: row;
+  justify-content: space-evenly;
 }
 
-.output-controller-button{
-    flex-flow:column;
+.output-controller-button {
+  flex-flow: column;
 }
 
-.output-controller-button label{
-    margin-bottom:5px;
+.output-controller-button label {
+  margin-bottom: 5px;
 }
 
 .output-controller-stream,
 .output-controller-record,
-.output-controller-settings{
-    display:flex;
-    flex-flow:row;
-    align-items:center;
-    margin:10px;
+.output-controller-settings {
+  display: flex;
+  flex-flow: row;
+  align-items: center;
+  margin: 10px;
 }
 
 .output-controller-stream-status,
-.output-controller-record-status{
-    display:flex;
-    flex-flow:column;
-    align-items:left;
-    font-size:24px;
+.output-controller-record-status {
+  display: flex;
+  flex-flow: column;
+  align-items: left;
+  font-size: 24px;
 }
 
-.output-settings-container label{
-    display:flex;
-    flex-flow:column;
-    align-items:flex-start;
-    margin:5px;
+.output-settings-container label {
+  display: flex;
+  flex-flow: column;
+  align-items: flex-start;
+  margin: 5px;
 }
 
-.output-settings-container .boolswitch{
-    margin-left:15px;
+.output-settings-container .boolswitch {
+  margin-left: 15px;
 }
 
-.output-settings-container .delete-button{
-    font-size:18px;
+.output-settings-container .delete-button {
+  font-size: 18px;
 }
 
-@media screen and (max-width:600px){
+@media screen and (max-width: 600px) {
+  .output-controller-button {
+    margin: 0;
+  }
+  .output-controller-stream,
+  .output-controller-record {
+    display: flex;
+    flex-flow: column;
+    text-align: center;
+    align-items: center;
+  }
 
-    .output-controller-button{
-        margin:0;
-    }
-    .output-controller-stream,
-    .output-controller-record{
-        display:flex;
-        flex-flow:column;
-        text-align:center;
-        align-items: center;
-    }
-
-    .output-controller-stream-status,
-    .output-controller-record-status{
-        margin-top:5px;
-        font-size:18px;
-    }
+  .output-controller-stream-status,
+  .output-controller-record-status {
+    margin-top: 5px;
+    font-size: 18px;
+  }
 }

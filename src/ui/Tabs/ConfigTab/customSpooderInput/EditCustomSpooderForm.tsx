@@ -1,18 +1,20 @@
-import { useForm, FormProvider } from 'react-hook-form';
-import { KeyedObject } from '../../../Types';
-import React, { ReactNode } from 'react';
+import { Box, useTheme } from '@greysole/spooder-component-library';
+import React, { ReactNode, useEffect } from 'react';
+import { useFormContext, useWatch } from 'react-hook-form';
 
-interface EditCustomSpooderForm {
-  data: KeyedObject;
+interface EditCustomSpooderFormProps {
   children: ReactNode;
 }
 
-export default function EditCustomSpooderForm(props: EditCustomSpooderForm) {
-  const { data, children } = props;
+export default function EditCustomSpooderForm({ children }: EditCustomSpooderFormProps) {
+  const { control } = useFormContext();
+  const { setCustomSpooder } = useTheme();
+  const parts = useWatch({ control, name: 'parts' });
+  const colors = useWatch({ control, name: 'colors' });
 
-  const customSpooderForm = useForm({
-    defaultValues: data,
-  });
+  useEffect(() => {
+    setCustomSpooder(parts, colors);
+  }, [parts, colors]);
 
-  return <FormProvider {...customSpooderForm}>{children}</FormProvider>;
+  return <Box flexFlow='row wrap'>{children}</Box>;
 }

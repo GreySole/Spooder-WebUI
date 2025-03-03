@@ -20,7 +20,22 @@ export const eventApi = createApi({
         },
       }),
     }),
+    verifyResponseScript: builder.mutation({
+      query: (body) => ({
+        url: '/verifyResponseScript',
+        method: 'post',
+        body: body,
+        headers: {
+          'Content-type': 'application/json; charset=UTF-8',
+        },
+      }),
+    }),
   }),
 });
 
-export const { useGetEventsQuery, useGetChatCommandsQuery, useSaveEventsMutation } = eventApi;
+export const {
+  useGetEventsQuery,
+  useGetChatCommandsQuery,
+  useSaveEventsMutation,
+  useVerifyResponseScriptMutation,
+} = eventApi;

@@ -1,15 +1,37 @@
 import React from 'react';
 import { Footer } from '../app/Footer';
-import { Box, ResetButton, SaveButton } from '@greysole/spooder-component-library';
+import {
+  Box,
+  Button,
+  ResetButton,
+  SaveButton,
+  useTheme,
+} from '@greysole/spooder-component-library';
 import EditCustomSpooder from './configTab/customSpooderInput/EditCustomSpooder';
 import ThemeColor from './configTab/themeColor/ThemeColor';
+import useThemeApi from '../../app/hooks/useThemeApi';
 
 export default function ThemeTab() {
+  const { themeVariables, customSpooder } = useTheme();
+  const { getSaveTheme, getSaveCustomSpooder } = useThemeApi();
+  const { saveTheme } = getSaveTheme();
+  const { saveCustomSpooder } = getSaveCustomSpooder();
+
   return (
     <Box flexFlow='column' width='inherit' marginBottom='var(--footer-height)'>
       <ThemeColor />
       <EditCustomSpooder />
-      <Footer showFooter={true}>Test</Footer>
+      <Footer showFooter={true}>
+        <Box width='100%' justifyContent='flex-end' padding='small'>
+          <Button
+            label='Save'
+            onClick={() => {
+              saveTheme(themeVariables.hue, themeVariables.saturation, themeVariables.isDarkTheme);
+              saveCustomSpooder(customSpooder.parts, customSpooder.colors);
+            }}
+          />
+        </Box>
+      </Footer>
     </Box>
   );
 }

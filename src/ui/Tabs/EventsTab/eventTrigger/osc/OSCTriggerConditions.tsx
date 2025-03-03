@@ -2,56 +2,65 @@ import React from 'react';
 import { useFormContext } from 'react-hook-form';
 import { EventTriggerProps, OSCConditionType, OSCHandleType } from '../../../../Types';
 import { buildKey, buildTriggerKey } from '../../FormKeys';
-import { FormSelectDropdown, FormTextInput } from '@greysole/spooder-component-library';
-
-interface TriggerCondition {
-  formKey: string;
-  index: number;
-}
-
-function OSCTriggerCondition(props: TriggerCondition) {
-  const { formKey, index } = props;
-  const { watch } = useFormContext();
-
-  const conditionKey = buildKey(formKey, `${index}`, 'condition');
-  const valueKey = buildKey(formKey, `${index}`, 'value');
-
-  return (
-    <div className='osc-trigger-condition'>
-      <FormSelectDropdown
-        label={`Condition ${index}`}
-        formKey={conditionKey}
-        options={[
-          { value: OSCConditionType.equal, label: 'Equal to' },
-          { value: OSCConditionType.notEqual, label: 'Not equal to' },
-          { value: OSCConditionType.greaterThanOrEqual, label: 'Greater than or equal to' },
-          { value: OSCConditionType.lessThanOrEqual, label: 'Less than or equal to' },
-          { value: OSCConditionType.greaterThan, label: 'Greater than' },
-          { value: OSCConditionType.lessThan, label: 'Less than' },
-        ]}
-      />
-      <FormTextInput formKey={valueKey} label={`Value ${index}`} />
-    </div>
-  );
-}
+import {
+  Border,
+  Box,
+  Button,
+  Expandable,
+  FormSelectDropdown,
+  FormTextInput,
+  Stack,
+  TypeFace,
+} from '@greysole/spooder-component-library';
+import { faPlus, faTrash } from '@fortawesome/free-solid-svg-icons';
+import OSCTriggerConditionGroup from './OSCTriggerConditionGroup';
 
 export default function OSCTriggerConditions(props: EventTriggerProps) {
   const { eventName } = props;
-  const { watch } = useFormContext();
+  const { watch, setValue } = useFormContext();
 
   const oscTriggerKey = buildTriggerKey(eventName, 'osc');
 
   const handleTypeKey = buildKey(oscTriggerKey, 'handletype');
   const handleType = watch(handleTypeKey, OSCHandleType.trigger);
 
-  const conditionKey = buildKey(oscTriggerKey, 'conditions');
-  const conditions = watch(conditionKey, []);
+  const conditionKey = buildKey(oscTriggerKey, 'condition_groups_on');
+  const conditionGroups = watch(conditionKey, []);
+
+  const addConditionGroup = () => {
+    setValue(conditionKey, [
+      ...conditionGroups,
+      { mode: 'OR', conditions: [{ type: OSCConditionType.equal, value: '0' }] },
+    ]);
+    console.log('CONDITIONS GROUPS', conditionGroups);
+  };
+
+  const deleteConditionGroup = (groupIndex: number) => {
+    const newConditionGroups = [...conditionGroups];
+    newConditionGroups.splice(groupIndex, 1);
+    setValue(conditionKey, newConditionGroups);
+  };
+
+  console.log('CONDITION RENDER', conditionGroups);
 
   return (
-    <div className='osc-trigger-conditions'>
-      {conditions.map((condition: any, index: number) => {
-        <OSCTriggerCondition formKey={conditionKey} index={index} />;
-      })}
-    </div>
+    <Expandable label='Conditions' forceOpen>
+      <Stack width='100%' spacing='medium'>
+        {conditionGroups.map((condition: any, index: number) => (
+          <OSCTriggerConditionGroup
+            formKey={conditionKey}
+            groupIndex={index}
+            deleteConditionGroup={deleteConditionGroup}
+          />
+        ))}
+        <Button
+          icon={faPlus}
+          label='Add Group'
+          onClick={() => {
+            addConditionGroup();
+          }}
+        />
+      </Stack>
+    </Expandable>
   );
 }

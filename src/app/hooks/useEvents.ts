@@ -3,6 +3,7 @@ import {
   useGetChatCommandsQuery,
   useGetEventsQuery,
   useSaveEventsMutation,
+  useVerifyResponseScriptMutation,
 } from '../api/eventSlice';
 import { buildEventKey } from '../../ui/tabs/eventsTab/FormKeys';
 import useToast from './useToast';
@@ -199,77 +200,28 @@ export default function useEvents() {
     return commandData;
   }
 
-  async function verifyResponseScript(eventName: string, script: string, inputMessage: string) {
-    const { getValues } = useFormContext();
-    const eventData = getValues(buildEventKey(eventName));
+  function getVerifyResponseScript() {
+    const [verifyResponseScriptMutation, { isLoading, isSuccess, error }] =
+      useVerifyResponseScriptMutation();
 
-    //Usually event.username is the uncapitalized version of a username.
-    //Spooder replaces this with the capitalized version in runCommands()
-    let testEvent = {
-      timestamp: '2022-05-05T17:06:31.505Z',
-      command: 'PRIVMSG',
-      event: 'PRIVMSG',
-      channel: '#testchannel',
-      username: 'testchannel',
-      displayName: 'TestChannel',
-      message: inputMessage,
-      tags: {
-        badgeInfo: 'subscriber/1',
-        badges: { broadcaster: true, subscriber: 0 },
-        clientNonce: '00000000000000000000000000000000',
-        color: '#1E90FF',
-        displayName: 'TestChannel',
-        emotes: [],
-        firstMsg: '0',
-        flags: '',
-        id: '00000000-0000-0000-0000-000000000000',
-        mod: '0',
-        roomId: '000000000',
-        subscriber: '1',
-        tmiSentTs: '0000000000000',
-        turbo: '0',
-        userId: '000000000',
-        userType: '',
-        bits: undefined,
-        emoteSets: [],
-        username: 'testchannel',
-        isModerator: false,
-      },
-    };
-
-    try {
-      let response = await fetch('/verifyResponseScript', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-        body: JSON.stringify({
-          eventName: eventName,
-          event: eventData,
-          message: testEvent,
-          script: script,
-        }),
-      }).then((response) => response.json());
-      if (response.status == 'ok') {
-        console.log('SCRIPT RAN SUCCESSFULLY:', response);
-        return {
-          status: 'ok',
-          message: response.response,
-        };
-      } else {
-        console.log('SCRIPT FAILED', response.response);
-        return {
-          status: 'fail',
-          message: response.response,
-        };
-      }
-    } catch (e) {
-      console.log(e);
+    async function verifyResponseScript(command: string, inputMessage: string, script: string) {
+      //Usually event.username is the uncapitalized version of a username.
+      //Spooder replaces this with the capitalized version in runCommands()
+      const fd = new FormData();
+      fd.append('command', command);
+      fd.append('message', inputMessage);
+      fd.append('script', script);
+      const response = await verifyResponseScriptMutation(fd);
+      return response;
     }
+
+    return { verifyResponseScript, isLoading, isSuccess, error };
   }
 
   return {
     getEvents,
     getChatCommands,
     getSaveEvents,
-    verifyResponseScript,
+    getVerifyResponseScript,
   };
 }

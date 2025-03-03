@@ -1,4 +1,10 @@
-import { Stack, FormTextInput, FormColorInput } from '@greysole/spooder-component-library';
+import {
+  Stack,
+  FormTextInput,
+  FormColorInput,
+  TypeFace,
+  Box,
+} from '@greysole/spooder-component-library';
 import React from 'react';
 
 interface EditCustomSpooderInputPairProps {
@@ -9,9 +15,10 @@ interface EditCustomSpooderInputPairProps {
 export default function EditCustomSpooderInputPair(props: EditCustomSpooderInputPairProps) {
   const { partName, label } = props;
   return (
-    <Stack spacing='small'>
-      <FormTextInput width='100px' formKey={`parts.${partName}`} label={label} />
+    <Box flexFlow='column' alignItems='center' margin='small'>
+      <TypeFace>{label}</TypeFace>
+      <FormTextInput width='100px' formKey={`parts.${partName}`} />
       <FormColorInput formKey={`colors.${partName}`} />
-    </Stack>
+    </Box>
   );
 }

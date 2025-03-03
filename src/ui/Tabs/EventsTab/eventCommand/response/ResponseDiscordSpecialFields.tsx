@@ -6,7 +6,23 @@ import ResponseCommandCheatSheet from './ResponseCommandCheatSheet';
 import useEvents from '../../../../../app/hooks/useEvents';
 import { useState } from 'react';
 import CodeEditor from '@uiw/react-textarea-code-editor';
-import { FormBoolSwitch, FormTextInput } from '@greysole/spooder-component-library';
+import {
+  Border,
+  Box,
+  Button,
+  Columns,
+  Expandable,
+  FormBoolSwitch,
+  FormSelectDropdown,
+  FormTextInput,
+  Stack,
+  TextInput,
+  TypeFace,
+} from '@greysole/spooder-component-library';
+import { faQuestionCircle } from '@fortawesome/free-solid-svg-icons';
+import FormCodeInput from '../../../../common/input/form/FormCodeInput';
+import ResponseSearchAndMatchCheatSheet from './ResponseSearchAndMatchCheatSheet';
+import { Value } from 'sass';
 
 interface EventResponseCommandProps {
   eventName: string;
@@ -15,9 +31,15 @@ interface EventResponseCommandProps {
 
 export default function ResponseDiscordSpecialFields(props: EventResponseCommandProps) {
   const { eventName, formKey } = props;
-  const { watch, register } = useFormContext();
-  const { verifyResponseScript } = useEvents();
+  const { watch, getValues } = useFormContext();
+  const { getVerifyResponseScript } = useEvents();
+  const { verifyResponseScript } = getVerifyResponseScript();
   const { getDiscordGuilds } = useDiscord();
+  const [verifyScriptStatus, setVerifyScriptStatus] = useState('');
+  const [verifyScriptResponse, setVerifyScriptResponse] = useState(
+    'Write your code in the above editor and click Verify Script. The result of the script will print here. Use the Input Message field to simulate a chat message and trigger the command.',
+  );
+  const [inputMessage, setInputMessage] = useState<string>('');
   const {
     data: channelData,
     isLoading: channelsLoading,
@@ -27,80 +49,73 @@ export default function ResponseDiscordSpecialFields(props: EventResponseCommand
     return null;
   }
   const specialDiscordEnabledFormKey = buildKey(formKey, 'special', 'discord', 'enabled');
-  const specialDiscordEnabled = watch(specialDiscordEnabledFormKey, false);
   const specialDiscordGuildFormKey = buildKey(formKey, 'special', 'discord', 'guild');
-  const specialDiscordGuild = watch(specialDiscordGuildFormKey, '');
   const specialDiscordChannelFormKey = buildKey(formKey, 'special', 'discord', 'channel');
-  const specialDiscordChannel = watch(specialDiscordChannelFormKey, '');
   const specialDiscordMessageFormKey = buildKey(formKey, 'special', 'discord', 'message');
-  const specialDiscordMessage = watch(specialDiscordChannelFormKey, '');
   const specialDiscordIntervalFormKey = buildKey(formKey, 'special', 'discord', 'interval');
-  const specialDiscordInterval = watch(specialDiscordChannelFormKey, 15);
 
-  const [inputMessage, setInputMessage] = useState<string>('');
+  const specialDiscordGuild = watch(specialDiscordGuildFormKey, '');
 
-  let guildOptions = [<option value={''}>Select Guild</option>];
-  let channelOptions = [<option value={''}>Select Channel</option>];
+  const verifyBorderColor =
+    verifyScriptStatus !== '' ? (verifyScriptStatus === 'error' ? 'red' : 'green') : undefined;
+
+  let guildOptions = [{ value: '', label: 'Select Guild' }];
+  let channelOptions = [{ value: '', label: 'Select Channel' }];
   for (let d in channelData) {
-    guildOptions.push(<option value={d}>{channelData[d].name}</option>);
+    guildOptions.push({ value: d, label: channelData[d].name });
   }
 
   for (let c in channelData[specialDiscordGuild]?.channels) {
-    channelOptions.push(
-      <option value={c}>{channelData[specialDiscordGuild]?.channels[c].name}</option>,
-    );
+    channelOptions.push({ value: c, label: channelData[specialDiscordGuild]?.channels[c].name });
   }
 
   return (
-    <>
-      <div className='config-variable-ui'>
-        <FormBoolSwitch
-          label={'Send @everyone ping on Discord'}
-          formKey={specialDiscordEnabledFormKey}
-        />
-        <div className={specialDiscordEnabled ? '' : 'hidden'}>
-          <select value={specialDiscordGuild} {...register(specialDiscordEnabledFormKey)}>
-            {guildOptions}
-          </select>
-          <select defaultValue={specialDiscordChannel} {...register(specialDiscordChannelFormKey)}>
-            {channelOptions}
-          </select>
-        </div>
-      </div>
-      <div className='command-props response'>
-        <div className='response-code-ui'>
-          <ResponseCommandCheatSheet />
-          <CodeEditor
-            className='response-code-editor'
-            language='js'
-            value={specialDiscordMessage}
-            placeholder="return 'Hello '+event.displayName"
-            {...register(specialDiscordMessageFormKey)}
-          />
-          <input
-            className='response-code-input'
-            type='text'
-            placeholder='Input text'
-            value={inputMessage}
-            onInput={(e: React.ChangeEvent<HTMLInputElement>) => setInputMessage(e.target.value)}
-          />
-          <div className='response-code-output'></div>
-          <div className='verify-message'>
-            <button
-              className='verify-message-button save-button'
-              onKeyDown={(e) => {
-                if (e.code == 'Enter') {
-                  verifyResponseScript(eventName, specialDiscordMessage, inputMessage);
-                }
+    <Stack spacing='medium' padding='medium'>
+      <FormBoolSwitch
+        label={'Send @everyone ping on Discord'}
+        formKey={specialDiscordEnabledFormKey}
+      />
+      <FormSelectDropdown
+        label='Guild'
+        formKey={specialDiscordGuildFormKey}
+        options={guildOptions}
+      />
+      <FormSelectDropdown
+        label='Channel'
+        formKey={specialDiscordChannelFormKey}
+        options={channelOptions}
+      />
+
+      <Box flexFlow='column'>
+        <FormCodeInput label='Script' formKey={specialDiscordMessageFormKey} />
+        <Box flexFlow='column' marginTop='medium'>
+          <Stack spacing='medium'>
+            <Border borderColor={verifyBorderColor}>
+              <Box flexFlow='row' padding='medium'>
+                <TypeFace>{verifyScriptResponse}</TypeFace>
+              </Box>
+            </Border>
+            <TextInput
+              placeholder='Input Message'
+              value={inputMessage}
+              onInput={(value) => {
+                setInputMessage(value);
               }}
-              onClick={() => verifyResponseScript(eventName, specialDiscordMessage, inputMessage)}
-            >
-              Verify Script
-            </button>
-          </div>
-        </div>
-        <FormTextInput label='Interval (Seconds):' formKey={specialDiscordIntervalFormKey} />
-      </div>
-    </>
+            />
+            <Button
+              label='Verify Script'
+              onClick={() => {
+                const values = getValues();
+                verifyResponseScript(values.command, inputMessage, values.script).then((res) => {
+                  setVerifyScriptResponse(res.data.response);
+                  setVerifyScriptStatus(res.data.status);
+                });
+              }}
+            />
+          </Stack>
+        </Box>
+      </Box>
+      <FormTextInput label='Interval (Seconds):' formKey={specialDiscordIntervalFormKey} />
+    </Stack>
   );
 }

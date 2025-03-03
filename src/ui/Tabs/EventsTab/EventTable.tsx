@@ -97,7 +97,7 @@ export default function EventTable() {
       <Footer showFooter={true}>
         <Box width='inherit' alignItems='center' padding='small' justifyContent='space-between'>
           <Columns spacing='medium' padding='small'>
-            <SearchBar placeholder='Search Events...' onSearch={setSearchText} />
+            <SearchBar placeholder='Search Events...' value={searchText} onSearch={setSearchText} />
             <FilterButton
               options={[
                 { label: 'Chat', icon: faComment, value: 'chat' },

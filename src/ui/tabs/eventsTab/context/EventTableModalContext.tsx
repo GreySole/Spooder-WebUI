@@ -4,7 +4,7 @@ import EventCommands from '../EventCommands';
 import EventTriggers from '../EventTriggers';
 import { useFormContext } from 'react-hook-form';
 import { EVENT_KEY } from '../FormKeys';
-import { Modal } from '@greysole/spooder-component-library';
+import { Box, Button, Modal, MultiPageModal } from '@greysole/spooder-component-library';
 
 interface EventModalContextProps {
   open: () => void;
@@ -34,7 +34,7 @@ export function EventTableModalProvider({ children }: EventModalContextProviderP
   return (
     <EventTableModalContext.Provider value={{ open: openModal, close: closeModal, setEventName }}>
       {isOpen ? (
-        <Modal
+        <MultiPageModal
           title={eventDisplayName}
           pages={[
             {
@@ -47,7 +47,11 @@ export function EventTableModalProvider({ children }: EventModalContextProviderP
               content: <EventCommands eventName={eventName} />,
             },
           ]}
-          footerContent={null}
+          footerContent={
+            <Box flexFlow='row' justifyContent='flex-end' padding='small'>
+              <Button label='Save' onClick={() => {}} />
+            </Box>
+          }
           isOpen={isOpen}
           onClose={closeModal}
         />

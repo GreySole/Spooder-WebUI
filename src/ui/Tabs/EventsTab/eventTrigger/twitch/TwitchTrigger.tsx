@@ -3,7 +3,7 @@ import { useFormContext } from 'react-hook-form';
 import { buildKey, buildTriggerKey } from '../../FormKeys';
 import TwitchTriggerType from './TwitchTriggerType';
 import TwitchTriggerTypeReward from './TwitchTriggerTypeReward';
-import { FormBoolSwitch } from '@greysole/spooder-component-library';
+import { Box, FormBoolSwitch, Stack } from '@greysole/spooder-component-library';
 
 interface TwitchTriggerProps {
   eventName: string;
@@ -23,17 +23,19 @@ export default function TwitchTrigger(props: TwitchTriggerProps) {
 
   if (!enabled) {
     return (
-      <div className='trigger twitch'>
+      <Box width='100%' flexFlow='column'>
         <FormBoolSwitch label='Twitch:' formKey={enabledKey} />
-      </div>
+      </Box>
     );
   }
 
   return (
-    <div className='trigger twitch'>
+    <Box width='100%' flexFlow='column'>
       <FormBoolSwitch label='Twitch:' formKey={enabledKey} />
-      <TwitchTriggerType eventName={eventName} />
-      {type === 'redeem' ? <TwitchTriggerTypeReward eventName={eventName} /> : null}
-    </div>
+      <Stack spacing='small' margin='small'>
+        <TwitchTriggerType eventName={eventName} />
+        {type === 'redeem' ? <TwitchTriggerTypeReward eventName={eventName} /> : null}
+      </Stack>
+    </Box>
   );
 }

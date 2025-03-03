@@ -5,7 +5,7 @@ export default function ThemeColor() {
   const { themeColors, themeVariables, setThemeHue, setThemeMode, setThemeSaturation } = useTheme();
   return (
     <Box width='100%' padding='medium'>
-      <Stack spacing='large'>
+      <Stack width='50%' spacing='large'>
         <Slider
           orientation={'horizontal'}
           gradient={'#FF0000, #FFFF00, #00FF00, #00FFFF, #0000FF, #FF00FF, #FF0000'}

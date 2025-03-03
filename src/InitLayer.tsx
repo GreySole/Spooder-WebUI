@@ -23,20 +23,9 @@ export default function InitLayer() {
     return null;
   }
 
-  const theme =
-    localStorage.getItem('themeVariables') != null
-      ? JSON.parse(localStorage.getItem('themeVariables')!)
-      : {
-          hue: 0,
-          saturation: 0.5,
-          isDarkTheme: true,
-        };
-
   return (
-    <ThemeProvider theme={theme} spooder={data.themes.spooderpet}>
-      <OscProvider host={data.host} port={data.port}>
-        <App />
-      </OscProvider>
-    </ThemeProvider>
+    <OscProvider host={data.host} port={data.port}>
+      <App />
+    </OscProvider>
   );
 }

@@ -1,6 +1,5 @@
 import { configureStore } from '@reduxjs/toolkit';
 import navigationSlice from './slice/navigationSlice';
-import themeSlice from './slice/themeSlice';
 import { eventApi } from './api/eventSlice';
 import { configApi } from './api/configSlice';
 import { discordApi } from './api/discordSlice';
@@ -13,13 +12,14 @@ import { shareApi } from './api/shareSlice';
 import { userApi } from './api/userSlice';
 import { recoveryApi } from './api/recoverySlice';
 import footerSlice from './slice/footerSlice';
+import { themeApi } from './api/themeSlice';
 
 const store = configureStore({
   reducer: {
     navigationSlice,
-    themeSlice,
     toastSlice,
     footerSlice,
+    [themeApi.reducerPath]: themeApi.reducer,
     [recoveryApi.reducerPath]: recoveryApi.reducer,
     [eventApi.reducerPath]: eventApi.reducer,
     [configApi.reducerPath]: configApi.reducer,
@@ -33,6 +33,7 @@ const store = configureStore({
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware()
+      .concat(themeApi.middleware)
       .concat(recoveryApi.middleware)
       .concat(eventApi.middleware)
       .concat(configApi.middleware)

@@ -3,12 +3,13 @@ import { Provider } from 'react-redux';
 import { createRoot } from 'react-dom/client';
 import store from './app/store';
 import InitLayer from './InitLayer';
+import ThemeLayer from './ThemeLayer';
 
 const rootElement = document.getElementById('app');
 const root = createRoot(rootElement!);
 //root.render(<FixedHeaderPage />);
 root.render(
   <Provider store={store}>
-    <InitLayer />
+    <ThemeLayer />
   </Provider>,
 );

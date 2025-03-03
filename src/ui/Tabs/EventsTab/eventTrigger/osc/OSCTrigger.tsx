@@ -4,9 +4,11 @@ import { EventTriggerProps, OSCConditionType } from '../../../../Types';
 import { buildTriggerKey, buildKey } from '../../FormKeys';
 import OSCTriggerConditions from './OSCTriggerConditions';
 import {
+  Box,
   FormBoolSwitch,
   FormSelectDropdown,
   FormTextInput,
+  Stack,
 } from '@greysole/spooder-component-library';
 
 interface OSCCondition {
@@ -39,9 +41,9 @@ export default function OSCTrigger(props: EventTriggerProps) {
   }
 
   return (
-    <div className='osc-trigger'>
+    <Box width='100%' flexFlow='column'>
       <FormBoolSwitch label='OSC:' formKey={enabledKey} />
-      <div className='event-trigger'>
+      <Stack spacing='small' margin='small'>
         <FormSelectDropdown
           formKey={handleTypeKey}
           label='Handle: '
@@ -53,7 +55,7 @@ export default function OSCTrigger(props: EventTriggerProps) {
         />
         <FormTextInput label='Address: ' formKey={addressKey} />
         <OSCTriggerConditions eventName={eventName} />
-      </div>
-    </div>
+      </Stack>
+    </Box>
   );
 }

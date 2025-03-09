@@ -8,6 +8,8 @@ import {
   useDeleteBackupSettingsMutation,
   useGetPluginsBackupsQuery,
   useGetSettingsBackupsQuery,
+  usePrepareRestorePluginsMutation,
+  usePrepareRestoreSettingsMutation,
   useRestorePluginsMutation,
   useRestoreSettingsMutation,
 } from '../api/recoverySlice';
@@ -46,16 +48,16 @@ export default function useRecovery() {
 
   function getBackupSettings() {
     const [backupSettingsMutation, { isLoading, isSuccess, error }] = useBackupSettingsMutation();
-    function backupSettings() {
-      backupSettingsMutation(null);
+    function backupSettings(backupName: string) {
+      return backupSettingsMutation({ backupName });
     }
     return { backupSettings, isLoading, isSuccess, error };
   }
 
   function getBackupPlugins() {
     const [backupPluginsMutation, { isLoading, isSuccess, error }] = useBackupPluginsMutation();
-    function backupPlugins() {
-      backupPluginsMutation(null);
+    function backupPlugins(backupName: string) {
+      return backupPluginsMutation({ backupName });
     }
     return { backupPlugins, isLoading, isSuccess, error };
   }
@@ -66,7 +68,7 @@ export default function useRecovery() {
     function deleteBackupSettings(backupName: string) {
       const fd = new FormData();
       fd.append('backupName', backupName);
-      deleteBackupSettingsMutation(fd);
+      return deleteBackupSettingsMutation(fd);
     }
     return { deleteBackupSettings, isLoading, isSuccess, error };
   }
@@ -77,16 +79,44 @@ export default function useRecovery() {
     function deleteBackupPlugins(backupName: string) {
       const fd = new FormData();
       fd.append('backupName', backupName);
-      deleteBackupPluginsMutation(fd);
+      return deleteBackupPluginsMutation(fd);
     }
     return { deleteBackupPlugins, isLoading, isSuccess, error };
+  }
+
+  function getPrepareRestoreSettings() {
+    const [prepareRestoreSettingsMutation, { isLoading, isSuccess, error }] =
+      usePrepareRestoreSettingsMutation();
+    function prepareRestoreSettings(backupName: string, file?: File) {
+      const fd = new FormData();
+      fd.append('backupName', backupName);
+      if (file) {
+        fd.append('file', file);
+      }
+      return prepareRestoreSettingsMutation(fd);
+    }
+    return { prepareRestoreSettings, isLoading, isSuccess, error };
+  }
+
+  function getPrepareRestorePlugins() {
+    const [prepareRestorePluginsMutation, { isLoading, isSuccess, error }] =
+      usePrepareRestorePluginsMutation();
+    function prepareRestorePlugins(backupName: string, file?: File) {
+      const fd = new FormData();
+      fd.append('backupName', backupName);
+      if (file) {
+        fd.append('file', file);
+      }
+      return prepareRestorePluginsMutation(fd);
+    }
+    return { prepareRestorePlugins, isLoading, isSuccess, error };
   }
 
   function getRestoreSettings() {
     const [restoreSettingsMutation, { isLoading, isSuccess, error }] = useRestoreSettingsMutation();
     function restoreSettings(backupName: string, selections: KeyedObject) {
       const fd = { backupName, selections };
-      restoreSettingsMutation(fd);
+      return restoreSettingsMutation(fd);
     }
     return { restoreSettings, isLoading, isSuccess, error };
   }
@@ -94,10 +124,8 @@ export default function useRecovery() {
   function getRestorePlugins() {
     const [restorePluginsMutation, { isLoading, isSuccess, error }] = useRestorePluginsMutation();
     function restorePlugins(backupName: string, selections: KeyedObject) {
-      const fd = new FormData();
-      fd.append('backupName', backupName);
-      fd.append('selections', JSON.stringify(selections));
-      restorePluginsMutation(fd);
+      const fd = { backupName, selections };
+      return restorePluginsMutation(fd);
     }
     return { restorePlugins, isLoading, isSuccess, error };
   }
@@ -111,6 +139,8 @@ export default function useRecovery() {
     getBackupPlugins,
     getDeleteBackupSettings,
     getDeleteBackupPlugins,
+    getPrepareRestoreSettings,
+    getPrepareRestorePlugins,
     getRestoreSettings,
     getRestorePlugins,
   };

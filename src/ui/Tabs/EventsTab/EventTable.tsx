@@ -78,11 +78,9 @@ export default function EventTable() {
     return (
       <Expandable label={groupName} forceOpen={searchEnabled || filterEnabled}>
         <Box flexFlow='column'>
-          <Columns spacing='medium'>
-            <AddEventInput groupName={groupName} />
-            <DeleteGroupButton groupName={groupName} />
-          </Columns>
+          <AddEventInput groupName={groupName} />
           {groupObjects[groupName]}
+          <DeleteGroupButton groupName={groupName} />
         </Box>
       </Expandable>
     );

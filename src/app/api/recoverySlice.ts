@@ -27,18 +27,20 @@ export const recoveryApi = createApi({
       }),
     }),
     backupSettings: builder.mutation({
-      query: () => ({
+      query: (form) => ({
         url: '/backup_settings',
         method: 'post',
+        body: form,
         headers: {
           'Content-type': 'application/json; charset=UTF-8',
         },
       }),
     }),
     backupPlugins: builder.mutation({
-      query: () => ({
+      query: (form) => ({
         url: '/backup_plugins',
         method: 'post',
+        body: form,
         headers: {
           'Content-type': 'application/json; charset=UTF-8',
         },
@@ -49,9 +51,6 @@ export const recoveryApi = createApi({
         url: '/delete_backup_settings',
         method: 'post',
         body: form,
-        headers: {
-          'Content-type': 'application/json; charset=UTF-8',
-        },
       }),
     }),
     deleteBackupPlugins: builder.mutation({
@@ -59,9 +58,13 @@ export const recoveryApi = createApi({
         url: '/delete_backup_plugins',
         method: 'post',
         body: form,
-        headers: {
-          'Content-type': 'application/json; charset=UTF-8',
-        },
+      }),
+    }),
+    prepareRestoreSettings: builder.mutation({
+      query: (form) => ({
+        url: '/prepare_restore_settings',
+        method: 'post',
+        body: form,
       }),
     }),
     restoreSettings: builder.mutation({
@@ -72,6 +75,13 @@ export const recoveryApi = createApi({
         headers: {
           'Content-type': 'application/json; charset=UTF-8',
         },
+      }),
+    }),
+    prepareRestorePlugins: builder.mutation({
+      query: (form) => ({
+        url: '/prepare_restore_plugins',
+        method: 'post',
+        body: form,
       }),
     }),
     restorePlugins: builder.mutation({
@@ -96,6 +106,8 @@ export const {
   useBackupSettingsMutation,
   useDeleteBackupPluginsMutation,
   useDeleteBackupSettingsMutation,
+  usePrepareRestoreSettingsMutation,
+  usePrepareRestorePluginsMutation,
   useRestorePluginsMutation,
   useRestoreSettingsMutation,
 } = recoveryApi;

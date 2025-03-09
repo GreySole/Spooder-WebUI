@@ -1,6 +1,8 @@
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
 import { EVENT_KEY, GROUP_KEY } from '../../FormKeys';
+import { Button } from '@greysole/spooder-component-library';
+import { faTrash } from '@fortawesome/free-solid-svg-icons';
 
 interface DeleteGroupButtonProps {
   groupName: string;
@@ -25,11 +27,5 @@ export default function DeleteGroupButton(props: DeleteGroupButtonProps) {
       setValue(GROUP_KEY, newGroups);
     }
   }
-  return (
-    <div className='delete-event-div'>
-      <button type='button' className='delete-button' onClick={() => deleteGroup(groupName)}>
-        DELETE GROUP
-      </button>
-    </div>
-  );
+  return <Button label='Delete Group' icon={faTrash} onClick={() => deleteGroup(groupName)} />;
 }

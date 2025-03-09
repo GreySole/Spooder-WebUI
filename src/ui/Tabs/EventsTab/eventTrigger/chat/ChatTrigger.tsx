@@ -1,8 +1,16 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { buildKey, buildTriggerKey } from '../../FormKeys';
 import ChatTriggerCondition from './ChatTriggerCondition';
-import { FormBoolSwitch, FormTextInput, Stack } from '@greysole/spooder-component-library';
+import {
+  Button,
+  Columns,
+  FormBoolSwitch,
+  FormTextInput,
+  Stack,
+} from '@greysole/spooder-component-library';
+import { faQuestionCircle } from '@fortawesome/free-solid-svg-icons';
+import ResponseSearchAndMatchCheatSheet from '../../eventCommand/response/ResponseSearchAndMatchCheatSheet';
 
 interface ChatTriggerProps {
   eventName: string;
@@ -11,6 +19,7 @@ interface ChatTriggerProps {
 export default function ChatTrigger(props: ChatTriggerProps) {
   const { eventName } = props;
   const { watch } = useFormContext();
+  const [searchAndMatchCheatSheetOpen, setSearchAndMatchCheatSheetOpen] = useState(false);
 
   const chatTriggerKey = buildTriggerKey(eventName, 'chat');
   const enabledKey = buildKey(chatTriggerKey, 'enabled');
@@ -32,7 +41,17 @@ export default function ChatTrigger(props: ChatTriggerProps) {
       <FormBoolSwitch label='Chat:' formKey={enabledKey} />
       <Stack spacing='small' margin='small'>
         <ChatTriggerCondition eventName={eventName} />
-        <FormBoolSwitch label='Search and Match in Message:' formKey={searchKey} />
+        <Columns spacing='medium'>
+          <FormBoolSwitch label='Search and Match' formKey={searchKey} />
+          <Button
+            icon={faQuestionCircle}
+            iconSize='large'
+            onClick={() => {
+              setSearchAndMatchCheatSheetOpen(!searchAndMatchCheatSheetOpen);
+            }}
+          />
+        </Columns>
+        <ResponseSearchAndMatchCheatSheet isOpen={searchAndMatchCheatSheetOpen} />
         <FormTextInput label='Command:' formKey={commandKey} />
       </Stack>
     </Stack>

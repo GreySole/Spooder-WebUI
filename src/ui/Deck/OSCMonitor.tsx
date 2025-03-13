@@ -1,132 +1,112 @@
-import { faArrowDown } from '@fortawesome/free-solid-svg-icons';
+import {
+  faArrowDown,
+  faArrowUp,
+  faNetworkWired,
+  faPlug,
+  faT,
+  faU,
+} from '@fortawesome/free-solid-svg-icons';
 import React, { useEffect, useState } from 'react';
-import { KeyedObject } from '../Types';
-import { BoolSwitch, useOSC } from '@greysole/spooder-component-library';
+import { KeyedObject, StyleSize } from '../Types';
+import {
+  BoolSwitch,
+  Border,
+  Box,
+  Button,
+  ButtonRow,
+  CircleLoader,
+  Columns,
+  FilterButton,
+  Stack,
+  TypeFace,
+  useOSC,
+} from '@greysole/spooder-component-library';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import useServer from '../../app/hooks/useServer';
+import { icon } from '@fortawesome/fontawesome-svg-core';
+import { Footer } from '../app/Footer';
+import ExpandableLog from './oscMonitor/ExpandableLog';
 
-interface Log {
-  name: string;
+export interface Log {
   timestamp: string;
   type: string;
-  protocol: string;
   direction: string;
-  message: string;
-  data: {
-    address: string;
-    types: string;
-    data: string;
-  };
+  address: string;
+  args: any[];
+}
+
+interface MasterLog {
+  tcp: Log[];
+  udp: Log[];
+  plugin: Log[];
+  liveLogging: number;
 }
 
 export default function OSCMonitor() {
   const { addListener, removeListener, sendOSC, isReady } = useOSC();
-  const [typeFilters, setTypeFilters] = useState<String[]>([
+  const { getMonitorLogs } = useServer();
+  const { data, isLoading, error } = getMonitorLogs();
+  /*const [typeFilters, setTypeFilters] = useState<String[]>([
     'tcp',
     'udp',
     'send',
     'receive',
     'plugin',
-  ]);
+  ]);*/
   const [addressFilters, setAddressFilters] = useState<String[]>([]);
-  const [logs, setLogs] = useState<Log[]>([]);
+  const [tcpLogs, setTcpLogs] = useState<Log[]>([]);
+  const [udpLogs, setUdpLogs] = useState<Log[]>([]);
   const [pluginLogs, setPluginLogs] = useState<Log[]>([]);
   const [addressInput, setAddressInput] = useState<string>('');
   const [variables, setVariables] = useState<KeyedObject>({});
   const [varMode, setVarMode] = useState<boolean>(false);
   const [scrollLock, setScrollLock] = useState<boolean>(false);
+  const [selectedTab, setSelectedTab] = useState<string>('tcp');
+  const [selectedTypeFilters, setSelectedTypeFilters] = useState<string[]>(['send', 'receive']);
+
+  const typeFilters = [
+    { label: 'Send', icon: faArrowUp, value: 'send' },
+    { label: 'Receive', icon: faArrowDown, value: 'receive' },
+    { label: 'Plugin', icon: faPlug, value: 'plugin' },
+  ];
 
   useEffect(() => {
-    addListener('/frontend/monitor/osc', getLog);
-    addListener('/frontend/monitor/plugin', getPluginLog);
-    addListener('/frontend/monitor/get/all', getAllLogs);
-
-    sendOSC('/frontend/monitor/logging', 1);
-    sendOSC('/frontend/monitor/get', 'all');
+    if (data) {
+      setTcpLogs([...data.tcp, ...data.tcp]);
+      setUdpLogs(data.udp);
+      setPluginLogs(data.plugin);
+    }
+    addListener('/spooder/monitor/log', getLog);
+    sendOSC('/spooder/monitor/logging', 1);
 
     return () => {
-      removeListener('/frontend/monitor/osc');
-      removeListener('/frontend/monitor/plugin');
-      removeListener('/frontend/monitor/get/all');
+      removeListener('/spooder/monitor/log');
     };
-  }, []);
+  }, [data]);
 
   if (!isReady) {
     return <h1>Hold on...we're connecting to OSC</h1>;
   }
 
-  function getAllLogs(message: any) {
-    let logObj = JSON.parse(message.args[0]);
-    console.log(logObj);
-    setLogs(logObj.logs);
-    setPluginLogs(logObj.pluginLogs);
+  if (isLoading) {
+    return <CircleLoader />;
   }
 
   function getLog(message: any) {
     let logObj = JSON.parse(message.args[0]);
+    console.log(logObj);
 
-    let newVars = Object.assign(variables);
-    if (logObj.direction == 'receive') {
-      if (newVars[logObj.data.address] == null && !isNaN(logObj.data.data[0])) {
-        newVars[logObj.data.address] = {
-          min: logObj.data.data,
-          max: logObj.data.data,
-          value: logObj.data.data,
-        };
-      } else if (newVars[logObj.data.address] != null && !isNaN(logObj.data.data[0])) {
-        newVars[logObj.data.address].value = logObj.data.data[0];
-        if (logObj.data.data[0] < newVars[logObj.data.address].min) {
-          newVars[logObj.data.address].min = logObj.data.data[0];
-        }
-        if (logObj.data.data[0] > newVars[logObj.data.address].max) {
-          newVars[logObj.data.address].max = logObj.data.data[0];
-        }
-      }
+    switch (logObj.type) {
+      case 'tcp':
+        setTcpLogs([...tcpLogs, logObj]);
+        break;
+      case 'udp':
+        setUdpLogs([...udpLogs, logObj]);
+        break;
+      case 'plugin':
+        setPluginLogs([...pluginLogs, logObj]);
+        break;
     }
-
-    let newLogs = Object.assign(logs);
-    newLogs.push(logObj);
-    if (newLogs.length > 500) {
-      newLogs.shift();
-    }
-    setLogs(newLogs);
-    setVariables(newVars);
-  }
-
-  function getPluginLog(message: any) {
-    let logObj = JSON.parse(message.args[0]);
-    let newLogs = Object.assign(pluginLogs);
-    newLogs.push(logObj);
-    if (newLogs.length > 500) {
-      newLogs.shift();
-    }
-    setPluginLogs(newLogs);
-  }
-
-  function setFilter(filter: string) {
-    let newFilters = Object.assign(typeFilters);
-
-    if (newFilters.includes(filter)) {
-      newFilters.splice(newFilters.indexOf(filter), 1);
-    } else {
-      newFilters.push(filter);
-    }
-    setTypeFilters(newFilters);
-  }
-
-  function handleAddressInput(e: any) {
-    setAddressInput(e.currentTarget.value);
-  }
-
-  function setAddressFilter(e: any) {
-    let newAddresses = Object.assign(addressFilters);
-    newAddresses.push(addressInput);
-    setAddressFilters(newAddresses);
-  }
-
-  function removeAddressFilter(af: any) {
-    let newAddresses = Object.assign(addressFilters);
-    newAddresses.splice(newAddresses.indexOf(af), 1);
-    setAddressFilters(newAddresses);
   }
 
   function scrollToBottom() {
@@ -151,171 +131,56 @@ export default function OSCMonitor() {
     setVarMode(e.currentTarget.checked);
   }
 
+  let displayLogs = [] as Log[];
+  if (selectedTab == 'tcp') {
+    displayLogs = tcpLogs;
+  } else if (selectedTab == 'udp') {
+    displayLogs = udpLogs;
+  } else if (selectedTab == 'plugin') {
+    displayLogs = pluginLogs;
+  }
+
   if (varMode == false) {
-    let logList = [
-      <div className='monitor-log top'>
-        <div className='monitor-log-protocol'>Protocol</div>
-        <div className='monitor-log-direction'>Direction</div>
-        <div className='monitor-log-types'>Types</div>
-        <div className='monitor-log-address'>Address</div>
-        <div className='monitor-log-data'>Data</div>
-      </div>,
-    ];
-
-    let finalLogs = [] as Log[];
-    finalLogs = finalLogs.concat(logs, pluginLogs);
-    finalLogs.sort((a: any, b: any) => {
-      return a.timestamp - b.timestamp;
-    });
-
-    console.log('FINAL LOGS', finalLogs);
-
-    for (let l in finalLogs) {
-      if (finalLogs[l].type == 'osc') {
-        if (
-          typeFilters.includes(finalLogs[l].protocol) &&
-          typeFilters.includes(finalLogs[l].direction)
-        ) {
-          let aFilterPass = true;
-          if (addressFilters.length > 0) {
-            aFilterPass = false;
-            for (let af in addressFilters) {
-              let thisFilter = addressFilters[af];
-              if (thisFilter.endsWith('/*')) {
-                if (
-                  finalLogs[l].data.address.startsWith(
-                    thisFilter.substring(0, thisFilter.length - 2),
-                  )
-                ) {
-                  aFilterPass = true;
-                }
-              } else if (thisFilter == finalLogs[l].data.address) {
-                aFilterPass = true;
-              }
-            }
-          }
-          if (aFilterPass) {
-            logList.push(
-              <div className='monitor-log'>
-                <div className='monitor-log-protocol'>{finalLogs[l].protocol}</div>
-                <div className='monitor-log-direction'>{finalLogs[l].direction}</div>
-                <div className='monitor-log-types'>{finalLogs[l].data.types}</div>
-                <div className='monitor-log-address'>{finalLogs[l].data.address}</div>
-                <div className='monitor-log-data'>{finalLogs[l].data.data}</div>
-              </div>,
-            );
-          }
-        }
-      } else if (finalLogs[l].type == 'error' && typeFilters.includes('plugin')) {
-        logList.push(
-          <div className='monitor-log'>
-            <div className='monitor-log-protocol'>Plugin</div>
-            <div className='monitor-log-direction'></div>
-            <div className='monitor-log-types'>{finalLogs[l].type}</div>
-            <div className='monitor-log-address'>{finalLogs[l].name}</div>
-            <div className='monitor-log-data'>{finalLogs[l].message}</div>
-          </div>,
-        );
-      }
-    }
-
-    let addressFilterElements = [] as React.JSX.Element[];
-
-    for (let a in addressFilters) {
-      addressFilterElements.push(
-        <div className='filters-address-entry'>
-          {addressFilters[a]}
-          <button onClick={() => removeAddressFilter(addressFilters[a])}>X</button>
-        </div>,
-      );
-    }
-
-    let scrollDownButton =
-      scrollLock == false ? (
-        <button
-          className={'monitor-filters-button scroll-to-bottom enabled'}
-          onClick={() => scrollToBottom()}
-        >
-          <FontAwesomeIcon icon={faArrowDown} size='1x' />
-        </button>
-      ) : null;
-
     return (
-      <div className='deck-osc-monitor log'>
-        <div className='osc-monitor-filters'>
-          <div className='osc-monitor-controls-1'>
-            <div className='monitor-filters-buttons'>
-              <button
-                className={
-                  'monitor-filters-button ' + (typeFilters.includes('tcp') ? 'enabled' : '')
-                }
-                onClick={() => setFilter('tcp')}
-              >
-                TCP
-              </button>
-              <button
-                className={
-                  'monitor-filters-button ' + (typeFilters.includes('udp') ? 'enabled' : '')
-                }
-                onClick={() => setFilter('udp')}
-              >
-                UDP
-              </button>
-              <button
-                className={
-                  'monitor-filters-button ' + (typeFilters.includes('send') ? 'enabled' : '')
-                }
-                onClick={() => setFilter('send')}
-              >
-                Send
-              </button>
-              <button
-                className={
-                  'monitor-filters-button ' + (typeFilters.includes('receive') ? 'enabled' : '')
-                }
-                onClick={() => setFilter('receive')}
-              >
-                Receive
-              </button>
-              <button
-                className={
-                  'monitor-filters-button ' + (typeFilters.includes('plugin') ? 'enabled' : '')
-                }
-                onClick={() => setFilter('plugin')}
-              >
-                Plugin
-              </button>
-            </div>
-            <div className='monitor-variables-switch'>
-              <BoolSwitch label='Variables:' value={varMode} onChange={switchModes} />
-            </div>
-          </div>
-
-          <div className='osc-monitor-controls-2'>
-            <div className={'monitor-filters-address-input'}>
-              Address Filter
-              <input
-                name='address'
-                type='text'
-                onInput={handleAddressInput}
-                placeholder='/something/somethinginside'
-                defaultValue={addressInput}
+      <Box flexFlow='column'>
+        <Box height='100%' flexFlow='column' padding='medium' marginBottom='var(--footer-height)'>
+          {displayLogs.map((log, index) => (
+            <ExpandableLog log={log} key={index} />
+          ))}
+        </Box>
+        <Footer showFooter={true}>
+          <Box
+            width='100%'
+            flexFlow='row'
+            justifyContent='space-between'
+            alignItems='center'
+            padding='small'
+          >
+            <Columns spacing='small'>
+              <ButtonRow
+                buttonSize='large'
+                iconSize='large'
+                buttons={[
+                  { icon: faT, onClick: () => setSelectedTab('tcp') },
+                  { icon: faU, onClick: () => setSelectedTab('udp') },
+                  {
+                    icon: faPlug,
+                    onClick: () => setSelectedTab('plugin'),
+                  },
+                ]}
               />
-              <button
-                className='monitor-filters-button-address'
-                onClick={() => setAddressFilter(addressInput)}
-              >
-                Add
-              </button>
-            </div>
-            <div className='monitor-filters-address'>{addressFilterElements}</div>
-          </div>
-        </div>
-        {scrollDownButton}
-        <div className='osc-monitor-logs' onScroll={scrollToLock}>
-          {logList}
-        </div>
-      </div>
+              <FilterButton
+                options={typeFilters}
+                selectedOptions={selectedTypeFilters}
+                onChange={(newSelections) => {
+                  setSelectedTypeFilters(newSelections);
+                }}
+              />
+            </Columns>
+            {scrollLock ? null : <Button icon={faArrowDown} onClick={() => scrollToBottom()} />}
+          </Box>
+        </Footer>
+      </Box>
     );
   } else {
     let varDivs = [] as React.JSX.Element[];
@@ -352,40 +217,6 @@ export default function OSCMonitor() {
       <div className='deck-osc-monitor variable'>
         <div className='osc-monitor-filters'>
           <div className='osc-monitor-controls-1'>
-            <div className='monitor-filters-buttons'>
-              <button
-                className={
-                  'monitor-filters-button ' + (typeFilters.includes('tcp') ? 'enabled' : '')
-                }
-                onClick={() => setFilter('tcp')}
-              >
-                TCP
-              </button>
-              <button
-                className={
-                  'monitor-filters-button ' + (typeFilters.includes('udp') ? 'enabled' : '')
-                }
-                onClick={() => setFilter('udp')}
-              >
-                UDP
-              </button>
-              <button
-                className={
-                  'monitor-filters-button ' + (typeFilters.includes('send') ? 'enabled' : '')
-                }
-                onClick={() => setFilter('send')}
-              >
-                Send
-              </button>
-              <button
-                className={
-                  'monitor-filters-button ' + (typeFilters.includes('receive') ? 'enabled' : '')
-                }
-                onClick={() => setFilter('receive')}
-              >
-                Receive
-              </button>
-            </div>
             <div className='monitor-variables-switch'>
               <BoolSwitch label='Variables:' value={varMode} onChange={switchModes} />
             </div>

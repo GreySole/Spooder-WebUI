@@ -35,17 +35,17 @@ export default function BackupSettingsInput() {
               <Box key={backup} flexFlow='row' justifyContent='space-between' alignItems='center'>
                 <TypeFace userSelect='none'>{backup}</TypeFace>
                 <ButtonRow
+                  buttonSize='large'
+                  iconSize='large'
                   buttons={[
                     {
                       icon: faDownload,
-                      iconSize: StyleSize.large,
                       isLink: true,
                       link: '/recovery/checkout_settings/' + backup,
                       linkName: backup.substring(0, backup.lastIndexOf('.')),
                     },
                     {
                       icon: faTrash,
-                      iconSize: StyleSize.large,
                       onClick: () => {
                         deleteBackupSettings(backup).then(() => {
                           refetch();

@@ -8,7 +8,9 @@ import { useOSC } from '@greysole/spooder-component-library';
 export const PluginContext = createContext({
   plugins: {} as PluginsObject,
   isReady: false,
-  reloadPlugins: () => {},
+  reloadPlugins: () => {
+    return new Promise<any>(() => {});
+  },
   pluginInfoOpen: '',
   pluginSettingsOpen: '',
   pluginAssetsOpen: '',
@@ -40,7 +42,7 @@ export const PluginProvider = (props: PluginProviderProps) => {
   const { addListener, removeListener } = useOSC();
 
   useEffect(() => {
-    addListener('/frontend/plugin/install/progress', (message: any) => {
+    addListener('/spooder/plugin/install/progress', (message: any) => {
       let progressObj = JSON.parse(message.args[0]);
 
       let newNewPlugins = Object.assign({}, newPlugins);
@@ -52,7 +54,7 @@ export const PluginProvider = (props: PluginProviderProps) => {
       setNewPlugins(newNewPlugins);
     });
 
-    addListener('/frontend/plugin/install/complete', (message: any) => {
+    addListener('/spooder/plugin/install/complete', (message: any) => {
       let progressObj = JSON.parse(message.args[0]);
       console.log('COMPLETE', progressObj);
       let newNewPlugins = Object.assign({}, newPlugins);
@@ -62,15 +64,15 @@ export const PluginProvider = (props: PluginProviderProps) => {
     });
 
     return () => {
-      removeListener('/frontend/plugin/install/progress');
-      removeListener('/frontend/plugin/install/complete');
+      removeListener('/spooder/plugin/install/progress');
+      removeListener('/spooder/plugin/install/complete');
     };
   }, []);
 
   const isReady = !isLoading && !error && plugins !== undefined;
 
   function reloadPlugins() {
-    refetch();
+    return refetch();
   }
 
   const value = {

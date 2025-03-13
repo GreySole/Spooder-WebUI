@@ -8,24 +8,16 @@ import {
   TypeFace,
   Stack,
   Box,
+  FileDropZone,
 } from '@greysole/spooder-component-library';
 import React, { useState } from 'react';
 import useRecovery from '../../../../../app/hooks/useRecovery';
-import FileDropZone from '../FileDropZone';
-import RestorePluginSelection from '../selection/RestorePluginsSelection';
 import RestoreSettingsSelection from '../selection/RestoreSettingsSelection';
 
 export default function RestoreSettingsInput() {
-  const {
-    getSettingsBackups,
-    getDeleteBackupSettings,
-    getPrepareRestoreSettings,
-    getRestoreSettings,
-  } = useRecovery();
+  const { getSettingsBackups, getPrepareRestoreSettings } = useRecovery();
   const { data, isLoading, error } = getSettingsBackups();
-  const { deleteBackupSettings } = getDeleteBackupSettings();
   const { prepareRestoreSettings } = getPrepareRestoreSettings();
-  const { restoreSettings } = getRestoreSettings();
   const [selectedBackup, setSelectedBackup] = useState<string>('');
   const [backupFileNames, setBackupFileNames] = useState<string[]>([]);
   const [settingsFileSelection, setSettingsFileSelection] = useState<boolean>();
@@ -42,7 +34,13 @@ export default function RestoreSettingsInput() {
   restoreSettingsOptions.unshift({ label: 'Select Backup', value: '' });
 
   const handleFile = (file: File) => {
-    prepareRestoreSettings(file.name, file);
+    prepareRestoreSettings(file.name, file).then((response) => {
+      console.log(response.data, response.data.status);
+      if (response.data.status === 'ok') {
+        setBackupFileNames(response.data.data);
+        setSettingsFileSelection(true);
+      }
+    });
   };
 
   if (settingsFileSelection) {
@@ -57,7 +55,7 @@ export default function RestoreSettingsInput() {
 
   return (
     <Stack spacing='medium'>
-      <FileDropZone handleFile={handleFile} />
+      <FileDropZone width='100%' height='25vh' handleFile={handleFile} />
       <Box flexFlow='row wrap'>
         <SelectDropdown
           label='Select Backup'

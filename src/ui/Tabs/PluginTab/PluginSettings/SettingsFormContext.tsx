@@ -1,10 +1,18 @@
 import React from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
 import { KeyedObject } from '../../../Types';
-import { translateCondition, Border, Stack, useTheme } from '@greysole/spooder-component-library';
+import {
+  translateCondition,
+  Border,
+  Stack,
+  useTheme,
+  Box,
+  Modal,
+} from '@greysole/spooder-component-library';
 import PluginInput from './PluginInput';
 import PluginSettingsSaveButton from './PluginSettingsSaveButton';
 import PluginSubform from './PluginSubform';
+import { usePluginContext } from '../context/PluginTabFormContext';
 
 interface SettingsFormContextProps {
   pluginName: string;
@@ -15,7 +23,9 @@ interface SettingsFormContextProps {
 
 export default function SettingsFormContext(props: SettingsFormContextProps) {
   const { pluginName, values, form, defaults } = props;
-  const { themeConstants } = useTheme();
+  const { setPluginSettingsOpen } = usePluginContext();
+
+  console.log('Settings Values', values);
 
   const SettingsFormContext = useForm({
     defaultValues: values,
@@ -64,12 +74,19 @@ export default function SettingsFormContext(props: SettingsFormContextProps) {
 
   return (
     <FormProvider {...SettingsFormContext}>
-      <Border borderWidth='2px' borderColor={themeConstants.settings}>
-        <Stack spacing='medium' padding='medium'>
-          {inputTable}
-          <PluginSettingsSaveButton />
-        </Stack>
-      </Border>
+      <Modal
+        isOpen={true}
+        onClose={() => {
+          setPluginSettingsOpen('');
+        }}
+        title={pluginName}
+        content={
+          <Box flexFlow='column' padding='medium'>
+            <Stack spacing='medium'>{inputTable}</Stack>
+          </Box>
+        }
+        footerContent={<PluginSettingsSaveButton />}
+      />
     </FormProvider>
   );
 }

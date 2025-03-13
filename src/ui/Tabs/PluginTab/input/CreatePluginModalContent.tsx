@@ -1,11 +1,9 @@
+import { Stack, TextInput, Button } from '@greysole/spooder-component-library';
 import React, { useState } from 'react';
-import { faPlusCircle } from '@fortawesome/free-solid-svg-icons';
-import { usePluginContext } from '../context/PluginTabFormContext';
 import usePlugins from '../../../../app/hooks/usePlugins';
-import { Button, Stack, TextInput } from '@greysole/spooder-component-library';
+import { usePluginContext } from '../context/PluginTabFormContext';
 
-export default function CreatePluginButton() {
-  const [isOpen, setIsOpen] = useState(false);
+export default function CreatePluginModalContent() {
   const [createPluginName, setCreatePluginName] = useState('');
   const [createPluginAuthor, setCreatePluginAuthor] = useState('');
   const [createPluginDescription, setCreatePluginDescription] = useState('');
@@ -49,35 +47,24 @@ export default function CreatePluginButton() {
     setCreatePluginAuthor('');
     setCreatePluginDescription('');
   }
-
   return (
-    <>
-      <Button
-        label='Create Plugin'
-        onClick={() => setIsOpen(!isOpen)}
-        icon={faPlusCircle}
-        iconSize='lg'
+    <Stack spacing='medium'>
+      <TextInput
+        label='Name'
+        onInput={(value) => setCreatePluginName(value)}
+        value={createPluginName}
       />
-      {isOpen ? (
-        <Stack spacing='medium'>
-          <TextInput
-            label='Name'
-            onInput={(value) => setCreatePluginName(value)}
-            value={createPluginName}
-          />
-          <TextInput
-            label='Author'
-            onInput={(value) => setCreatePluginAuthor(value)}
-            value={createPluginAuthor}
-          />
-          <TextInput
-            label='Description'
-            onInput={(value) => setCreatePluginDescription(value)}
-            value={createPluginDescription}
-          />
-          <Button label='Create' onClick={createPluginClick} />
-        </Stack>
-      ) : null}
-    </>
+      <TextInput
+        label='Author'
+        onInput={(value) => setCreatePluginAuthor(value)}
+        value={createPluginAuthor}
+      />
+      <TextInput
+        label='Description'
+        onInput={(value) => setCreatePluginDescription(value)}
+        value={createPluginDescription}
+      />
+      <Button label='Create' onClick={createPluginClick} />
+    </Stack>
   );
 }

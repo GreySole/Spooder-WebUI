@@ -1,5 +1,10 @@
-import React from 'react';
-import { faTriangleExclamation, faPlug } from '@fortawesome/free-solid-svg-icons';
+import React, { useEffect, useRef } from 'react';
+import {
+  faTriangleExclamation,
+  faPlug,
+  faStopCircle,
+  faBan,
+} from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   LinkButton,
@@ -10,6 +15,7 @@ import {
   ImageFile,
   TypeFace,
   useTheme,
+  Modal,
 } from '@greysole/spooder-component-library';
 import { PluginComponentProps } from '../../Types';
 import { usePluginContext } from './context/PluginTabFormContext';
@@ -30,10 +36,18 @@ interface Plugin {
 }
 
 export default function PluginEntry(props: PluginComponentProps) {
-  const { pluginName } = props;
+  const { pluginName, setRef } = props;
 
   const { plugins, isReady, pluginInfoOpen, pluginSettingsOpen, pluginAssetsOpen } =
     usePluginContext();
+
+  const entryRef = useRef(null);
+
+  useEffect(() => {
+    if (setRef) {
+      setRef(pluginName, entryRef.current);
+    }
+  }, [pluginName, setRef]);
 
   const { isMobileDevice } = useTheme();
 
@@ -66,9 +80,10 @@ export default function PluginEntry(props: PluginComponentProps) {
   }
 
   return (
-    <Border borderColor='grey' borderWidth='2px' borderBottom>
+    <Border borderWidth='2px' borderBottom>
       <Stack spacing='small'>
         <Box
+          ref={entryRef}
           flexFlow={isMobileDevice ? 'column' : 'row'}
           alignItems='center'
           justifyContent='space-between'
@@ -85,7 +100,7 @@ export default function PluginEntry(props: PluginComponentProps) {
             ) : (
               <FontAwesomeIcon
                 className='plugin-status-icon'
-                icon={faTriangleExclamation}
+                icon={plugin.status === 'disabled' ? faBan : faTriangleExclamation}
                 style={{ width: '100px', height: '100px' }}
               />
             )}
@@ -100,13 +115,6 @@ export default function PluginEntry(props: PluginComponentProps) {
           </Columns>
           <PluginButtonRow pluginName={pluginName} status={plugin.status} />
         </Box>
-        {pluginInfoOpen === pluginName ? <PluginInfoView pluginName={pluginName} /> : null}
-        {plugin.status === 'ok' && pluginSettingsOpen === pluginName ? (
-          <PluginSettings pluginName={pluginName} />
-        ) : null}
-        {plugin.status === 'ok' && pluginAssetsOpen === pluginName ? (
-          <PluginAssetManager pluginName={pluginName} />
-        ) : null}
       </Stack>
     </Border>
   );

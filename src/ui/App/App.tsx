@@ -27,7 +27,6 @@ export default function App() {
   const { getServerState } = useServer();
   const { data: serverData, isLoading: serverLoading, error: serverError } = getServerState();
   const { addListener, removeListener } = useOSC();
-  const { showFooter } = useFooter();
 
   useEffect(() => {
     addListener('/obs/status/connection', (message: any) => {});

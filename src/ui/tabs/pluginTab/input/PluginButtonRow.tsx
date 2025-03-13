@@ -10,6 +10,7 @@ import { usePluginContext } from '../context/PluginTabFormContext';
 import usePlugins from '../../../../app/hooks/usePlugins';
 import { StyleSize } from '../../../Types';
 import { ButtonRow } from '@greysole/spooder-component-library';
+import { StyleSizeButton } from '@greysole/spooder-component-library/dist/types/Types';
 
 interface PluginButtonRowProps {
   pluginName: string;
@@ -63,66 +64,73 @@ export default function PluginButtonRow(props: PluginButtonRowProps) {
     }
   }
 
-  const iconSize = StyleSize.xlarge;
+  const confirmDeletePlugin = (pluginName: string) => {
+    const deleteConfirmation = confirm(
+      'Are you sure you want to delete the plugin ' + pluginName + '?',
+    );
+    if (deleteConfirmation) {
+      deletePlugin(pluginName).then(() => {
+        reloadPlugins();
+      });
+    }
+  };
 
   return status == 'ok' ? (
     <ButtonRow
+      buttonSize='medium'
+      iconSize='xlarge'
       buttons={[
         {
           icon: faCircleInfo,
-          iconSize: iconSize,
           color: 'gray',
           isActive: pluginInfoOpen === pluginName,
           onClick: () => pluginInfo(pluginName),
         },
         {
           icon: faCog,
-          iconSize: iconSize,
           color: '#090',
           isActive: pluginSettingsOpen === pluginName,
           onClick: () => pluginSettings(pluginName),
         },
         {
           icon: faFile,
-          iconSize: iconSize,
           color: '#008080',
           isActive: pluginAssetsOpen === pluginName,
           onClick: () => pluginAssets(pluginName),
         },
         {
           icon: faDownload,
-          iconSize: iconSize,
           color: '#000',
           isLink: true,
           linkName: pluginName,
-          link: '/export_plugin/' + pluginName,
+          link: '/plugins/export_plugin/' + pluginName,
           isActive: false,
         },
         {
           icon: faTrash,
-          iconSize: iconSize,
           color: '#8f2525',
           isActive: false,
-          onClick: () => deletePlugin(pluginName),
+          onClick: () => confirmDeletePlugin(pluginName),
         },
       ]}
     />
   ) : (
     <ButtonRow
+      buttonSize='medium'
+      iconSize='xlarge'
       buttons={[
         {
           icon: faCircleInfo,
-          iconSize: '2x',
+
           color: 'gray',
           isActive: pluginInfoOpen === pluginName,
           onClick: () => pluginInfo(pluginName),
         },
         {
           icon: faTrash,
-          iconSize: '2x',
           color: '#8f2525',
           isActive: false,
-          onClick: () => deletePlugin(pluginName),
+          onClick: () => confirmDeletePlugin(pluginName),
         },
       ]}
     />

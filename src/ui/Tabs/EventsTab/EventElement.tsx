@@ -79,15 +79,15 @@ export default function EventElement(props: EventElementProps) {
         </Columns>
 
         <ButtonRow
+          buttonSize='large'
+          iconSize='large'
           buttons={[
             {
               icon: faSquarePen,
-              iconSize: StyleSize.large,
               onClick: () => editEvent(),
             },
             {
               icon: faTrash,
-              iconSize: StyleSize.large,
               onClick: () => deleteEvent(),
             },
           ]}

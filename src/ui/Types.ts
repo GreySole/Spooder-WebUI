@@ -36,6 +36,7 @@ export interface KeyedObject {
 
 export interface PluginComponentProps {
   pluginName: string;
+  setRef?: (pluginName: string, ref: any) => void;
 }
 
 export interface EventCommandProps {

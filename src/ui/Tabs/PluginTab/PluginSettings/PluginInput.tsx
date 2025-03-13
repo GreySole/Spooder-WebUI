@@ -5,6 +5,7 @@ import {
   FormRangeInput,
   FormTextInput,
   FormTextAreaInput,
+  FormNumberInput,
 } from '@greysole/spooder-component-library';
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
@@ -38,11 +39,9 @@ export default function PluginInput(props: PluginInputProps) {
   }
 
   function getInput(type: string) {
-    //console.log("VALUE", keyname);
     switch (type) {
       case 'boolean':
       case 'checkbox':
-        //input = <input type="checkbox" name={keyname} defaultChecked={value} onChange={changeCB}/>
         return <FormBoolSwitch formKey={formKey} label={label} />;
       case 'color':
         return <FormColorInput formKey={formKey} label={label} />;
@@ -68,6 +67,8 @@ export default function PluginInput(props: PluginInputProps) {
         return <FormCodeInput formKey={formKey} label={label} />;
       case 'text':
         return <FormTextInput formKey={formKey} label={label} />;
+      case 'number':
+        return <FormNumberInput formKey={formKey} label={label} />;
       case 'password':
         return <FormTextInput formKey={formKey} label={label} password />;
       case 'textarea':

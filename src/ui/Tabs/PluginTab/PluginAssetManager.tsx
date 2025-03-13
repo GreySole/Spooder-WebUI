@@ -30,9 +30,9 @@ import { usePluginContext } from './context/PluginTabFormContext';
 export default function PluginAssetManager(props: PluginComponentProps) {
   const { pluginName } = props;
   const { plugins, isReady, reloadPlugins } = usePluginContext();
-  const { getDeletePluginAsset, getUploadPluginAsset, getPluginAssets } = usePlugins();
+  const { getDeletePluginAsset, getUploadPluginAssets, getPluginAssets } = usePlugins();
   const { deletePluginAsset } = getDeletePluginAsset();
-  const { uploadPluginAsset, error: pluginUploadError } = getUploadPluginAsset();
+  const { uploadPluginAssets, error: pluginUploadError } = getUploadPluginAssets();
   const { themeConstants } = useTheme();
 
   const audioPreviewRef = useRef<HTMLMediaElement>(null);
@@ -84,19 +84,13 @@ export default function PluginAssetManager(props: PluginComponentProps) {
     refetch();
   }
 
-  async function uploadPluginAssetClick(file: File | undefined) {
-    if (file === undefined) {
+  async function uploadPluginAssetClick(files: FileList | null) {
+    if (files === null) {
       return;
     }
-    let assetPath = path.join(pluginName, plugin.assetBrowserPath);
-    var fd = new FormData();
-    fd.append('file', file);
+    const assetPath = path.join(pluginName, plugin.assetBrowserPath);
 
-    const requestOptions = {
-      method: 'POST',
-      body: fd,
-    };
-    let uploadReq = await uploadPluginAsset(assetPath, fd);
+    await uploadPluginAssets(pluginName, assetPath, files);
 
     reloadPlugins();
   }
@@ -155,11 +149,13 @@ export default function PluginAssetManager(props: PluginComponentProps) {
       <Box width='100%' flexFlow='column' padding='medium'>
         <Stack spacing='small'>
           <ButtonRow
+            buttonSize='large'
+            iconSize='large'
             buttons={[
-              { icon: faArrowLeft, iconSize: 'lg', onClick: () => browseFolder('..') },
-              { icon: faArrowUp, iconSize: 'lg', onClick: () => browseFolder('/') },
-              { icon: faHouse, iconSize: 'lg', onClick: () => browseFolder('/') },
-              { icon: faSync, iconSize: 'lg', onClick: () => browseFolder('') },
+              { icon: faArrowLeft, onClick: () => browseFolder('..') },
+              { icon: faArrowUp, onClick: () => browseFolder('/') },
+              { icon: faHouse, onClick: () => browseFolder('/') },
+              { icon: faSync, onClick: () => browseFolder('') },
             ]}
           />
           <TypeFace fontSize='large'>{plugin.assetBrowserPath}</TypeFace>
@@ -176,16 +172,18 @@ export default function PluginAssetManager(props: PluginComponentProps) {
             </Box>
           </Box>
           <ButtonRow
+            buttonSize='large'
+            iconSize='large'
             buttons={[
-              { icon: faUpload, iconSize: 'lg', onClick: handleAssetUploadClick },
-              { icon: faTrash, iconSize: 'lg', onClick: deleteAsset, color: themeConstants.delete },
+              { icon: faUpload, onClick: handleAssetUploadClick },
+              { icon: faTrash, onClick: deleteAsset, color: themeConstants.delete },
             ]}
           />
           <input
             type='file'
             id='input-file'
             plugin-name={pluginName}
-            onChange={(e) => uploadPluginAssetClick(e?.target?.files?.[0])}
+            onChange={(e) => uploadPluginAssetClick(e?.target?.files)}
             style={{ display: 'none' }}
           />
         </Stack>

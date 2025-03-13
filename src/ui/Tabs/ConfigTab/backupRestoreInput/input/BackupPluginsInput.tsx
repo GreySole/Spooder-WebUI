@@ -35,17 +35,17 @@ export default function BackupPluginsInput() {
               <Box key={backup} flexFlow='row' justifyContent='space-between' alignItems='center'>
                 <TypeFace userSelect='none'>{backup}</TypeFace>
                 <ButtonRow
+                  buttonSize='large'
+                  iconSize='large'
                   buttons={[
                     {
                       icon: faDownload,
-                      iconSize: StyleSize.large,
                       isLink: true,
                       link: '/recovery/checkout_plugins/' + backup,
                       linkName: backup.substring(0, backup.lastIndexOf('.')),
                     },
                     {
                       icon: faTrash,
-                      iconSize: StyleSize.large,
                       onClick: () => {
                         deleteBackupPlugins(backup).then(() => {
                           refetch();

@@ -2,8 +2,6 @@ import { faFileImport } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import usePlugins from '../../../../app/hooks/usePlugins';
 import React, { useRef } from 'react';
-import { useFormContext } from 'react-hook-form';
-import { useUploadPluginAssetMutation } from '../../../../app/api/pluginSlice';
 import { FormLoader, FormSelectDropdown } from '@greysole/spooder-component-library';
 
 interface FormAssetSelectProps {
@@ -17,13 +15,11 @@ interface FormAssetSelectProps {
 export default function FormAssetSelect(props: FormAssetSelectProps) {
   const { formKey, label, assetType, pluginName, assetFolderPath } = props;
   const acceptedFormat = assetType != null ? assetType + '/*' : '*';
-  const { getPluginAssets } = usePlugins();
-  const { setValue } = useFormContext();
-  const [uploadPluginAsset] = useUploadPluginAssetMutation();
+  const { getPluginAssets, getUploadPluginAssets } = usePlugins();
+  const { uploadPluginAssets } = getUploadPluginAssets();
+
   const { data: assets, isLoading, error, refetch } = getPluginAssets(pluginName, assetFolderPath);
   const fileRef = useRef<HTMLInputElement>(null);
-
-  console.log('ASSETS', pluginName, assetFolderPath);
 
   if (isLoading || error) {
     return <FormLoader numRows={2} />;
@@ -39,13 +35,7 @@ export default function FormAssetSelect(props: FormAssetSelectProps) {
 
   async function uploadAsset(files: FileList | null) {
     if (files && files.length > 0) {
-      const assetPath = `${assetFolderPath}/${files[0].name}`;
-      var fd = new FormData();
-
-      fd.append('file', files[0]);
-
-      await uploadPluginAsset({ assetPath, fd }).unwrap();
-      setValue(formKey, assetPath);
+      await uploadPluginAssets(pluginName, assetFolderPath, files);
       refetch();
     }
   }

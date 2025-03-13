@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import {
   useBrowsePluginAssetsQuery,
   useCreatePluginMutation,
@@ -13,11 +12,11 @@ import {
   useRefreshPluginMutation,
   useRefreshPluginsMutation,
   useReinstallPluginMutation,
-  useSavePluginMutation,
-  useUploadPluginAssetMutation,
+  useSavePluginSettingsMutation,
+  useSetPluginEnabledMutation,
+  useUploadPluginAssetsMutation,
   useUploadPluginIconMutation,
 } from '../api/pluginSlice';
-import { NewPlugin } from '../../ui/Types';
 
 export default function usePlugins() {
   function getInstallPlugin() {
@@ -31,13 +30,20 @@ export default function usePlugins() {
     return { installPlugin, isLoading, isSuccess, error };
   }
 
-  function getUploadPluginAsset() {
-    const [uploadPluginAssetMutation, { isLoading, isSuccess, error }] =
-      useUploadPluginAssetMutation();
-    function uploadPluginAsset(assetPath: string, form: FormData) {
-      uploadPluginAssetMutation({ assetPath, form });
+  function getUploadPluginAssets() {
+    const [uploadPluginAssetsMutation, { isLoading, isSuccess, error }] =
+      useUploadPluginAssetsMutation();
+    function uploadPluginAssets(pluginName: string, assetPath: string, files: FileList) {
+      console.log('uploadPluginAsset', pluginName, assetPath, files);
+      const fd = new FormData();
+      Array.from(files).forEach((file, index) => {
+        fd.append(`files`, file);
+      });
+      fd.append('pluginName', pluginName);
+      fd.append('assetPath', assetPath ?? '/');
+      return uploadPluginAssetsMutation(fd);
     }
-    return { uploadPluginAsset, isLoading, isSuccess, error };
+    return { uploadPluginAssets, isLoading, isSuccess, error };
   }
 
   function getUploadPluginIcon() {
@@ -52,9 +58,18 @@ export default function usePlugins() {
   function getDeletePlugin() {
     const [deletePluginMutation, { isLoading, isSuccess, error }] = useDeletePluginMutation();
     function deletePlugin(pluginName: string) {
-      deletePluginMutation(pluginName);
+      return deletePluginMutation(pluginName);
     }
     return { deletePlugin, isLoading, isSuccess, error };
+  }
+
+  function getSetPluginEnabled() {
+    const [setPluginEnabledMutation, { isLoading, isSuccess, error }] =
+      useSetPluginEnabledMutation();
+    function setPluginEnabled(pluginName: string, isEnabled: boolean) {
+      return setPluginEnabledMutation({ pluginName, isEnabled });
+    }
+    return { setPluginEnabled, isLoading, isSuccess, error };
   }
 
   function getDeletePluginAsset() {
@@ -106,22 +121,18 @@ export default function usePlugins() {
       author: string,
       description: string,
     ) {
-      const fd = new FormData();
-      fd.append('internalName', internalName);
-      fd.append('pluginName', pluginName);
-      fd.append('author', author);
-      fd.append('description', description);
-      createPluginMutation(fd);
+      createPluginMutation({ internalName, pluginName, author, description });
     }
     return { createPlugin, isLoading, isSuccess, error };
   }
 
-  function getSavePlugin() {
-    const [savePluginMutation, { isLoading, isSuccess, error }] = useSavePluginMutation();
-    function savePlugin(pluginName: string, newData: any) {
-      savePluginMutation({ pluginName, newData });
+  function getSavePluginSettings() {
+    const [savePluginSettingsMutation, { isLoading, isSuccess, error }] =
+      useSavePluginSettingsMutation();
+    function savePluginSettings(pluginName: string, newData: any) {
+      return savePluginSettingsMutation({ pluginName, newData });
     }
-    return { savePlugin, isLoading, isSuccess, error };
+    return { savePluginSettings, isLoading, isSuccess, error };
   }
 
   function getPlugins() {
@@ -165,10 +176,10 @@ export default function usePlugins() {
     };
   }
 
-  function getPluginAssets(pluginName: string, assetName: string) {
+  function getPluginAssets(pluginName: string, folderPath: string) {
     const { isLoading, error, data, refetch } = useBrowsePluginAssetsQuery({
       pluginName,
-      assetName,
+      folderPath,
     });
     return {
       isLoading,
@@ -185,15 +196,16 @@ export default function usePlugins() {
     getPluginSettingsForm,
     getPluginEventsForm,
     getPluginAssets,
-    getUploadPluginAsset,
+    getUploadPluginAssets,
     getUploadPluginIcon,
     getDeletePlugin,
+    getSetPluginEnabled,
     getDeletePluginAsset,
     getExportPlugin,
     getRefreshPlugin,
     getRefreshPlugins,
     getReinstallPlugin,
     getCreatePlugin,
-    getSavePlugin,
+    getSavePluginSettings,
   };
 }

@@ -16,9 +16,9 @@ interface AssetSelectProps {
 export default function AssetSelect(props: AssetSelectProps) {
   const { label, assetType, pluginName, assetFolderPath, value, onChange } = props;
   const acceptedFormat = assetType != null ? assetType + '/*' : '*';
-  const { getPluginAssets, getUploadPluginAsset } = usePlugins();
+  const { getPluginAssets, getUploadPluginAssets } = usePlugins();
   const { data: assets, isLoading, error, refetch } = getPluginAssets(pluginName, assetFolderPath);
-  const { uploadPluginAsset } = getUploadPluginAsset();
+  const { uploadPluginAssets } = getUploadPluginAssets();
 
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -36,12 +36,7 @@ export default function AssetSelect(props: AssetSelectProps) {
 
   async function uploadAsset(files: FileList | null) {
     if (files && files.length > 0) {
-      const path = assetFolderPath == null ? pluginName : pluginName + '/' + assetFolderPath;
-      var fd = new FormData();
-
-      fd.append('file', files[0]);
-
-      uploadPluginAsset(assetFolderPath, fd);
+      await uploadPluginAssets(pluginName, assetFolderPath, files);
       refetch();
     }
   }

@@ -18,8 +18,8 @@ export const pluginApi = createApi({
       query: (pluginName: string) => '/plugins/get_plugin_events_form?plugin=' + pluginName,
     }),
     browsePluginAssets: builder.query({
-      query: ({ pluginName, assetName }) => ({
-        url: `/plugins/browse_plugin_assets?pluginname=${pluginName}&folder=${assetName}`,
+      query: ({ pluginName, folderPath }) => ({
+        url: `/plugins/browse_plugin_assets?pluginname=${pluginName}&folder=${folderPath ? folderPath : '/'}`,
         headers: {
           'Content-type': 'application/json; charset=UTF-8',
         },
@@ -35,21 +35,25 @@ export const pluginApi = createApi({
         body: form,
       }),
     }),
-    uploadPluginAsset: builder.mutation({
-      query: ({ assetPath, form }) => ({
-        url: `/plugins/upload_plugin_asset/${assetPath}`,
+    uploadPluginAssets: builder.mutation({
+      query: (form) => ({
+        url: `/plugins/upload_plugin_asset`,
         method: 'post',
         body: form,
-        headers: {
-          'Content-type': 'application/json; charset=UTF-8',
-        },
       }),
     }),
     uploadPluginIcon: builder.mutation({
-      query: ({ assetPath, form }) => ({
-        url: `/plugins/upload_plugin_icon/${assetPath}`,
+      query: (form) => ({
+        url: `/plugins/upload_plugin_icon`,
         method: 'post',
         body: form,
+      }),
+    }),
+    setPluginEnabled: builder.mutation({
+      query: (body) => ({
+        url: `/plugins/set_plugin_enabled`,
+        method: 'post',
+        body: body,
         headers: {
           'Content-type': 'application/json; charset=UTF-8',
         },
@@ -121,11 +125,11 @@ export const pluginApi = createApi({
         },
       }),
     }),
-    savePlugin: builder.mutation({
-      query: ({ pluginName, newData }) => ({
-        url: '/plugins/save_plugin',
+    savePluginSettings: builder.mutation({
+      query: (body) => ({
+        url: '/plugins/save_plugin_settings',
         method: 'post',
-        body: { pluginName, newData },
+        body: body,
         headers: {
           'Content-type': 'application/json; charset=UTF-8',
         },
@@ -139,6 +143,7 @@ export const {
   useCreatePluginMutation,
   useDeletePluginAssetMutation,
   useDeletePluginMutation,
+  useSetPluginEnabledMutation,
   useExportPluginMutation,
   useGetPluginsQuery,
   useGetPluginSettingsQuery,
@@ -148,7 +153,7 @@ export const {
   useRefreshPluginMutation,
   useRefreshPluginsMutation,
   useReinstallPluginMutation,
-  useSavePluginMutation,
-  useUploadPluginAssetMutation,
+  useSavePluginSettingsMutation,
+  useUploadPluginAssetsMutation,
   useUploadPluginIconMutation,
 } = pluginApi;

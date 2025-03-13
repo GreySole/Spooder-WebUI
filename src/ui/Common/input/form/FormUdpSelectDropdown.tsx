@@ -22,7 +22,7 @@ export default function FormUdpSelectDropdown(props: FormUdpSelectDropdownProps)
 
   for (let u in udpClients) {
     udpOptions.push({
-      label: udpClients[u],
+      label: udpClients[u].name,
       value: u,
     });
   }

@@ -1,9 +1,17 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { faSync, faImage } from '@fortawesome/free-solid-svg-icons';
 import { useRef } from 'react';
 import useToast from '../../../app/hooks/useToast';
 import { ToastType } from '../../Types';
-import { Box, TypeFace, Border, Stack, Columns, Button } from '@greysole/spooder-component-library';
+import {
+  Box,
+  TypeFace,
+  Border,
+  Stack,
+  Columns,
+  Button,
+  BoolSwitch,
+} from '@greysole/spooder-component-library';
 import usePlugins from '../../../app/hooks/usePlugins';
 import { usePluginContext } from './context/PluginTabFormContext';
 
@@ -14,10 +22,16 @@ interface PluginInfoViewProps {
 export default function PluginInfoView(props: PluginInfoViewProps) {
   const { pluginName } = props;
   const { showToast } = useToast();
-  const { getRefreshPlugin, getReinstallPlugin } = usePlugins();
+  const { getRefreshPlugin, getReinstallPlugin, getSetPluginEnabled } = usePlugins();
   const { plugins, isReady } = usePluginContext();
   const { refreshPlugin } = getRefreshPlugin();
   const { reinstallPlugin } = getReinstallPlugin();
+  const { setPluginEnabled } = getSetPluginEnabled();
+  const [isEnabled, setIsEnabled] = useState(false);
+
+  useEffect(() => {
+    setIsEnabled(plugins[pluginName].status !== 'disabled');
+  }, [isReady]);
 
   if (!isReady) {
     return null;
@@ -40,27 +54,19 @@ export default function PluginInfoView(props: PluginInfoViewProps) {
   let dependenciesElements = null;
   let dependenciesElement = null;
   if (Object.keys(plugin.dependencies).length > 0) {
-    dependenciesElements = plugin.dependencies.map((d: any) => (
-      <Box>
-        {d}:{plugin.dependencies[d]}
+    dependenciesElements = Object.entries(plugin.dependencies).map(([key, value]) => (
+      <Box key={key}>
+        {key}: {value as string}
       </Box>
     ));
     dependenciesElement = (
-      <Box flexFlow='column'>
+      <Stack spacing='medium'>
         <TypeFace fontSize='large'>Dependencies</TypeFace>
         {dependenciesElements}
-        <div>
-          <label>
-            <button
-              type='button'
-              className='add-button'
-              onClick={() => reinstallPlugin(pluginName)}
-            >
-              Reinstall Dependencies
-            </button>
-          </label>
-        </div>
-      </Box>
+        <Box>
+          <Button label='Reinstall Dependencies' onClick={() => reinstallPlugin(pluginName)} />
+        </Box>
+      </Stack>
     );
   } else {
     dependenciesElement = (
@@ -70,15 +76,25 @@ export default function PluginInfoView(props: PluginInfoViewProps) {
       </Box>
     );
   }
+
   return (
     <Border borderWidth='2px' borderColor='gray'>
-      <Stack spacing='medium' padding='small'>
+      <Stack spacing='medium' padding='medium'>
         <Stack spacing='small'>
           <TypeFace fontSize='large'>Description</TypeFace>
           <TypeFace fontSize='medium'>{plugin.description}</TypeFace>
         </Stack>
         {dependenciesElement}
-        <Columns spacing='small' padding='small'>
+        <BoolSwitch
+          label='Enabled'
+          value={isEnabled}
+          onChange={() => {
+            setPluginEnabled(pluginName, !isEnabled).then(() => {
+              setIsEnabled(!isEnabled);
+            });
+          }}
+        />
+        <Columns spacing='medium'>
           <Button
             label='Reload Plugin'
             icon={faSync}

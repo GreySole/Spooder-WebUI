@@ -44,12 +44,7 @@ export default function useConfig() {
     function saveConfig(form: FieldValues) {
       console.log('SAVING', form);
 
-      const formData = new FormData();
-      for (const [key, value] of Object.entries(form)) {
-        formData.append(key, value);
-      }
-
-      saveConfigMutation(formData)
+      saveConfigMutation(form)
         .unwrap()
         .then(() => {
           showToast('Config saved successfully!', ToastType.SUCCESS);

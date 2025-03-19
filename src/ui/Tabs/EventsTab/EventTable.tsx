@@ -87,7 +87,7 @@ export default function EventTable() {
   });
 
   return (
-    <>
+    <Box flexFlow='column' width='inherit' marginBottom='var(--footer-height)'>
       <Box flexFlow='column' padding='medium'>
         <AddGroupInput />
         {groupElements}
@@ -114,7 +114,7 @@ export default function EventTable() {
           ) : null}
         </Box>
       </Footer>
-    </>
+    </Box>
   );
 }
 

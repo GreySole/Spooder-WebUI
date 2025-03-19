@@ -20,12 +20,4 @@ export default function DeleteEventButton(props: DeleteEventButtonProps) {
   }
 
   return <Button icon={faTrash} onClick={() => deleteEvent(eventName)} />;
-
-  return (
-    <div className='delete-event-div'>
-      <button type='button' className='delete-button' onClick={() => deleteEvent(eventName)}>
-        DELETE EVENT
-      </button>
-    </div>
-  );
 }

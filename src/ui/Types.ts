@@ -26,6 +26,61 @@ export enum OSCHandleType {
   search = 'search',
 }
 
+export interface ResponseCommand {
+  type: 'response';
+  search: boolean;
+  delay: number;
+  message: string;
+}
+
+export interface PluginCommand {
+  type: 'plugin';
+  etype: 'oneshot' | 'timed';
+  pluginname: string;
+  eventname: string;
+  eventData?: KeyedObject;
+  stop_eventname: string;
+  stop_eventData?: KeyedObject;
+  duration: number;
+  delay: number;
+}
+
+export interface SoftwareCommand {
+  type: 'software';
+  etype: 'oneshot' | 'timed';
+  dest_udp: string;
+  address: string;
+  valueOn: string;
+  valueOff: string;
+  duration: number;
+  delay: number;
+  priority: number;
+}
+
+export interface OBSCommand {
+  type: 'obs';
+  function: string;
+  etype: 'oneshot' | 'timed';
+  scene: string;
+  item: string;
+  valueOn: string;
+  valueOff: string;
+  itemOn: string;
+  itemOff: string;
+  duration: number;
+  delay: number;
+}
+
+export interface ModCommand {
+  type: 'mod';
+  function: string;
+  etype: 'oneshot' | 'timed';
+  targettype: string;
+  target: string;
+  duration: number;
+  delay: number;
+}
+
 export interface PluginsObject {
   [key: string]: any;
 }

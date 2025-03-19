@@ -108,6 +108,8 @@ export default function App() {
 
   const height = `calc(100dvh - var(--header-height)${isMobileDevice ? '' : ' - var(--navigation-tabs-height)'})`;
 
+  console.log('APP RENDER');
+
   return (
     <Box flexFlow='column'>
       <Header />

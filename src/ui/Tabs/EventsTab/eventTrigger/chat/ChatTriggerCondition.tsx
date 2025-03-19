@@ -29,10 +29,12 @@ export default function ChatTriggerCondition(props: ChatTriggerConditionProps) {
     <Box width='100%'>
       <Border inactiveColor='var(--color-background-far)' colorOnHover>
         <Expandable label='Permissions'>
-          <FormBoolSwitch label='Broadcaster' formKey={broadcasterKey} />
-          <FormBoolSwitch label='Moderator' formKey={modKey} />
-          <FormBoolSwitch label='Subscriber' formKey={subKey} />
-          <FormBoolSwitch label='VIP' formKey={vipKey} />
+          <Stack spacing='small' padding='medium'>
+            <FormBoolSwitch label='Broadcaster' formKey={broadcasterKey} />
+            <FormBoolSwitch label='Moderator' formKey={modKey} />
+            <FormBoolSwitch label='Subscriber' formKey={subKey} />
+            <FormBoolSwitch label='VIP' formKey={vipKey} />
+          </Stack>
         </Expandable>
       </Border>
     </Box>

@@ -68,8 +68,8 @@ export default function PluginAssetManager(props: PluginComponentProps) {
   async function deleteAsset() {
     deletePluginAsset(pluginName, assetFilePreview);
     if (!pluginUploadError) {
-      reloadPlugins();
       setAssetFilePreview('');
+      refetch();
     }
   }
 
@@ -88,11 +88,10 @@ export default function PluginAssetManager(props: PluginComponentProps) {
     if (files === null) {
       return;
     }
-    const assetPath = path.join(pluginName, plugin.assetBrowserPath);
 
-    await uploadPluginAssets(pluginName, assetPath, files);
+    await uploadPluginAssets(pluginName, plugin.assetBrowserPath, files);
 
-    reloadPlugins();
+    refetch();
   }
 
   const fileTable = [];
@@ -145,49 +144,49 @@ export default function PluginAssetManager(props: PluginComponentProps) {
   }
 
   return (
-    <Border borderWidth='2px' borderColor={themeConstants.assets}>
-      <Box width='100%' flexFlow='column' padding='medium'>
-        <Stack spacing='small'>
-          <ButtonRow
-            buttonSize='large'
-            iconSize='large'
-            buttons={[
-              { icon: faArrowLeft, onClick: () => browseFolder('..') },
-              { icon: faArrowUp, onClick: () => browseFolder('/') },
-              { icon: faHouse, onClick: () => browseFolder('/') },
-              { icon: faSync, onClick: () => browseFolder('') },
-            ]}
-          />
-          <TypeFace fontSize='large'>{plugin.assetBrowserPath}</TypeFace>
-          <Box classes={['asset-select']} justifyContent='space-between' alignItems='center'>
-            <Box width='50%' height='100%' flexFlow='column'>
-              {folderTable}
-              {fileTable}
-            </Box>
-            <Box height='100%' width='50%' justifyContent='center' alignItems='center'>
-              {previewHTML}
-              <audio id='audioPreview' ref={audioPreviewRef} controls>
-                {previewAudio ? <source src={previewAudio}></source> : null}
-              </audio>
-            </Box>
+    <Box width='100%' flexFlow='column' padding='medium'>
+      <Stack spacing='small'>
+        <ButtonRow
+          buttonSize='large'
+          iconSize='large'
+          buttons={[
+            { icon: faArrowLeft, onClick: () => browseFolder('..') },
+            { icon: faArrowUp, onClick: () => browseFolder('/') },
+            { icon: faHouse, onClick: () => browseFolder('/') },
+            { icon: faSync, onClick: () => browseFolder('') },
+          ]}
+        />
+        <TypeFace fontSize='large'>{plugin.assetBrowserPath}</TypeFace>
+        <Box classes={['asset-select']} justifyContent='space-between' alignItems='center'>
+          <Box width='50%' height='100%' flexFlow='column'>
+            {folderTable}
+            {fileTable}
           </Box>
-          <ButtonRow
-            buttonSize='large'
-            iconSize='large'
-            buttons={[
-              { icon: faUpload, onClick: handleAssetUploadClick },
-              { icon: faTrash, onClick: deleteAsset, color: themeConstants.delete },
-            ]}
-          />
-          <input
-            type='file'
-            id='input-file'
-            plugin-name={pluginName}
-            onChange={(e) => uploadPluginAssetClick(e?.target?.files)}
-            style={{ display: 'none' }}
-          />
-        </Stack>
-      </Box>
-    </Border>
+          <Box height='100%' width='50%' justifyContent='center' alignItems='center'>
+            {previewHTML}
+            <audio id='audioPreview' ref={audioPreviewRef} controls>
+              {previewAudio ? <source src={previewAudio}></source> : null}
+            </audio>
+          </Box>
+        </Box>
+        <ButtonRow
+          buttonSize='large'
+          iconSize='large'
+          buttons={[
+            { icon: faUpload, onClick: handleAssetUploadClick },
+            { icon: faTrash, onClick: deleteAsset, color: themeConstants.delete },
+          ]}
+        />
+        <input
+          type='file'
+          ref={hiddenAssetInput}
+          multiple
+          id='input-file'
+          plugin-name={pluginName}
+          onChange={(e) => uploadPluginAssetClick(e?.target?.files)}
+          style={{ display: 'none' }}
+        />
+      </Stack>
+    </Box>
   );
 }

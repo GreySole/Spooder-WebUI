@@ -13,7 +13,7 @@ import {
 import { useFormContext } from 'react-hook-form';
 import { KeyedObject } from '../../../Types';
 import PluginMultiInput from './PluginMultiInput';
-import EventExpandable from '../../eventsTab/eventCommand/EventExpandable';
+import SubExpandable from '../../../common/input/general/SubExpandable';
 
 interface PluginSubformProps {
   formKey: string;
@@ -153,13 +153,13 @@ export default function PluginSubform(props: PluginSubformProps) {
     }
 
     subClones.push(
-      <EventExpandable label={nameChanges[se]} key={`${formKey}.${se}`}>
+      <SubExpandable label={nameChanges[se]} key={`${formKey}.${se}`}>
         <Stack spacing='medium' padding='xsmall'>
           {keyInput}
           {subInputs}
           <Button icon={faTrash} onClick={() => removeForm(se)} />
         </Stack>
-      </EventExpandable>,
+      </SubExpandable>,
     );
   }
 

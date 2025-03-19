@@ -22,7 +22,7 @@ export const eventApi = createApi({
     }),
     verifyResponseScript: builder.mutation({
       query: (body) => ({
-        url: '/verifyResponseScript',
+        url: '/verify_response_script',
         method: 'post',
         body: body,
         headers: {

@@ -4,6 +4,7 @@ import { EventTriggerProps, OSCConditionType } from '../../../../Types';
 import { buildTriggerKey, buildKey } from '../../FormKeys';
 import OSCTriggerConditions from './OSCTriggerConditions';
 import {
+  Border,
   Box,
   FormBoolSwitch,
   FormSelectDropdown,
@@ -41,21 +42,23 @@ export default function OSCTrigger(props: EventTriggerProps) {
   }
 
   return (
-    <Box width='100%' flexFlow='column'>
-      <FormBoolSwitch label='OSC:' formKey={enabledKey} />
-      <Stack spacing='small' margin='small'>
-        <FormSelectDropdown
-          formKey={handleTypeKey}
-          label='Handle: '
-          options={[
-            { value: 'trigger', label: 'Trigger' },
-            { value: 'toggle', label: 'Toggle' },
-            { value: 'search', label: 'Search String' },
-          ]}
-        />
-        <FormTextInput label='Address: ' formKey={addressKey} />
-        <OSCTriggerConditions eventName={eventName} />
-      </Stack>
-    </Box>
+    <Border>
+      <Box width='100%' flexFlow='column' padding='small'>
+        <FormBoolSwitch label='OSC:' formKey={enabledKey} />
+        <Stack spacing='small' margin='small'>
+          <FormSelectDropdown
+            formKey={handleTypeKey}
+            label='Handle: '
+            options={[
+              { value: 'trigger', label: 'Trigger' },
+              { value: 'toggle', label: 'Toggle' },
+              { value: 'search', label: 'Search String' },
+            ]}
+          />
+          <FormTextInput label='Address: ' formKey={addressKey} />
+          <OSCTriggerConditions eventName={eventName} />
+        </Stack>
+      </Box>
+    </Border>
   );
 }

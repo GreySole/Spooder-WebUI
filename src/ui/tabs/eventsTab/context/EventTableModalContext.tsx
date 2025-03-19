@@ -5,24 +5,22 @@ import EventTriggers from '../EventTriggers';
 import { useFormContext } from 'react-hook-form';
 import { EVENT_KEY } from '../FormKeys';
 import { Box, Button, Modal, MultiPageModal } from '@greysole/spooder-component-library';
+import EventTable from '../EventTable';
+import EventTableModal from './EventTableModal';
 
 interface EventModalContextProps {
   open: () => void;
   close: () => void;
   setEventName: (eventName: string) => void;
-}
-
-interface EventModalContextProviderProps {
-  children: ReactNode;
+  eventName: string;
+  isOpen: boolean;
 }
 
 const EventTableModalContext = createContext<EventModalContextProps | undefined>(undefined);
 
-export function EventTableModalProvider({ children }: EventModalContextProviderProps) {
-  const { formState, watch } = useFormContext();
+export function EventTableModalProvider() {
   const [isOpen, setIsOpen] = useState(false);
-  const [eventName, setEventName] = useState('');
-  const eventDisplayName = watch(`${EVENT_KEY}.${eventName}.name`);
+  const [eventName, setEventName] = useState('armwave');
 
   const openModal = () => {
     setIsOpen(true);
@@ -32,31 +30,11 @@ export function EventTableModalProvider({ children }: EventModalContextProviderP
   };
 
   return (
-    <EventTableModalContext.Provider value={{ open: openModal, close: closeModal, setEventName }}>
-      {isOpen ? (
-        <MultiPageModal
-          title={eventDisplayName}
-          pages={[
-            {
-              title: 'General',
-              content: <EventGeneral eventName={eventName} />,
-            },
-            { title: 'Triggers', content: <EventTriggers eventName={eventName} /> },
-            {
-              title: 'Commands',
-              content: <EventCommands eventName={eventName} />,
-            },
-          ]}
-          footerContent={
-            <Box flexFlow='row' justifyContent='flex-end' padding='small'>
-              <Button label='Save' onClick={() => {}} />
-            </Box>
-          }
-          isOpen={isOpen}
-          onClose={closeModal}
-        />
-      ) : null}
-      {children}
+    <EventTableModalContext.Provider
+      value={{ open: openModal, close: closeModal, setEventName, eventName, isOpen }}
+    >
+      <EventTableModal />
+      <EventTable />
     </EventTableModalContext.Provider>
   );
 }

@@ -3,6 +3,7 @@ import { useFormContext } from 'react-hook-form';
 import { buildKey, buildTriggerKey } from '../../FormKeys';
 import ChatTriggerCondition from './ChatTriggerCondition';
 import {
+  Border,
   Button,
   Columns,
   FormBoolSwitch,
@@ -37,23 +38,25 @@ export default function ChatTrigger(props: ChatTriggerProps) {
   }
 
   return (
-    <Stack spacing='small'>
-      <FormBoolSwitch label='Chat:' formKey={enabledKey} />
-      <Stack spacing='small' margin='small'>
-        <ChatTriggerCondition eventName={eventName} />
-        <Columns spacing='medium'>
-          <FormBoolSwitch label='Search and Match' formKey={searchKey} />
-          <Button
-            icon={faQuestionCircle}
-            iconSize='large'
-            onClick={() => {
-              setSearchAndMatchCheatSheetOpen(!searchAndMatchCheatSheetOpen);
-            }}
-          />
-        </Columns>
-        <ResponseSearchAndMatchCheatSheet isOpen={searchAndMatchCheatSheetOpen} />
-        <FormTextInput label='Command:' formKey={commandKey} />
+    <Border>
+      <Stack spacing='small' padding='small'>
+        <FormBoolSwitch label='Chat:' formKey={enabledKey} />
+        <Stack spacing='small' margin='small'>
+          <ChatTriggerCondition eventName={eventName} />
+          <Columns spacing='medium'>
+            <FormBoolSwitch label='Search and Match' formKey={searchKey} />
+            <Button
+              icon={faQuestionCircle}
+              iconSize='large'
+              onClick={() => {
+                setSearchAndMatchCheatSheetOpen(!searchAndMatchCheatSheetOpen);
+              }}
+            />
+          </Columns>
+          <ResponseSearchAndMatchCheatSheet isOpen={searchAndMatchCheatSheetOpen} />
+          <FormTextInput label='Command:' formKey={commandKey} />
+        </Stack>
       </Stack>
-    </Stack>
+    </Border>
   );
 }

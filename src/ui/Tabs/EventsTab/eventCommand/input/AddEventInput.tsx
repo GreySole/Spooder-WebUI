@@ -4,7 +4,19 @@ import { EVENT_KEY } from '../../FormKeys';
 import { useState } from 'react';
 import { HotkeysProvider } from '../../../../../app/hooks/useHotkeys';
 import { SpooderEvent } from '../../../../Types';
-import { Box, Button } from '@greysole/spooder-component-library';
+import {
+  Border,
+  Box,
+  Button,
+  Columns,
+  Stack,
+  TextInput,
+  TypeFace,
+  useTheme,
+} from '@greysole/spooder-component-library';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
+import { useEventTableModal } from '../../context/EventTableModalContext';
 
 interface AddEventButtonProps {
   groupName: string;
@@ -15,10 +27,12 @@ export default function AddEventInput(props: AddEventButtonProps) {
   const { setValue, watch } = useFormContext();
   const [addEventName, setAddEventName] = useState<string>('');
   const [inputFocused, setInputFocused] = useState<boolean>(false);
+  const [isEventTaken, setIsEventTaken] = useState<boolean>(false);
+  const { open, setEventName } = useEventTableModal();
+  const { themeColors } = useTheme();
   const events = watch('events');
 
   function checkEventTaken(eventName: string) {
-    eventName = eventName.replace(/[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/, '').replace(' ', '_');
     if (Object.keys(events).includes(eventName)) {
       return true;
     } else {
@@ -39,44 +53,43 @@ export default function AddEventInput(props: AddEventButtonProps) {
       cooldown: 0,
       chatnotification: false,
       cooldownnotification: false,
-      triggers: {
-        chat: { enabled: true, command: '!' + newKey },
-        twitch: { enabled: false, type: 'redeem', reward: { id: '', override: false } },
-        osc: {
-          enabled: false,
-          address: '/',
-          type: 'single',
-          condition: '==',
-          value: 0,
-          condition2: '==',
-          value2: 0,
-        },
-      },
+      triggers: {},
       commands: [],
     } as SpooderEvent;
 
     setValue(`${EVENT_KEY}.${newKey}`, newEvent);
+    setEventName(newKey);
+    open();
   }
+
+  const onInput = (value: string) => {
+    setIsEventTaken(checkEventTaken(value));
+    setAddEventName(value);
+  };
 
   return (
     <HotkeysProvider enter={() => (inputFocused ? addEvent(addEventName, groupName) : null)}>
-      <Box paddingTop='small' paddingBottom='small' paddingLeft='none'>
-        <input
-          type='text'
-          className={`event-key-input ${checkEventTaken(addEventName) ? 'error' : ''}`}
-          id='eventkey'
-          placeholder='Event name'
-          value={addEventName}
-          onInput={(e: React.ChangeEvent<HTMLInputElement>) => setAddEventName(e.target.value)}
-          onFocus={() => setInputFocused(true)}
-          onBlur={() => setInputFocused(false)}
-        />
-        <Button
-          className='add-button'
-          label='Add'
-          onClick={() => addEvent(addEventName, groupName)}
-        />
-      </Box>
+      <Stack spacing='small' padding='medium'>
+        {isEventTaken ? (
+          <TypeFace color={themeColors.colorAnalogousCW}>
+            <span>
+              <FontAwesomeIcon icon={faExclamationTriangle} />
+            </span>
+            <span> Event name already taken</span>
+          </TypeFace>
+        ) : null}
+        <Columns spacing='medium'>
+          <TextInput
+            placeholder='Add Event'
+            value={addEventName}
+            onInput={(value) => onInput(value)}
+            onFocus={() => setInputFocused(true)}
+            onBlur={() => setInputFocused(false)}
+            jsonFriendly
+          />
+          <Button label='Add' onClick={() => addEvent(addEventName, groupName)} />
+        </Columns>
+      </Stack>
     </HotkeysProvider>
   );
 }

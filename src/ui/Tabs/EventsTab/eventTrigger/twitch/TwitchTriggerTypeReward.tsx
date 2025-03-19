@@ -19,7 +19,6 @@ interface ChannelPointReward {
 
 export default function TwitchTriggerTypeReward(props: EventTriggerProps) {
   const { eventName } = props;
-  const { watch, register } = useFormContext();
   const { getChannelPointRewards } = useTwitch();
   const {
     data: channelPointRewards,

@@ -33,8 +33,6 @@ export default function AutoShareSwitch(props: AutoShareSwitchProps) {
   };
 
   return (
-    <div className='share-discord-label'>
-      Live Auto Share: <BoolSwitch value={autoShareEnabled} onChange={() => setAutoShare()} />
-    </div>
+    <BoolSwitch label='Live Auto Share' value={autoShareEnabled} onChange={() => setAutoShare()} />
   );
 }

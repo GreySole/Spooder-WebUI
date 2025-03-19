@@ -1,9 +1,8 @@
 import React from 'react';
 import ShareOverviewTab from './ShareOverviewTab';
 import ShareCommandTab from './ShareCommandTab';
-import ShareDiscordTab from './ShareDiscordTab';
 import SharePluginTab from './SharePluginTab';
-import ShareTwitchTab from './ShareTwitchTab';
+import ShareIntegrationTab from './ShareIntegrationTab';
 
 interface ShareTabContentProps {
   shareKey: string;
@@ -23,12 +22,8 @@ export default function ShareTabContent({ shareKey, tab }: ShareTabContentProps)
     case 'plugins':
       tabContent = <SharePluginTab shareKey={shareKey} />;
       break;
-    case 'twitch':
-      tabContent = <ShareTwitchTab shareKey={shareKey} />;
-      break;
-    case 'discord':
-      tabContent = <ShareDiscordTab shareKey={shareKey} />;
-      break;
+    case 'integration':
+      tabContent = <ShareIntegrationTab shareKey={shareKey} />;
   }
 
   return tabContent;

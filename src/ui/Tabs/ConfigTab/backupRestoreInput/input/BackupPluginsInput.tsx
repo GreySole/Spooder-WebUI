@@ -29,7 +29,7 @@ export default function BackupPluginsInput() {
         {isLoading || backupPluginsLoading || deleteBackupPluginsLoading ? (
           <FormLoader />
         ) : (
-          <Stack spacing='small' padding='medium' dividers>
+          <Stack spacing='small' padding='medium'>
             <TypeFace fontSize='large'>Backup List</TypeFace>
             {data?.map((backup: string) => (
               <Box key={backup} flexFlow='row' justifyContent='space-between' alignItems='center'>

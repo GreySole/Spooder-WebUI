@@ -9,7 +9,7 @@ interface ExpandableProps {
   children: ReactNode;
 }
 
-export default function EventExpandable(props: ExpandableProps) {
+export default function SubExpandable(props: ExpandableProps) {
   const { label, triggerIcons, children } = props;
   const [open, setOpen] = useState<boolean>(false);
   return (

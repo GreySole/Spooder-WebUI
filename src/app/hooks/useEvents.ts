@@ -204,14 +204,12 @@ export default function useEvents() {
     const [verifyResponseScriptMutation, { isLoading, isSuccess, error }] =
       useVerifyResponseScriptMutation();
 
-    async function verifyResponseScript(command: string, inputMessage: string, script: string) {
-      //Usually event.username is the uncapitalized version of a username.
-      //Spooder replaces this with the capitalized version in runCommands()
-      const fd = new FormData();
-      fd.append('command', command);
-      fd.append('message', inputMessage);
-      fd.append('script', script);
-      const response = await verifyResponseScriptMutation(fd);
+    function verifyResponseScript(command: string, inputMessage: string, script: string) {
+      const response = verifyResponseScriptMutation({
+        command,
+        message: inputMessage,
+        script,
+      });
       return response;
     }
 

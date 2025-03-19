@@ -3,12 +3,17 @@ import { useFormContext } from 'react-hook-form';
 import { buildCommandKey, buildKey } from '../../FormKeys';
 import usePlugins from '../../../../../app/hooks/usePlugins';
 import { EventCommandProps } from '../../../../Types';
-import { FormSelectDropdown, FormTextInput } from '@greysole/spooder-component-library';
+import {
+  FormNumberInput,
+  FormSelectDropdown,
+  FormTextInput,
+  Stack,
+} from '@greysole/spooder-component-library';
 import CustomEventPluginCommand from './CustomEventPluginCommand';
 
 export default function EventPluginCommand(props: EventCommandProps) {
   const { eventName, commandIndex } = props;
-  const { watch, register } = useFormContext();
+  const { watch } = useFormContext();
 
   const formKey = buildCommandKey(eventName, commandIndex);
 
@@ -16,19 +21,15 @@ export default function EventPluginCommand(props: EventCommandProps) {
   const pluginName = watch(pluginNameFormKey, '');
 
   const stopEventFormKey = buildKey(formKey, 'stop_eventname');
-  const stopEventName = watch(stopEventFormKey, '');
 
   const eventTypeFormKey = buildKey(formKey, 'etype');
   const eType = watch(eventTypeFormKey, '');
 
   const eventNameFormKey = buildKey(formKey, 'eventname');
-  const pluginEventName = watch(eventNameFormKey, 0);
 
   const durationFormKey = buildKey(formKey, 'duration');
-  const duration = watch(durationFormKey, 0);
 
   const delayFormKey = buildKey(formKey, 'delay');
-  const delay = watch(delayFormKey, 0);
 
   const { getPlugins, getPluginEventsForm } = usePlugins();
   const { data: plugins, isLoading: pluginsLoading, error: pluginsError } = getPlugins();
@@ -48,7 +49,7 @@ export default function EventPluginCommand(props: EventCommandProps) {
   }
 
   return (
-    <div className='command-props plugin'>
+    <Stack spacing='small' margin='small'>
       <FormSelectDropdown formKey={pluginNameFormKey} label='Plugin:' options={pluginOptions} />
       <FormSelectDropdown
         formKey={eventTypeFormKey}
@@ -79,15 +80,9 @@ export default function EventPluginCommand(props: EventCommandProps) {
         )
       ) : null}
       {eType == 'timed' ? (
-        <label>
-          Duration (Seconds):
-          <input value={duration} type='number' {...register(durationFormKey)} />
-        </label>
+        <FormNumberInput label='Duration (Seconds):' formKey={durationFormKey} />
       ) : null}
-      <label>
-        Delay (Milliseconds):
-        <input value={delay} type='number' {...register(delayFormKey)} />
-      </label>
-    </div>
+      <FormNumberInput formKey={delayFormKey} label='Delay (Milliseconds)' />
+    </Stack>
   );
 }

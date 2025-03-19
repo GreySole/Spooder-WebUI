@@ -34,9 +34,8 @@ export default function usePlugins() {
     const [uploadPluginAssetsMutation, { isLoading, isSuccess, error }] =
       useUploadPluginAssetsMutation();
     function uploadPluginAssets(pluginName: string, assetPath: string, files: FileList) {
-      console.log('uploadPluginAsset', pluginName, assetPath, files);
       const fd = new FormData();
-      Array.from(files).forEach((file, index) => {
+      Array.from(files).forEach((file) => {
         fd.append(`files`, file);
       });
       fd.append('pluginName', pluginName);

@@ -5,6 +5,7 @@ import {
   faTrash,
   faDownload,
   faGear,
+  faMicrochip,
 } from '@fortawesome/free-solid-svg-icons';
 import React from 'react';
 import { StyleSize } from '../../../Types';
@@ -47,16 +48,10 @@ export default function ShareCategoryButtonRow(props: ShareCategoryButtonRowProp
           onClick: () => setTab('plugins'),
         },
         {
-          icon: TwitchIcon,
+          icon: faMicrochip,
           color: themeColors.backgroundColorNear,
-          isActive: tab === 'twitch',
-          onClick: () => setTab('twitch'),
-        },
-        {
-          icon: DiscordIcon,
-          color: themeColors.backgroundColorNear,
-          isActive: tab === 'discord',
-          onClick: () => setTab('discord'),
+          isActive: tab === 'integration',
+          onClick: () => setTab('integration'),
         },
         {
           icon: faTrash,

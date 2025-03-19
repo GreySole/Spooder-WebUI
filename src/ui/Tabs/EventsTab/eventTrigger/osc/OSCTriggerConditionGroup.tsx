@@ -31,7 +31,6 @@ export default function OSCTriggerConditionGroup(props: TriggerConditionGroup) {
       ...groupConditionValues,
       { type: OSCConditionType.equal, value: '0' },
     ]);
-    console.log('CONDITIONS GROUP VALUES', groupConditionValues);
   };
 
   const deleteCondition = (conditionIndex: number) => {

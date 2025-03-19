@@ -49,11 +49,11 @@ export default function EventElement(props: EventElementProps) {
   }
 
   let triggerIcons = [];
-  if (eventTriggers.chat.enabled) {
+  if (eventTriggers.chat?.enabled) {
     triggerIcons.push(getIcon(faCommentDots, true, StyleSize.xlarge));
   }
 
-  if (eventTriggers.twitch.enabled) {
+  if (eventTriggers.twitch?.enabled) {
     triggerIcons.push(getIcon(TwitchIcon, true, StyleSize.xlarge));
   }
 

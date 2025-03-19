@@ -3,7 +3,12 @@ import { useFormContext } from 'react-hook-form';
 import useOBS from '../../../../../app/hooks/useOBS';
 import { buildCommandKey, buildKey } from '../../FormKeys';
 import { EventCommandProps } from '../../../../Types';
-import { FormSelectDropdown } from '@greysole/spooder-component-library';
+import {
+  Box,
+  FormNumberInput,
+  FormSelectDropdown,
+  Stack,
+} from '@greysole/spooder-component-library';
 import ObsEnableSceneItemInput from './ObsEnabledSceneItemInput';
 import ObsSetInputMuteInput from './ObsSetInputMuteInput';
 import ObsSwitchScenesInput from './ObsSwitchScenesInput';
@@ -26,6 +31,8 @@ export default function EventOBSCommand(props: EventCommandProps) {
   const eTypeFormKey = buildKey(formKey, 'etype');
   const eType = watch(eTypeFormKey);
 
+  const durationKey = buildKey(formKey, 'duration');
+
   if (
     obsLoading ||
     scenesLoading ||
@@ -39,22 +46,14 @@ export default function EventOBSCommand(props: EventCommandProps) {
 
   if (obsStatus.connected == false) {
     return (
-      <div className='command-props software'>
+      <Box>
         <label>
           OBS not connected. Connect to OBS remote in Deck Mode and refresh. Saving now will not
           affect any settings in place.
         </label>
-      </div>
+      </Box>
     );
   }
-
-  const oduration =
-    eType == 'timed' ? (
-      <label>
-        Duration (Seconds):
-        <input type='number' {...register(buildKey(formKey, 'duration'))} />
-      </label>
-    ) : null;
 
   const inputItemOptions = sceneData.inputs
     .map((input: any) => ({ label: input.inputName, value: input.inputName }))
@@ -101,7 +100,7 @@ export default function EventOBSCommand(props: EventCommandProps) {
   }
 
   return (
-    <div className='command-props software'>
+    <Stack spacing='medium'>
       <FormSelectDropdown
         label='Function'
         formKey={commandFunctionFormKey}
@@ -111,7 +110,10 @@ export default function EventOBSCommand(props: EventCommandProps) {
           { value: 'enablesceneitem', label: 'Enable Scene Item' },
         ]}
       />
+      {eType === 'timed' ? (
+        <FormNumberInput label='Duration (Seconds)' formKey={durationKey} />
+      ) : null}
       {commandContent}
-    </div>
+    </Stack>
   );
 }

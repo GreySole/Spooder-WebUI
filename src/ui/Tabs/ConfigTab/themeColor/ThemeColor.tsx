@@ -10,6 +10,7 @@ export default function ThemeColor() {
           orientation={'horizontal'}
           gradient={'#FF0000, #FFFF00, #00FF00, #00FFFF, #0000FF, #FF00FF, #FF0000'}
           value={themeVariables.hue}
+          step={0.01}
           onChange={(value) => {
             setThemeHue(value);
           }}
@@ -18,6 +19,7 @@ export default function ThemeColor() {
           orientation={'horizontal'}
           gradient={`#FFFFFF, ${themeColors.baseColor}`}
           value={themeVariables.saturation}
+          step={0.01}
           onChange={(value) => {
             setThemeSaturation(value);
           }}

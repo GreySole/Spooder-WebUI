@@ -12,7 +12,9 @@ export default function AutoShareSwitch(props: AutoShareSwitchProps) {
   const { watch } = useFormContext();
   const share = watch(shareKey);
   const { getEventSubsByUser, getDeleteEventSub, getInitEventSub } = useTwitch();
-  const { data, isLoading, error } = getEventSubsByUser(share.streamPlatforms.twitch.userId);
+  const { data, isLoading, error, refetch } = getEventSubsByUser(
+    share.streamPlatforms.twitch.userId,
+  );
   const { deleteEventSub } = getDeleteEventSub();
   const { initEventSub } = getInitEventSub();
 
@@ -20,16 +22,22 @@ export default function AutoShareSwitch(props: AutoShareSwitchProps) {
     return null;
   }
 
-  const autoShareEnabled = data['stream.online'] !== undefined;
+  const autoShareEnabled = data.data.filter((sub: any) => sub.type === 'stream.online').length > 0;
+  console.log('autoShareEnabled', autoShareEnabled, data);
 
-  const setAutoShare = () => {
+  const setAutoShare = async () => {
     if (autoShareEnabled) {
-      deleteEventSub(data['stream.online'].id);
-      deleteEventSub(data['stream.offline'].id);
+      data.data.forEach(async (sub: any) => {
+        if (sub.type === 'stream.online' || sub.type === 'stream.offline') {
+          await deleteEventSub(sub.id);
+        }
+      });
     } else {
-      initEventSub('stream.online', share.streamPlatforms.twitch.userId);
-      initEventSub('stream.offline', share.streamPlatforms.twitch.userId);
+      await initEventSub('stream.online', share.streamPlatforms.twitch.userId);
+      await initEventSub('stream.offline', share.streamPlatforms.twitch.userId);
     }
+
+    refetch();
   };
 
   return (

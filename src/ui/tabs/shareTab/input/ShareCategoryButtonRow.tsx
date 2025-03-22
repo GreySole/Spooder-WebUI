@@ -1,15 +1,6 @@
-import {
-  faHome,
-  faComment,
-  faPlug,
-  faTrash,
-  faDownload,
-  faGear,
-  faMicrochip,
-} from '@fortawesome/free-solid-svg-icons';
+import { faHome, faComment, faPlug, faTrash, faMicrochip } from '@fortawesome/free-solid-svg-icons';
 import React from 'react';
-import { StyleSize } from '../../../Types';
-import { ButtonRow, DiscordIcon, TwitchIcon, useTheme } from '@greysole/spooder-component-library';
+import { ButtonRow, useTheme } from '@greysole/spooder-component-library';
 
 interface ShareCategoryButtonRowProps {
   tab: string;
@@ -20,9 +11,6 @@ interface ShareCategoryButtonRowProps {
 export default function ShareCategoryButtonRow(props: ShareCategoryButtonRowProps) {
   const { tab, setTab, removeShareEntry } = props;
   const { themeColors, themeConstants } = useTheme();
-
-  const iconSize = StyleSize.large;
-  console.log(DiscordIcon, TwitchIcon);
 
   return (
     <ButtonRow

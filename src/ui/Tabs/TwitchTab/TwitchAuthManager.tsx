@@ -24,8 +24,23 @@ export default function TwitchAuthManager() {
         twitchConfig['client-id'] +
         '&redirect_uri=http://localhost:' +
         config.host_port +
-        '/twitch/authorize&response_type=code&scope=' +
-        scopes.join(' ')
+        '/twitch/authorize/bot&response_type=code&scope=' +
+        scopes.join('%20')
+      }
+      mode='newtab'
+    />
+  );
+
+  const broadAuthButton = (
+    <LinkButton
+      label={twitchConfig['broadcaster_token'] != null ? 'Replace' : 'Authorize'}
+      link={
+        'https://id.twitch.tv/oauth2/authorize?client_id=' +
+        twitchConfig['client-id'] +
+        '&redirect_uri=http://localhost:' +
+        config.network.host_port +
+        '/twitch/authorize/broadcaster&response_type=code&scope=' +
+        scopes.join('%20')
       }
       mode='newtab'
     />
@@ -45,7 +60,18 @@ export default function TwitchAuthManager() {
           {linkedAccounts.botUser != null ? linkedAccounts.botUser.display_name : ''}
         </div>
 
-        {chatAuthButton}
+        <LinkButton
+          label={twitchConfig['token'] != null ? 'Replace' : 'Authorize'}
+          link={
+            'https://id.twitch.tv/oauth2/authorize?client_id=' +
+            twitchConfig['client-id'] +
+            '&redirect_uri=http://localhost:' +
+            config.host_port +
+            '/twitch/authorize/bot&response_type=code&scope=' +
+            scopes.join('%20')
+          }
+          mode='newtab'
+        />
       </div>
       <div className='twitch-broadcaster'>
         <label>BROADCASTER</label>
@@ -65,7 +91,18 @@ export default function TwitchAuthManager() {
             : ''}
         </div>
 
-        <Button label='Copy from Chat Bot' onClick={() => {}} />
+        <LinkButton
+          label={twitchConfig['broadcaster_token'] != null ? 'Replace' : 'Authorize'}
+          link={
+            'https://id.twitch.tv/oauth2/authorize?client_id=' +
+            twitchConfig['client-id'] +
+            '&redirect_uri=http://localhost:' +
+            config.network.host_port +
+            '/twitch/authorize/broadcaster&response_type=code&scope=' +
+            scopes.join('%20')
+          }
+          mode='newtab'
+        />
       </div>
       {<Button label='Revoke' onClick={() => revokeToken()} />}
     </div>
@@ -80,7 +117,6 @@ export default function TwitchAuthManager() {
         to use Spooder's Twitch module. Sign up and create an app. Paste and save the cliend ID and
         secret.
       </span>
-      {chatAuthButton}
     </div>
   );
 }

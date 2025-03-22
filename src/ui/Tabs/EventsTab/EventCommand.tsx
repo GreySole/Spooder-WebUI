@@ -8,6 +8,7 @@ import EventResponseCommand from './eventCommand/response/EventResponseCommand';
 import EventSoftwareCommand from './eventCommand/software/EventSoftwareCommand';
 import { useFormContext } from 'react-hook-form';
 import { EVENT_KEY } from './FormKeys';
+import EventDiscordCommand from './eventCommand/discord/EventDiscordCommand';
 
 interface EventCommandProps {
   eventName: string;
@@ -46,6 +47,10 @@ export default function EventCommand(props: EventCommandProps) {
     case 'mod':
       commandTypeName = 'Mod';
       element = <EventModCommand eventName={eventName} commandIndex={commandIndex} />;
+      break;
+    case 'discord':
+      commandTypeName = 'Discord';
+      element = <EventDiscordCommand eventName={eventName} commandIndex={commandIndex} />;
       break;
   }
 

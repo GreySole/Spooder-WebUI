@@ -14,6 +14,18 @@ export const obsApi = createApi({
         },
       }),
     }),
+    connectRemote: builder.mutation({
+      query: () => ({
+        url: '/connect_remote',
+        method: 'get',
+      }),
+    }),
+    disconnectRemote: builder.mutation({
+      query: () => ({
+        url: '/disconnect_remote',
+        method: 'get',
+      }),
+    }),
     getObsStatus: builder.query({
       query: () => '/get_connection_status',
     }),
@@ -38,6 +50,8 @@ export const obsApi = createApi({
 
 export const {
   useConnectObsMutation,
+  useConnectRemoteMutation,
+  useDisconnectRemoteMutation,
   useGetObsStatusQuery,
   useGetObsSettingsQuery,
   useGetScenesQuery,

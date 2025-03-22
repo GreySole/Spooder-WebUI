@@ -1,111 +1,126 @@
-import React, { useEffect, useState } from 'react';
+import React, { ReactNode, useEffect, useState } from 'react';
 import { faTv, faArrowRight, faTableColumns } from '@fortawesome/free-solid-svg-icons';
 import { KeyedObject } from '../../../Types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { useOSC } from '@greysole/spooder-component-library';
+import {
+  Border,
+  Box,
+  Button,
+  Columns,
+  Stack,
+  StyleSizeButton,
+  useOSC,
+} from '@greysole/spooder-component-library';
+import useOBS from '../../../../app/hooks/useOBS';
 
 export default function SceneController() {
-  const { addListener, removeListener, sendOSC } = useOSC();
-  const [currentProgramScene, setCurrentProgramScene] = useState<String>('');
-  const [currentPreviewScene, setCurrentPreviewScene] = useState<String>('');
-  const [scenes, setScenes] = useState<KeyedObject>({});
-  const [studioMode, setStudioMode] = useState<Boolean>(false);
+  const { addListener, removeListener } = useOSC();
+
+  const { getObsFetchApi, getObsControlApi } = useOBS();
+  const { getSceneListQuery, getStudioModeEnabledQuery } = getObsFetchApi();
+  const { getSceneList } = getSceneListQuery();
+  const { getStudioModeEnabled } = getStudioModeEnabledQuery();
+
+  const { getTransition, getSetCurrentPreviewScene, getSetCurrentProgramScene, getSetStudioMode } =
+    getObsControlApi();
+  const { transition } = getTransition();
+  const { setCurrentPreviewScene } = getSetCurrentPreviewScene();
+  const { setCurrentProgramScene } = getSetCurrentProgramScene();
+  const { setStudioMode } = getSetStudioMode();
+
+  const [currentProgramScene, setCurrentProgramSceneState] = useState<String | undefined>();
+  const [currentPreviewScene, setCurrentPreviewSceneState] = useState<String | undefined>();
+  const [scenes, setScenes] = useState<KeyedObject | undefined>();
+  const [studioMode, setStudioModeState] = useState<Boolean>(false);
 
   useEffect(() => {
-    addListener('/obs/get/scene/list', getSceneList);
+    getSceneList().then((response) => {
+      setCurrentPreviewSceneState(response.data.data.currentPreviewSceneName);
+      setCurrentProgramSceneState(response.data.data.currentProgramSceneName);
+      setScenes(response.data.data.scenes);
+    });
+    getStudioModeEnabled().then((response) => {
+      setStudioModeState(response.data.data.studioModeEnabled);
+    });
     addListener('/obs/event/StudioModeStateChanged', studioModeChanged);
-    addListener('/obs/get/studiomode', studioModeChanged);
     addListener('/obs/event/CurrentProgramSceneChanged', programSceneChanged);
     addListener('/obs/event/CurrentPreviewSceneChanged', previewSceneChanged);
 
-    sendOSC('/obs/get/scene/list', 1);
-    sendOSC('/obs/get/studiomode', 1);
-
     return () => {
-      removeListener('/obs/get/scene/list');
       removeListener('/obs/event/StudioModeStateChanged');
-      removeListener('/obs/get/studiomode');
       removeListener('/obs/event/CurrentProgramSceneChanged');
       removeListener('/obs/event/CurrentPreviewSceneChanged');
     };
   }, []);
 
-  const [isReady, setIsReady] = useState<Boolean>(false);
+  console.log('PROGRAM SCENE', currentProgramScene);
+
+  if (!scenes) {
+    return null;
+  }
 
   function programSceneChanged(data: any) {
-    setCurrentProgramScene(data.args[0]);
+    setCurrentProgramSceneState(data.args[0]);
   }
 
   function previewSceneChanged(data: any) {
-    setCurrentPreviewScene(data.args[0]);
+    setCurrentPreviewSceneState(data.args[0]);
   }
 
   function studioModeChanged(data: any) {
-    setStudioMode(data.args[0]);
-  }
-
-  function getSceneList(data: any) {
-    let sceneData = JSON.parse(data.args[0]);
-    setCurrentPreviewScene(sceneData.currentPreviewSceneName);
-    setCurrentProgramScene(sceneData.currentProgramSceneName);
-    setScenes(sceneData.scenes);
+    setStudioModeState(data.args[0]);
   }
 
   function setScene(sceneName: any) {
     if (studioMode) {
-      sendOSC('/obs/set/scene/preview', sceneName);
+      setCurrentPreviewScene(sceneName);
     } else {
-      sendOSC('/obs/set/scene/program', sceneName);
+      setCurrentProgramScene(sceneName);
     }
   }
 
   function toggleStudioMode() {
-    sendOSC('/obs/set/studiomode', !studioMode);
+    console.log('TOGGLE STUDIO MODE');
     setStudioMode(!studioMode);
   }
 
   function startTransition() {
-    sendOSC('/obs/transition/Trigger', 1);
+    transition();
   }
 
-  function truncate(str: string, n: number) {
-    return str.length > n ? str.substring(0, n - 1) + '...' : str;
-  }
-
-  let sceneButtons = [] as React.JSX.Element[];
+  let sceneButtons = [] as ReactNode[];
   for (let s in scenes) {
     sceneButtons.push(
-      <div
-        onClick={() => {
-          setScene(scenes[s].sceneName);
-        }}
+      <Button
+        width='large'
         className={
           'scene-controller-scene-button ' +
           (currentProgramScene == scenes[s].sceneName ? 'program ' : '') +
           (currentPreviewScene == scenes[s].sceneName && studioMode == true ? 'preview' : '')
         }
-      >
-        <h2>{truncate(scenes[s].sceneName, 12)}</h2>
-        <FontAwesomeIcon icon={faTv} size='2x' />
-      </div>,
+        label={scenes[s].sceneName}
+        icon={faTv}
+        iconPosition='bottom'
+        iconGap='small'
+        truncate
+        onClick={() => setScene(scenes[s].sceneName)}
+      />,
     );
   }
 
   return (
-    <div className='deck-component deck-scene-controller'>
-      <label className='deck-component-label'>Scenes</label>
-      <div className='scene-controller-transition'>
-        <div
-          onClick={toggleStudioMode}
-          className={'scene-controller-studiomode-button ' + (studioMode == true ? 'enabled' : '')}
-        >
-          <FontAwesomeIcon icon={faTableColumns} size='2x' />
-        </div>
-        <div onClick={startTransition} className='scene-controller-transition-button'>
-          <FontAwesomeIcon icon={faArrowRight} size='2x' />
-        </div>
-      </div>
-      <div className='scene-controller-container'>{sceneButtons}</div>
-    </div>
+    <Border borderBottom>
+      <Box flexFlow='column' alignItems='center' padding='medium'>
+        <Columns spacing='medium'>
+          <Button label='Studio Mode' icon={faTableColumns} onClick={() => toggleStudioMode()} />
+          <Button label='Transition' icon={faArrowRight} onClick={() => startTransition()} />
+        </Columns>
+        <Box width='100%' flexFlow='row' overflow='auto'>
+          <Columns spacing='medium' margin='medium'>
+            {sceneButtons}
+          </Columns>
+        </Box>
+      </Box>
+    </Border>
   );
 }

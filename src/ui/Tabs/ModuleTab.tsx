@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import ModuleWrapper from './moduleTab/ModuleWrapper';
 import React from 'react';
-import { Box, Button, DiscordIcon, TwitchIcon } from '@greysole/spooder-component-library';
+import { Box, Button } from '@greysole/spooder-component-library';
+import { DiscordIcon, TwitchIcon } from '../common/icons/icons';
 
 export default function ModuleTab() {
   const [module, setModule] = useState('');
@@ -24,6 +25,8 @@ export default function ModuleTab() {
     setModule('');
   };
 
+  console.log(DiscordIcon);
+
   return module === '' ? (
     <Box
       width='100%'
@@ -39,6 +42,7 @@ export default function ModuleTab() {
         onClick={() => setModule('twitch')}
         iconPosition='bottom'
       />
+
       <Button
         label={modules.community.discord.name}
         icon={modules.community.discord.icon}

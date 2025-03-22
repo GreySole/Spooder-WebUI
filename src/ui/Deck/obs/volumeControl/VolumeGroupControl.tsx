@@ -1,7 +1,16 @@
 import { faMinus, faPlus, faVolumeMute, faVolumeHigh } from '@fortawesome/free-solid-svg-icons';
 import React, { ReactNode, useState } from 'react';
 import VolumeMeter from './VolumeMeter';
-import { Button, useOSC } from '@greysole/spooder-component-library';
+import {
+  Border,
+  Box,
+  Button,
+  Columns,
+  Stack,
+  StyleSizeButton,
+  TypeFace,
+  useOSC,
+} from '@greysole/spooder-component-library';
 
 interface VolumeGroupMeterProps {
   groupName: string;
@@ -10,10 +19,6 @@ interface VolumeGroupMeterProps {
   groupLevelR: number;
   groupMuted: boolean;
   children: React.JSX.Element[];
-}
-
-function truncate(str: string, n: number) {
-  return str.length > n ? str.substr(0, n - 1) + '...' : str;
 }
 
 export default function VolumeGroupControl(props: VolumeGroupMeterProps) {
@@ -31,29 +36,35 @@ export default function VolumeGroupControl(props: VolumeGroupMeterProps) {
   };
 
   return (
-    <div className={'deck-volume-group ' + (expanded ? 'expanded' : '')}>
-      <div className='deck-volume-meter'>
-        <div className='deck-volume-meter-label'>{truncate(groupName, 16)}</div>
-        <div className='deck-volume-meter-ui'>
-          <div className='deck-volume-meter-bars'>
-            <VolumeMeter level={groupLevelL} />
-            <VolumeMeter level={groupLevelR} />
-          </div>
-          <div className='deck-source-buttons'>
-            <Button
-              label=''
-              icon={expanded ? faMinus : faPlus}
-              onClick={() => setExpanded(!expanded)}
-            />
-            <Button
-              label=''
-              icon={groupMuted ? faVolumeMute : faVolumeHigh}
-              onClick={() => toggleGroupMute(!groupMuted)}
-            />
-          </div>
-        </div>
-      </div>
-      {expanded ? children : null}
-    </div>
+    <Border>
+      <Box height='inherit' flexFlow='row'>
+        <Box width={StyleSizeButton.xlarge} height='100%' flexFlow='column' margin='small'>
+          <TypeFace textAlign='center' whiteSpace='nowrap' textOverflow='ellipsis'>
+            {groupName}
+          </TypeFace>
+          <Box flexFlow='row'>
+            <Columns spacing='none'>
+              <VolumeMeter level={groupLevelL} muted={groupMuted} />
+              <VolumeMeter level={groupLevelR} muted={groupMuted} />
+            </Columns>
+            <Box flexFlow='column' justifyContent='flex-end' marginLeft='medium'>
+              <Stack spacing='small'>
+                <Button
+                  icon={expanded ? faMinus : faPlus}
+                  iconSize='large'
+                  onClick={() => setExpanded(!expanded)}
+                />
+                <Button
+                  icon={groupMuted ? faVolumeMute : faVolumeHigh}
+                  iconSize='large'
+                  onClick={() => toggleGroupMute(!groupMuted)}
+                />
+              </Stack>
+            </Box>
+          </Box>
+        </Box>
+        <Columns spacing='none'>{expanded ? children : null}</Columns>
+      </Box>
+    </Border>
   );
 }

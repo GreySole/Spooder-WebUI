@@ -55,9 +55,9 @@ export default function useTwitch() {
   }
 
   function getEventSubsByUser(twitchId: string) {
-    const { data, isLoading, error } = useGetEventSubsByUserQuery(twitchId);
+    const { data, isLoading, error, refetch } = useGetEventSubsByUserQuery(twitchId);
 
-    return { data, isLoading, error };
+    return { data, isLoading, error, refetch };
   }
 
   function getRevokeToken() {
@@ -99,7 +99,7 @@ export default function useTwitch() {
   function getInitEventSub() {
     const [initEventSubMutation, { isLoading, isSuccess, error }] = useInitEventSubMutation();
     function initEventSub(type: string, user_id: string) {
-      initEventSubMutation({ type, user_id });
+      return initEventSubMutation({ type, user_id });
     }
     return { initEventSub, isLoading, isSuccess, error };
   }
@@ -116,7 +116,7 @@ export default function useTwitch() {
   function getDeleteEventSub() {
     const [deleteEventSubMutation, { isLoading, isSuccess, error }] = useDeleteEventSubMutation();
     function deleteEventSub(subId: string) {
-      deleteEventSubMutation(subId);
+      return deleteEventSubMutation(subId);
     }
     return { deleteEventSub, isLoading, isSuccess, error };
   }

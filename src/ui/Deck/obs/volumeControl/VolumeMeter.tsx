@@ -1,11 +1,12 @@
 import React from 'react';
 
 interface VolumeMeterProps {
-  level?: number;
+  level: number;
+  muted: boolean;
 }
 
 export default function VolumeMeter(props: VolumeMeterProps) {
-  const { level = 0 } = props;
+  const { level = 0, muted } = props;
 
   let scaleDim = window.innerWidth < 600 ? 'Y' : 'Y';
 
@@ -16,7 +17,7 @@ export default function VolumeMeter(props: VolumeMeterProps) {
   };
 
   return (
-    <div className='deck-volume-meter-bar'>
+    <div className='deck-volume-meter-bar' style={{ filter: `saturate(${muted ? 0 : 1.0})` }}>
       <div className='deck-volume-meter-bar-peak'></div>
       <div className='deck-volume-meter-bar-level' style={levelStyle.level}></div>
       <div className='deck-volume-meter-bar-power'></div>

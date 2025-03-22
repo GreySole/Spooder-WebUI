@@ -1,10 +1,10 @@
 import { faCommentDots, faPlug, faLock, faNetworkWired } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { OBSIcon, DiscordIcon } from '@greysole/spooder-component-library';
 import { TimelineRow, Timeline } from '@xzdarcy/react-timeline-editor';
 import React, { useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { buildKey, buildCommandKey, EVENT_KEY } from '../FormKeys';
+import { DiscordIcon, ObsIcon } from '../../../common/icons/icons';
 
 interface EventCommandTimelineProps {
   eventName: string;
@@ -120,7 +120,7 @@ export default function EventCommandTimeline(props: EventCommandTimelineProps) {
             case 'obs':
               return (
                 <div className='prompt'>
-                  <img width={25} height={25} src={OBSIcon} />
+                  <img width={25} height={25} src={ObsIcon} />
                   <label>{action.id}</label>
                 </div>
               );

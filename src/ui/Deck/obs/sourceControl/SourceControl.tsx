@@ -1,54 +1,106 @@
-import React, { useEffect, useState } from 'react';
-import { faEye, faEyeSlash, faPlus, faMinus } from '@fortawesome/free-solid-svg-icons';
+import React, { ReactNode, useEffect, useState } from 'react';
+import { faEye, faEyeSlash, faPlus, faMinus, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import { KeyedObject } from '../../../Types';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { useOSC } from '@greysole/spooder-component-library';
+import {
+  Border,
+  Box,
+  Button,
+  Columns,
+  StyleSize,
+  StyleSizeButton,
+  useOSC,
+} from '@greysole/spooder-component-library';
+import useOBS from '../../../../app/hooks/useOBS';
 
 export default function SourceControl() {
-  const { addListener, removeListener, sendOSC } = useOSC();
+  const { addListener, removeListener } = useOSC();
+  const { getObsControlApi, getObsFetchApi } = useOBS();
+  const {
+    getCurrentProgramSceneQuery,
+    getSceneItemListQuery,
+    getStudioModeEnabledQuery,
+    getGroupSceneItemListQuery,
+  } = getObsFetchApi();
+  const { getCurrentProgramScene } = getCurrentProgramSceneQuery();
+  const { getSceneItemList } = getSceneItemListQuery();
+  const { getGroupSceneItemList } = getGroupSceneItemListQuery();
+  const { getSetSceneItemEnabled } = getObsControlApi();
+  const { setSceneItemEnabled } = getSetSceneItemEnabled();
   const [currentProgramScene, setCurrentProgramScene] = useState<string>('');
-  const [currentPreviewScene, setCurrentPreviewScene] = useState<string>('');
-  const [studioMode, setStudioMode] = useState<boolean>(false);
   const [sceneItems, setSceneItems] = useState<KeyedObject>({});
   const [groups, setGroups] = useState<KeyedObject>({});
 
   useEffect(() => {
-    addListener('/obs/get/scene/program', getProgramScene);
-    addListener('/obs/get/scene/itemlist', getSceneItemList);
-    addListener('/obs/get/studiomode', studioModeChanged);
-    addListener('/obs/event/StudioModeStateChanged', studioModeChanged);
+    getCurrentProgramScene().then((response) => {
+      refreshSceneItems(response.data.data.currentProgramSceneName);
+    });
+
     addListener('/obs/event/CurrentProgramSceneChanged', programSceneChanged);
-    addListener('/obs/event/CurrentPreviewSceneChanged', previewSceneChanged);
     addListener('/obs/event/SceneItemEnableStateChanged', sceneItemEnableStateChanged);
 
-    sendOSC('/obs/get/scene/itemlist', 1);
-    sendOSC('/obs/get/studiomode', 1);
-
     return () => {
-      removeListener('/obs/get/scene/program');
-      removeListener('/obs/get/scene/itemlist');
-      removeListener('/obs/get/studiomode');
-      removeListener('/obs/event/StudioModeStateChanged');
       removeListener('/obs/event/CurrentProgramSceneChanged');
-      removeListener('/obs/event/CurrentPreviewSceneChanged');
       removeListener('/obs/event/SceneItemEnableStateChanged');
     };
   }, []);
 
-  function programSceneChanged(data: any) {
-    sendOSC('/obs/get/scene/itemlist', 1);
-    setCurrentProgramScene(data.args[0]);
+  async function refreshSceneItems(newProgramSceneName: string) {
+    setCurrentProgramScene(newProgramSceneName);
+    const newSceneItemListResponse = await getSceneItemList(newProgramSceneName);
+    console.log('NEW SCENE ITEMS', newSceneItemListResponse);
+    const newSceneItemsRaw = newSceneItemListResponse.data.data.sceneItems;
+
+    const sceneItemList: KeyedObject = {};
+    const groupList: KeyedObject = {};
+
+    for (let sceneItem of newSceneItemsRaw) {
+      console.log('SCENE ITEM', sceneItem);
+      sceneItemList[sceneItem.sceneItemIndex] = {
+        id: sceneItem.sceneItemId,
+        name: sceneItem.sourceName,
+        enabled: sceneItem.sceneItemEnabled,
+        locked: sceneItem.sceneItemLocked,
+      };
+      if (sceneItem.isGroup) {
+        const newGroupSceneItemListResponse = await getGroupSceneItemList(sceneItem.sourceName);
+        const newGroupSceneItemsRaw = newGroupSceneItemListResponse.data.data.sceneItems;
+
+        const newGroupSceneItems: KeyedObject = {};
+
+        for (let groupSceneItem of newGroupSceneItemsRaw) {
+          newGroupSceneItems[groupSceneItem.sceneItemIndex] = {
+            id: groupSceneItem.sceneItemId,
+            name: groupSceneItem.sourceName,
+            enabled: groupSceneItem.sceneItemEnabled,
+            locked: groupSceneItem.sceneItemLocked,
+          };
+        }
+        groupList[sceneItem.sourceName] = {
+          items: newGroupSceneItems,
+          expanded: false,
+        };
+
+        console.log('newGroupSceneItemListResponse', newGroupSceneItemListResponse);
+      }
+    }
+
+    setSceneItems(sceneItemList);
+    setGroups(groupList);
   }
 
-  function previewSceneChanged(data: any) {
-    setCurrentPreviewScene(data.args[0]);
+  if (!sceneItems) {
+    return null;
+  }
+
+  function programSceneChanged(data: any) {
+    refreshSceneItems(data.args[0]);
   }
 
   function sceneItemEnableStateChanged(data: any) {
     let sceneItemData = JSON.parse(data.args[0]);
 
     if (Object.keys(groups).includes(sceneItemData.sceneName)) {
-      let newGroups = Object.assign(groups);
+      let newGroups = { ...groups };
       for (let sceneItem in newGroups[sceneItemData.sceneName].items) {
         if (
           newGroups[sceneItemData.sceneName].items[sceneItem].sceneItemId ==
@@ -61,7 +113,7 @@ export default function SourceControl() {
       }
       setGroups(newGroups);
     } else {
-      let newItems: KeyedObject = Object.assign(sceneItems);
+      let newItems: KeyedObject = { ...sceneItems };
       for (let item in newItems) {
         if (newItems[item].id == sceneItemData.sceneItemId) {
           newItems[item].enabled = sceneItemData.sceneItemEnabled;
@@ -72,65 +124,18 @@ export default function SourceControl() {
     }
   }
 
-  function studioModeChanged(data: any) {
-    setStudioMode(data.args[0]);
-  }
-
-  function getProgramScene(data: any) {
-    let sceneData = JSON.parse(data.args[0]);
-    if (sceneData.currentProgramSceneName != null) {
-      sendOSC('/obs/get/scene/itemlist', sceneData.currentProgramSceneName);
-    }
-    setCurrentProgramScene(sceneData.currentProgramSceneName);
-  }
-
-  function getSceneItemList(data: any) {
-    let sceneItemData = JSON.parse(data.args[0]);
-
-    let groupList: KeyedObject = {};
-    for (let g in sceneItemData.groups) {
-      groupList[g] = {
-        items: sceneItemData.groups[g],
-        expanded: false,
-      };
-    }
-
-    setCurrentProgramScene(sceneItemData.currentProgramSceneName);
-    setSceneItems(sceneItemData.items);
-    setGroups(groupList);
-  }
-
-  function setScene(sceneName: any) {
-    if (studioMode) {
-      sendOSC('/obs/set/scene/preview', sceneName);
-    } else {
-      sendOSC('/obs/set/scene/program', sceneName);
-    }
-  }
-
   function toggleVisible(sceneName: string, sceneItemId: any, sceneItemEnabled: boolean) {
-    sendOSC(
-      '/obs/set/source/enabled',
-      JSON.stringify({
-        sceneName: sceneName,
-        sceneItemId: sceneItemId,
-        sceneItemEnabled: sceneItemEnabled,
-      }),
-    );
+    setSceneItemEnabled(sceneName, sceneItemId, sceneItemEnabled);
   }
 
-  function expandGroup(e: any) {
-    let groupName = e.currentTarget.getAttribute('name');
-    let newGroups = Object.assign(groups);
-    newGroups[groupName].expanded = !newGroups[groupName].expanded;
+  function expandGroup(groupName: string) {
+    let newGroups = { ...groups };
+    console.log(groups, groupName);
+    newGroups[groupName] = { ...newGroups[groupName], expanded: !newGroups[groupName].expanded };
     setGroups(newGroups);
   }
 
-  function truncate(str: string, n: number) {
-    return str.length > n ? str.substr(0, n - 1) + '...' : str;
-  }
-
-  let groupElements = [<div></div>];
+  let groupElements = [] as ReactNode[];
 
   for (let g in groups) {
     let thisGroupElement = <div></div>;
@@ -141,103 +146,85 @@ export default function SourceControl() {
       }
     }
 
-    let visibleIcon = faEye;
-    if (thisGroupSceneItem.enabled) {
-      visibleIcon = faEye;
-    } else {
-      visibleIcon = faEyeSlash;
-    }
-    let groupSceneItems = [] as React.JSX.Element[];
-    if (groups[g].expanded) {
-      for (let s in groups[g].items) {
-        groupSceneItems.push(
-          <div className='source-item'>
-            <div className='source-item-name'>{groups[g].items[s].sourceName}</div>
-            <div className='source-item-actions'>
-              <FontAwesomeIcon
-                name={groups[g].items[s].sourceName}
-                icon={groups[g].items[s].sceneItemEnabled ? faEye : faEyeSlash}
-                size='3x'
-                onClick={() => {
-                  toggleVisible(
-                    g,
-                    groups[g].items[s].sceneItemId,
-                    !groups[g].items[s].sceneItemEnabled,
-                  );
-                }}
-              />
-            </div>
-          </div>,
-        );
-      }
-    }
-    thisGroupElement = (
-      <div className='source-group-item'>
-        <div className='source-group-item-name'>{truncate(thisGroupSceneItem.name, 12)}</div>
-        <div className='source-group-item-container'>
-          <div className='source-group-item-actions'>
-            <FontAwesomeIcon
-              className='source-group-item-button'
-              name={thisGroupSceneItem.name}
-              icon={visibleIcon}
-              size='3x'
-              onClick={() => {
-                toggleVisible(
-                  currentProgramScene,
-                  thisGroupSceneItem.id,
-                  !thisGroupSceneItem.enabled,
-                );
-              }}
-            />
-            <FontAwesomeIcon
-              className='source-group-item-button'
-              name={thisGroupSceneItem.name}
-              icon={groups[g].expanded ? faMinus : faPlus}
-              onClick={expandGroup}
-              size='2x'
-            />
-          </div>
-          <div className='source-group-item-subitems'></div>
-        </div>
-      </div>
-    );
+    const visibleIcon = thisGroupSceneItem.enabled ? faEye : faEyeSlash;
+
+    console.log('EXPANDED', groups[g].expanded);
 
     groupElements.push(
-      <div className={'source-group-container ' + (groups[g].expanded ? 'expanded' : '')}>
-        {thisGroupElement}
-        {groupSceneItems}
-      </div>,
+      <Border>
+        <Box flexFlow='row'>
+          <Columns spacing='medium' padding='medium'>
+            <Button
+              width={StyleSizeButton.large}
+              label={thisGroupSceneItem.name}
+              icon={groups[g].expanded ? faArrowLeft : visibleIcon}
+              iconPosition='bottom'
+              onClick={() => {
+                groups[g].expanded
+                  ? expandGroup(thisGroupSceneItem.name)
+                  : toggleVisible(
+                      currentProgramScene,
+                      thisGroupSceneItem.id,
+                      !thisGroupSceneItem.enabled,
+                    );
+              }}
+              onLongPress={() => expandGroup(thisGroupSceneItem.name)}
+              iconGap={StyleSize.small}
+              truncate
+            />
+            {groups[g].expanded
+              ? Object.keys(groups[g].items).map((itemIndex: string) => {
+                  const item = groups[g].items[itemIndex];
+                  return (
+                    <Button
+                      width={StyleSizeButton.large}
+                      label={item.name}
+                      icon={item.enabled ? faEye : faEyeSlash}
+                      iconPosition='bottom'
+                      iconGap={StyleSize.small}
+                      onClick={() => {
+                        toggleVisible(g, item.id, !item.enabled);
+                      }}
+                      truncate
+                    />
+                  );
+                })
+              : null}
+          </Columns>
+        </Box>
+      </Border>,
     );
   }
 
-  let regularSceneItems = [] as React.JSX.Element[];
+  const regularSceneItems = [] as ReactNode[];
   for (let s in sceneItems) {
     if (!Object.keys(groups).includes(sceneItems[s].name)) {
       regularSceneItems.push(
-        <div className='source-item'>
-          <div className='source-item-name'>{truncate(sceneItems[s].name, 12)}</div>
-          <div className='source-item-actions'>
-            <FontAwesomeIcon
-              name={sceneItems[s].name}
-              icon={sceneItems[s].enabled ? faEye : faEyeSlash}
-              size='3x'
-              onClick={() => {
-                toggleVisible(currentProgramScene, sceneItems[s].id, !sceneItems[s].enabled);
-              }}
-            />
-          </div>
-        </div>,
+        <Button
+          width={StyleSizeButton.large}
+          label={sceneItems[s].name}
+          icon={sceneItems[s].enabled ? faEye : faEyeSlash}
+          iconPosition='bottom'
+          onClick={() => {
+            toggleVisible(currentProgramScene, sceneItems[s].id, !sceneItems[s].enabled);
+          }}
+          iconGap='small'
+          truncate
+        />,
       );
     }
   }
 
   return (
-    <div className='deck-component deck-source-controller'>
-      <label className='deck-component-label'>Sources</label>
-      <div className='component-source-buttons'>
-        {groupElements}
-        {regularSceneItems}
-      </div>
-    </div>
+    <Border borderBottom>
+      <Box flexFlow='row' overflow='auto'>
+        <Columns spacing='medium' padding='medium'>
+          {groupElements}
+        </Columns>
+        <Columns spacing='medium' padding='medium'>
+          {regularSceneItems}
+        </Columns>
+      </Box>
+    </Border>
   );
 }

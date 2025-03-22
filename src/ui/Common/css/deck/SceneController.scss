@@ -1,52 +1,8 @@
-.deck-scene-controller {
-  display: flex;
-  flex-flow: column;
-  align-items: center;
-}
-
-.scene-controller-container {
-  display: flex;
-  flex-flow: row;
-  width: 100%;
-  overflow-x: auto;
-}
-
-.scene-controller-transition {
-  display: flex;
-  flex-flow: row;
-  align-items: center;
-  justify-content: space-evenly;
-}
-
 .scene-controller-scene-button,
 .scene-controller-studiomode-button,
 .scene-controller-transition-button {
-  user-select: none;
-  cursor: pointer;
-  display: flex;
-  flex-flow: column;
-  align-items: center;
-  text-align: center;
-  justify-content: space-between;
   white-space: nowrap;
-  width: 150px;
-  height: 100px;
-  margin: 10px;
-  padding: 15px;
-  border-radius: 15px;
-  background-color: var(--button-obs-color);
-}
-
-.scene-controller-studiomode-button,
-.scene-controller-transition-button {
-  width: 100px;
-  height: 75px;
-}
-
-.scene-controller-scene-button:hover,
-.scene-controller-studiomode-button:hover,
-.scene-controller-transition-button:hover {
-  filter: brightness(1.2);
+  text-overflow: ellipsis;
 }
 
 .scene-controller-scene-button.preview {

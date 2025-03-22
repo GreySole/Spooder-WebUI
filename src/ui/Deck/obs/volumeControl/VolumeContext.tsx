@@ -9,6 +9,7 @@ import React, {
 } from 'react';
 import { KeyedObject } from '../../../Types';
 import { useOSC } from '@greysole/spooder-component-library';
+import useOBS from '../../../../app/hooks/useOBS';
 
 export const ObsWebsocketContext = createContext({
   inputs: {} as KeyedObject,
@@ -38,6 +39,9 @@ export const ObsWebsocketProvider = (props: ObsWebsocketProviderProps) => {
   const { children } = props;
 
   const { addListener, removeListener, sendOSC } = useOSC();
+  const { getObsFetchApi } = useOBS();
+  const { getVolumeDeckQuery, getCurrentProgramSceneQuery } = getObsFetchApi();
+  const { getVolumeDeck } = getVolumeDeckQuery();
   const [inputs, setInputs] = useState<KeyedObject>({});
   const [meters, setMeters] = useState<KeyedObject>({});
   const [meterNames, setMeterNames] = useState<KeyedObject>({});
@@ -49,25 +53,28 @@ export const ObsWebsocketProvider = (props: ObsWebsocketProviderProps) => {
   }
 
   function programSceneChanged(data: any) {
-    sendOSC('/obs/get/input/volumelist', 1);
+    getVolumeDeck().then((response) => {
+      const volumeData = response.data.data;
+      getVolumes(volumeData);
+    });
   }
 
   function getVolumes(data: any) {
-    let rawInputs = JSON.parse(data.args[0]);
-    let rawGroups = Object.assign(rawInputs.groups);
-    let newGroups: KeyedObject = {};
-    let newVolumes: KeyedObject = {};
-    for (let i in rawInputs.items) {
-      if (rawInputs.items[i].volumeData != null) {
-        newVolumes[rawInputs.items[i].name] = rawInputs.items[i];
+    const rawInputs = data.items;
+    const rawGroups = data.groups;
+    const newGroups: KeyedObject = {};
+    const newVolumes: KeyedObject = {};
+    for (let i in rawInputs) {
+      if (rawInputs[i].volumeData != null) {
+        newVolumes[rawInputs[i].name] = rawInputs[i];
       }
-      if (rawGroups[rawInputs.items[i].name] != null) {
-        newGroups[rawInputs.items[i].name] = {
-          items: rawGroups[rawInputs.items[i].name],
-          enabled: rawInputs.items[i].enabled,
+      if (rawGroups[rawInputs[i].name] != null) {
+        newGroups[rawInputs[i].name] = {
+          items: rawGroups[rawInputs[i].name],
+          enabled: rawInputs[i].enabled,
           expanded: false,
           groupMuted: false,
-          id: rawInputs.items[i].id,
+          id: rawInputs[i].id,
         };
       }
     }
@@ -84,7 +91,6 @@ export const ObsWebsocketProvider = (props: ObsWebsocketProviderProps) => {
       }
       newGroups[g].groupMuted = isMuted;
     }
-    console.log('GET VOLUMES', newVolumes, newGroups);
     setInputs(newVolumes);
     setGroups(newGroups);
     setIsReady(true);
@@ -96,9 +102,16 @@ export const ObsWebsocketProvider = (props: ObsWebsocketProviderProps) => {
       console.log('VOLUME CHANGED', volumeData);
 
       setInputs((prevInputs) => {
-        let newInputs = Object.assign({}, prevInputs);
+        let newInputs = { ...prevInputs };
         if (newInputs[volumeData.inputName]) {
-          newInputs[volumeData.inputName].volumeData.inputVolumeMul = volumeData.inputVolumeMul;
+          newInputs[volumeData.inputName] = {
+            ...newInputs[volumeData.inputName],
+            volumeData: {
+              ...newInputs[volumeData.inputName].volumeData,
+              inputVolumeMul: volumeData.inputVolumeMul,
+              inputVolumeDb: volumeData.inputVolumeDb,
+            },
+          };
         }
         return newInputs;
       });
@@ -113,9 +126,15 @@ export const ObsWebsocketProvider = (props: ObsWebsocketProviderProps) => {
       let muteData = JSON.parse(data.args[0]);
       console.log('MUTE CHANGED', muteData);
       setInputs((prevInputs) => {
-        let newInputs = Object.assign({}, prevInputs);
+        let newInputs = { ...prevInputs };
         if (newInputs[muteData.inputName]) {
-          newInputs[muteData.inputName].volumeMuteData.inputMuted = muteData.inputMuted;
+          newInputs[muteData.inputName] = {
+            ...newInputs[muteData.inputName],
+            volumeMuteData: {
+              ...newInputs[muteData.inputName].volumeMuteData,
+              inputMuted: muteData.inputMuted,
+            },
+          };
         }
         return newInputs;
       });
@@ -148,7 +167,7 @@ export const ObsWebsocketProvider = (props: ObsWebsocketProviderProps) => {
               if (Math.pow(recLevel[speaker][1], 0.2) > meterLevel[speaker][1]) {
                 meterLevel[speaker][1] = Math.pow(recLevel[speaker][1], 0.2);
               } else {
-                meterLevel[speaker][1] = meterLevel[speaker][1] - 0.005;
+                meterLevel[speaker][1] = meterLevel[speaker][1] - 0.003 ** 2;
               }
             }
           } else {
@@ -181,20 +200,21 @@ export const ObsWebsocketProvider = (props: ObsWebsocketProviderProps) => {
   }, [meters, meterNames, setMeterNames]);
 
   useEffect(() => {
+    getVolumeDeck().then((response) => {
+      const volumeData = response.data.data;
+      getVolumes(volumeData);
+    });
     addListener('/obs/sound/InputVolumeMeters', receiveMeter);
     addListener('/obs/event/InputVolumeMeters', activateInputVolumeMeters);
-    addListener('/obs/get/input/volumelist', getVolumes);
     addListener('/obs/event/InputVolumeChanged', volumeChanged);
     addListener('/obs/event/InputMuteStateChanged', muteStateChanged);
     addListener('/obs/event/CurrentProgramSceneChanged', programSceneChanged);
 
     sendOSC('/obs/event/InputVolumeMeters', 1);
-    sendOSC('/obs/get/input/volumelist', 1);
 
     return () => {
       removeListener('/obs/sound/InputVolumeMeters');
       removeListener('/obs/event/InputVolumeMeters');
-      removeListener('/obs/get/input/volumelist');
       removeListener('/obs/event/InputVolumeChanged');
       removeListener('/obs/event/InputMuteStateChanged');
       removeListener('/obs/event/CurrentProgramSceneChanged');

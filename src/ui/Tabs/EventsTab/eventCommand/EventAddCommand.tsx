@@ -2,6 +2,7 @@ import { Button, Columns, SelectDropdown } from '@greysole/spooder-component-lib
 import React, { useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import {
+  DiscordCommand,
   ModCommand,
   OBSCommand,
   PluginCommand,
@@ -24,9 +25,10 @@ export default function EventAddCommand(props: EventAddCommandProps) {
       case 'response':
         newCommand = {
           type: 'response',
-          search: false,
-          delay: 0,
+          etype: 'oneshot',
           message: '',
+          delay: 0,
+          interval: 30,
         } as ResponseCommand;
         break;
       case 'plugin':
@@ -78,6 +80,15 @@ export default function EventAddCommand(props: EventAddCommandProps) {
           duration: 0,
           delay: 0,
         } as ModCommand;
+        break;
+      case 'discord':
+        newCommand = {
+          type: 'discord',
+          function: 'message',
+          guild: '',
+          channel: '',
+          message: '',
+        } as DiscordCommand;
     }
     const eventCommands = getValues(`events.${eventName}.commands`);
     setValue(`events.${eventName}.commands`, [...eventCommands, newCommand]);
@@ -93,6 +104,7 @@ export default function EventAddCommand(props: EventAddCommandProps) {
           { value: 'software', label: 'Software' },
           { value: 'obs', label: 'OBS' },
           { value: 'mod', label: 'Moderation' },
+          { value: 'discord', label: 'Discord' },
         ]}
         onChange={(value) => setSelectedType(value)}
         value={selectedType}

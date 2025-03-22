@@ -14,7 +14,7 @@
   flex-flow: row;
 }
 
-.output-controller-button {
+/*.output-controller-button {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -23,7 +23,7 @@
   border-radius: 10px;
   margin-right: 10px;
   background-color: var(--button-obs-color);
-}
+}*/
 
 .output-controller-button:hover {
   filter: brightness(1.2);
@@ -47,14 +47,10 @@
   animation: recordingPaused 1s infinite;
 }
 
-.deck-output-controller {
+/*.deck-output-controller {
   display: flex;
   flex-flow: row;
   justify-content: space-evenly;
-}
-
-.output-controller-button {
-  flex-flow: column;
 }
 
 .output-controller-button label {
@@ -83,7 +79,7 @@
   flex-flow: column;
   align-items: flex-start;
   margin: 5px;
-}
+}*/
 
 .output-settings-container .boolswitch {
   margin-left: 15px;

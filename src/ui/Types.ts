@@ -28,9 +28,10 @@ export enum OSCHandleType {
 
 export interface ResponseCommand {
   type: 'response';
-  search: boolean;
+  etype: 'oneshot' | 'recurring';
   delay: number;
   message: string;
+  interval: number;
 }
 
 export interface PluginCommand {
@@ -79,6 +80,14 @@ export interface ModCommand {
   target: string;
   duration: number;
   delay: number;
+}
+
+export interface DiscordCommand {
+  type: 'discord';
+  function: string;
+  guild: string;
+  channel: string;
+  message: string;
 }
 
 export interface PluginsObject {

@@ -1,6 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { faCircle, faStream, faCog, faPause, faPlay } from '@fortawesome/free-solid-svg-icons';
-import { FormBoolSwitch, useOSC } from '@greysole/spooder-component-library';
+import {
+  Border,
+  Box,
+  Button,
+  FormBoolSwitch,
+  Stack,
+  TypeFace,
+  useOSC,
+  useTheme,
+} from '@greysole/spooder-component-library';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 export default function OutputController() {
@@ -24,8 +33,8 @@ export default function OutputController() {
     frameDropAlert: false,
     disconnectAlert: false,
   });
-  const [isReady, setIsReady] = useState<Boolean>(false);
   const [settingsOpen, setSettingsOpen] = useState<Boolean>(false);
+  const { isMobileDevice } = useTheme();
 
   useEffect(() => {
     addListener('/obs/get/status', getStatus);
@@ -116,46 +125,10 @@ export default function OutputController() {
     return Math.round(bytes / Math.pow(1024, i)) + ' ' + sizes[i];
   }
 
-  function openSettings() {
-    setSettingsOpen(true);
-  }
-
   function closeSettings() {
     getSettings();
     setSettingsOpen(false);
   }
-
-  function onSettingChange(e: any) {
-    let newSettings: any = Object.assign({}, settings);
-    newSettings[e.target.name] = e.target.checked;
-    setSettings(newSettings);
-  }
-
-  const streamStatusEl = (
-    <div className='output-controller-stream-status'>
-      <h2>{streamStatus.outputTimecode}</h2>
-      <h2>
-        Skipped: {streamStatus.outputSkippedFrames} (
-        {Math.floor((streamStatus.outputSkippedFrames / streamStatus.outputTotalFrames) * 100)}
-        %)
-      </h2>
-      <h2>Out Data: {convertBytes(streamStatus.outputBytes)}</h2>
-    </div>
-  );
-
-  const recordStatusEl = (
-    <div className='output-controller-record-status'>
-      <h2>{recordStatus.outputTimecode}</h2>
-      <h2>Out Data: {convertBytes(recordStatus.outputBytes)}</h2>
-    </div>
-  );
-
-  let recordPauseButton = (
-    <div onClick={toggleRecordPause} className={'output-controller-button'}>
-      <label>Pause</label>
-      <FontAwesomeIcon icon={recordStatus.outputPaused ? faPlay : faPause} size='2x' />
-    </div>
-  );
 
   if (settingsOpen) {
     return (
@@ -178,48 +151,68 @@ export default function OutputController() {
     );
   }
 
+  console.log('OUTPUT CONTROLLER', streamStatus, recordStatus);
+
   return (
-    <div className='deck-component deck-output-controller'>
-      <label className='deck-component-label'>Output</label>
-      <div className='output-controller-buttons'>
-        <div className='output-controller-stream'>
-          <div
-            onClick={toggleStream}
-            className={
-              'output-controller-button ' +
-              (streamStatus.outputActive ? 'streaming ' : '') +
-              (streamStatus.outputReconnecting ? 'reconnecting' : '')
-            }
-          >
-            <label>Stream</label>
-            <FontAwesomeIcon icon={faStream} size='2x' />
-          </div>
-          {streamStatusEl}
-        </div>
-        <div className='output-controller-record'>
-          <div className='controller-record-buttons'>
-            <div
-              onClick={toggleRecord}
+    <Border borderBottom>
+      <Stack spacing='small' padding='medium'>
+        <Box flexFlow='row' justifyContent='space-around' alignItems='center'>
+          <Box flexFlow={isMobileDevice ? 'column' : 'row'} alignItems='center'>
+            <Button
+              className={
+                'output-controller-button ' +
+                (streamStatus.outputActive ? 'streaming ' : '') +
+                (streamStatus.outputReconnecting ? 'reconnecting' : '')
+              }
+              label='Stream'
+              icon={faStream}
+              iconPosition='bottom'
+              iconGap='small'
+              onClick={toggleStream}
+            />
+            <Box flexFlow='column' marginLeft='small'>
+              <TypeFace>{streamStatus.outputTimecode}</TypeFace>
+              <TypeFace>
+                Skipped: {streamStatus.outputSkippedFrames} (
+                {Math.floor(
+                  (streamStatus.outputSkippedFrames / streamStatus.outputTotalFrames) * 100,
+                )}
+                %)
+              </TypeFace>
+              <TypeFace>Out Data: {convertBytes(streamStatus.outputBytes)}</TypeFace>
+            </Box>
+          </Box>
+          <Box flexFlow={isMobileDevice ? 'column' : 'row'} alignItems='center'>
+            <Button
               className={
                 'output-controller-button ' +
                 (recordStatus.outputActive ? 'recording ' : '') +
                 (recordStatus.outputPaused ? 'paused' : '')
               }
-            >
-              <label>Record</label>
-              <FontAwesomeIcon icon={faCircle} size='2x' />
-            </div>
-            {recordStatus.outputActive || recordStatus.outputPaused ? recordPauseButton : null}
-          </div>
-          {recordStatusEl}
-        </div>
-        <div className='output-controller-settings'>
-          <div onClick={settingsOpen} className={'output-controller-button'}>
-            <label>Settings</label>
-            <FontAwesomeIcon icon={faCog} size='2x' />
-          </div>
-        </div>
-      </div>
-    </div>
+              label='Record'
+              icon={faCircle}
+              iconPosition='bottom'
+              iconGap='small'
+              onClick={toggleRecord}
+            />
+            {recordStatus.outputActive || recordStatus.outputPaused ? (
+              <Button
+                className={'output-controller-button '}
+                label='Pause'
+                icon={recordStatus.outputPaused ? faPlay : faPause}
+                iconPosition='bottom'
+                iconGap='small'
+                onClick={toggleRecordPause}
+              />
+            ) : null}
+            <Box flexFlow='column' marginLeft='small'>
+              <TypeFace>{recordStatus.outputTimecode}</TypeFace>
+              <TypeFace>Out Data: {convertBytes(recordStatus.outputBytes)}</TypeFace>
+              <TypeFace>Empty Space</TypeFace>
+            </Box>
+          </Box>
+        </Box>
+      </Stack>
+    </Border>
   );
 }

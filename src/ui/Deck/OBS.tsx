@@ -1,18 +1,27 @@
 import osc from 'osc-js';
-import React from 'react';
+import React, { useEffect } from 'react';
 import VolumeController from './obs/volumeControl/VolumeController';
 import SceneController from './obs/sceneController/SceneController';
 import useOBS from '../../app/hooks/useOBS';
 import OutputController from './obs/outputController/OutputController';
 import SourceControl from './obs/sourceControl/SourceControl';
 import ObsLogin from './obs/login/ObsLogin';
-import { CircleLoader, useOSC } from '@greysole/spooder-component-library';
+import { Box, CircleLoader, useOSC } from '@greysole/spooder-component-library';
 
 export default function OBS() {
   const { isReady: isOSCReady } = useOSC();
-  const { getObsSettings, getObsStatus } = useOBS();
+  const { getObsSettings, getObsStatus, getConnectObsRemote, getDisconnectObsRemote } = useOBS();
+  const { connectObsRemote } = getConnectObsRemote();
+  const { disconnectObsRemote } = getDisconnectObsRemote();
   const { data: obsStatus, isLoading: statusLoading, error: statusError } = getObsStatus();
   const { data: obsData, isLoading: obsLoading, error: obsError } = getObsSettings();
+
+  useEffect(() => {
+    connectObsRemote();
+    return () => {
+      disconnectObsRemote();
+    };
+  }, []);
 
   if (obsLoading || statusLoading) {
     return <CircleLoader />;
@@ -22,12 +31,12 @@ export default function OBS() {
 
   if (isOSCReady && obsStatus.connected) {
     return (
-      <div className='App-content deck'>
+      <Box flexFlow='column'>
         <OutputController />
         <SceneController />
         <SourceControl />
         <VolumeController />
-      </div>
+      </Box>
     );
   } else {
     if (!isOSCReady) {

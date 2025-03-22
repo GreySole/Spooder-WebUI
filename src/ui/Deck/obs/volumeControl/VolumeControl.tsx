@@ -4,22 +4,30 @@ import {
   faVolumeMute,
   faVolumeHigh,
 } from '@fortawesome/free-solid-svg-icons';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useObsWebsocketContext } from './VolumeContext';
-import { RangeInput, Button, useOSC } from '@greysole/spooder-component-library';
+import {
+  RangeInput,
+  Button,
+  useOSC,
+  Stack,
+  Box,
+  Columns,
+  TypeFace,
+  Slider,
+  useTheme,
+  StyleSizeButton,
+} from '@greysole/spooder-component-library';
 import VolumeMeter from './VolumeMeter';
 
 interface VolumeControlProps {
   meterIndex: string;
 }
 
-function truncate(str: string, n: number) {
-  return str.length > n ? str.substr(0, n - 1) + '...' : str;
-}
-
 export default function VolumeControl(props: VolumeControlProps) {
   const { meterIndex } = props;
   const { meters, inputs } = useObsWebsocketContext();
+  const { themeColors } = useTheme();
 
   if (meters[meterIndex] == undefined) {
     return null;
@@ -34,11 +42,18 @@ export default function VolumeControl(props: VolumeControlProps) {
   const channelL = meters[meterIndex].inputLevelsMul[0][1];
   const channelR = meters[meterIndex].inputLevelsMul[1][1];
   const volume = inputs[inputName].volumeData.inputVolumeMul;
+  const dbLevel = inputs[inputName].volumeData.inputVolumeDb;
   const muted = inputs[inputName].volumeMuteData.inputMuted;
 
-  const [prevVolume, setPrevVolume] = useState(volume);
+  const [prevVolume, setPrevVolume] = useState(0);
   const { sendOSC } = useOSC();
+
+  useEffect(() => {
+    setPrevVolume(volume);
+  }, []);
+
   const setVolume = (newVolume: number) => {
+    console.log('NEW VOLUME', newVolume);
     sendOSC(
       '/obs/set/input/volume',
       JSON.stringify({ inputName: inputName, value: newVolume ** 2 }),
@@ -62,37 +77,43 @@ export default function VolumeControl(props: VolumeControlProps) {
   };
 
   return (
-    <div className='deck-volume-meter'>
-      <div className='deck-volume-meter-label'>{truncate(inputName, 16)}</div>
-      <div className='deck-volume-meter-ui'>
-        <div className='deck-volume-meter-bars'>
-          <VolumeMeter level={channelL} />
-          <VolumeMeter level={channelR} />
-        </div>
-        <div className='deck-volume-control-slider'>
-          <RangeInput
-            onChange={(value) => setVolume(value)}
-            min={0}
-            max={1}
-            step={0.01}
+    <Box width={StyleSizeButton.xlarge} height='100%' flexFlow='column' margin='small'>
+      <TypeFace textAlign='center' whiteSpace='nowrap' textOverflow='ellipsis'>
+        {inputName}
+      </TypeFace>
+      <TypeFace textAlign='center' whiteSpace='nowrap' textOverflow='ellipsis'>
+        {dbLevel.toFixed(2)} dB
+      </TypeFace>
+      <Box flexFlow='row'>
+        <Columns spacing='none'>
+          <VolumeMeter level={channelL} muted={muted} />
+          <VolumeMeter level={channelR} muted={muted} />
+        </Columns>
+        <Box height='100%' justifyContent='flex-end' marginLeft='medium' paddingTop='medium'>
+          <Slider
+            orientation='vertical'
+            gradient={`${themeColors.buttonBackgroundColor},${themeColors.backgroundColorFar}`}
             value={Math.sqrt(volume)}
-            vertical
+            step={0.01}
+            onChange={(value) => setVolume(value)}
           />
-        </div>
-        <div className='deck-source-buttons'>
-          {volume != prevVolume ? (
-            <Button label='' icon={faCheck} onClick={() => commitVolume()} />
-          ) : null}
-          {volume != prevVolume ? (
-            <Button label='' icon={faArrowCircleLeft} onClick={() => revertVolume()} />
-          ) : null}
-          <Button
-            label=''
-            icon={muted ? faVolumeMute : faVolumeHigh}
-            onClick={() => toggleMute(!muted)}
-          />
-        </div>
-      </div>
-    </div>
+        </Box>
+        <Box flexFlow='column' justifyContent='flex-end' marginLeft='medium'>
+          <Stack spacing='small'>
+            {volume != prevVolume ? (
+              <Button icon={faCheck} iconSize='large' onClick={() => commitVolume()} />
+            ) : null}
+            {volume != prevVolume ? (
+              <Button icon={faArrowCircleLeft} iconSize='large' onClick={() => revertVolume()} />
+            ) : null}
+            <Button
+              icon={muted ? faVolumeMute : faVolumeHigh}
+              iconSize='large'
+              onClick={() => toggleMute(!muted)}
+            />
+          </Stack>
+        </Box>
+      </Box>
+    </Box>
   );
 }

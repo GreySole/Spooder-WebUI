@@ -25,7 +25,7 @@ export const twitchApi = createApi({
       transformResponse: (response: KeyedObject) => response.data,
     }),
     getEventSubsByUser: builder.query({
-      query: (twitchId: string) => `/get_channelpoint_rewards?twitchid=${twitchId}`,
+      query: (twitchId: string) => `/get_eventsubs_by_user?twitchid=${twitchId}`,
     }),
     revokeToken: builder.mutation({
       query: () => ({

@@ -3,6 +3,7 @@ import { KeyedObject } from '../../../Types';
 import VolumeControl from './VolumeControl';
 import VolumeGroupControl from './VolumeGroupControl';
 import { useObsWebsocketContext } from './VolumeContext';
+import { Border, Box, Columns } from '@greysole/spooder-component-library';
 
 export default function VolumeDeck() {
   const { groups, meters, meterNames, inputs, isReady } = useObsWebsocketContext();
@@ -79,12 +80,15 @@ export default function VolumeDeck() {
   }
 
   return (
-    <div className='deck-component deck-volume-control'>
-      <label className='deck-component-label'>Volume</label>
-      <div className='component-volume-controls'>
-        {groupElements}
-        {meterElements}
-      </div>
-    </div>
+    <Border borderBottom>
+      <Box flexFlow='row' overflow='auto'>
+        <Columns spacing='medium' paddingTop='none'>
+          {groupElements}
+        </Columns>
+        <Columns spacing='medium' paddingTop='small'>
+          {meterElements}
+        </Columns>
+      </Box>
+    </Border>
   );
 }

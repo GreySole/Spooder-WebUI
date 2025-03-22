@@ -15,10 +15,10 @@ interface EditCustomSpooderInputPairProps {
 export default function EditCustomSpooderInputPair(props: EditCustomSpooderInputPairProps) {
   const { partName, label } = props;
   return (
-    <Box flexFlow='column' alignItems='center' margin='small'>
+    <Stack spacing='medium' margin='small'>
       <TypeFace>{label}</TypeFace>
       <FormTextInput width='100px' formKey={`parts.${partName}`} />
       <FormColorInput formKey={`colors.${partName}`} />
-    </Box>
+    </Stack>
   );
 }

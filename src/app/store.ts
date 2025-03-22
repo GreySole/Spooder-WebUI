@@ -13,6 +13,8 @@ import { userApi } from './api/userSlice';
 import { recoveryApi } from './api/recoverySlice';
 import footerSlice from './slice/footerSlice';
 import { themeApi } from './api/themeSlice';
+import { obsFetchApi } from './api/obsFetchSlice';
+import { obsControlApi } from './api/obsControlSlice';
 
 const store = configureStore({
   reducer: {
@@ -25,6 +27,8 @@ const store = configureStore({
     [configApi.reducerPath]: configApi.reducer,
     [discordApi.reducerPath]: discordApi.reducer,
     [obsApi.reducerPath]: obsApi.reducer,
+    [obsFetchApi.reducerPath]: obsFetchApi.reducer,
+    [obsControlApi.reducerPath]: obsControlApi.reducer,
     [twitchApi.reducerPath]: twitchApi.reducer,
     [pluginApi.reducerPath]: pluginApi.reducer,
     [serverApi.reducerPath]: serverApi.reducer,
@@ -39,6 +43,8 @@ const store = configureStore({
       .concat(configApi.middleware)
       .concat(discordApi.middleware)
       .concat(obsApi.middleware)
+      .concat(obsFetchApi.middleware)
+      .concat(obsControlApi.middleware)
       .concat(twitchApi.middleware)
       .concat(pluginApi.middleware)
       .concat(serverApi.middleware)

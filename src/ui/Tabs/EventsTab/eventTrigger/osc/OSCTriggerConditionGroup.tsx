@@ -5,6 +5,7 @@ import {
   Box,
   FormSelectDropdown,
   Button,
+  TypeFace,
 } from '@greysole/spooder-component-library';
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
@@ -42,40 +43,51 @@ export default function OSCTriggerConditionGroup(props: TriggerConditionGroup) {
   return (
     <Border borderBottom>
       <Stack width='100%' spacing='small' padding='small'>
-        <Box flexFlow='row' justifyContent='space-between' marginBottom='small'>
-          <FormSelectDropdown
-            formKey={groupModeKey}
-            label='Mode'
-            options={[
-              { value: 'AND', label: 'AND' },
-              { value: 'OR', label: 'OR' },
-            ]}
-          />
-          <Box height='50px'>
+        <Border borderBottom>
+          <Box flexFlow='row' justifyContent='space-between' marginBottom='small'>
+            <FormSelectDropdown
+              formKey={groupModeKey}
+              label='Mode'
+              options={[
+                { value: 'AND', label: 'AND' },
+                { value: 'OR', label: 'OR' },
+              ]}
+            />
+            <Box height='50px'>
+              <Button
+                label='Delete Group'
+                iconSize='25px'
+                icon={faTrash}
+                onClick={() => {
+                  deleteConditionGroup(groupIndex);
+                }}
+              />
+            </Box>
+          </Box>
+        </Border>
+        <Stack spacing='medium' marginTop='small'>
+          <Box justifyContent='space-between'>
+            <TypeFace>Index</TypeFace>
+            <TypeFace>Condition</TypeFace>
+            <TypeFace>Action</TypeFace>
+          </Box>
+          {groupConditionValues.map((condition: any, index: number) => (
+            <OSCTriggerCondition
+              formKey={groupConditionKey}
+              conditionIndex={index}
+              deleteCondition={deleteCondition}
+            />
+          ))}
+          <Box width='100%' justifyContent='flex-end' padding='small'>
             <Button
-              label='Delete Group'
-              iconSize='25px'
-              icon={faTrash}
+              icon={faPlus}
+              label='Add Condition'
               onClick={() => {
-                deleteConditionGroup(groupIndex);
+                addCondition();
               }}
             />
           </Box>
-        </Box>
-        {groupConditionValues.map((condition: any, index: number) => (
-          <OSCTriggerCondition
-            formKey={groupConditionKey}
-            conditionIndex={index}
-            deleteCondition={deleteCondition}
-          />
-        ))}
-        <Button
-          icon={faPlus}
-          label='Add Condition'
-          onClick={() => {
-            addCondition();
-          }}
-        />
+        </Stack>
       </Stack>
     </Border>
   );

@@ -20,9 +20,6 @@ import {
 import { PluginComponentProps } from '../../Types';
 import { usePluginContext } from './context/PluginTabFormContext';
 import PluginButtonRow from './input/PluginButtonRow';
-import PluginSettings from './input/PluginSettings';
-import PluginAssetManager from './PluginAssetManager';
-import PluginInfoView from './PluginInfoView';
 
 interface Plugin {
   name: string;

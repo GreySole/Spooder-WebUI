@@ -3,7 +3,7 @@ import { useFormContext } from 'react-hook-form';
 import CommandToggleGrid from './CommandToggleGrid';
 import useShare from '../../../../app/hooks/useShare';
 import React from 'react';
-import { SaveButton, Button } from '@greysole/spooder-component-library';
+import { SaveButton, Button, Stack, TypeFace, Box } from '@greysole/spooder-component-library';
 
 interface ShareEntrySettingsProps {
   shareKey: string;
@@ -25,19 +25,22 @@ export default function ShareEntryCommandSettings(props: ShareEntrySettingsProps
   let shareContent = null;
   if (openSettings) {
     shareContent = (
-      <div className={'share-entry-content-commands'}>
+      <Stack spacing='medium'>
         <CommandToggleGrid formKey={shareKey} />
         <SaveButton saveFunction={saveAndCloseShare} />
-      </div>
+      </Stack>
     );
   } else {
     shareContent = (
-      <div className='share-entry-commands'>
-        <div className='share-entry-label'>
-          Commands <Button label='Set' onClick={() => setOpenSettings(true)} />
-        </div>
+      <Stack spacing='medium'>
+        <Stack spacing='medium'>
+          <TypeFace fontSize='large'>Commands</TypeFace>
+          <Box>
+            <Button label='Set' onClick={() => setOpenSettings(true)} />
+          </Box>
+        </Stack>
         {share.commands.join(', ')}
-      </div>
+      </Stack>
     );
   }
 

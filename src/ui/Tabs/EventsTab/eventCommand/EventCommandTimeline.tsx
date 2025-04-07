@@ -1,10 +1,10 @@
 import { faCommentDots, faPlug, faLock, faNetworkWired } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { TimelineRow, Timeline } from '@xzdarcy/react-timeline-editor';
 import React, { useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { buildKey, buildCommandKey, EVENT_KEY } from '../FormKeys';
 import { DiscordIcon, ObsIcon } from '../../../common/icons/icons';
+import { Box, getIcon, Slider, TypeFace } from '@greysole/spooder-component-library';
 
 interface EventCommandTimelineProps {
   eventName: string;
@@ -13,7 +13,7 @@ interface EventCommandTimelineProps {
 export default function EventCommandTimeline(props: EventCommandTimelineProps) {
   const { eventName } = props;
   let maxDuration = 1;
-  const [timelineZoom, setTimelineZoom] = useState<number>(1);
+  const [timelineZoom, setTimelineZoom] = useState<number>(0.5);
   const { setValue, watch } = useFormContext();
   const eventCommands = watch(`${EVENT_KEY}.${eventName}.commands`, []);
 
@@ -30,18 +30,12 @@ export default function EventCommandTimeline(props: EventCommandTimelineProps) {
   };
 
   for (let c = 0; c < eventCommands.length; c++) {
-    maxDuration = Math.max(eventCommands[c].delay / 1000, eventCommands[c].duration);
+    maxDuration = Math.max(eventCommands[c].delay / 1000 + eventCommands[c].duration, maxDuration);
     if (isNaN(maxDuration)) {
       maxDuration = 1;
     }
 
-    let id = eventCommands[c].type + '-' + c;
-    if (eventCommands[c].type == 'software') {
-      id =
-        eventCommands[c].address + '-' + eventCommands[c].valueOn + '|' + eventCommands[c].valueOff;
-    } else if (eventCommands[c].type == 'obs' || eventCommands[c].type == 'mod') {
-      id = eventCommands[c].function;
-    }
+    const id = eventCommands[c].type + '-' + c;
 
     const delay = isNaN(eventCommands[c].delay) ? 0 : eventCommands[c].delay;
     const duration = isNaN(eventCommands[c].duration) ? 1 : eventCommands[c].duration;
@@ -58,16 +52,9 @@ export default function EventCommandTimeline(props: EventCommandTimelineProps) {
       ],
     });
   }
-  let timelineZoomInput = (
-    <input
-      type='range'
-      min={1}
-      max={120}
-      value={timelineZoom}
-      className='timeline-zoom-slider'
-      //style={{ width: '70%' }}
-      onChange={(e) => setTimelineZoom(parseFloat(e.target.value))}
-    />
+
+  const timelineZoomSlider = (
+    <Slider orientation='horizontal' step={0.01} value={timelineZoom} onChange={setTimelineZoom} />
   );
 
   function onUpdateTimeline(frames: any) {
@@ -93,55 +80,55 @@ export default function EventCommandTimeline(props: EventCommandTimelineProps) {
         effects={timelineEffectData}
         onChange={onUpdateTimeline}
         autoScroll={true}
-        scale={timelineZoom}
-        dragLine={false}
+        scale={timelineZoom * maxDuration}
+        dragLine={true}
+        gridSnap={true}
         getActionRender={(action: any, row) => {
-          switch (eventCommands[0].type) {
+          if (eventCommands.length == 0) {
+            return <></>;
+          }
+          const etypeFromId = action.id.split('-')[0];
+          switch (etypeFromId) {
             case 'response':
               return (
-                <div className='prompt'>
-                  <FontAwesomeIcon icon={faCommentDots} size={'2x'} />
-                </div>
+                <Box height='100%' justifyContent='center' alignItems='center'>
+                  <TypeFace textAlign='center'>{getIcon(faCommentDots, true, 'large')}</TypeFace>
+                </Box>
               );
             case 'plugin':
               return (
-                <div className='prompt'>
-                  <FontAwesomeIcon icon={faPlug} size={'lg'} />
-                  <label>{action.id}</label>
-                </div>
+                <Box height='100%' justifyContent='center' alignItems='center'>
+                  <TypeFace textAlign='center'>{getIcon(faPlug, true, 'large')}</TypeFace>
+                </Box>
               );
             case 'mod':
               return (
-                <div className='prompt'>
-                  <FontAwesomeIcon icon={faLock} size={'lg'} />
-                  <label>{action.id}</label>
-                </div>
+                <Box height='100%' justifyContent='center' alignItems='center'>
+                  <TypeFace textAlign='center'>{getIcon(faLock, true, 'large')}</TypeFace>
+                </Box>
               );
             case 'obs':
               return (
-                <div className='prompt'>
-                  <img width={25} height={25} src={ObsIcon} />
-                  <label>{action.id}</label>
-                </div>
+                <Box height='100%' justifyContent='center' alignItems='center'>
+                  <TypeFace textAlign='center'>{getIcon(ObsIcon, true, 'large')}</TypeFace>
+                </Box>
               );
             case 'discord':
               return (
-                <div className='prompt'>
-                  <img width={25} height={25} src={DiscordIcon} />
-                  <label>{action.id}</label>
-                </div>
+                <Box height='100%' justifyContent='center' alignItems='center'>
+                  <TypeFace textAlign='center'>{getIcon(DiscordIcon, true, 'large')}</TypeFace>
+                </Box>
               );
             default:
               return (
-                <div className='prompt'>
-                  <FontAwesomeIcon icon={faNetworkWired} size={'lg'} />
-                  <label>{action.id}</label>
-                </div>
+                <Box height='100%' justifyContent='center' alignItems='center'>
+                  <TypeFace textAlign='center'>{getIcon(faNetworkWired, true, 'large')}</TypeFace>
+                </Box>
               );
           }
         }}
       />
-      {timelineZoomInput}
+      {timelineZoomSlider}
     </>
   );
 }

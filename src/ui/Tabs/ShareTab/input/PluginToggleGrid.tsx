@@ -1,9 +1,9 @@
 import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSpider } from '@fortawesome/free-solid-svg-icons';
+import { faPlug, faSpider } from '@fortawesome/free-solid-svg-icons';
 import { useFormContext } from 'react-hook-form';
 import usePlugins from '../../../../app/hooks/usePlugins';
-import { CircleLoader } from '@greysole/spooder-component-library';
+import { Box, Button, CircleLoader, useTheme } from '@greysole/spooder-component-library';
 
 interface ToggleGridProps {
   formKey: string;
@@ -14,7 +14,10 @@ export default function PluginToggleGrid(props: ToggleGridProps) {
   const { getPlugins } = usePlugins();
   const { data: plugins, isLoading, error } = getPlugins();
   const { watch, setValue } = useFormContext();
-  const selected = watch(`${formKey}.plugins`, []);
+  const { themeColors } = useTheme();
+  const pluginKey = `${formKey}.plugins`;
+
+  const selected = watch(pluginKey, []);
 
   if (isLoading || !plugins) {
     return <CircleLoader />;
@@ -33,14 +36,23 @@ export default function PluginToggleGrid(props: ToggleGridProps) {
   };
 
   const gridItems = gridData.map((element: string) => (
-    <div
-      className={'toggle-grid-element ' + (selected.includes(element) ? 'selected' : '')}
-      onClick={() => onToggleChange(element, !selected.includes(element))}
-    >
-      <FontAwesomeIcon icon={faSpider} size='2x' />
-      <label>{element}</label>
-    </div>
+    <Box key={element} padding='small'>
+      <Button
+        width='large'
+        label={plugins[element].name}
+        icon={window.location.origin + '/icons/' + element + '.png'}
+        fallbackIcon={faPlug}
+        iconPosition='top'
+        onClick={() => onToggleChange(element, !selected.includes(element))}
+        color={
+          selected.includes(element)
+            ? themeColors.darkColorAnalogousCW
+            : themeColors.buttonBackgroundColor
+        }
+        truncate
+      />
+    </Box>
   ));
 
-  return <div className='toggle-grid'>{gridItems}</div>;
+  return <Box flexFlow='row wrap'>{gridItems}</Box>;
 }

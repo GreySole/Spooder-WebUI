@@ -34,23 +34,23 @@ export default function EventAddCommand(props: EventAddCommandProps) {
       case 'plugin':
         newCommand = {
           type: 'plugin',
-          etype: 'timed',
+          etype: 'oneshot',
           pluginname: '',
           eventname: '',
           stop_eventname: '',
-          duration: 0,
+          duration: 10,
           delay: 0,
         } as PluginCommand;
         break;
       case 'software':
         newCommand = {
           type: 'software',
-          etype: 'timed',
+          etype: 'oneshot',
           dest_udp: '-2',
           address: '',
-          valueOn: '',
-          valueOff: '',
-          duration: 0,
+          valueOn: '1',
+          valueOff: '0',
+          duration: 10,
           delay: 0,
           priority: 0,
         } as SoftwareCommand;
@@ -59,14 +59,14 @@ export default function EventAddCommand(props: EventAddCommandProps) {
         newCommand = {
           type: 'obs',
           function: 'setinputmute',
-          etype: 'timed',
+          etype: 'oneshot',
           scene: '',
           item: '',
-          valueOn: '',
-          valueOff: '',
+          valueOn: '1',
+          valueOff: '0',
           itemOn: '',
           itemOff: '',
-          duration: 0,
+          duration: 10,
           delay: 0,
         } as OBSCommand;
         break;
@@ -77,7 +77,7 @@ export default function EventAddCommand(props: EventAddCommandProps) {
           etype: 'timed',
           targettype: 'all',
           target: '',
-          duration: 0,
+          duration: 10,
           delay: 0,
         } as ModCommand;
         break;

@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCommentDots } from '@fortawesome/free-solid-svg-icons';
 import { useFormContext } from 'react-hook-form';
 import useEvents from '../../../../app/hooks/useEvents';
-import { CircleLoader } from '@greysole/spooder-component-library';
+import { Box, Button, CircleLoader, useTheme } from '@greysole/spooder-component-library';
 
 interface ToggleGridProps {
   formKey: string;
@@ -14,7 +14,9 @@ export default function CommandToggleGrid(props: ToggleGridProps) {
   const { getChatCommands } = useEvents();
   const { data: chatCommands, isLoading, error } = getChatCommands();
   const { watch, setValue } = useFormContext();
-  const selected = watch(`${formKey}.commands`, []);
+  const commandKey = `${formKey}.commands`;
+  const selected = watch(commandKey, []);
+  const { themeColors } = useTheme();
 
   if (isLoading) {
     return <CircleLoader />;
@@ -27,18 +29,26 @@ export default function CommandToggleGrid(props: ToggleGridProps) {
     } else {
       newSelected = newSelected.filter((value: string) => value !== element);
     }
-    setValue(formKey, newSelected);
+    setValue(commandKey, newSelected);
   };
 
   const gridItems = Object.keys(chatCommands).map((element: string) => (
-    <div
-      className={'toggle-grid-element ' + (selected.includes(element) ? 'selected' : '')}
-      onClick={() => onToggleChange(element, !selected.includes(element))}
-    >
-      <FontAwesomeIcon icon={faCommentDots} size='2x' />
-      <label>{chatCommands[element].command}</label>
-    </div>
+    <Box key={element} padding='small'>
+      <Button
+        width='large'
+        label={chatCommands[element].command}
+        icon={faCommentDots}
+        iconPosition='top'
+        onClick={() => onToggleChange(element, !selected.includes(element))}
+        color={
+          selected.includes(element)
+            ? themeColors.colorAnalogousCW
+            : themeColors.buttonBackgroundColor
+        }
+        truncate
+      />
+    </Box>
   ));
 
-  return <div className='toggle-grid'>{gridItems}</div>;
+  return <Box flexFlow='row wrap'>{gridItems}</Box>;
 }

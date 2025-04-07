@@ -8,16 +8,14 @@ import { Button } from '@greysole/spooder-component-library';
 export default function CreateUserButton() {
   const { setValue, watch } = useFormContext();
   const users = watch('trusted_users');
-  console.log('CREATE USERS', users);
+
   const createUser = () => {
     let newName = 'newuser';
     let newState = {} as KeyedObject;
     let renameCount = 1;
     const newUserId = uuidv4();
 
-    const usernames = Object.keys(users).map((key) => users[key].username);
-
-    console.log('USERNAMES', usernames);
+    const usernames = Object.keys(users.user_names).map((key) => users.user_names[key]);
 
     while (usernames.includes(newName + renameCount) == true) {
       if (usernames.includes(newName + renameCount) == false) {
@@ -32,19 +30,11 @@ export default function CreateUserButton() {
     }
 
     newState.username = newName;
-
     newState.permission = [];
-    newState.verify = {
-      twitch: '',
-      discord: '',
-    };
 
-    setValue(`trusted_users.${newUserId}`, newState);
-    setValue(`trusted_users_pw.${newUserId}`, false);
+    setValue(`trusted_users.pending.${newUserId}`, newState);
   };
   return (
-    <div className='plugin-install-button'>
-      <Button label='Create User' icon={faPlusCircle} iconSize='lg' onClick={() => createUser()} />
-    </div>
+    <Button label='Create User' icon={faPlusCircle} iconSize='lg' onClick={() => createUser()} />
   );
 }

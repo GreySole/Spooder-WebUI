@@ -14,13 +14,19 @@ interface EventModalContextProps {
   setEventName: (eventName: string) => void;
   eventName: string;
   isOpen: boolean;
+  showTimelineButton: boolean;
+  setShowTimelineButton: (isShowing: boolean) => void;
+  onTimelineButtonClick: () => void;
+  setOnTimelineButtonClick: (onTimelineButtonClick: () => void) => void;
 }
 
 const EventTableModalContext = createContext<EventModalContextProps | undefined>(undefined);
 
 export function EventTableModalProvider() {
   const [isOpen, setIsOpen] = useState(false);
-  const [eventName, setEventName] = useState('armwave');
+  const [eventName, setEventName] = useState('');
+  const [showTimelineButton, setShowTimelineButton] = useState(false);
+  const [onTimelineButtonClick, setOnTimelineButtonClick] = useState(() => () => {});
 
   const openModal = () => {
     setIsOpen(true);
@@ -31,7 +37,17 @@ export function EventTableModalProvider() {
 
   return (
     <EventTableModalContext.Provider
-      value={{ open: openModal, close: closeModal, setEventName, eventName, isOpen }}
+      value={{
+        open: openModal,
+        close: closeModal,
+        isOpen,
+        setEventName,
+        eventName,
+        setOnTimelineButtonClick,
+        showTimelineButton,
+        setShowTimelineButton,
+        onTimelineButtonClick,
+      }}
     >
       <EventTableModal />
       <EventTable />

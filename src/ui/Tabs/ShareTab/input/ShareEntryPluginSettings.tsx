@@ -4,7 +4,14 @@ import useShare from '../../../../app/hooks/useShare';
 import usePlugins from '../../../../app/hooks/usePlugins';
 import PluginToggleGrid from './PluginToggleGrid';
 import React from 'react';
-import { FormLoader, SaveButton, Button } from '@greysole/spooder-component-library';
+import {
+  FormLoader,
+  SaveButton,
+  Button,
+  Stack,
+  TypeFace,
+  Box,
+} from '@greysole/spooder-component-library';
 
 interface ShareEntrySettingsProps {
   shareKey: string;
@@ -20,7 +27,7 @@ export default function ShareEntryPluginSettings(props: ShareEntrySettingsProps)
   const share = watch(shareKey);
   const [openSettings, setOpenSettings] = useState(false);
 
-  if (isLoading) {
+  if (isLoading || !plugins) {
     return <FormLoader numRows={4} />;
   }
 
@@ -32,19 +39,24 @@ export default function ShareEntryPluginSettings(props: ShareEntrySettingsProps)
   let shareContent = null;
   if (openSettings) {
     shareContent = (
-      <div className={'share-entry-content-plugins'}>
+      <Stack spacing='medium'>
         <PluginToggleGrid formKey={shareKey} />
         <SaveButton saveFunction={saveAndCloseShare} />
-      </div>
+      </Stack>
     );
   } else {
     shareContent = (
-      <div className='share-entry-commands'>
-        <div className='share-entry-label'>
-          Plugins <Button label='Set' onClick={() => setOpenSettings(true)} />
-        </div>
-        {share.plugins.join(', ')}
-      </div>
+      <Stack spacing='medium'>
+        <Stack spacing='medium'>
+          <TypeFace fontSize='large'>Plugins</TypeFace>
+          <Box>
+            <Button label='Set' onClick={() => setOpenSettings(true)} />
+          </Box>
+        </Stack>
+        {share.plugins
+          .map((plugin: string) => (plugins[plugin] ? plugins[plugin].name : plugin))
+          .join(', ')}
+      </Stack>
     );
   }
 

@@ -10,7 +10,6 @@ interface ShareTabContentProps {
 }
 
 export default function ShareTabContent({ shareKey, tab }: ShareTabContentProps) {
-  console.log('ShareTabContent', tab);
   let tabContent = null;
   switch (tab) {
     case 'overview':

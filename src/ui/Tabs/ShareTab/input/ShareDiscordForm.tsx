@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import React from 'react';
-import { Button, TextInput } from '@greysole/spooder-component-library';
+import { Button, Stack, TextInput } from '@greysole/spooder-component-library';
 
 interface ShareDiscordFormProps {
   shareKey: string;
@@ -23,21 +23,21 @@ export default function ShareDiscordForm(props: ShareDiscordFormProps) {
     return <Button label='Add Discord' onClick={() => setOpenAddDiscord(true)} />;
   } else if (share.notificationPlatforms.discord.userId == null && openAddDiscord) {
     return (
-      <div className='share-discord-label'>
+      <Stack spacing='medium'>
         <TextInput
           value={addDiscordID}
           placeholder='Discord ID, not the name!'
           onInput={(value) => setAddDiscordID(value)}
         />
         <Button label='Add Discord' onClick={() => setOpenAddDiscord(true)} />
-      </div>
+      </Stack>
     );
   } else {
     return (
-      <div className='share-discord-label'>
+      <Stack spacing='medium'>
         {'Discord ' + share.notificationPlatforms.discord.username}
         <Button label='' icon={faTrash} onClick={() => removeDiscord()} />
-      </div>
+      </Stack>
     );
   }
 }

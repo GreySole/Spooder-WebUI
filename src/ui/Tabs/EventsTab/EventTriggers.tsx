@@ -48,7 +48,7 @@ export default function EventTriggers(props: EventTriggersProps) {
 
   return (
     <Box>
-      <Stack spacing='medium'>
+      <Stack width='100%' spacing='medium'>
         <Box flexFlow='row wrap'>
           <SelectDropdown
             label='Add Trigger'

@@ -10,8 +10,6 @@ interface EventTableFormContextProviderProps {
 export default function EventTableFormContextProvider(props: EventTableFormContextProviderProps) {
   const { children, defaultEvents, defaultGroups } = props;
 
-  console.log('INIT EVENT CONTEXT', defaultEvents, defaultGroups);
-
   const EventTableForm = useForm({
     defaultValues: {
       events: defaultEvents,

@@ -5,12 +5,14 @@ import { Stack } from '@greysole/spooder-component-library';
 
 export default function UserList() {
   const { watch } = useFormContext();
-  const users = watch('trusted_users');
+  const user_names = watch('trusted_users.user_names');
+
+  console.log('LIST RENDER');
 
   return (
     <Stack spacing='medium'>
-      {Object.values(users.usernames).map((userKey) => {
-        return <UserEntry userKey={userKey as string} />;
+      {Object.keys(user_names).map((username) => {
+        return <UserEntry key={username} username={username as string} />;
       })}
     </Stack>
   );

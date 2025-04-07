@@ -6,6 +6,7 @@ import {
   TypeFace,
   LinkButton,
   useTheme,
+  Border,
 } from '@greysole/spooder-component-library';
 import React, { useState } from 'react';
 import { useFormContext } from 'react-hook-form';
@@ -29,36 +30,38 @@ export default function ShareEntry(props: ShareEntryProps) {
   };
 
   return (
-    <Box classes={['share-entry']} key={shareKey} flexFlow='column'>
-      <Box justifyContent='space-between'>
-        <Box flexFlow={isMobileDevice ? 'column' : 'row'} alignItems='center' width='100%'>
-          <ImageFile
-            src={share.streamPlatforms.twitch.profilePic}
-            width='100px'
-            height='100px'
-            clip='circle'
-          />
-          <Box flexFlow='column' margin='small' marginLeft='medium'>
-            <Stack spacing='small'>
-              <ShareCategoryButtonRow
-                tab={tab}
-                setTab={setTab}
-                removeShareEntry={removeShareEntry}
-              />
-              <Columns spacing='medium' padding='small'>
-                <TypeFace fontSize='large'>{share.streamPlatforms.twitch.displayName}</TypeFace>
-                <LinkButton
-                  iconOnly={true}
-                  mode='newtab'
-                  link={'https://twitch.tv/' + share.streamPlatforms.twitch.username}
+    <Border borderBottom>
+      <Box classes={['share-entry']} key={shareKey} flexFlow='column'>
+        <Box justifyContent='space-between'>
+          <Box flexFlow={isMobileDevice ? 'column' : 'row'} alignItems='center' width='100%'>
+            <ImageFile
+              src={share.streamPlatforms.twitch.profilePic}
+              width='100px'
+              height='100px'
+              clip='circle'
+            />
+            <Box flexFlow='column' margin='small' marginLeft='medium'>
+              <Stack spacing='small'>
+                <ShareCategoryButtonRow
+                  tab={tab}
+                  setTab={setTab}
+                  removeShareEntry={removeShareEntry}
                 />
-                <ToggleShareButton shareKey={shareKey} />
-              </Columns>
-            </Stack>
+                <Columns spacing='medium' padding='small'>
+                  <TypeFace fontSize='large'>{share.streamPlatforms.twitch.displayName}</TypeFace>
+                  <LinkButton
+                    iconOnly={true}
+                    mode='newtab'
+                    link={'https://twitch.tv/' + share.streamPlatforms.twitch.username}
+                  />
+                  <ToggleShareButton shareKey={shareKey} />
+                </Columns>
+              </Stack>
+            </Box>
           </Box>
         </Box>
+        <ShareTabContent shareKey={shareKey} tab={tab} />
       </Box>
-      <ShareTabContent shareKey={shareKey} tab={tab} />
-    </Box>
+    </Border>
   );
 }

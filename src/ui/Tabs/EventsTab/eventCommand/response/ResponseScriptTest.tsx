@@ -57,7 +57,11 @@ export default function ResponseScriptTest(props: ResponseScriptTestProps) {
           label='Verify Script'
           onClick={() => {
             verifyResponseScript(command, inputMessage, message).then((res) => {
-              setVerifyScriptResponse(res.data.response);
+              setVerifyScriptResponse(
+                typeof res.data.response == 'string'
+                  ? res.data.response
+                  : JSON.stringify(res.data.response, null, 2),
+              );
               setVerifyScriptStatus(res.data.status);
             });
           }}

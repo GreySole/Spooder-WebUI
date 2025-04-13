@@ -16,19 +16,19 @@ import AddTunnelForm from './AddTunnelForm';
 import DeleteOSCTunnelButton from './DeleteOSCTunnelButton';
 
 export default function OSCTunnelList() {
-  const { getUdpClients } = useConfig();
+  const { getUdpServers } = useConfig();
   const { getPlugins } = usePlugins();
   const { watch, setValue, getValues } = useFormContext();
   const tunnels = watch();
 
   const { data: plugins, isLoading: pluginsLoading, error: pluginsError } = getPlugins();
   const {
-    data: udpClients,
-    isLoading: udpClientsLoading,
-    error: udpClientsError,
-  } = getUdpClients();
+    data: udpServers,
+    isLoading: udpServersLoading,
+    error: udpServersError,
+  } = getUdpServers();
 
-  if (udpClientsLoading || pluginsLoading || udpClientsError || pluginsError) {
+  if (udpServersLoading || pluginsLoading || udpServersError || pluginsError) {
     return <FormLoader numRows={4} />;
   }
 
@@ -44,8 +44,8 @@ export default function OSCTunnelList() {
 
   console.log('TUNNELS', tunnels);
 
-  for (let u in udpClients) {
-    clientTable.push({ value: u, label: udpClients[u].name });
+  for (let u in udpServers) {
+    clientTable.push({ value: u, label: udpServers[u].name });
   }
 
   const pluginTable = [];

@@ -12,14 +12,10 @@ interface AddTunnelFormProps {
 
 export default function AddTunnelForm(props: AddTunnelFormProps) {
   const { onAddOSCTunnel } = props;
-  const { getUdpClients } = useConfig();
+  const { getUdpServers } = useConfig();
   const { getPlugins } = usePlugins();
   const { data: plugins, isLoading: pluginsLoading, error: pluginsError } = getPlugins();
-  const {
-    data: udpClients,
-    isLoading: udpClientsLoading,
-    error: udpClientsError,
-  } = getUdpClients();
+  const { data: udpServers } = getUdpServers();
 
   const [name, setName] = useState('');
   const [addressFrom, setAddressFrom] = useState('/');
@@ -30,8 +26,8 @@ export default function AddTunnelForm(props: AddTunnelFormProps) {
 
   let clientTable = [];
 
-  for (let u in udpClients) {
-    clientTable.push({ value: u, label: udpClients[u].name });
+  for (let u in udpServers) {
+    clientTable.push({ value: u, label: udpServers[u].name });
   }
 
   let pluginTable = [];

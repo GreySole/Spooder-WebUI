@@ -27,25 +27,3 @@ export default function ConfigTab() {
     </Box>
   );
 }
-
-/**
- * configStructure = {
-		"bot":{
-			"owner_name":"",
-			"bot_name":"",
-			"help_command":"",
-			"introduction":"I'm a Spooder connected to the stream ^_^"
-		},
-		"network":{
-			"host":"",
-			"host_port":3000,
-			"externalhandle":"ngrok",
-			"ngrokauthtoken":"",
-			"external_http_url":"",
-			"external_tcp_url":"",
-			"udp_clients":{},
-			"osc_udp_port":9000,
-			"osc_tcp_port":3333
-		}
-	}
- */

@@ -1,6 +1,7 @@
 import { KeyedObject } from '../../ui/Types';
 import {
   useGetMonitorLogsQuery,
+  useGetPublicUrlQuery,
   useGetServerStateQuery,
   useGetSystemStatusQuery,
 } from '../api/serverSlice';
@@ -34,9 +35,20 @@ export default function useServer() {
     };
   }
 
+  function getPublicUrl() {
+    const { data, isLoading, error, refetch } = useGetPublicUrlQuery(null);
+    return {
+      data,
+      isLoading,
+      error,
+      refetch,
+    };
+  }
+
   return {
     getServerState,
     getMonitorLogs,
     getSystemStatus,
+    getPublicUrl,
   };
 }

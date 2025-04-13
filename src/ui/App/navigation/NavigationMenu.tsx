@@ -28,7 +28,7 @@ export default function NavigationMenu() {
   let shareElements = [] as React.JSX.Element[];
   for (let s in shares) {
     shareElements.push(
-      <Columns key={s} spacing='medium' padding='medium'>
+      <Columns key={`mini-share-${s}`} spacing='medium' padding='medium'>
         <TypeFace fontSize='large'>{shares[s].name}</TypeFace>
         <Button
           label=''
@@ -43,8 +43,8 @@ export default function NavigationMenu() {
   const tabButtons = Object.keys(tabOptions).map((tab: string, index) => {
     const tabLabel = tabOptions[tab];
     return (
-      <Box padding='small'>
-        <TabButton key={tab} tabLable={tabLabel} tabName={tab} />
+      <Box key={tab} padding='small'>
+        <TabButton tabLable={tabLabel} tabName={tab} />
       </Box>
     );
   });
@@ -52,8 +52,8 @@ export default function NavigationMenu() {
   const deckButtons = Object.keys(deckTabOptions).map((deck: string, index) => {
     const deckLabel = deckTabOptions[deck];
     return (
-      <Box padding='small'>
-        <TabButton key={deck} tabLable={deckLabel} tabName={deck} />
+      <Box key={deck} padding='small'>
+        <TabButton tabLable={deckLabel} tabName={deck} />
       </Box>
     );
   });
@@ -61,7 +61,7 @@ export default function NavigationMenu() {
   return (
     <Box
       flexFlow='column'
-      classes={['navigation-menu', navigationOpen ? 'open' : '']}
+      className={`navigation-menu ${navigationOpen ? 'open' : ''}`}
       overflow='auto'
       padding='medium'
       height='calc(100vh - 70px)'

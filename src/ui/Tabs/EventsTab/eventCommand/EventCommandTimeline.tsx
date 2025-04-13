@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { buildKey, buildCommandKey, EVENT_KEY } from '../FormKeys';
 import { DiscordIcon, ObsIcon } from '../../../common/icons/icons';
-import { Box, getIcon, Slider, TypeFace } from '@greysole/spooder-component-library';
+import { Box, Icon, Slider, TypeFace } from '@greysole/spooder-component-library';
 
 interface EventCommandTimelineProps {
   eventName: string;
@@ -92,37 +92,49 @@ export default function EventCommandTimeline(props: EventCommandTimelineProps) {
             case 'response':
               return (
                 <Box height='100%' justifyContent='center' alignItems='center'>
-                  <TypeFace textAlign='center'>{getIcon(faCommentDots, true, 'large')}</TypeFace>
+                  <TypeFace textAlign='center'>
+                    <Icon icon={faCommentDots} iconSize='large' />
+                  </TypeFace>
                 </Box>
               );
             case 'plugin':
               return (
                 <Box height='100%' justifyContent='center' alignItems='center'>
-                  <TypeFace textAlign='center'>{getIcon(faPlug, true, 'large')}</TypeFace>
+                  <TypeFace textAlign='center'>
+                    <Icon icon={faPlug} iconSize='large' />
+                  </TypeFace>
                 </Box>
               );
             case 'mod':
               return (
                 <Box height='100%' justifyContent='center' alignItems='center'>
-                  <TypeFace textAlign='center'>{getIcon(faLock, true, 'large')}</TypeFace>
+                  <TypeFace textAlign='center'>
+                    <Icon icon={faLock} iconSize='large' />
+                  </TypeFace>
                 </Box>
               );
             case 'obs':
               return (
                 <Box height='100%' justifyContent='center' alignItems='center'>
-                  <TypeFace textAlign='center'>{getIcon(ObsIcon, true, 'large')}</TypeFace>
+                  <TypeFace textAlign='center'>
+                    <Icon icon={ObsIcon} iconSize='large' />
+                  </TypeFace>
                 </Box>
               );
             case 'discord':
               return (
                 <Box height='100%' justifyContent='center' alignItems='center'>
-                  <TypeFace textAlign='center'>{getIcon(DiscordIcon, true, 'large')}</TypeFace>
+                  <TypeFace textAlign='center'>
+                    <Icon icon={DiscordIcon} iconSize='large' />
+                  </TypeFace>
                 </Box>
               );
             default:
               return (
                 <Box height='100%' justifyContent='center' alignItems='center'>
-                  <TypeFace textAlign='center'>{getIcon(faNetworkWired, true, 'large')}</TypeFace>
+                  <TypeFace textAlign='center'>
+                    <Icon icon={faNetworkWired} iconSize='large' />
+                  </TypeFace>
                 </Box>
               );
           }

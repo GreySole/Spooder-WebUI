@@ -9,8 +9,8 @@ interface FormUdpSelectDropdownProps {
 
 export default function FormUdpSelectDropdown(props: FormUdpSelectDropdownProps) {
   const { formKey, label } = props;
-  const { getUdpClients } = useConfig();
-  const { data: udpClients, isLoading, error } = getUdpClients();
+  const { getUdpServers } = useConfig();
+  const { data: udpServers, isLoading, error } = getUdpServers();
   if (isLoading || error) {
     return null;
   }
@@ -20,9 +20,9 @@ export default function FormUdpSelectDropdown(props: FormUdpSelectDropdownProps)
     { label: 'All', value: '-2' },
   ];
 
-  for (let u in udpClients) {
+  for (let u in udpServers) {
     udpOptions.push({
-      label: udpClients[u].name,
+      label: udpServers[u].name,
       value: u,
     });
   }

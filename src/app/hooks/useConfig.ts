@@ -1,7 +1,7 @@
 import {
   useGetConfigQuery,
   useGetOSCTunnelsQuery,
-  useGetUdpClientsQuery,
+  useGetUdpServersQuery,
   useSaveConfigMutation,
 } from '../api/configSlice';
 import useToast from './useToast';
@@ -20,8 +20,8 @@ export default function useConfig() {
     };
   }
 
-  function getUdpClients() {
-    const { data, isLoading, error } = useGetUdpClientsQuery(null);
+  function getUdpServers() {
+    const { data, isLoading, error } = useGetUdpServersQuery(null);
     return {
       data,
       isLoading,
@@ -59,7 +59,7 @@ export default function useConfig() {
 
   return {
     getConfig,
-    getUdpClients,
+    getUdpServers,
     getOSCTunnels,
     getSaveConfig,
   };

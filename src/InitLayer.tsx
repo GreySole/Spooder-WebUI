@@ -1,7 +1,13 @@
 import React from 'react';
 import useServer from './app/hooks/useServer';
 import App from './ui/app/App';
-import { OscProvider, ThemeProvider } from '@greysole/spooder-component-library';
+import {
+  Box,
+  OscProvider,
+  Stack,
+  ThemeProvider,
+  TypeFace,
+} from '@greysole/spooder-component-library';
 import './ui/common/css/core/index.scss';
 
 export default function InitLayer() {
@@ -10,12 +16,16 @@ export default function InitLayer() {
 
   if (error) {
     return (
-      <div className='App'>
-        <div className='locals-only'>
-          <h1 className='App-title'>/╲/\( ºx ω xº )/\╱\</h1>
-          <h1>Can't connect to Spooder. Is it on?</h1>
-        </div>
-      </div>
+      <Box width='100vw' height='100dvh' justifyContent='center' alignItems='center'>
+        <Stack spacing='medium'>
+          <TypeFace fontSize='3rem' textAlign='center'>
+            /╲/\( ºx ω xº )/\╱\
+          </TypeFace>
+          <TypeFace fontSize='large' textAlign='center'>
+            Can't connect to Spooder. Is it on?
+          </TypeFace>
+        </Stack>
+      </Box>
     );
   }
 

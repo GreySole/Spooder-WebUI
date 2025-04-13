@@ -14,8 +14,8 @@ export default function ConfigNetworkSection() {
       <Stack spacing='medium' padding='medium'>
         <FormTextInput formKey={`${baseFormKey}.host`} label='Hosting IP' />
         <FormTextInput formKey={`${baseFormKey}.host_port`} label='Hosting Port' />
-        <FormNumberInput formKey={`${baseFormKey}.osc_udp_port`} label='OSC UDP Port' />
-        <FormNumberInput formKey={`${baseFormKey}.osc_tcp_port`} label='OSC TCP Port' />
+        <FormNumberInput formKey={`${baseFormKey}.osc.osc_udp_port`} label='OSC UDP Port' />
+        <FormNumberInput formKey={`${baseFormKey}.osc.osc_tcp_port`} label='OSC TCP Port' />
       </Stack>
     </Expandable>
   );

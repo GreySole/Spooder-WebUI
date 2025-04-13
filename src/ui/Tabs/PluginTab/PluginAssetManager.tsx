@@ -157,7 +157,7 @@ export default function PluginAssetManager(props: PluginComponentProps) {
           ]}
         />
         <TypeFace fontSize='large'>{plugin.assetBrowserPath}</TypeFace>
-        <Box classes={['asset-select']} justifyContent='space-between' alignItems='center'>
+        <Box className='asset-select' justifyContent='space-between' alignItems='center'>
           <Box width='50%' height='100%' flexFlow='column'>
             {folderTable}
             {fileTable}

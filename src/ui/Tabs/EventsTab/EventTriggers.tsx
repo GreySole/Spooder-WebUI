@@ -21,13 +21,13 @@ export default function EventTriggers(props: EventTriggersProps) {
   for (const t in eventTriggers) {
     switch (t) {
       case 'chat':
-        triggerElements.push(<ChatTrigger eventName={eventName} />);
+        triggerElements.push(<ChatTrigger key={`chat-${eventName}`} eventName={eventName} />);
         break;
       case 'osc':
-        triggerElements.push(<OSCTrigger eventName={eventName} />);
+        triggerElements.push(<OSCTrigger key={`osc-${eventName}`} eventName={eventName} />);
         break;
       case 'twitch':
-        triggerElements.push(<TwitchTrigger eventName={eventName} />);
+        triggerElements.push(<TwitchTrigger key={`twitch-${eventName}`} eventName={eventName} />);
         break;
     }
   }

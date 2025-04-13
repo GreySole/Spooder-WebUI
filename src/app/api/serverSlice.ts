@@ -13,8 +13,15 @@ export const serverApi = createApi({
     getSystemStatus: builder.query({
       query: () => '/status',
     }),
+    getPublicUrl: builder.query({
+      query: () => '/public_url',
+    }),
   }),
 });
 
-export const { useGetServerStateQuery, useGetMonitorLogsQuery, useGetSystemStatusQuery } =
-  serverApi;
+export const {
+  useGetServerStateQuery,
+  useGetMonitorLogsQuery,
+  useGetSystemStatusQuery,
+  useGetPublicUrlQuery,
+} = serverApi;

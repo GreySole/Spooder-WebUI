@@ -13,13 +13,13 @@ export default function Header() {
   const { isMobileDevice } = useTheme();
   return (
     <Box
-      classes={[`top-header ${toastType} ${toastOpen ? 'toast-open' : ''}`]}
+      className={`top-header ${toastType} ${toastOpen ? 'toast-open' : ''}`}
       width='100%'
       flexFlow='column'
       justifyContent='center'
     >
       <Box
-        classes={['navigation-bar']}
+        className='navigation-bar'
         flexFlow='row nowrap'
         width='100%'
         justifyContent='space-between'

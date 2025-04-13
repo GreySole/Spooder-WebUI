@@ -16,6 +16,7 @@ import {
   TypeFace,
   useTheme,
   Modal,
+  ImageIcon,
 } from '@greysole/spooder-component-library';
 import { PluginComponentProps } from '../../Types';
 import { usePluginContext } from './context/PluginTabFormContext';
@@ -88,7 +89,7 @@ export default function PluginEntry(props: PluginComponentProps) {
         >
           <Columns spacing='medium' padding='small'>
             {plugin.status === 'ok' ? (
-              <ImageFile
+              <ImageIcon
                 src={window.location.origin + '/icons/' + pluginName + '.png'}
                 fallbackIcon={faPlug}
                 width='100px'

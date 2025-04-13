@@ -13,9 +13,9 @@ export default function SubExpandable(props: ExpandableProps) {
   const { label, triggerIcons, children } = props;
   const [open, setOpen] = useState<boolean>(false);
   return (
-    <Box classes={['expandable', 'event', open ? 'open' : '']} marginTop='small' flexFlow='column'>
+    <Box className={`expandable event ${open ? 'open' : ''}`} marginTop='small' flexFlow='column'>
       <Box
-        classes={['expandable-header']}
+        className='expandable-header'
         justifyContent='space-between'
         alignItems='center'
         padding='medium'

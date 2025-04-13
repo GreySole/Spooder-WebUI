@@ -7,12 +7,12 @@ import {
 } from '@greysole/spooder-component-library';
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
+import HostingHandle from './publicHosting/HostingHandle';
 
 export default function ExternalHandleSection() {
   const { watch } = useFormContext();
   const baseFormKey = 'network';
   const externalHandle = watch(`${baseFormKey}.externalhandle`, 'ngrok');
-  const externalHTTPUrl = watch(`${baseFormKey}.external_http_url`, '');
   return (
     <Expandable label='Public Hosting'>
       <Stack spacing='medium' padding='medium'>
@@ -20,19 +20,26 @@ export default function ExternalHandleSection() {
           label='External Handle'
           formKey={`${baseFormKey}.externalhandle`}
           options={[
-            { label: 'Ngrok', value: 'ngrok' },
-            { label: 'Custom', value: 'manual' },
+            {
+              label: 'Disabled',
+              value: 'disabled',
+            },
+
+            {
+              label: 'Ngrok',
+              value: 'ngrok',
+            },
+            {
+              label: 'Motherwolf (BETA)',
+              value: 'motherwolf',
+            },
+            {
+              label: 'Manual',
+              value: 'manual',
+            },
           ]}
         />
-        {externalHandle === 'ngrok' ? (
-          <FormTextInput formKey={`${baseFormKey}.ngrokauthtoken`} />
-        ) : (
-          <>
-            <FormTextInput formKey={`${baseFormKey}.external_http_url`} />
-            <FormTextInput formKey={`${baseFormKey}.external_tcp_url`} />
-          </>
-        )}
-        <LinkButton label={'Copy Mod URL'} mode='copy' link={externalHTTPUrl + '/mod'} />
+        <HostingHandle />
       </Stack>
     </Expandable>
   );

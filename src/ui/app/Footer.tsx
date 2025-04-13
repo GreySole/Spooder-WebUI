@@ -18,7 +18,7 @@ export function Footer({ children, showFooter }: FooterProps) {
       in={showFooter}
       timeout={300}
     >
-      <Box ref={ref} classes={['footer']} width='100%' height='var(--footer-height)'>
+      <Box ref={ref} className='footer' width='100%' height='var(--footer-height)'>
         {children}
       </Box>
     </CSSTransition>

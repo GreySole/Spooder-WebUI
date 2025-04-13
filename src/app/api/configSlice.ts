@@ -7,7 +7,7 @@ export const configApi = createApi({
     getConfig: builder.query({
       query: () => '/config/server_config',
     }),
-    getUdpClients: builder.query({
+    getUdpServers: builder.query({
       query: () => '/config/udp_clients',
     }),
     getOSCTunnels: builder.query({
@@ -38,7 +38,7 @@ export const configApi = createApi({
 
 export const {
   useGetConfigQuery,
-  useGetUdpClientsQuery,
+  useGetUdpServersQuery,
   useSaveConfigMutation,
   useGetOSCTunnelsQuery,
   useSaveOSCTunnelsMutation,

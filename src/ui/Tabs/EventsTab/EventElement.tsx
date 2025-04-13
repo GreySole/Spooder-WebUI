@@ -6,13 +6,13 @@ import {
   faSquarePen,
 } from '@fortawesome/free-solid-svg-icons';
 import {
-  getIcon,
   Border,
   Box,
   Columns,
   TypeFace,
   ButtonRow,
   useTheme,
+  Icon,
 } from '@greysole/spooder-component-library';
 import { useFormContext } from 'react-hook-form';
 import { StyleSize } from '../../Types';
@@ -50,15 +50,15 @@ export default function EventElement(props: EventElementProps) {
 
   let triggerIcons = [];
   if (eventTriggers.chat?.enabled) {
-    triggerIcons.push(getIcon(faCommentDots, true, StyleSize.xlarge));
+    triggerIcons.push(<Icon icon={faCommentDots} iconSize='xlarge' />);
   }
 
   if (eventTriggers.twitch?.enabled) {
-    triggerIcons.push(getIcon(TwitchIcon, true, StyleSize.xlarge));
+    triggerIcons.push(<Icon icon={TwitchIcon} iconSize='xlarge' />);
   }
 
   if (eventTriggers.osc?.enabled) {
-    triggerIcons.push(getIcon(faNetworkWired, true, StyleSize.xlarge));
+    triggerIcons.push(<Icon icon={faNetworkWired} iconSize='xlarge' />);
   }
   const eventKey = buildEventKey(eventName);
   const nameKey = buildKey(eventKey, 'name');
@@ -67,7 +67,7 @@ export default function EventElement(props: EventElementProps) {
   return (
     <Border borderBottom>
       <Box
-        classes={['expandable-header']}
+        className='expandable-header'
         justifyContent='space-between'
         flexFlow={isMobileDevice ? 'column' : 'row'}
         alignItems='center'

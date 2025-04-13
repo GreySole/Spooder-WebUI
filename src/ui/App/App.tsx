@@ -55,17 +55,6 @@ export default function App() {
     );
   }
 
-  if (serverData.stateLoaded == false) {
-    return (
-      <div className='App'>
-        <div className='locals-only'>
-          <h1 className='App-title'>/╲/\( ºO ω Oº )/\╱\</h1>
-          <h1>Loading...</h1>
-        </div>
-      </div>
-    );
-  }
-
   let tabContent = <div>404</div>;
   switch (currentTab) {
     case 'dashboard':

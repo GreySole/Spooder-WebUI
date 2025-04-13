@@ -65,7 +65,7 @@ export default function EventTable() {
       groupObjects[groupName] = [];
     }
 
-    groupObjects[groupName].push(<EventElement key={s} eventName={s} />);
+    groupObjects[groupName].push(<EventElement key={`event-${s}`} eventName={s} />);
   }
 
   const groupKeys = Object.keys(groupObjects).sort();
@@ -76,7 +76,11 @@ export default function EventTable() {
     }
 
     return (
-      <Expandable label={groupName} forceOpen={searchEnabled || filterEnabled}>
+      <Expandable
+        key={`group-${groupName}`}
+        label={groupName}
+        forceOpen={searchEnabled || filterEnabled}
+      >
         <Box flexFlow='column'>
           <AddEventInput groupName={groupName} />
           {groupObjects[groupName]}

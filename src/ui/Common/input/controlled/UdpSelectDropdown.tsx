@@ -10,8 +10,8 @@ interface UdpSelectDropdownProps {
 
 export default function UdpSelectDropdown(props: UdpSelectDropdownProps) {
   const { label, value, onChange } = props;
-  const { getUdpClients } = useConfig();
-  const { data: udpClients, isLoading, error } = getUdpClients();
+  const { getUdpServers } = useConfig();
+  const { data: udpServers, isLoading, error } = getUdpServers();
   if (isLoading || error) {
     return null;
   }
@@ -21,9 +21,9 @@ export default function UdpSelectDropdown(props: UdpSelectDropdownProps) {
     { label: 'All', value: '-2' },
   ];
 
-  for (let u in udpClients) {
+  for (let u in udpServers) {
     udpOptions.push({
-      label: udpClients[u],
+      label: udpServers[u],
       value: u,
     });
   }

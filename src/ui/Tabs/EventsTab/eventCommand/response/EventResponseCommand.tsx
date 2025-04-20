@@ -25,7 +25,7 @@ export default function EventResponseCommand(props: EventCommandProps) {
   const eType = watch(eTypeFormKey, 'oneshot');
 
   return (
-    <Stack spacing='medium' padding='medium'>
+    <Stack spacing='medium'>
       <FormSelectDropdown
         formKey={eTypeFormKey}
         label='Type'

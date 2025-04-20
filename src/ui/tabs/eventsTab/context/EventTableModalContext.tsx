@@ -14,10 +14,6 @@ interface EventModalContextProps {
   setEventName: (eventName: string) => void;
   eventName: string;
   isOpen: boolean;
-  showTimelineButton: boolean;
-  setShowTimelineButton: (isShowing: boolean) => void;
-  onTimelineButtonClick: () => void;
-  setOnTimelineButtonClick: (onTimelineButtonClick: () => void) => void;
 }
 
 const EventTableModalContext = createContext<EventModalContextProps | undefined>(undefined);
@@ -25,8 +21,6 @@ const EventTableModalContext = createContext<EventModalContextProps | undefined>
 export function EventTableModalProvider() {
   const [isOpen, setIsOpen] = useState(false);
   const [eventName, setEventName] = useState('');
-  const [showTimelineButton, setShowTimelineButton] = useState(false);
-  const [onTimelineButtonClick, setOnTimelineButtonClick] = useState(() => () => {});
 
   const openModal = () => {
     setIsOpen(true);
@@ -43,10 +37,6 @@ export function EventTableModalProvider() {
         isOpen,
         setEventName,
         eventName,
-        setOnTimelineButtonClick,
-        showTimelineButton,
-        setShowTimelineButton,
-        onTimelineButtonClick,
       }}
     >
       <EventTableModal />

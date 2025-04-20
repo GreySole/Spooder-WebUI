@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import ModuleWrapper from './moduleTab/ModuleWrapper';
 import React from 'react';
-import { Box, Button } from '@greysole/spooder-component-library';
+import { Box, Button, Stack } from '@greysole/spooder-component-library';
 import { DiscordIcon, TwitchIcon } from '../common/icons/icons';
+import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 
 export default function ModuleTab() {
   const [module, setModule] = useState('');
@@ -52,9 +53,16 @@ export default function ModuleTab() {
       />
     </Box>
   ) : (
-    <Box flexFlow='column'>
-      <Button label='Back' onClick={resetModuleSelection} />
+    <Stack spacing='medium' padding='medium'>
+      <Box>
+        <Button
+          label='Back'
+          icon={faArrowLeft}
+          iconPosition='left'
+          onClick={resetModuleSelection}
+        />
+      </Box>
       <ModuleWrapper module={module} />
-    </Box>
+    </Stack>
   );
 }

@@ -55,8 +55,8 @@ export default function EventCommand(props: EventCommandProps) {
   }
 
   return (
-    <Box flexFlow='column'>
-      <Box flexFlow='row' justifyContent='space-between'>
+    <Box width='100%' flexFlow='column' paddingBottom='medium'>
+      <Box width='100%' flexFlow='row' justifyContent='space-between'>
         <TypeFace fontSize='large'>{commandTypeName}</TypeFace>
         <Button
           label='Delete Command'
@@ -66,7 +66,7 @@ export default function EventCommand(props: EventCommandProps) {
           }}
         />
       </Box>
-      {element}
+      <Box marginTop='medium'>{element}</Box>
     </Box>
   );
 }

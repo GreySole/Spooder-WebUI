@@ -39,17 +39,15 @@ export default function OSCTriggerCondition(props: TriggerCondition) {
             { value: OSCConditionType.lessThan, label: 'Less than' },
           ]}
         />
-        <FormTextInput formKey={valueKey} />
+        <FormTextInput width='100%' formKey={valueKey} />
       </Stack>
-      <Box height='50px'>
-        <Button
-          iconSize='25px'
-          icon={faTrash}
-          onClick={() => {
-            deleteCondition(conditionIndex);
-          }}
-        />
-      </Box>
+      <Button
+        iconSize='large'
+        icon={faTrash}
+        onClick={() => {
+          deleteCondition(conditionIndex);
+        }}
+      />
     </Box>
   );
 }

@@ -6,7 +6,7 @@ import {
   LinkButton,
   useTheme,
   Border,
-  ImageIcon,
+  Icon,
 } from '@greysole/spooder-component-library';
 import React, { useState } from 'react';
 import { useFormContext } from 'react-hook-form';
@@ -34,12 +34,7 @@ export default function ShareEntry(props: ShareEntryProps) {
       <Box className='share-entry' key={shareKey} flexFlow='column'>
         <Box justifyContent='space-between'>
           <Box flexFlow={isMobileDevice ? 'column' : 'row'} alignItems='center' width='100%'>
-            <ImageIcon
-              src={share.streamPlatforms.twitch.profilePic}
-              width='100px'
-              height='100px'
-              clip='circle'
-            />
+            <Icon icon={share.streamPlatforms.twitch.profilePic} iconSize='100px' clip='circle' />
             <Box flexFlow='column' margin='small' marginLeft='medium'>
               <Stack spacing='small'>
                 <ShareCategoryButtonRow

@@ -36,18 +36,20 @@ export default function AddUdpServer() {
   return (
     <Stack width='100%' spacing='medium' padding='medium'>
       <TextInput
+        width='10rem'
         label='Name:'
         value={name}
         onInput={(value) => setName(value)}
         placeholder='Display Name'
       />
       <TextInput
+        width='10rem'
         label='IP:'
         value={ip}
         onInput={(value) => setIp(value)}
         placeholder='Client local IP'
       />
-      <NumberInput label='Port:' value={port} onInput={(value) => setPort(value)} />
+      <NumberInput width='8rem' label='Port:' value={port} onInput={(value) => setPort(value)} />
       <Box width='100%' justifyContent='right'>
         <Button label='Add UDP Server' onClick={() => addUdpServer()} />
       </Box>

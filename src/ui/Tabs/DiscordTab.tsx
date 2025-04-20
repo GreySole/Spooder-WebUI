@@ -3,7 +3,7 @@ import useDiscord from '../../app/hooks/useDiscord';
 import DiscordConfig from './discordTab/input/DiscordConfig';
 import DiscordLoginSettings from './discordTab/input/DiscordLoginSettings';
 import DiscordTabFormContextProvider from './discordTab/context/DiscordTabFormContext';
-import { CircleLoader, SaveButton } from '@greysole/spooder-component-library';
+import { Box, CircleLoader, SaveButton, Stack } from '@greysole/spooder-component-library';
 
 export default function DiscordTab() {
   const { getDiscordConfig, getSaveDiscordConfig } = useDiscord();
@@ -23,12 +23,14 @@ export default function DiscordTab() {
   }
 
   return (
-    <div className='config-discord'>
+    <Stack spacing='medium'>
       <DiscordTabFormContextProvider discordConfig={discordData}>
         <DiscordLoginSettings />
         <DiscordConfig />
-        <SaveButton saveFunction={saveDiscordConfig} />
+        <Box justifyContent='flex-end'>
+          <SaveButton saveFunction={saveDiscordConfig} />
+        </Box>
       </DiscordTabFormContextProvider>
-    </div>
+    </Stack>
   );
 }

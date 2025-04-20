@@ -16,13 +16,15 @@ export default function ConfigTab() {
 
   return (
     <Box flexFlow='column' width='inherit' marginBottom='var(--footer-height)'>
-      <Stack width='inherit' spacing='medium'>
+      <Stack width='100%' spacing='none'>
         <ConfigTabFormContextProvider defaultConfig={data}>
           <ConfigForm />
         </ConfigTabFormContextProvider>
-        <Expandable label='Backup/Restore'>
-          <BackupRestore />
-        </Expandable>
+        <Stack spacing='none' paddingLeft='medium' paddingRight='medium'>
+          <Expandable label='Backup/Restore'>
+            <BackupRestore />
+          </Expandable>
+        </Stack>
       </Stack>
     </Box>
   );

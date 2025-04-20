@@ -8,9 +8,5 @@ interface DiscordAutoSendNgrokProps {
 export default function DiscordAutoSendNgrok(props: DiscordAutoSendNgrokProps) {
   const { formKey } = props;
 
-  return (
-    <div className='config-variable'>
-      <FormDiscordChannelSelect formKey={`${formKey}.autosendngrok`} />
-    </div>
-  );
+  return <FormDiscordChannelSelect formKey={`${formKey}.autosendngrok`} />;
 }

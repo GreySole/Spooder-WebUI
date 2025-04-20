@@ -6,7 +6,7 @@ export const twitchApi = createApi({
   baseQuery: fetchBaseQuery({ baseUrl: window.location.origin + '/twitch' }),
   endpoints: (builder) => ({
     getEventSubs: builder.query({
-      query: () => '/eventsubs',
+      query: () => '/get_eventsubs',
     }),
     getAvailableEventSubs: builder.query({
       query: () => '/get_available_eventsubs',

@@ -8,8 +8,7 @@ import EventSaveButton from '../EventSaveButton';
 import { faTimeline } from '@fortawesome/free-solid-svg-icons';
 
 export default function EventTableModal() {
-  const { eventName, isOpen, close, showTimelineButton, onTimelineButtonClick } =
-    useEventTableModal();
+  const { eventName, isOpen, close } = useEventTableModal();
 
   return (
     <MultiPageModal
@@ -25,19 +24,7 @@ export default function EventTableModal() {
           content: <EventCommands eventName={eventName} />,
         },
       ]}
-      footerContent={
-        <Columns spacing='small' padding='small'>
-          {showTimelineButton ? (
-            <Button
-              width='4rem'
-              icon={faTimeline}
-              iconSize='large'
-              onClick={onTimelineButtonClick}
-            />
-          ) : null}
-          <EventSaveButton />
-        </Columns>
-      }
+      headerContent={<EventSaveButton />}
       isOpen={isOpen}
       onClose={close}
     />

@@ -1,5 +1,4 @@
 import React from 'react';
-import { useFormContext } from 'react-hook-form';
 import useTwitch from '../../../../../app/hooks/useTwitch';
 import { buildKey, buildTriggerKey } from '../../FormKeys';
 import { EventTriggerProps } from '../../../../Types';
@@ -9,6 +8,7 @@ import {
   FormLoader,
   FormSelectDropdown,
   Stack,
+  useTheme,
 } from '@greysole/spooder-component-library';
 
 interface ChannelPointReward {
@@ -20,6 +20,7 @@ interface ChannelPointReward {
 export default function TwitchTriggerTypeReward(props: EventTriggerProps) {
   const { eventName } = props;
   const { getChannelPointRewards } = useTwitch();
+  const { isMobileDevice } = useTheme();
   const {
     data: channelPointRewards,
     isLoading: channelPointRewardsLoading,
@@ -45,7 +46,12 @@ export default function TwitchTriggerTypeReward(props: EventTriggerProps) {
   return (
     <Box width='100%' flexFlow='column'>
       <Stack spacing='small'>
-        <FormSelectDropdown label='Reward:' formKey={idKey} options={rewardOptions} />
+        <FormSelectDropdown
+          width={isMobileDevice ? '100%' : undefined}
+          label='Reward:'
+          formKey={idKey}
+          options={rewardOptions}
+        />
         <FormBoolSwitch label='Override Approval (Refundable):' formKey={overrideKey} />
       </Stack>
     </Box>

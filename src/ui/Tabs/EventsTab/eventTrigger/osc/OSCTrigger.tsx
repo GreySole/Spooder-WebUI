@@ -55,7 +55,7 @@ export default function OSCTrigger(props: EventTriggerProps) {
               { value: 'search', label: 'Search String' },
             ]}
           />
-          <FormTextInput label='Address: ' formKey={addressKey} />
+          <FormTextInput width='100%' label='Address: ' formKey={addressKey} />
           <OSCTriggerConditions eventName={eventName} />
         </Stack>
       </Box>

@@ -29,12 +29,16 @@ export default function EditUdpServer(props: EditUdpServerProps) {
   return (
     <Border borderBottom>
       <Box flexFlow='row' justifyContent='space-between' alignItems='center'>
-        <Stack spacing='small'>
+        <Stack width='80%' spacing='small'>
           <TypeFace fontSize='large'>{formKey}</TypeFace>
-          <Columns spacing='medium' overflow='auto'>
-            <FormTextInput label='Name:' formKey={`${baseFormKey}.${formKey}.name`} />
-            <FormTextInput label='IP:' formKey={`${baseFormKey}.${formKey}.ip`} />
-            <FormNumberInput label='Port:' formKey={`${baseFormKey}.${formKey}.port`} />
+          <Columns width='100%' spacing='medium' overflow='auto'>
+            <FormTextInput width='10rem' label='Name:' formKey={`${baseFormKey}.${formKey}.name`} />
+            <FormTextInput width='10rem' label='IP:' formKey={`${baseFormKey}.${formKey}.ip`} />
+            <FormNumberInput
+              width='8rem'
+              label='Port:'
+              formKey={`${baseFormKey}.${formKey}.port`}
+            />
           </Columns>
         </Stack>
 

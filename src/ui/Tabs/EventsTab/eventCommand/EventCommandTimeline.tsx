@@ -74,7 +74,7 @@ export default function EventCommandTimeline(props: EventCommandTimelineProps) {
   }
 
   return (
-    <>
+    <Box flexFlow='column' width='100%' height='100%'>
       <Timeline
         editorData={timelineData}
         effects={timelineEffectData}
@@ -141,6 +141,6 @@ export default function EventCommandTimeline(props: EventCommandTimelineProps) {
         }}
       />
       {timelineZoomSlider}
-    </>
+    </Box>
   );
 }

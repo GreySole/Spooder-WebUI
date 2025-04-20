@@ -3,12 +3,13 @@ import { useFormContext } from 'react-hook-form';
 import useTwitch from '../../../../../app/hooks/useTwitch';
 import { EventTriggerProps } from '../../../../Types';
 import { buildTriggerKey, buildKey } from '../../FormKeys';
-import { FormSelectDropdown } from '@greysole/spooder-component-library';
+import { FormSelectDropdown, useTheme } from '@greysole/spooder-component-library';
 
 export default function TwitchTriggerType(props: EventTriggerProps) {
   const { eventName } = props;
   const { watch, register } = useFormContext();
   const { getAvailableEventSubs } = useTwitch();
+  const { isMobileDevice } = useTheme();
 
   const twitchTriggerKey = buildTriggerKey(eventName, 'twitch');
   const typeKey = buildKey(twitchTriggerKey, 'type');
@@ -32,5 +33,12 @@ export default function TwitchTriggerType(props: EventTriggerProps) {
     eventsubOptions.push({ value: e, label: eventsubTypes[e] });
   }
 
-  return <FormSelectDropdown label='Type:' formKey={typeKey} options={eventsubOptions} />;
+  return (
+    <FormSelectDropdown
+      width={isMobileDevice ? '100%' : undefined}
+      label='Type:'
+      formKey={typeKey}
+      options={eventsubOptions}
+    />
+  );
 }

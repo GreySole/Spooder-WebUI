@@ -22,25 +22,17 @@ export default function EventGeneral(props: EventGeneralProps) {
 
   const eventKey = buildEventKey(eventName);
   const nameKey = buildKey(eventKey, 'name');
-  const name = watch(nameKey);
   const descriptionKey = buildKey(eventKey, 'description');
   const groupKey = buildKey(eventKey, 'group');
   const cooldownKey = buildKey(eventKey, 'cooldown');
-  const chatNotificationKey = buildKey(eventKey, 'chatnotification');
-  const cooldownNotificationKey = buildKey(eventKey, 'cooldownnotification');
 
   return (
     <Stack spacing='medium' paddingTop='medium'>
       <TypeFace>Internal Name: {eventName}</TypeFace>
       <FormTextInput label='Name:' formKey={nameKey} />
       <FormTextInput label='Description:' formKey={descriptionKey} />
-      <FormSelectDropdown label='Event Type:' formKey={groupKey} options={groupOptions} />
-      <FormNumberInput label='Duration (Seconds):' formKey={cooldownKey} />
-      <FormBoolSwitch label='Notify Activation in Chat:' formKey={chatNotificationKey} />
-      <FormBoolSwitch
-        label='Tell How Much Time Left for Cooldown:'
-        formKey={cooldownNotificationKey}
-      />
+      <FormSelectDropdown label='Group:' formKey={groupKey} options={groupOptions} />
+      <FormNumberInput label='Cooldown (Seconds):' formKey={cooldownKey} />
     </Stack>
   );
 }

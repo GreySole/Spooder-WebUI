@@ -4,12 +4,8 @@ import React from 'react';
 export default function DiscordLoginSettings() {
   return (
     <>
-      <div className='config-variable'>
-        <FormTextInput formKey={`master`} label='Master User ID' />
-      </div>
-      <div className='config-variable'>
-        <FormTextInput formKey={`token`} label='Bot Token' password />
-      </div>
+      <FormTextInput formKey={`master`} label='Master User ID' />
+      <FormTextInput formKey={`token`} label='Bot Token' password />
     </>
   );
 }

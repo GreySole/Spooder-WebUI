@@ -12,7 +12,7 @@ export default function UdpServerSection() {
   return (
     <Expandable label='UDP Servers'>
       <Box flexFlow='column' padding='medium'>
-        <Stack spacing='medium' marginTop='medium' padding='medium'>
+        <Stack width='100%' spacing='medium' marginTop='medium' padding='medium'>
           {Object.keys(udpServers).map((key) => (
             <EditUdpServer formKey={key} key={key} />
           ))}

@@ -49,7 +49,7 @@ export default function EventPluginCommand(props: EventCommandProps) {
   }
 
   return (
-    <Stack spacing='small' margin='small'>
+    <Stack spacing='small'>
       <FormSelectDropdown formKey={pluginNameFormKey} label='Plugin:' options={pluginOptions} />
       <FormSelectDropdown
         formKey={eventTypeFormKey}

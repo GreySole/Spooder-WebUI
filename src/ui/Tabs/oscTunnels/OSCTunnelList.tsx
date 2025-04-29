@@ -6,11 +6,12 @@ import { KeyedObject } from '../../Types';
 import {
   FormLoader,
   Border,
-  Columns,
   Stack,
   TypeFace,
   FormSelectDropdown,
   FormTextInput,
+  Box,
+  useTheme,
 } from '@greysole/spooder-component-library';
 import AddTunnelForm from './AddTunnelForm';
 import DeleteOSCTunnelButton from './DeleteOSCTunnelButton';
@@ -19,6 +20,7 @@ export default function OSCTunnelList() {
   const { getUdpServers } = useConfig();
   const { getPlugins } = usePlugins();
   const { watch, setValue, getValues } = useFormContext();
+  const { isMobileDevice } = useTheme();
   const tunnels = watch();
 
   const { data: plugins, isLoading: pluginsLoading, error: pluginsError } = getPlugins();
@@ -56,11 +58,12 @@ export default function OSCTunnelList() {
 
   for (let s in tunnels) {
     table.push(
-      <Border borderWidth='2px' borderColor='grey' borderBottom key={s}>
-        <Columns spacing='medium' padding='small'>
-          <Stack spacing='medium'>
-            <TypeFace fontSize='medium'>{s}</TypeFace>
+      <Border key={s} borderBottom>
+        <Box width='100%' padding='small' justifyContent='space-between' alignItems='center'>
+          <Stack width='100%' spacing='medium' paddingRight='medium'>
+            <TypeFace fontSize='xlarge'>{s}</TypeFace>
             <FormSelectDropdown
+              width={isMobileDevice ? '100%' : undefined}
               formKey={`${s}.handlerFrom`}
               label='Handler From'
               options={[
@@ -69,6 +72,7 @@ export default function OSCTunnelList() {
               ]}
             />
             <FormSelectDropdown
+              width={isMobileDevice ? '100%' : undefined}
               formKey={`${s}.handlerTo`}
               label='Handler To'
               options={[
@@ -78,22 +82,38 @@ export default function OSCTunnelList() {
               ]}
             />
             {tunnels[s]['handlerTo'] == 'udp' ? (
-              <FormSelectDropdown formKey={`${s}.clientTo`} options={clientTable} />
+              <FormSelectDropdown
+                width={isMobileDevice ? '100%' : undefined}
+                formKey={`${s}.clientTo`}
+                options={clientTable}
+              />
             ) : null}
             {tunnels[s]['handlerTo'] == 'plugin' ? (
-              <FormSelectDropdown formKey={`${s}.clientTo`} options={pluginTable} />
+              <FormSelectDropdown
+                width={isMobileDevice ? '100%' : undefined}
+                formKey={`${s}.clientTo`}
+                options={pluginTable}
+              />
             ) : null}
-            <FormTextInput formKey={`${s}.addressFrom`} label='Address From' />
-            <FormTextInput formKey={`${s}.addressTo`} label='Address To' />
+            <FormTextInput
+              width={isMobileDevice ? '100%' : undefined}
+              formKey={`${s}.addressFrom`}
+              label='Address From'
+            />
+            <FormTextInput
+              width={isMobileDevice ? '100%' : undefined}
+              formKey={`${s}.addressTo`}
+              label='Address To'
+            />
           </Stack>
           <DeleteOSCTunnelButton formKey={s} />
-        </Columns>
+        </Box>
       </Border>,
     );
   }
 
   return (
-    <Stack spacing='medium'>
+    <Stack width='100%' spacing='medium'>
       {table}
       <AddTunnelForm onAddOSCTunnel={(newTunnels) => onAddOSCTunnel(newTunnels)} />
     </Stack>

@@ -57,7 +57,14 @@ export default function EventTable() {
       continue;
     }
 
-    if (searchEnabled && !s.startsWith(searchText) && !eventName.startsWith(searchText)) {
+    const internalEventName = eventName.toLowerCase().replace(/ /g, '');
+    const eventNameLower = eventName.toLowerCase().replace(/ /g, '');
+
+    if (
+      searchEnabled &&
+      !internalEventName.includes(searchText) &&
+      !eventNameLower.includes(searchText)
+    ) {
       continue;
     }
 

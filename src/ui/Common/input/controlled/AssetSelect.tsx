@@ -2,7 +2,7 @@ import { faFileImport } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import usePlugins from '../../../../app/hooks/usePlugins';
 import React, { useRef } from 'react';
-import { SelectDropdown } from '@greysole/spooder-component-library';
+import { Box, Button, SelectDropdown } from '@greysole/spooder-component-library';
 
 interface AssetSelectProps {
   label?: string;
@@ -29,8 +29,8 @@ export default function AssetSelect(props: AssetSelectProps) {
   const assetOptions = [{ label: 'None', value: '' }];
   for (let a in assets) {
     assetOptions.push({
-      label: assets[a],
-      value: a,
+      label: assets[a].substring(assets[a].lastIndexOf('/') + 1),
+      value: assets[a],
     });
   }
 
@@ -48,12 +48,11 @@ export default function AssetSelect(props: AssetSelectProps) {
   }
 
   return (
-    <label>
-      {label}
+    <Box>
       <SelectDropdown label={label} options={assetOptions} value={value} onChange={onChange} />
-      <button className='settings-form-asset-upload' onClick={handleClick}>
-        <FontAwesomeIcon icon={faFileImport} size='lg' />
-      </button>
+      <Box marginLeft='medium'>
+        <Button icon={faFileImport} onClick={handleClick} />
+      </Box>
       <input
         type='file'
         id={'input-file-' + label}
@@ -62,6 +61,6 @@ export default function AssetSelect(props: AssetSelectProps) {
         onChange={(e) => uploadAsset(e.target?.files)}
         style={{ display: 'none' }}
       />
-    </label>
+    </Box>
   );
 }

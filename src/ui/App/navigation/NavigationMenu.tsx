@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { ReactNode } from 'react';
 import useNavigation from '../../../app/hooks/useNavigation';
 import { faPlay, faStop } from '@fortawesome/free-solid-svg-icons';
 import {
@@ -25,15 +25,15 @@ export default function NavigationMenu() {
     return null;
   }
 
-  let shareElements = [] as React.JSX.Element[];
+  let shareElements = [] as ReactNode[];
   for (let s in shares) {
     shareElements.push(
       <Columns key={`mini-share-${s}`} spacing='medium' padding='medium'>
         <TypeFace fontSize='large'>{shares[s].name}</TypeFace>
         <Button
           label=''
-          icon={activeShares.includes(s) == false ? faPlay : faStop}
-          iconSize='lg'
+          icon={activeShares.twitch?.includes(s) ? faStop : faPlay}
+          iconSize='large'
           onClick={() => {}}
         />
       </Columns>,

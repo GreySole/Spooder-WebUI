@@ -131,8 +131,7 @@ export default function useEvents() {
   function getSaveEvents() {
     const [saveEventsMutation, { isLoading, isSuccess, error }] = useSaveEventsMutation();
     function saveEvents(form: FieldValues) {
-      const formData = convertReactFormToFormData(form);
-      saveEventsMutation(formData).then((response) => {
+      saveEventsMutation(form).then((response) => {
         showToast('Events Saved!', ToastType.SAVE);
       });
       console.log('SAVING', form);

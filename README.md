@@ -16,7 +16,7 @@ React Hook Form makes forms easy to build, but it is sensitive to component stru
 
 ## Leave form provider components alone
 
-Don't add modals or any components in the same component that returns the form provider
+Don't add modals or any components in the same component that returns the form provider. ALWAYS use the children prop!
 
 ## Watch your watch function usage
 

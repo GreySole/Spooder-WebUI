@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { faPlus, faTrash } from '@fortawesome/free-solid-svg-icons';
-import PluginInput from './PluginInput';
+import PluginInput from './pluginInput/PluginInput';
 import {
   translateCondition,
   SelectDropdown,
@@ -12,45 +12,43 @@ import {
 } from '@greysole/spooder-component-library';
 import { useFormContext } from 'react-hook-form';
 import { KeyedObject } from '../../../Types';
-import PluginMultiInput from './PluginMultiInput';
+import PluginMultiInput from './pluginInput/PluginMultiInput';
 import SubExpandable from '../../../common/input/general/SubExpandable';
+import { usePluginSettingsContext } from './context/PluginSettingsContext';
 
 interface PluginSubformProps {
   formKey: string;
-  pluginName: string;
-  label: string;
-  form: any;
-  defaults: any;
 }
 
 export default function PluginSubform(props: PluginSubformProps) {
-  const { formKey, pluginName, label, form, defaults } = props;
+  const { formKey } = props;
+  const { form, defaults } = usePluginSettingsContext();
   const [nameChanges, setNameChanges] = useState<KeyedObject>({});
-  const { watch, setValue } = useFormContext();
-  const values = watch(formKey);
-  console.log('SUBFORM', form, 'VALUES', values, 'DEFAULTS', defaults);
+  const { setValue, getValues } = useFormContext();
+  const subform = form[formKey].form;
+  const [clones, setClones] = useState({ ...getValues(formKey) });
+  const label = form[formKey].label;
 
   useEffect(() => {
     const newNames: KeyedObject = {};
-    for (let v in values) {
+    for (let v in clones) {
       newNames[v] = v;
     }
     setNameChanges(newNames);
-  }, []);
+  }, [clones]);
 
   const removeForm = (key: string) => {
-    const newValues = { ...values };
+    const newValues = { ...clones };
     delete newValues[key];
     setValue(formKey, newValues);
     const newNames = { ...nameChanges };
     delete newNames[key];
     setNameChanges(newNames);
+    setClones(newValues);
   };
 
   const addForm = () => {
-    const newValues = { ...values };
-    const defaultValue = { ...defaults };
-    delete defaultValue['keyname'];
+    const newValues = { ...clones };
     newValues['newform1'] = Object.assign({}, defaults[formKey]);
     console.log('DEFAULTS', defaults[formKey]);
     setValue(formKey, newValues);
@@ -58,57 +56,32 @@ export default function PluginSubform(props: PluginSubformProps) {
       ...nameChanges,
       newform1: 'newform1',
     });
+    setClones(newValues);
   };
 
   let subClones = [];
-  for (let se in values) {
+  for (let se in clones) {
     let subInputs = [];
-    for (let fe in form) {
+    for (let fe in subform) {
       if (fe === 'keyname') {
         continue;
       }
-      //console.log("SUBFORM", se, fe)
-      if (form[fe].showif) {
-        if (values[se][form[fe].showif.variable] != null) {
-          let variable = values[se][form[fe].showif.variable];
-          if (typeof variable == 'string') {
-            variable = "'" + variable + "'";
-          }
-          let value = form[fe].showif.value;
-          if (typeof value == 'string') {
-            value = "'" + value + "'";
-          }
-          //console.log("SHOW IF",""+variable+this.translateCondition(form[fe].showif.condition)+value, value);
-          if (!eval('' + variable + translateCondition(form[fe].showif.condition) + value)) {
-            //console.log("HIDE", se);
-            continue;
-          }
-        } else {
-          continue;
-        }
-      }
-      //console.log(this.state.default);
-      //console.log('SUB INPUT', `${formkey}.${fe}`, se);
       subInputs.push(
-        !form[fe]['multi-select'] ? (
+        !subform[fe]['multi-select'] ? (
           <PluginInput
             key={`${formKey}.${se}.${fe}`}
             formKey={`${formKey}.${se}.${fe}`}
-            pluginName={pluginName}
-            type={form[fe].type}
-            label={form[fe].label}
-            options={form[fe].options}
-            defaultValue={defaults[fe]}
+            type={subform[fe].type}
+            label={subform[fe].label}
+            options={subform[fe].options}
           />
         ) : (
           <PluginMultiInput
             key={`${formKey}.${se}.${fe}`}
             formKey={`${formKey}.${se}.${fe}`}
-            pluginName={pluginName}
-            type={form[fe].type}
-            label={form[fe].label}
-            options={form[fe].options}
-            defaultValue={defaults[fe]}
+            type={subform[fe].type}
+            label={subform[fe].label}
+            options={subform[fe].options}
           />
         ),
       );
@@ -116,30 +89,10 @@ export default function PluginSubform(props: PluginSubformProps) {
 
     let keyInput = undefined;
 
-    if (form.keyname.type === 'select') {
-      const optionArray = [{ label: 'None', value: '' }];
-
-      for (let o in form.keyname.options.selections) {
-        optionArray.push({ label: form.keyname.options?.selections[o], value: o });
-      }
-
-      keyInput = (
-        <SelectDropdown
-          label={form.keyname.label}
-          options={optionArray}
-          value={nameChanges[se]}
-          onChange={(value) => {
-            setNameChanges({
-              ...nameChanges,
-              [se]: value,
-            });
-          }}
-        />
-      );
-    } else {
+    if (!subform.keyname) {
       keyInput = (
         <TextInput
-          label={form.keyname.label}
+          label={'Key Name'}
           value={nameChanges[se]}
           onInput={(value) => {
             setNameChanges({
@@ -150,14 +103,52 @@ export default function PluginSubform(props: PluginSubformProps) {
           jsonFriendly
         />
       );
+    } else {
+      if (subform.keyname.type === 'select') {
+        const optionArray = [{ label: 'None', value: '' }];
+
+        for (let o in subform.keyname.options.selections) {
+          optionArray.push({ label: subform.keyname.options?.selections[o], value: o });
+        }
+
+        keyInput = (
+          <SelectDropdown
+            label={subform.keyname.label}
+            options={optionArray}
+            value={nameChanges[se]}
+            onChange={(value) => {
+              setNameChanges({
+                ...nameChanges,
+                [se]: value,
+              });
+            }}
+          />
+        );
+      } else {
+        keyInput = (
+          <TextInput
+            label={subform.keyname.label}
+            value={nameChanges[se]}
+            onInput={(value) => {
+              setNameChanges({
+                ...nameChanges,
+                [se]: value,
+              });
+            }}
+            jsonFriendly
+          />
+        );
+      }
     }
 
     subClones.push(
-      <SubExpandable label={nameChanges[se]} key={`${formKey}.${se}`}>
-        <Stack spacing='medium' padding='xsmall'>
+      <SubExpandable label={nameChanges[se]} key={`subelement-${formKey}.${se}`}>
+        <Stack width='100%' spacing='medium' padding='small'>
           {keyInput}
           {subInputs}
-          <Button icon={faTrash} onClick={() => removeForm(se)} />
+          <Box width='100%' justifyContent='flex-end'>
+            <Button icon={faTrash} onClick={() => removeForm(se)} />
+          </Box>
         </Stack>
       </SubExpandable>,
     );

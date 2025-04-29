@@ -14,7 +14,7 @@ import {
 import useConfig from '../../../app/hooks/useConfig';
 import { faUser } from '@fortawesome/free-solid-svg-icons';
 import BotAuthButton from './authManager/BotAuthButton';
-import BroadcasterAuthButton from './authManager/BotAuthButton copy';
+import BroadcasterAuthButton from './authManager/BroadcasterAuthButton';
 
 export default function TwitchAuthManager() {
   const { getRevokeToken, getLinkedAccounts, getTwitchConfig } = useTwitch();

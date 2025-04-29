@@ -6,7 +6,7 @@ import { FormSelectDropdown } from '@greysole/spooder-component-library';
 
 interface FormOBSChannelSelectProps {
   formKey: string;
-  label: string;
+  label?: string;
 }
 
 export default function FormOBSSceneItemSelect(props: FormOBSChannelSelectProps) {

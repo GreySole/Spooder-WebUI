@@ -12,7 +12,7 @@ export const eventApi = createApi({
     }),
     saveEvents: builder.mutation({
       query: (form) => ({
-        url: '/save_command_list',
+        url: '/save_events',
         method: 'post',
         body: form,
         headers: {

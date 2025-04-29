@@ -4,6 +4,7 @@ import {
   useGetGuildsQuery,
   useGetUserQuery,
   useSaveDiscordConfigMutation,
+  useVerifyDiscordTargetMutation,
 } from '../api/discordSlice';
 
 export default function useDiscord() {
@@ -34,6 +35,20 @@ export default function useDiscord() {
     };
   }
 
+  function getVerifyDiscordTarget() {
+    const [verifyDiscordTargetMutation, { data, isLoading, error }] =
+      useVerifyDiscordTargetMutation();
+    function verifyDiscordTarget() {
+      verifyDiscordTargetMutation(null);
+    }
+    return {
+      verifyDiscordTarget,
+      data,
+      isLoading,
+      error,
+    };
+  }
+
   function getSaveDiscordConfig() {
     const [saveDiscordConfigMutation, { isLoading, isSuccess, error }] =
       useSaveDiscordConfigMutation();
@@ -48,6 +63,7 @@ export default function useDiscord() {
     getDiscordGuilds,
     getDiscordConfig,
     getDiscordUser,
+    getVerifyDiscordTarget,
     getSaveDiscordConfig,
   };
 }

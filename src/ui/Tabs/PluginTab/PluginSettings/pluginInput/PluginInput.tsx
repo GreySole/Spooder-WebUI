@@ -6,39 +6,34 @@ import {
   FormTextInput,
   FormTextAreaInput,
   FormNumberInput,
+  translateCondition,
+  Box,
+  TypeFace,
 } from '@greysole/spooder-component-library';
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
-import FormOBSSceneItemSelect from '../../../common/input/form/FormOBSSceneItemSelect';
-import FormUdpSelectDropdown from '../../../common/input/form/FormUdpSelectDropdown';
-import { KeyedObject } from '../../../Types';
-import FormDiscordChannelSelect from '../../../common/input/form/FormDiscordChannelSelect';
-import FormEventSelect from '../../../common/input/form/FormEventSelect';
-import FormAssetSelect from '../../../common/input/form/FormAssetSelect';
-import FormCodeInput from '../../../common/input/form/FormCodeInput';
+import FormOBSSceneItemSelect from '../../../../common/input/form/FormOBSSceneItemSelect';
+import FormUdpSelectDropdown from '../../../../common/input/form/FormUdpSelectDropdown';
+import { KeyedObject } from '../../../../Types';
+import FormDiscordChannelSelect from '../../../../common/input/form/FormDiscordChannelSelect';
+import FormEventSelect from '../../../../common/input/form/FormEventSelect';
+import FormAssetSelect from '../../../../common/input/form/FormAssetSelect';
+import FormCodeInput from '../../../../common/input/form/FormCodeInput';
+import { usePluginSettingsContext } from '../context/PluginSettingsContext';
 
+//Added default values to be overridden by subforms
 interface PluginInputProps {
-  pluginName: string;
   formKey: string;
-  defaultValue: any;
   label: string;
   type: string;
   options: KeyedObject;
 }
 
 export default function PluginInput(props: PluginInputProps) {
-  const { pluginName, formKey, defaultValue, label, type, options } = props;
-  const { watch, register, setValue } = useFormContext();
-  const value = watch(formKey, defaultValue);
+  const { formKey, label, type, options } = props;
+  const { pluginName } = usePluginSettingsContext();
 
-  if (type == 'discord' && value === undefined) {
-    setValue(formKey, {
-      guild: '',
-      channel: '',
-    });
-  }
-
-  function getInput(type: string) {
+  function getInput(type?: string) {
     switch (type) {
       case 'boolean':
       case 'checkbox':
@@ -48,7 +43,7 @@ export default function PluginInput(props: PluginInputProps) {
       case 'select':
         const optionArray = [{ label: 'None', value: '' }];
 
-        for (let o in options.selections) {
+        for (let o in options?.selections) {
           optionArray.push({ label: options?.selections[o], value: o });
         }
 
@@ -91,10 +86,10 @@ export default function PluginInput(props: PluginInputProps) {
       case 'discord':
         return <FormDiscordChannelSelect formKey={formKey} label={label} />;
       default:
-        return <label>Invalid type: {type}</label>;
+        return <TypeFace>Invalid type: {type}</TypeFace>;
     }
   }
 
   const input = getInput(type);
-  return <div className={'settings-form-input ' + type}>{input}</div>;
+  return <Box>{input}</Box>;
 }

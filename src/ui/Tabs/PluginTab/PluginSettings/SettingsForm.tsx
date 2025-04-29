@@ -2,7 +2,9 @@ import React from 'react';
 import { PluginComponentProps } from '../../../Types';
 import usePlugins from '../../../../app/hooks/usePlugins';
 import { FormLoader } from '@greysole/spooder-component-library';
-import SettingsFormContext from './SettingsFormContext';
+import PluginSettingsContextProvider from './context/PluginSettingsContext';
+import SettingsFormContextProvider from './context/SettingsFormContext';
+import SettingsFormModal from './SettingsFormModal';
 
 export default function SettingsForm(props: PluginComponentProps) {
   const { pluginName } = props;
@@ -42,6 +44,10 @@ export default function SettingsForm(props: PluginComponentProps) {
   }
 
   return (
-    <SettingsFormContext pluginName={pluginName} values={values} form={form} defaults={defaults} />
+    <PluginSettingsContextProvider pluginName={pluginName} form={form} defaults={defaults}>
+      <SettingsFormContextProvider values={values}>
+        <SettingsFormModal />
+      </SettingsFormContextProvider>
+    </PluginSettingsContextProvider>
   );
 }

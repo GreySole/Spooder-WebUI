@@ -37,13 +37,14 @@ export default function ShareEntry(props: ShareEntryProps) {
             <Icon icon={share.streamPlatforms.twitch.profilePic} iconSize='100px' clip='circle' />
             <Box flexFlow='column' margin='small' marginLeft='medium'>
               <Stack spacing='small'>
+                <TypeFace fontSize='large'>{share.streamPlatforms.twitch.displayName}</TypeFace>
                 <ShareCategoryButtonRow
                   tab={tab}
                   setTab={setTab}
                   removeShareEntry={removeShareEntry}
                 />
+
                 <Columns spacing='medium' padding='small'>
-                  <TypeFace fontSize='large'>{share.streamPlatforms.twitch.displayName}</TypeFace>
                   <LinkButton
                     iconOnly={true}
                     mode='newtab'

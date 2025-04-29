@@ -10,18 +10,24 @@ interface ShareDiscordFormProps {
 
 export default function ShareDiscordForm(props: ShareDiscordFormProps) {
   const { shareKey } = props;
-  const { watch, setValue } = useFormContext();
-  const share = watch(shareKey);
+  const { watch, setValue, unregister } = useFormContext();
+  const userId = watch(`${shareKey}.notificationPlatforms.discord.userId`, null);
+  const username = watch(`${shareKey}.notificationPlatforms.discord.username`, null);
+
   const [addDiscordID, setAddDiscordID] = useState('');
   const [openAddDiscord, setOpenAddDiscord] = useState(false);
 
   const removeDiscord = () => {
-    setValue(`${shareKey}.notificationPlatforms.discord.userId`, null);
-    setValue(`${shareKey}.notificationPlatforms.discord.username`, null);
+    unregister(`${shareKey}.notificationPlatforms.discord`);
   };
-  if (share.notificationPlatforms.discord.userId == null && !openAddDiscord) {
+  const addDiscord = () => {
+    setValue(`${shareKey}.notificationPlatforms.discord.userId`, addDiscordID);
+    setAddDiscordID('');
+    setOpenAddDiscord(false);
+  };
+  if (userId == null && !openAddDiscord) {
     return <Button label='Add Discord' onClick={() => setOpenAddDiscord(true)} />;
-  } else if (share.notificationPlatforms.discord.userId == null && openAddDiscord) {
+  } else if (userId == null && openAddDiscord) {
     return (
       <Stack spacing='medium'>
         <TextInput
@@ -29,13 +35,13 @@ export default function ShareDiscordForm(props: ShareDiscordFormProps) {
           placeholder='Discord ID, not the name!'
           onInput={(value) => setAddDiscordID(value)}
         />
-        <Button label='Add Discord' onClick={() => setOpenAddDiscord(true)} />
+        <Button label='Add Discord' onClick={() => addDiscord()} />
       </Stack>
     );
   } else {
     return (
       <Stack spacing='medium'>
-        {'Discord ' + share.notificationPlatforms.discord.username}
+        {'Discord ' + username}
         <Button label='' icon={faTrash} onClick={() => removeDiscord()} />
       </Stack>
     );

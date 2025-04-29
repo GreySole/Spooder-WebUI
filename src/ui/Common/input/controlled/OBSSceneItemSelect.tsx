@@ -5,16 +5,20 @@ import { KeyedObject } from '../../../Types';
 import { useState } from 'react';
 import { SelectDropdown } from '@greysole/spooder-component-library';
 
+interface OBSChannelPair {
+  scene: string;
+  sceneItem: string;
+}
+
 interface OBSChannelSelectProps {
   label: string;
-  value: KeyedObject;
-  onChange: (value: string) => void;
+  value: OBSChannelPair;
+  onChange: (value: OBSChannelPair) => void;
 }
 
 export default function OBSSceneItemSelect(props: OBSChannelSelectProps) {
   const { label, value, onChange } = props;
   const { getScenes } = useOBS();
-  const { watch } = useFormContext();
   const [sceneIndex, setSceneIndex] = useState<number>(-1);
   const { data: sceneData, isLoading: scenesLoading, error: scenesError } = getScenes();
   if (scenesLoading || scenesError) {
@@ -36,13 +40,16 @@ export default function OBSSceneItemSelect(props: OBSChannelSelectProps) {
 
   const onSceneChange = (sceneName: string) => {
     Object.keys(sceneData.scenes).forEach((key: string) => {
-      if (key == sceneData.scenes[key].sceneName) {
+      if (key == sceneName) {
         setSceneIndex(parseInt(key));
+        onChange({ scene: sceneName, sceneItem: '' });
       }
     });
   };
 
-  const onSceneItemChange = (sceneItemId: string) => {};
+  const onSceneItemChange = (sceneItemId: string) => {
+    onChange({ ...value, sceneItem: sceneItemId });
+  };
 
   return (
     <label className='obs-sceneitem-select'>
@@ -56,7 +63,7 @@ export default function OBSSceneItemSelect(props: OBSChannelSelectProps) {
       <SelectDropdown
         label='Item'
         options={sceneItemOptions}
-        value={value.item}
+        value={value.sceneItem}
         onChange={(value) => onSceneItemChange(value)}
       />
     </label>

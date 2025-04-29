@@ -4,7 +4,14 @@ import useConfig from '../../../app/hooks/useConfig';
 import usePlugins from '../../../app/hooks/usePlugins';
 import { KeyedObject } from '../../Types';
 import { HotkeysProvider } from '../../../app/hooks/useHotkeys';
-import { Stack, TextInput, SelectDropdown } from '@greysole/spooder-component-library';
+import {
+  Stack,
+  TextInput,
+  SelectDropdown,
+  Button,
+  Box,
+  useTheme,
+} from '@greysole/spooder-component-library';
 
 interface AddTunnelFormProps {
   onAddOSCTunnel: (newTunnel: KeyedObject) => void;
@@ -16,6 +23,7 @@ export default function AddTunnelForm(props: AddTunnelFormProps) {
   const { getPlugins } = usePlugins();
   const { data: plugins, isLoading: pluginsLoading, error: pluginsError } = getPlugins();
   const { data: udpServers } = getUdpServers();
+  const { isMobileDevice } = useTheme();
 
   const [name, setName] = useState('');
   const [addressFrom, setAddressFrom] = useState('/');
@@ -40,56 +48,70 @@ export default function AddTunnelForm(props: AddTunnelFormProps) {
     onAddOSCTunnel({ name, addressFrom, addressTo, clientTo, handlerFrom, handlerTo });
 
   return (
-    <div className='add-osc-var'>
-      <Stack spacing='small'>
-        <TextInput label='Name' value={name} onInput={(value) => setName(value)} jsonFriendly />
-        <SelectDropdown
-          label='Handler From'
-          options={[
-            { value: 'tcp', label: 'TCP (Overlays)' },
-            { value: 'udp', label: 'UDP' },
-          ]}
-          value={handlerFrom}
-          onChange={(value) => setHandlerFrom(value)}
-        />
-        <SelectDropdown
-          label='Handler To'
-          options={[
-            { value: 'tcp', label: 'TCP (Overlays)' },
-            { value: 'plugin', label: 'Plugin' },
-            { value: 'udp', label: 'UDP' },
-          ]}
-          value={handlerTo}
-          onChange={(value) => setHandlerTo(value)}
-        />
+    <Stack spacing='small'>
+      <TextInput
+        width={isMobileDevice ? '100%' : undefined}
+        label='Name'
+        value={name}
+        onInput={(value) => setName(value)}
+        jsonFriendly
+      />
+      <SelectDropdown
+        width={isMobileDevice ? '100%' : undefined}
+        label='Handler From'
+        options={[
+          { value: 'tcp', label: 'TCP (Overlays)' },
+          { value: 'udp', label: 'UDP' },
+        ]}
+        value={handlerFrom}
+        onChange={(value) => setHandlerFrom(value)}
+      />
+      <SelectDropdown
+        width={isMobileDevice ? '100%' : undefined}
+        label='Handler To'
+        options={[
+          { value: 'tcp', label: 'TCP (Overlays)' },
+          { value: 'plugin', label: 'Plugin' },
+          { value: 'udp', label: 'UDP' },
+        ]}
+        value={handlerTo}
+        onChange={(value) => setHandlerTo(value)}
+      />
 
-        {handlerTo == 'udp' ? (
-          <SelectDropdown
-            options={clientTable}
-            value={clientTo}
-            onChange={(value) => setClientTo(value)}
-          />
-        ) : null}
-        {handlerTo == 'plugin' ? (
-          <SelectDropdown
-            options={pluginTable}
-            value={clientTo}
-            onChange={(value) => setClientTo(value)}
-          />
-        ) : null}
-
-        <TextInput
-          label='Address From'
-          value={addressFrom}
-          onInput={(value) => setAddressFrom(value)}
+      {handlerTo == 'udp' ? (
+        <SelectDropdown
+          width={isMobileDevice ? '100%' : undefined}
+          options={clientTable}
+          value={clientTo}
+          onChange={(value) => setClientTo(value)}
         />
-        <TextInput label='Address To' value={addressTo} onInput={(value) => setAddressTo(value)} />
-      </Stack>
+      ) : null}
+      {handlerTo == 'plugin' ? (
+        <SelectDropdown
+          width={isMobileDevice ? '100%' : undefined}
+          options={pluginTable}
+          value={clientTo}
+          onChange={(value) => setClientTo(value)}
+        />
+      ) : null}
+
+      <TextInput
+        width={isMobileDevice ? '100%' : undefined}
+        label='Address From'
+        value={addressFrom}
+        onInput={(value) => setAddressFrom(value)}
+      />
+      <TextInput
+        width={isMobileDevice ? '100%' : undefined}
+        label='Address To'
+        value={addressTo}
+        onInput={(value) => setAddressTo(value)}
+      />
       <HotkeysProvider enter={() => handleAddButton()}>
-        <button type='button' className='add-button' onClick={() => handleAddButton()}>
-          Add
-        </button>
+        <Box width='100%' justifyContent='flex-end' marginTop='medium'>
+          <Button label='Add' onClick={() => handleAddButton()} />
+        </Box>
       </HotkeysProvider>
-    </div>
+    </Stack>
   );
 }

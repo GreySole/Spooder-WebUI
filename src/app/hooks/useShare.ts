@@ -19,11 +19,12 @@ export default function useShare() {
   }
 
   function getActiveShares() {
-    const { data, isLoading, error } = useGetActiveSharesQuery(null);
+    const { data, isLoading, error, refetch } = useGetActiveSharesQuery(null);
     return {
       data,
       isLoading,
       error,
+      refetch,
     };
   }
 
@@ -41,13 +42,19 @@ export default function useShare() {
   function getSetShare() {
     const [setShareMutation, { data, isLoading, error }] = useSetShareMutation();
 
-    function setShare(shareId: string, enabled: boolean, message: string) {
-      const fd = new FormData();
-      fd.append('shareId', shareId);
-      fd.append('enabled', enabled.toString());
-      fd.append('message', message);
+    function setShare(
+      shareId: string,
+      enabled: boolean,
+      joinMessage: string,
+      leaveMessage: string,
+    ) {
       return new Promise((res, rej) => {
-        setShareMutation(fd)
+        setShareMutation({
+          shareId: shareId,
+          enabled: enabled,
+          joinMessage: joinMessage,
+          leaveMessage: leaveMessage,
+        })
           .then((data) => {
             res(data);
           })

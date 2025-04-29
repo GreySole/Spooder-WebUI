@@ -39,5 +39,6 @@ export const {
   useGetGuildsQuery,
   useGetConfigQuery,
   useGetUserQuery,
+  useVerifyDiscordTargetMutation,
   useSaveDiscordConfigMutation,
 } = discordApi;

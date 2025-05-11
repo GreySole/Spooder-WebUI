@@ -1,5 +1,6 @@
 import {
   useBrowsePluginAssetsQuery,
+  useBuildPluginMutation,
   useCreatePluginMutation,
   useDeletePluginAssetMutation,
   useDeletePluginMutation,
@@ -13,6 +14,7 @@ import {
   useRefreshPluginsMutation,
   useReinstallPluginMutation,
   useSavePluginSettingsMutation,
+  useSetPluginDevModeMutation,
   useSetPluginEnabledMutation,
   useUploadPluginAssetsMutation,
   useUploadPluginIconMutation,
@@ -71,6 +73,15 @@ export default function usePlugins() {
     return { setPluginEnabled, isLoading, isSuccess, error };
   }
 
+  function getSetPluginDevMode() {
+    const [setPluginDevModeMutation, { isLoading, isSuccess, error }] =
+      useSetPluginDevModeMutation();
+    function setPluginDevMode(pluginName: string, isEnabled: boolean) {
+      return setPluginDevModeMutation({ pluginName, isEnabled });
+    }
+    return { setPluginDevMode, isLoading, isSuccess, error };
+  }
+
   function getDeletePluginAsset() {
     const [deletePluginAssetMutation, { isLoading, isSuccess, error }] =
       useDeletePluginAssetMutation();
@@ -102,6 +113,14 @@ export default function usePlugins() {
       refreshPluginsMutation(null);
     }
     return { refreshPlugins, isLoading, isSuccess, error };
+  }
+
+  function getBuildPlugin() {
+    const [buildPluginMutation, { isLoading, isSuccess, error }] = useBuildPluginMutation();
+    function buildPlugin(pluginName: string) {
+      return buildPluginMutation(pluginName);
+    }
+    return { buildPlugin, isLoading, isSuccess, error };
   }
 
   function getReinstallPlugin() {
@@ -199,11 +218,13 @@ export default function usePlugins() {
     getUploadPluginIcon,
     getDeletePlugin,
     getSetPluginEnabled,
+    getSetPluginDevMode,
     getDeletePluginAsset,
     getExportPlugin,
     getRefreshPlugin,
     getRefreshPlugins,
     getReinstallPlugin,
+    getBuildPlugin,
     getCreatePlugin,
     getSavePluginSettings,
   };

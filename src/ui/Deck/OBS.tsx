@@ -7,6 +7,7 @@ import OutputController from './obs/outputController/OutputController';
 import SourceControl from './obs/sourceControl/SourceControl';
 import ObsLogin from './obs/login/ObsLogin';
 import { Box, CircleLoader, useOSC } from '@greysole/spooder-component-library';
+import PageCircleLoader from '../common/input/general/PageCircleLoader';
 
 export default function OBS() {
   const { isReady: isOSCReady } = useOSC();
@@ -24,7 +25,7 @@ export default function OBS() {
   }, []);
 
   if (obsLoading || statusLoading) {
-    return <CircleLoader />;
+    return <PageCircleLoader />;
   }
 
   console.log('IS OBS OSC READY', isOSCReady, obsStatus);

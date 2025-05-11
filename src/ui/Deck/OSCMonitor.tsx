@@ -26,6 +26,7 @@ import useServer from '../../app/hooks/useServer';
 import { icon } from '@fortawesome/fontawesome-svg-core';
 import { Footer } from '../app/Footer';
 import ExpandableLog from './oscMonitor/ExpandableLog';
+import PageCircleLoader from '../common/input/general/PageCircleLoader';
 
 export interface Log {
   timestamp: string;
@@ -89,7 +90,7 @@ export default function OSCMonitor() {
   }
 
   if (isLoading) {
-    return <CircleLoader />;
+    return <PageCircleLoader />;
   }
 
   function getLog(message: any) {

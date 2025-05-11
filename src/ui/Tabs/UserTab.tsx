@@ -7,6 +7,7 @@ import { CircleLoader, Box, SaveButton, Stack, Modal } from '@greysole/spooder-c
 import { Footer } from '../app/Footer';
 import { CreateModalProvider } from './userTab/context/CreateModalContext';
 import { EditModalProvider } from './userTab/context/EditModalContext';
+import PageCircleLoader from '../common/input/general/PageCircleLoader';
 
 export default function UserTab() {
   const { getUsers, getSaveUsers } = useUsers();
@@ -14,7 +15,7 @@ export default function UserTab() {
   const { saveUsers } = getSaveUsers();
 
   if (isLoading) {
-    return <CircleLoader></CircleLoader>;
+    return <PageCircleLoader />;
   }
 
   console.log('USERS', users);

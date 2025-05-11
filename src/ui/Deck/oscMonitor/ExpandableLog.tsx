@@ -18,6 +18,7 @@ interface ExpandableLogProps {
 export default function ExpandableLog(props: ExpandableLogProps) {
   const { log } = props;
   const [expanded, setExpanded] = useState(false);
+
   return (
     <Border>
       <MouseArea onClick={() => setExpanded(!expanded)}>

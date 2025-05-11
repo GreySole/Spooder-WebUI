@@ -14,21 +14,21 @@ export default function InstallPluginModalContent({
   const { newPlugins, setNewPlugins } = usePluginContext();
   const { installPlugin } = getInstallPlugin();
 
-  function validateFile(file?: File) {
-    if (file !== undefined) {
-      setNewPlugins({
-        ...newPlugins,
-        [file.name]: {
-          name: '',
-          author: '',
-          description: '',
-          status: 'start',
-          message: 'installing...',
-        },
-      });
-      setIsModalOpen(false);
-      installPlugin(file);
-    }
+  function validateFile(files?: FileList) {
+    if (files === undefined) return;
+    const file = files[0];
+    setNewPlugins({
+      ...newPlugins,
+      [file.name]: {
+        name: '',
+        author: '',
+        description: '',
+        status: 'start',
+        message: 'installing...',
+      },
+    });
+    setIsModalOpen(false);
+    installPlugin(file);
   }
   return (
     <Box width='100%' height='100%' flexFlow='column'>

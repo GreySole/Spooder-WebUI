@@ -5,7 +5,6 @@ import EventGeneral from '../EventGeneral';
 import EventTriggers from '../EventTriggers';
 import { useEventTableModal } from './EventTableModalContext';
 import EventSaveButton from '../EventSaveButton';
-import { faTimeline } from '@fortawesome/free-solid-svg-icons';
 
 export default function EventTableModal() {
   const { eventName, isOpen, close } = useEventTableModal();

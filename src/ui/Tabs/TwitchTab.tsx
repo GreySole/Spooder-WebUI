@@ -5,6 +5,7 @@ import TwitchCredentials from './twitchTab/TwitchCredentials';
 import TwitchAuthManager from './twitchTab/TwitchAuthManager';
 import { CircleLoader, Button, TypeFace, Stack } from '@greysole/spooder-component-library';
 import TwitchEventSubList from './twitchTab/TwitchEventSubList';
+import PageCircleLoader from '../common/input/general/PageCircleLoader';
 
 export default function TwitchTab() {
   const { getTwitchConfig } = useTwitch();
@@ -12,7 +13,7 @@ export default function TwitchTab() {
   const { data: twitchConfig, isLoading: isLoadingTwitchConfig } = getTwitchConfig();
 
   if (isLoadingTwitchConfig) {
-    return <CircleLoader />;
+    return <PageCircleLoader />;
   }
 
   return (

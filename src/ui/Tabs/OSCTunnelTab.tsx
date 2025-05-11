@@ -11,13 +11,14 @@ import OSCTunnelTabContextProvider from './oscTunnels/context/OSCTunnelTabContex
 import OSCTunnelList from './oscTunnels/OSCTunnelList';
 import SaveTunnelFormButton from './oscTunnels/SaveTunnelFormButton';
 import { Footer } from '../app/Footer';
+import PageCircleLoader from '../common/input/general/PageCircleLoader';
 
 export default function OSCTunnelTab() {
   const { getOSCTunnels } = useConfig();
   const { data: tunnels, isLoading: tunnelsLoading, error: tunnelsError } = getOSCTunnels();
 
   if (tunnelsLoading || tunnelsError) {
-    return <CircleLoader></CircleLoader>;
+    return <PageCircleLoader />;
   }
 
   return (

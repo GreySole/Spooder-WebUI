@@ -4,6 +4,7 @@ import { faPlug, faSpider } from '@fortawesome/free-solid-svg-icons';
 import { useFormContext } from 'react-hook-form';
 import usePlugins from '../../../../app/hooks/usePlugins';
 import { Box, Button, CircleLoader, useTheme } from '@greysole/spooder-component-library';
+import PageCircleLoader from '../../../common/input/general/PageCircleLoader';
 
 interface ToggleGridProps {
   formKey: string;
@@ -20,7 +21,7 @@ export default function PluginToggleGrid(props: ToggleGridProps) {
   const selected = watch(pluginKey, []);
 
   if (isLoading || !plugins) {
-    return <CircleLoader />;
+    return <PageCircleLoader />;
   }
 
   const gridData = Object.keys(plugins).map((plugin: string) => plugin);

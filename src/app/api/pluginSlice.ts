@@ -3,23 +3,23 @@ import { KeyedObject, PluginsObject } from '../../ui/Types';
 
 export const pluginApi = createApi({
   reducerPath: 'pluginApi',
-  baseQuery: fetchBaseQuery({ baseUrl: window.location.origin }),
+  baseQuery: fetchBaseQuery({ baseUrl: window.location.origin + '/plugin' }),
   endpoints: (builder) => ({
     getPlugins: builder.query<PluginsObject, null>({
-      query: () => '/plugins/get_list',
+      query: () => '/get_list',
     }),
     getPluginSettings: builder.query<PluginsObject, string>({
-      query: (pluginName: string) => '/plugins/get_plugin_settings?plugin=' + pluginName,
+      query: (pluginName: string) => '/get_plugin_settings?plugin=' + pluginName,
     }),
     getPluginSettingsForm: builder.query<PluginsObject, string>({
-      query: (pluginName: string) => '/plugins/get_plugin_settings_form?plugin=' + pluginName,
+      query: (pluginName: string) => '/get_plugin_settings_form?plugin=' + pluginName,
     }),
     getPluginEventsForm: builder.query<PluginsObject, string>({
-      query: (pluginName: string) => '/plugins/get_plugin_events_form?plugin=' + pluginName,
+      query: (pluginName: string) => '/get_plugin_events_form?plugin=' + pluginName,
     }),
     browsePluginAssets: builder.query({
       query: ({ pluginName, folderPath }) => ({
-        url: `/plugins/browse_plugin_assets?pluginname=${pluginName}&folder=${folderPath ? folderPath : '/'}`,
+        url: `/browse_plugin_assets?pluginname=${pluginName}&folder=${folderPath ? folderPath : '/'}`,
         headers: {
           'Content-type': 'application/json; charset=UTF-8',
         },
@@ -30,28 +30,38 @@ export const pluginApi = createApi({
     }),
     installPlugin: builder.mutation({
       query: (form) => ({
-        url: '/plugins/install_plugin',
+        url: '/install_plugin',
         method: 'post',
         body: form,
       }),
     }),
     uploadPluginAssets: builder.mutation({
       query: (form) => ({
-        url: `/plugins/upload_plugin_asset`,
+        url: `/upload_plugin_asset`,
         method: 'post',
         body: form,
       }),
     }),
     uploadPluginIcon: builder.mutation({
       query: (form) => ({
-        url: `/plugins/upload_plugin_icon`,
+        url: `/upload_plugin_icon`,
         method: 'post',
         body: form,
       }),
     }),
     setPluginEnabled: builder.mutation({
       query: (body) => ({
-        url: `/plugins/set_plugin_enabled`,
+        url: `/set_plugin_enabled`,
+        method: 'post',
+        body: body,
+        headers: {
+          'Content-type': 'application/json; charset=UTF-8',
+        },
+      }),
+    }),
+    setPluginDevMode: builder.mutation({
+      query: (body) => ({
+        url: `/set_plugin_dev_mode`,
         method: 'post',
         body: body,
         headers: {
@@ -61,7 +71,7 @@ export const pluginApi = createApi({
     }),
     deletePlugin: builder.mutation({
       query: (pluginID: string) => ({
-        url: `/plugins/delete_plugin`,
+        url: `/delete_plugin`,
         method: 'post',
         body: { pluginName: pluginID },
         headers: {
@@ -71,7 +81,7 @@ export const pluginApi = createApi({
     }),
     deletePluginAsset: builder.mutation({
       query: ({ pluginName, assetName }) => ({
-        url: `/plugins/delete_plugin_asset`,
+        url: `/delete_plugin_asset`,
         method: 'post',
         body: { pluginName: pluginName, assetName: assetName },
         headers: {
@@ -81,7 +91,7 @@ export const pluginApi = createApi({
     }),
     exportPlugin: builder.mutation({
       query: (pluginID: string) => ({
-        url: `/plugins/export_plugin/${pluginID}`,
+        url: `/export_plugin/${pluginID}`,
         method: 'get',
         headers: {
           'Content-type': 'application/json; charset=UTF-8',
@@ -90,7 +100,7 @@ export const pluginApi = createApi({
     }),
     refreshPlugin: builder.mutation({
       query: (pluginName: string) => ({
-        url: `/plugins/refresh_plugin?pluginname=${pluginName}`,
+        url: `/refresh_plugin?pluginname=${pluginName}`,
         method: 'get',
         headers: {
           'Content-type': 'application/json; charset=UTF-8',
@@ -99,7 +109,16 @@ export const pluginApi = createApi({
     }),
     refreshPlugins: builder.mutation({
       query: () => ({
-        url: '/plugins/refresh_plugins',
+        url: '/refresh_plugins',
+        method: 'get',
+        headers: {
+          'Content-type': 'application/json; charset=UTF-8',
+        },
+      }),
+    }),
+    buildPlugin: builder.mutation({
+      query: (pluginName: string) => ({
+        url: `/build_plugin?pluginname=${pluginName}`,
         method: 'get',
         headers: {
           'Content-type': 'application/json; charset=UTF-8',
@@ -108,7 +127,7 @@ export const pluginApi = createApi({
     }),
     reinstallPlugin: builder.mutation({
       query: (pluginName: string) => ({
-        url: `/plugins/reinstall_plugin?pluginname=${pluginName}`,
+        url: `/reinstall_plugin?pluginname=${pluginName}`,
         method: 'get',
         headers: {
           'Content-type': 'application/json; charset=UTF-8',
@@ -117,7 +136,7 @@ export const pluginApi = createApi({
     }),
     createPlugin: builder.mutation({
       query: (form) => ({
-        url: '/plugins/create_plugin',
+        url: '/create_plugin',
         method: 'post',
         body: form,
         headers: {
@@ -127,7 +146,7 @@ export const pluginApi = createApi({
     }),
     savePluginSettings: builder.mutation({
       query: (body) => ({
-        url: '/plugins/save_plugin_settings',
+        url: '/save_plugin_settings',
         method: 'post',
         body: body,
         headers: {
@@ -144,6 +163,7 @@ export const {
   useDeletePluginAssetMutation,
   useDeletePluginMutation,
   useSetPluginEnabledMutation,
+  useSetPluginDevModeMutation,
   useExportPluginMutation,
   useGetPluginsQuery,
   useGetPluginSettingsQuery,
@@ -152,6 +172,7 @@ export const {
   useInstallPluginMutation,
   useRefreshPluginMutation,
   useRefreshPluginsMutation,
+  useBuildPluginMutation,
   useReinstallPluginMutation,
   useSavePluginSettingsMutation,
   useUploadPluginAssetsMutation,

@@ -6,6 +6,7 @@ import { FormLoader, KeyedObject, Modal, Stack } from '@greysole/spooder-compone
 import PluginSettings from './input/PluginSettings';
 import PluginAssetManager from './PluginAssetManager';
 import PluginInfoView from './PluginInfoView';
+import NewPluginEntry from './NewPluginEntry';
 
 export default function PluginList() {
   const {
@@ -18,6 +19,7 @@ export default function PluginList() {
     setPluginAssetsOpen,
     setPluginInfoOpen,
     setPluginSettingsOpen,
+    newPlugins,
   } = usePluginContext();
 
   const pluginRefs = useRef({} as KeyedObject);
@@ -45,6 +47,16 @@ export default function PluginList() {
       pluginRefs.current[pluginName].scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
   };
+
+  const newPluginList = [];
+  const sortedNewPluginKeys = Object.keys(newPlugins).sort();
+  for (let sp in sortedNewPluginKeys) {
+    const p = sortedNewPluginKeys[sp];
+    if (!newPlugins[p]) {
+      continue;
+    }
+    newPluginList.push(<NewPluginEntry key={p} pluginName={p} setRef={setPluginRef} />);
+  }
 
   const pluginList = [];
   const disabledPluginList = [];
@@ -83,6 +95,7 @@ export default function PluginList() {
         }
       />
       {pluginSettingsOpen === activePlugin ? <PluginSettings pluginName={activePlugin} /> : null}
+      {newPluginList}
       {pluginList}
       {disabledPluginList}
     </Stack>

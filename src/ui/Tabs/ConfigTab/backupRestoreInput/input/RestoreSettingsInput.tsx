@@ -33,7 +33,8 @@ export default function RestoreSettingsInput() {
 
   restoreSettingsOptions.unshift({ label: 'Select Backup', value: '' });
 
-  const handleFile = (file: File) => {
+  const handleFile = (files: FileList) => {
+    const file = files[0];
     prepareRestoreSettings(file.name, file).then((response) => {
       console.log(response.data, response.data.status);
       if (response.data.status === 'ok') {

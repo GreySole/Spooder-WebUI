@@ -5,6 +5,7 @@ import { useGetSystemStatusQuery } from '../../app/api/serverSlice';
 import DiskMeters from './dashboardTab/DiskMeters';
 import NetworkMeters from './dashboardTab/NetworkMeters';
 import SystemMeters from './dashboardTab/SystemMeters';
+import PageCircleLoader from '../common/input/general/PageCircleLoader';
 
 export default function DashboardTab() {
   const { data, isLoading, error, refetch } = useGetSystemStatusQuery(null);
@@ -21,7 +22,7 @@ export default function DashboardTab() {
   }, []);
 
   if (isLoading) {
-    return <CircleLoader />;
+    return <PageCircleLoader />;
   }
 
   return (

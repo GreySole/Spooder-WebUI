@@ -19,6 +19,7 @@ import ThemeTab from '../tabs/ThemeTab';
 import UserTab from '../tabs/UserTab';
 import Header from './Header';
 import NavigationMenu from './navigation/NavigationMenu';
+import PageCircleLoader from '../common/input/general/PageCircleLoader';
 
 export default function App() {
   const { currentTab } = useNavigation();
@@ -41,7 +42,7 @@ export default function App() {
   }, [serverData]);
 
   if (serverLoading) {
-    return <CircleLoader />;
+    return <PageCircleLoader />;
   }
 
   if (serverData.isExternal) {

@@ -15,14 +15,13 @@ export default function TwitchEventSubList() {
   const { data: twitchConfig, isLoading: twitchConfigLoading } = getTwitchConfig();
   const { data: eventsubs, isLoading: eventsubsLoading } = getEventSubs();
   const { deleteEventSub } = getDeleteEventSub();
-  console.log('eventsubs', eventsubs);
   let subTable = [];
   for (let event in eventsubs) {
     for (let sub in eventsubs[event]) {
       let conditionTable = [];
       for (let c in eventsubs[event][sub].condition) {
         conditionTable.push(
-          <Box marginLeft='medium'>
+          <Box key={c} marginLeft='medium'>
             <TypeFace>
               <TypeFace fontWeight='bold'>{c}: </TypeFace>
               {eventsubs[event][sub].condition[c]}

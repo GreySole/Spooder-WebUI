@@ -22,6 +22,8 @@ import {
   ButtonRow,
   TypeFace,
   useTheme,
+  ImageFile,
+  FileDropZone,
 } from '@greysole/spooder-component-library';
 import usePlugins from '../../../app/hooks/usePlugins';
 import { PluginComponentProps } from '../../Types';
@@ -94,6 +96,12 @@ export default function PluginAssetManager(props: PluginComponentProps) {
     refetch();
   }
 
+  function handleDroppedFiles(files: FileList | File) {
+    uploadPluginAssets(pluginName, plugin.assetBrowserPath, files as FileList).then(() => {
+      refetch();
+    });
+  }
+
   const fileTable = [];
   const folderTable = [];
   for (let p in data) {
@@ -134,12 +142,21 @@ export default function PluginAssetManager(props: PluginComponentProps) {
   let previewHTML = null;
   let previewAudio = null;
   if (assetFilePreview != null) {
-    if (getMediaType(assetFilePreview) == 'sound') {
+    const previewMediaType = getMediaType(assetFilePreview);
+    if (previewMediaType == 'sound') {
       previewAudio = path.join(plugin.assetPath, assetFilePreview);
       previewHTML = null;
-    } else {
+    } else if (previewMediaType == 'image') {
       previewAudio = null;
       previewHTML = getMediaHTML(path.join(plugin.assetPath, assetFilePreview));
+      previewHTML = (
+        <ImageFile
+          width='100%'
+          height='100%'
+          src={path.join(plugin.assetPath, assetFilePreview)}
+          objectFit='contain'
+        />
+      );
     }
   }
 
@@ -151,18 +168,22 @@ export default function PluginAssetManager(props: PluginComponentProps) {
           iconSize='large'
           buttons={[
             { icon: faArrowLeft, onClick: () => browseFolder('..') },
-            { icon: faArrowUp, onClick: () => browseFolder('/') },
+            { icon: faArrowUp, onClick: () => browseFolder('..') },
             { icon: faHouse, onClick: () => browseFolder('/') },
             { icon: faSync, onClick: () => browseFolder('') },
           ]}
         />
         <TypeFace fontSize='large'>{plugin.assetBrowserPath}</TypeFace>
         <Box className='asset-select' justifyContent='space-between' alignItems='center'>
-          <Box width='50%' height='100%' flexFlow='column'>
-            {folderTable}
-            {fileTable}
+          <Box width='100%' height='100%' flexFlow='column'>
+            <FileDropZone width='100%' height='100%' handleFile={handleDroppedFiles} multiple>
+              <Box width='100%' height='100%' flexFlow='column' overflow='auto' padding='small'>
+                {folderTable}
+                {fileTable}
+              </Box>
+            </FileDropZone>
           </Box>
-          <Box height='100%' width='50%' justifyContent='center' alignItems='center'>
+          <Box width='100%' height='100%' justifyContent='center' alignItems='center'>
             {previewHTML}
             <audio id='audioPreview' ref={audioPreviewRef} controls>
               {previewAudio ? <source src={previewAudio}></source> : null}

@@ -22,11 +22,19 @@ interface PluginInfoViewProps {
 export default function PluginInfoView(props: PluginInfoViewProps) {
   const { pluginName } = props;
   const { showToast } = useToast();
-  const { getRefreshPlugin, getReinstallPlugin, getSetPluginEnabled } = usePlugins();
-  const { plugins, isReady } = usePluginContext();
+  const {
+    getRefreshPlugin,
+    getReinstallPlugin,
+    getSetPluginEnabled,
+    getSetPluginDevMode,
+    getBuildPlugin,
+  } = usePlugins();
+  const { plugins, isReady, reloadPlugins } = usePluginContext();
+  const { buildPlugin } = getBuildPlugin();
   const { refreshPlugin } = getRefreshPlugin();
   const { reinstallPlugin } = getReinstallPlugin();
   const { setPluginEnabled } = getSetPluginEnabled();
+  const { setPluginDevMode } = getSetPluginDevMode();
   const [isEnabled, setIsEnabled] = useState(false);
 
   useEffect(() => {
@@ -80,6 +88,31 @@ export default function PluginInfoView(props: PluginInfoViewProps) {
   return (
     <Border borderWidth='2px' borderColor='gray'>
       <Stack spacing='medium' padding='medium'>
+        <Stack spacing='small'>
+          <TypeFace fontSize='large'>Plugin Mode</TypeFace>
+          <TypeFace fontSize='medium'>{plugin.pluginMode}</TypeFace>
+          <BoolSwitch
+            label='Dev Mode'
+            value={plugin.devMode}
+            onChange={() => {
+              setPluginDevMode(pluginName, !plugin.devMode).then(() => {
+                reloadPlugins();
+              });
+            }}
+          />
+          {plugin.devMode ? (
+            <Box>
+              <Button
+                label='Build Plugin'
+                onClick={() =>
+                  buildPlugin(pluginName).then(() => {
+                    reloadPlugins();
+                  })
+                }
+              />
+            </Box>
+          ) : null}
+        </Stack>
         <Stack spacing='small'>
           <TypeFace fontSize='large'>Description</TypeFace>
           <TypeFace fontSize='medium'>{plugin.description}</TypeFace>

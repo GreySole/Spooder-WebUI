@@ -4,6 +4,7 @@ import { CircleLoader, Box, Stack, Expandable } from '@greysole/spooder-componen
 import BackupRestore from './configTab/backupRestoreInput/BackupRestore';
 import ConfigForm from './configTab/configInput/ConfigForm';
 import ConfigTabFormContextProvider from './configTab/context/ConfigTabFormContext';
+import PageCircleLoader from '../common/input/general/PageCircleLoader';
 
 export default function ConfigTab() {
   const { getConfig, getSaveConfig } = useConfig();
@@ -11,7 +12,7 @@ export default function ConfigTab() {
   const { data, isLoading, error } = getConfig();
 
   if (isLoading) {
-    return <CircleLoader />;
+    return <PageCircleLoader />;
   }
 
   return (

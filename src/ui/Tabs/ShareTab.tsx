@@ -4,13 +4,14 @@ import useShare from '../../app/hooks/useShare';
 import ShareTabFormContextProvider from './shareTab/context/ShareTabFormContext';
 import ShareSaveButton from './shareTab/input/ShareSaveButton';
 import ShareEntry from './shareTab/ShareEntry';
+import PageCircleLoader from '../common/input/general/PageCircleLoader';
 
 export default function ShareTab() {
   const { getShares } = useShare();
   const { data: shares, isLoading, error } = getShares();
 
   if (isLoading) {
-    return <CircleLoader></CircleLoader>;
+    return <PageCircleLoader />;
   }
 
   return (

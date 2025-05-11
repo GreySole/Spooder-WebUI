@@ -16,6 +16,7 @@ import React, { useEffect, useState } from 'react';
 import useRecovery from '../../../../../app/hooks/useRecovery';
 import RestorePluginSelection from '../selection/RestorePluginsSelection';
 import { KeyedObject } from '../../../../Types';
+import PageCircleLoader from '../../../../common/input/general/PageCircleLoader';
 
 interface OSCProgressObject {
   name: string;
@@ -62,7 +63,7 @@ export default function RestorePluginsInput() {
     return (
       <Box flexFlow='column' alignItems='center' width='100%' height='100%'>
         <Stack spacing='medium'>
-          <CircleLoader />
+          <PageCircleLoader />
           <TypeFace fontSize='large'>Unpacking Backup. This can take a while...</TypeFace>
         </Stack>
       </Box>
@@ -76,7 +77,8 @@ export default function RestorePluginsInput() {
 
   restorePluginsOptions.unshift({ label: 'Select Backup', value: '' });
 
-  const handleFile = (file: File) => {
+  const handleFile = (files: FileList) => {
+    const file = files[0];
     setIsUnpacking(true);
     prepareRestorePlugins(file.name, file).then((response) => {
       console.log(response.data, response.data.status);
@@ -92,7 +94,7 @@ export default function RestorePluginsInput() {
     return (
       <Box width='100%' height='100%' justifyContent='center' alignItems='center'>
         <Stack spacing='medium'>
-          <CircleLoader />
+          <PageCircleLoader />
           <TypeFace fontSize='large'>{currentProgressObj?.message}</TypeFace>
           <TypeFace fontSize='large'>
             {currentProgressObj?.progress} / {currentProgressObj?.totalProgress}

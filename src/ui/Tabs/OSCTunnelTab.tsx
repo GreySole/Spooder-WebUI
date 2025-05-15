@@ -29,7 +29,6 @@ export default function OSCTunnelTab() {
       <Footer showFooter={true}>
         <Box padding='medium' width='100%' justifyContent='flex-end'>
           <Columns spacing='medium'>
-            <ResetButton />
             <SaveTunnelFormButton />
           </Columns>
         </Box>

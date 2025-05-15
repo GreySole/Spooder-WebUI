@@ -36,15 +36,7 @@ export const PluginProvider = (props: PluginProviderProps) => {
   const [pluginInfoOpen, setPluginInfoOpen] = useState('');
   const [pluginSettingsOpen, setPluginSettingsOpen] = useState('');
   const [pluginAssetsOpen, setPluginAssetsOpen] = useState('');
-  const [newPlugins, setNewPlugins] = useState({
-    test: {
-      name: 'Test New Plugin',
-      author: 'Grey Boi',
-      description: 'This is a test plugin',
-      status: 'start',
-      message: 'installing...',
-    },
-  } as PluginsObject);
+  const [newPlugins, setNewPlugins] = useState({} as PluginsObject);
   const { showToast } = useToast();
 
   const { addListener, removeListener } = useOSC();

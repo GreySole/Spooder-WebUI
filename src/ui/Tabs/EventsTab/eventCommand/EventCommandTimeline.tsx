@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { buildKey, buildCommandKey, EVENT_KEY } from '../FormKeys';
 import { DiscordIcon, ObsIcon } from '../../../common/icons/icons';
-import { Box, Icon, Slider, TypeFace } from '@greysole/spooder-component-library';
+import { Box, Icon, Slider, TypeFace, useTheme } from '@greysole/spooder-component-library';
 
 interface EventCommandTimelineProps {
   eventName: string;
@@ -14,6 +14,7 @@ export default function EventCommandTimeline(props: EventCommandTimelineProps) {
   const { eventName } = props;
   let maxDuration = 1;
   const [timelineZoom, setTimelineZoom] = useState<number>(0.5);
+  const { themeVariables } = useTheme();
   const { setValue, watch } = useFormContext();
   const eventCommands = watch(`${EVENT_KEY}.${eventName}.commands`, []);
 
@@ -83,6 +84,9 @@ export default function EventCommandTimeline(props: EventCommandTimelineProps) {
         scale={timelineZoom * maxDuration}
         dragLine={true}
         gridSnap={true}
+        style={{
+          backgroundColor: themeVariables.isDarkTheme ? 'white' : '#1e1e1e',
+        }}
         getActionRender={(action: any, row) => {
           if (eventCommands.length == 0) {
             return <></>;

@@ -138,7 +138,7 @@ export const pluginApi = createApi({
       query: (form) => ({
         url: '/create_plugin',
         method: 'post',
-        body: form,
+        body: JSON.stringify(form),
         headers: {
           'Content-type': 'application/json; charset=UTF-8',
         },

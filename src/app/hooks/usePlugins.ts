@@ -1,3 +1,4 @@
+import { PluginPages } from '../../ui/Types';
 import {
   useBrowsePluginAssetsQuery,
   useBuildPluginMutation,
@@ -138,8 +139,17 @@ export default function usePlugins() {
       pluginName: string,
       author: string,
       description: string,
+      typescript: boolean,
+      pages: PluginPages,
     ) {
-      createPluginMutation({ internalName, pluginName, author, description });
+      createPluginMutation({
+        internalName,
+        pluginName,
+        author,
+        description,
+        typescript,
+        pages: pages,
+      });
     }
     return { createPlugin, isLoading, isSuccess, error };
   }

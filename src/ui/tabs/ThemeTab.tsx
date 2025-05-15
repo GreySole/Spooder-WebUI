@@ -22,7 +22,7 @@ export default function ThemeTab() {
       <ThemeColor />
       <EditCustomSpooder />
       <Footer showFooter={true}>
-        <Box width='100%' justifyContent='flex-end' padding='small'>
+        <Box width='100%' justifyContent='flex-end' padding='medium'>
           <Button
             label='Save'
             onClick={() => {

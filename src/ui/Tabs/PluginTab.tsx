@@ -7,13 +7,16 @@ import { Footer } from '../app/Footer';
 import { faPlusCircle, faFileImport } from '@fortawesome/free-solid-svg-icons';
 import CreatePluginModal from './pluginTab/input/CreatePluginModal';
 import InstallPluginModal from './pluginTab/input/InstallPluginModal';
+import CreatePluginFormContextProvider from './pluginTab/context/CreatePluginFormContext';
 
 export default function PluginTab() {
   const [createPluginOpen, setCreatePluginOpen] = useState(false);
   const [installPluginOpen, setInstallPluginOpen] = useState(false);
   return (
     <PluginProvider>
-      <CreatePluginModal isOpen={createPluginOpen} setIsOpen={setCreatePluginOpen} />
+      <CreatePluginFormContextProvider>
+        <CreatePluginModal isOpen={createPluginOpen} setIsOpen={setCreatePluginOpen} />
+      </CreatePluginFormContextProvider>
       <InstallPluginModal isOpen={installPluginOpen} setIsOpen={setInstallPluginOpen} />
       <Box flexFlow='column' width='100%' marginBottom='var(--footer-height)'>
         <PluginList />

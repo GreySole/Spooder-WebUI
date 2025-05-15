@@ -18,7 +18,7 @@ export default function EventSaveButton() {
 
   return (
     <Box>
-      <Button icon={faCheck} iconSize='large' onClick={saveEventsClick} />
+      <Button label='Save' icon={faCheck} iconSize='large' onClick={saveEventsClick} />
     </Box>
   );
 }

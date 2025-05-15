@@ -185,3 +185,9 @@ export interface NewPlugin {
     message: string;
   };
 }
+
+export interface PluginPages {
+  overlay: boolean;
+  utility: boolean;
+  public: boolean;
+}

@@ -32,7 +32,11 @@ export default function SettingsFormModal() {
           </Stack>
         </Box>
       }
-      footerContent={<PluginSettingsSaveButton />}
+      footerContent={
+        <Box width='100%' justifyContent='flex-end'>
+          <PluginSettingsSaveButton />
+        </Box>
+      }
     />
   );
 }

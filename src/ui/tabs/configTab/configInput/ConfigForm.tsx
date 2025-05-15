@@ -38,10 +38,9 @@ export default function ConfigForm() {
               <LinkButton label={'Copy Mod URL'} mode='copy' link={publicUrls.public + '/mod'} />
             </Box>
           )}
-          <Columns padding='small' spacing='medium'>
-            <ResetButton />
+          <Box padding='medium'>
             <SaveButton saveFunction={saveConfig} />
-          </Columns>
+          </Box>
         </Box>
       </Footer>
     </>

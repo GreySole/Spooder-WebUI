@@ -77,9 +77,7 @@ export default function useShare() {
     function saveShares(form: FieldValues) {
       console.log('SAVING', form);
 
-      const formData = convertReactFormToFormData(form);
-
-      saveSharesMutation(formData);
+      saveSharesMutation(form);
     }
     return {
       saveShares,

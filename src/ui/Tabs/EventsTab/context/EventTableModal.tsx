@@ -5,9 +5,16 @@ import EventGeneral from '../EventGeneral';
 import EventTriggers from '../EventTriggers';
 import { useEventTableModal } from './EventTableModalContext';
 import EventSaveButton from '../EventSaveButton';
+import { useFormContext } from 'react-hook-form';
 
 export default function EventTableModal() {
   const { eventName, isOpen, close } = useEventTableModal();
+
+  const { reset } = useFormContext();
+  const handleClose = () => {
+    reset();
+    close();
+  };
 
   return (
     <MultiPageModal
@@ -25,7 +32,7 @@ export default function EventTableModal() {
       ]}
       headerContent={<EventSaveButton />}
       isOpen={isOpen}
-      onClose={close}
+      onClose={handleClose}
     />
   );
 }

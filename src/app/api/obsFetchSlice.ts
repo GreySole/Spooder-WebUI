@@ -4,17 +4,17 @@ export const obsFetchApi = createApi({
   reducerPath: 'obsFetchApi',
   baseQuery: fetchBaseQuery({ baseUrl: window.location.origin + '/obs/fetch' }),
   endpoints: (builder) => ({
-    getStreamStatus: builder.mutation({
+    getStreamStatus: builder.query({
       query: () => ({
         url: '/get_stream_status',
-        method: 'get',
       }),
+      transformResponse: (response: any) => response.data,
     }),
-    getRecordStatus: builder.mutation({
+    getRecordStatus: builder.query({
       query: () => ({
         url: '/get_record_status',
-        method: 'get',
       }),
+      transformResponse: (response: any) => response.data,
     }),
     getInputMute: builder.mutation({
       query: () => ({
@@ -86,8 +86,8 @@ export const obsFetchApi = createApi({
 });
 
 export const {
-  useGetStreamStatusMutation,
-  useGetRecordStatusMutation,
+  useGetStreamStatusQuery,
+  useGetRecordStatusQuery,
   useGetInputMuteMutation,
   useGetInputVolumeMutation,
   useGetInputListMutation,

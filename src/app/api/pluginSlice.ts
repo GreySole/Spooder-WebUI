@@ -91,7 +91,7 @@ export const pluginApi = createApi({
     }),
     exportPlugin: builder.mutation({
       query: (pluginID: string) => ({
-        url: `/export_plugin/${pluginID}`,
+        url: `/export_plugin?pluginname=${pluginID}`,
         method: 'get',
         headers: {
           'Content-type': 'application/json; charset=UTF-8',

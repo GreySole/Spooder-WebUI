@@ -2,7 +2,13 @@ import { faFileImport } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import usePlugins from '../../../../app/hooks/usePlugins';
 import React, { useRef } from 'react';
-import { Box, Button, FormLoader, FormSelectDropdown } from '@greysole/spooder-component-library';
+import {
+  Box,
+  Button,
+  FormLoader,
+  FormSelectDropdown,
+  TypeFace,
+} from '@greysole/spooder-component-library';
 
 interface FormAssetSelectProps {
   formKey: string;
@@ -49,10 +55,14 @@ export default function FormAssetSelect(props: FormAssetSelectProps) {
   }
 
   return (
-    <Box>
-      <FormSelectDropdown formKey={formKey} options={assetOptions} />
-      <Box marginLeft='medium'>
-        <Button icon={faFileImport} onClick={handleClick} />
+    <Box flexFlow='column'>
+      <TypeFace fontWeight='bold'>{label}</TypeFace>
+
+      <Box>
+        <FormSelectDropdown formKey={formKey} options={assetOptions} />
+        <Box marginLeft='medium'>
+          <Button icon={faFileImport} onClick={handleClick} />
+        </Box>
       </Box>
       <input
         type='file'

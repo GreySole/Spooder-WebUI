@@ -5,6 +5,7 @@ import {
   MouseArea,
   Stack,
   TypeFace,
+  useTheme,
 } from '@greysole/spooder-component-library';
 import React, { useState } from 'react';
 import { Log } from '../OSCMonitor';
@@ -18,37 +19,51 @@ interface ExpandableLogProps {
 export default function ExpandableLog(props: ExpandableLogProps) {
   const { log } = props;
   const [expanded, setExpanded] = useState(false);
+  const { isMobileDevice } = useTheme();
+
+  function getLogArgs(log: Log) {
+    if (Array.isArray(log.args)) {
+      return log.args.map((arg, i) => <TypeFace key={i}>{arg}</TypeFace>);
+    } else {
+      try {
+        const obj = JSON.parse(log.args);
+        return Object.keys(obj).map((key, i) => (
+          <TypeFace key={key}>{`'${key}' : ${obj[key]}`}</TypeFace>
+        ));
+      } catch (e) {
+        return <TypeFace>{log.args}</TypeFace>;
+      }
+    }
+  }
 
   return (
-    <Border>
-      <MouseArea onClick={() => setExpanded(!expanded)}>
-        <Box flexFlow='column'>
+    <Box flexFlow='column'>
+      <Border>
+        <MouseArea onClick={() => setExpanded(!expanded)}>
           <Box
             width='100%'
-            flexFlow='row'
+            flexFlow={isMobileDevice ? 'column' : 'row'}
             justifyContent='space-between'
             alignItems='center'
             padding='small'
           >
-            <Columns spacing='small'>
+            <Columns width={isMobileDevice ? '100%' : '50%'} spacing='small'>
               <FontAwesomeIcon icon={expanded ? faCaretDown : faCaretRight} />
               <TypeFace>{log.type}</TypeFace>
               <TypeFace>{log.direction}</TypeFace>
-              <TypeFace>{log.address}</TypeFace>
+              <TypeFace truncate>{log.address}</TypeFace>
             </Columns>
-            <TypeFace whiteSpace='nowrap' textOverflow='ellipsis'>
+            <TypeFace width={isMobileDevice ? '100%' : '50%'} truncate>
               {log.args.toString()}
             </TypeFace>
           </Box>
           {expanded ? (
-            <Stack spacing='small'>
-              {log.args.map((arg, i) => (
-                <TypeFace key={i}>{arg}</TypeFace>
-              ))}
+            <Stack spacing='small' padding='small'>
+              {getLogArgs(log)}
             </Stack>
           ) : null}
-        </Box>
-      </MouseArea>
-    </Border>
+        </MouseArea>
+      </Border>
+    </Box>
   );
 }

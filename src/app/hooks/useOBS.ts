@@ -16,14 +16,15 @@ import {
   useGetInputListMutation,
   useGetInputMuteMutation,
   useGetInputVolumeMutation,
-  useGetRecordStatusMutation,
+  useGetRecordStatusQuery,
   useGetSceneItemListMutation,
   useGetSceneListMutation,
-  useGetStreamStatusMutation,
+  useGetStreamStatusQuery,
   useGetStudioModeEnabledMutation,
   useGetVolumeDeckMutation,
 } from '../api/obsFetchSlice';
 import {
+  useGetOutpuStatusQuery,
   usePauseRecordMutation,
   useResumeRecordMutation,
   useSetCurrentPreviewSceneMutation,
@@ -90,23 +91,13 @@ export default function useOBS() {
 
   function getObsFetchApi() {
     function getStreamStatusQuery() {
-      const [getStreamStatusMutation, { isLoading, isSuccess, error }] =
-        useGetStreamStatusMutation();
-      function getStreamStatus() {
-        return getStreamStatusMutation(null);
-      }
-
-      return { getStreamStatus, isLoading, isSuccess, error };
+      const { data, isLoading, error, refetch } = useGetStreamStatusQuery(null);
+      return { data, isLoading, error, refetch };
     }
 
     function getRecordStatusQuery() {
-      const [getRecordStatusMutation, { isLoading, isSuccess, error }] =
-        useGetRecordStatusMutation();
-      function getRecordStatus() {
-        return getRecordStatusMutation(null);
-      }
-
-      return { getRecordStatus, isLoading, isSuccess, error };
+      const { data, isLoading, error, refetch } = useGetRecordStatusQuery(null);
+      return { data, isLoading, error, refetch };
     }
 
     function getInputMuteQuery() {
@@ -231,6 +222,11 @@ export default function useOBS() {
   }
 
   function getObsControlApi() {
+    function getOutputStatus() {
+      const { data, isLoading, error, refetch } = useGetOutpuStatusQuery(null);
+      return { data, isLoading, error, refetch };
+    }
+
     function getStartStream() {
       const [startStreamMutation, { isLoading, isSuccess, error }] = useStartStreamMutation();
       function startStream() {
@@ -340,6 +336,7 @@ export default function useOBS() {
     }
 
     return {
+      getOutputStatus,
       getStartStream,
       getStopStream,
       getStartRecord,

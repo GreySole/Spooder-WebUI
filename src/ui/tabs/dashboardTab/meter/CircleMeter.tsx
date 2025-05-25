@@ -23,7 +23,7 @@ export default function CircleMeter(props: CircleMeterProps) {
   return (
     <div style={{ textAlign: 'center', transition: 'all' }}>
       <svg width='200' height='200'>
-        <text x='100' y='40' fill='white' textAnchor='middle' dy='.3em' fontSize='20'>
+        <text x='100' y='50' fill='white' textAnchor='middle' dy='.3em' fontSize='20'>
           {label}
         </text>
         <circle

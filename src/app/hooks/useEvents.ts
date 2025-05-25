@@ -110,12 +110,13 @@ export default function useEvents() {
   const { showToast } = useToast();
 
   function getEvents() {
-    const { data, isLoading, error } = useGetEventsQuery(null);
+    const { data, isLoading, error, refetch } = useGetEventsQuery(null);
     return {
       events: data?.events,
       groups: data?.groups,
       isLoading,
       error,
+      refetch,
     };
   }
 

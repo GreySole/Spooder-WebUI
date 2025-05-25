@@ -1,15 +1,7 @@
 import React from 'react';
 import { KeyedObject } from '../../../../Types';
-import PluginInput from '../../../pluginTab/pluginSettings/pluginInput/PluginInput';
-import PluginSubform from '../../../pluginTab/pluginSettings/PluginSubform';
 import { useFormContext } from 'react-hook-form';
-import {
-  Box,
-  FormSelectDropdown,
-  Stack,
-  translateCondition,
-} from '@greysole/spooder-component-library';
-import PluginMultiInput from '../../../pluginTab/pluginSettings/pluginInput/PluginMultiInput';
+import { Box, FormSelectDropdown, Stack } from '@greysole/spooder-component-library';
 import PluginSettingsContextProvider from '../../../pluginTab/pluginSettings/context/PluginSettingsContext';
 import PluginInputsList from '../../../pluginTab/pluginSettings/pluginInput/PluginInputsList';
 

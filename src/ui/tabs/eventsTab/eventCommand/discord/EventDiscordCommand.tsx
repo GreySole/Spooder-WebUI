@@ -8,6 +8,8 @@ import {
   Box,
   FormNumberInput,
   FormSelectDropdown,
+  FormBoolSwitch,
+  FormTextInput,
 } from '@greysole/spooder-component-library';
 import React from 'react';
 import FormCodeInput from '../../../../common/input/form/FormCodeInput';
@@ -26,8 +28,12 @@ export default function EventDiscordCommand(props: EventCommandProps) {
   const delayFormKey = buildKey(formKey, 'delay');
   const discordGuildFormKey = buildKey(formKey, 'guild');
   const discordChannelFormKey = buildKey(formKey, 'channel');
+  const useLinkButtonFormKey = buildKey(formKey, 'use_link_button');
+  const linkButtonTextFormKey = buildKey(formKey, 'link_label');
+  const linkFormKey = buildKey(formKey, 'link_url');
 
   const selectedGuild = watch(discordGuildFormKey, '');
+  const useLinkButton = watch(useLinkButtonFormKey, false);
 
   const {
     data: channelData,
@@ -38,8 +44,9 @@ export default function EventDiscordCommand(props: EventCommandProps) {
     return null;
   }
 
-  let guildOptions = [{ value: '', label: 'Select Guild' }];
-  let channelOptions = [{ value: '', label: 'Select Channel' }];
+  const guildOptions = [{ value: '', label: 'Select Guild' }];
+  const channelOptions = [{ value: '', label: 'Select Channel' }];
+
   for (let d in channelData) {
     guildOptions.push({ value: d, label: channelData[d].name });
   }
@@ -60,6 +67,13 @@ export default function EventDiscordCommand(props: EventCommandProps) {
         <FormCodeInput label='Script' formKey={messageFormKey} />
       </Box>
       <ResponseScriptTest eventName={eventName} commandIndex={commandIndex} />
+      <FormBoolSwitch label='Use Link Button' formKey={useLinkButtonFormKey} />
+      {useLinkButton ? (
+        <>
+          <FormTextInput label='Link Button Text:' formKey={linkButtonTextFormKey} />
+          <FormTextInput label='Link URL:' formKey={linkFormKey} />
+        </>
+      ) : null}
       <FormNumberInput label='Delay (Milliseconds):' formKey={delayFormKey} />
     </Stack>
   );

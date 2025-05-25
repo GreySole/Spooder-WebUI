@@ -9,6 +9,7 @@ import {
   TypeFace,
 } from '@greysole/spooder-component-library';
 import './ui/common/css/core/index.scss';
+import { DialogContextProvider } from './ui/app/DialogContextProvider';
 
 export default function InitLayer() {
   const { getServerState } = useServer();
@@ -35,7 +36,9 @@ export default function InitLayer() {
 
   return (
     <OscProvider host={data.host} port={data.port}>
-      <App />
+      <DialogContextProvider>
+        <App />
+      </DialogContextProvider>
     </OscProvider>
   );
 }

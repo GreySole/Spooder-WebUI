@@ -1,7 +1,13 @@
 import React from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { KeyedObject } from '../../../Types';
-import { FormTextInput, FormBoolSwitch } from '@greysole/spooder-component-library';
+import {
+  FormTextInput,
+  FormBoolSwitch,
+  Stack,
+  Box,
+  TypeFace,
+} from '@greysole/spooder-component-library';
 import ObsConnectButton from './ObsConnectButton';
 
 interface ObsLoginProps {
@@ -19,13 +25,18 @@ export default function ObsLogin(props: ObsLoginProps) {
 
   return (
     <FormProvider {...ObsLogin}>
-      <div className='obs-login-info'>
+      <Stack spacing='medium' padding='medium'>
+        <TypeFace>
+          Enter your OBS websocket credentials here. Click Remember to save the login to file!
+        </TypeFace>
         <FormTextInput formKey='url' label='IP Address' />
         <FormTextInput formKey='port' label='Port' />
         <FormTextInput formKey='password' label='Password' password />
         <FormBoolSwitch formKey='remember' label='Remember' />
-        <ObsConnectButton />
-      </div>
+        <Box>
+          <ObsConnectButton />
+        </Box>
+      </Stack>
     </FormProvider>
   );
 }

@@ -46,12 +46,14 @@ export default function EventCommands(props: EventCommandsProps) {
   return (
     <Stack height='100%' spacing='medium'>
       <TypeFace>Commands:</TypeFace>
-      <Button
-        label={showTimeline ? 'Commands' : 'Timeline'}
-        icon={showTimeline ? faList : faTimeline}
-        iconSize='large'
-        onClick={() => setShowTimeline(!showTimeline)}
-      />
+      <Box>
+        <Button
+          label={showTimeline ? 'Commands' : 'Timeline'}
+          icon={showTimeline ? faList : faTimeline}
+          iconSize='large'
+          onClick={() => setShowTimeline(!showTimeline)}
+        />
+      </Box>
       {showTimeline ? (
         <EventCommandTimeline eventName={eventName} />
       ) : (

@@ -11,18 +11,18 @@ export default function InstallPluginModalContent({
   setIsModalOpen,
 }: InstallPluginModalContentProps) {
   const { getInstallPlugin } = usePlugins();
-  const { newPlugins, setNewPlugins } = usePluginContext();
+  const { newPlugins, setNewPlugins, setPluginInstalled } = usePluginContext();
   const { installPlugin } = getInstallPlugin();
 
   function validateFile(files?: FileList) {
     if (files === undefined) return;
     const file = files[0];
+    const fileName = file.name.substring(0, file.name.lastIndexOf('.'));
+    setPluginInstalled(fileName);
     setNewPlugins({
       ...newPlugins,
-      [file.name]: {
-        name: '',
-        author: '',
-        description: '',
+      [fileName]: {
+        name: fileName,
         status: 'start',
         message: 'installing...',
       },

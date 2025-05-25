@@ -9,6 +9,8 @@ import {
   Button,
   Expandable,
   Box,
+  FormTextInput,
+  FormSelectDropdown,
 } from '@greysole/spooder-component-library';
 import { useFormContext } from 'react-hook-form';
 import { KeyedObject } from '../../../Types';
@@ -23,7 +25,6 @@ interface PluginSubformProps {
 export default function PluginSubform(props: PluginSubformProps) {
   const { formKey } = props;
   const { form, defaults } = usePluginSettingsContext();
-  const [nameChanges, setNameChanges] = useState<KeyedObject>({});
   const { setValue, getValues } = useFormContext();
   const subform = form[formKey].form;
   const [clones, setClones] = useState({ ...getValues(formKey) });
@@ -34,27 +35,31 @@ export default function PluginSubform(props: PluginSubformProps) {
     for (let v in clones) {
       newNames[v] = v;
     }
-    setNameChanges(newNames);
+    setValue(`${formKey}._name_changes`, newNames);
   }, [clones]);
 
   const removeForm = (key: string) => {
     const newValues = { ...clones };
+    const nameChanges = { ...getValues(`${formKey}._name_changes`) };
     delete newValues[key];
     setValue(formKey, newValues);
     const newNames = { ...nameChanges };
     delete newNames[key];
-    setNameChanges(newNames);
+
     setClones(newValues);
   };
 
   const addForm = () => {
     const newValues = { ...clones };
-    newValues['newform1'] = Object.assign({}, defaults[formKey]);
+    const newFormName = `newform${Object.keys(newValues).length + 1}`;
+    newValues[newFormName] = Object.assign({}, defaults[formKey]);
     console.log('DEFAULTS', defaults[formKey]);
+    const nameChanges = { ...getValues(`${formKey}._name_changes`) };
+
     setValue(formKey, newValues);
-    setNameChanges({
+    setValue(`${formKey}._name_changes`, {
       ...nameChanges,
-      newform1: 'newform1',
+      [newFormName]: newFormName,
     });
     setClones(newValues);
   };
@@ -91,17 +96,7 @@ export default function PluginSubform(props: PluginSubformProps) {
 
     if (!subform.keyname) {
       keyInput = (
-        <TextInput
-          label={'Key Name'}
-          value={nameChanges[se]}
-          onInput={(value) => {
-            setNameChanges({
-              ...nameChanges,
-              [se]: value,
-            });
-          }}
-          jsonFriendly
-        />
+        <FormTextInput label={'Key Name'} formKey={`${formKey}._name_changes.${se}`} jsonFriendly />
       );
     } else {
       if (subform.keyname.type === 'select') {
@@ -112,29 +107,17 @@ export default function PluginSubform(props: PluginSubformProps) {
         }
 
         keyInput = (
-          <SelectDropdown
+          <FormSelectDropdown
             label={subform.keyname.label}
             options={optionArray}
-            value={nameChanges[se]}
-            onChange={(value) => {
-              setNameChanges({
-                ...nameChanges,
-                [se]: value,
-              });
-            }}
+            formKey={`${formKey}._name_changes.${se}`}
           />
         );
       } else {
         keyInput = (
-          <TextInput
+          <FormTextInput
             label={subform.keyname.label}
-            value={nameChanges[se]}
-            onInput={(value) => {
-              setNameChanges({
-                ...nameChanges,
-                [se]: value,
-              });
-            }}
+            formKey={`${formKey}._name_changes.${se}`}
             jsonFriendly
           />
         );
@@ -142,7 +125,7 @@ export default function PluginSubform(props: PluginSubformProps) {
     }
 
     subClones.push(
-      <SubExpandable label={nameChanges[se]} key={`subelement-${formKey}.${se}`}>
+      <SubExpandable label={se} key={`subelement-${formKey}.${se}`}>
         <Stack width='100%' spacing='medium' padding='small'>
           {keyInput}
           {subInputs}

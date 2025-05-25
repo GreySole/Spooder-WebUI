@@ -87,8 +87,10 @@ export default function NavigationMenu() {
           value={urlParams.get('tab') != null}
           label='Stay Here'
         />
-        <Button label='Refresh Plugins' onClick={refreshPlugins} />
-        <Button label='Restart Chat' onClick={() => {}} />
+        <Columns spacing='small'>
+          <Button label='Refresh Plugins' onClick={refreshPlugins} />
+          <Button label='Restart Chat' onClick={() => {}} />
+        </Columns>
       </Stack>
       <Stack padding='small' spacing='small'>
         <TypeFace fontSize='large'>Shares</TypeFace>

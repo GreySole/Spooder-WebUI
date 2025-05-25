@@ -14,10 +14,11 @@ export default function DiskMeters(props: DiskMetersProps) {
       <h1>Disk</h1>
       <Box flexFlow={'row wrap'} alignItems={'center'} justifyContent={'center'}>
         {diskUsage.map((disk: KeyedObject) => {
+          const label = disk.label.includes('/') ? disk.label.split('/').pop() : disk.label;
           return (
             <CircleMeter
               key={disk.label}
-              label={disk.label}
+              label={label}
               value={disk.used}
               min={0}
               max={disk.total}

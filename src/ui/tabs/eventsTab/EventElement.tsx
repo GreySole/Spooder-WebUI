@@ -13,12 +13,15 @@ import {
   ButtonRow,
   useTheme,
   Icon,
+  Button,
 } from '@greysole/spooder-component-library';
 import { useFormContext } from 'react-hook-form';
 import { StyleSize } from '../../Types';
 import { useEventTableModal } from './context/EventTableModalContext';
 import { EVENT_KEY, buildEventKey, buildKey } from './FormKeys';
 import { TwitchIcon } from '../../common/icons/icons';
+import { useDialogContext } from '../../app/DialogContextProvider';
+import useEvents from '../../../app/hooks/useEvents';
 
 interface EventElementProps {
   eventName: string;
@@ -26,21 +29,38 @@ interface EventElementProps {
 
 export default function EventElement(props: EventElementProps) {
   const { eventName } = props;
-  const { setValue, getValues, watch } = useFormContext();
+  const { setValue, getValues, watch, unregister } = useFormContext();
+  const { getEvents, getSaveEvents } = useEvents();
+  const { refetch } = getEvents();
+  const { saveEvents } = getSaveEvents();
+  const { openDialog, closeDialog } = useDialogContext();
   const { open, setEventName } = useEventTableModal();
   const { isMobileDevice } = useTheme();
   const event = getValues(`${EVENT_KEY}.${eventName}`);
   const eventTriggers = event.triggers;
 
   function deleteEvent() {
-    const deleteConfirm = confirm('Are you sure you want to delete this event?');
-    if (!deleteConfirm) {
-      return;
-    }
-    let newState = getValues(EVENT_KEY);
-    delete newState[eventName];
-
-    setValue(EVENT_KEY, newState);
+    openDialog(
+      `Delete ${eventName}?`,
+      <TypeFace>Are you sure you want to delete {eventName}?</TypeFace>,
+      [
+        <Button
+          label='Cancel'
+          onClick={() => {
+            closeDialog();
+          }}
+        />,
+        <Button
+          label='Delete'
+          onClick={() => {
+            unregister(buildKey(EVENT_KEY, eventName));
+            saveEvents(getValues());
+            refetch();
+            closeDialog();
+          }}
+        />,
+      ],
+    );
   }
 
   function editEvent() {
@@ -50,15 +70,15 @@ export default function EventElement(props: EventElementProps) {
 
   let triggerIcons = [];
   if (eventTriggers.chat?.enabled) {
-    triggerIcons.push(<Icon icon={faCommentDots} iconSize='xlarge' />);
+    triggerIcons.push(<Icon key={'chaticon'} icon={faCommentDots} iconSize='xlarge' />);
   }
 
   if (eventTriggers.twitch?.enabled) {
-    triggerIcons.push(<Icon icon={TwitchIcon} iconSize='xlarge' />);
+    triggerIcons.push(<Icon key={'twitchicon'} icon={TwitchIcon} iconSize='xlarge' />);
   }
 
   if (eventTriggers.osc?.enabled) {
-    triggerIcons.push(<Icon icon={faNetworkWired} iconSize='xlarge' />);
+    triggerIcons.push(<Icon key={'oscicon'} icon={faNetworkWired} iconSize='xlarge' />);
   }
   const eventKey = buildEventKey(eventName);
   const nameKey = buildKey(eventKey, 'name');

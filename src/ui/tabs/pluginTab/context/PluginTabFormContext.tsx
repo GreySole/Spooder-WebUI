@@ -4,6 +4,7 @@ import usePlugins from '../../../../app/hooks/usePlugins';
 import { PluginsObject, ToastType } from '../../../Types';
 import useToast from '../../../../app/hooks/useToast';
 import { useOSC } from '@greysole/spooder-component-library';
+import { preProcessFile } from 'typescript';
 
 export const PluginContext = createContext({
   plugins: {} as PluginsObject,
@@ -14,9 +15,11 @@ export const PluginContext = createContext({
   pluginInfoOpen: '',
   pluginSettingsOpen: '',
   pluginAssetsOpen: '',
+  pluginInstalled: '',
   setPluginInfoOpen: (info: string) => {},
   setPluginSettingsOpen: (settings: string) => {},
   setPluginAssetsOpen: (assets: string) => {},
+  setPluginInstalled: (installedPlugin: string) => {},
   newPlugins: {} as PluginsObject,
   setNewPlugins: (newPlugins: PluginsObject) => {},
 });
@@ -36,6 +39,7 @@ export const PluginProvider = (props: PluginProviderProps) => {
   const [pluginInfoOpen, setPluginInfoOpen] = useState('');
   const [pluginSettingsOpen, setPluginSettingsOpen] = useState('');
   const [pluginAssetsOpen, setPluginAssetsOpen] = useState('');
+  const [pluginInstalled, setPluginInstalled] = useState('');
   const [newPlugins, setNewPlugins] = useState({} as PluginsObject);
   const { showToast } = useToast();
 
@@ -45,13 +49,15 @@ export const PluginProvider = (props: PluginProviderProps) => {
     addListener('/spooder/plugin/install/progress', (message: any) => {
       let progressObj = JSON.parse(message.args[0]);
 
-      let newNewPlugins = Object.assign({}, newPlugins);
-      console.log('PROGRESS', newNewPlugins);
+      let newNewPlugins = Object.assign({});
+      console.log('PROGRESS', progressObj);
       newNewPlugins[progressObj.pluginName] = Object.assign(newNewPlugins[progressObj.pluginName], {
         status: progressObj.status,
         message: progressObj.message,
       });
-      setNewPlugins(newNewPlugins);
+      setNewPlugins((prevNewPlugins) => {
+        return { ...prevNewPlugins, [progressObj.pluginName]: progressObj };
+      });
     });
 
     addListener('/spooder/plugin/install/complete', (message: any) => {
@@ -82,9 +88,11 @@ export const PluginProvider = (props: PluginProviderProps) => {
     pluginInfoOpen,
     pluginSettingsOpen,
     pluginAssetsOpen,
+    pluginInstalled,
     setPluginInfoOpen,
     setPluginSettingsOpen,
     setPluginAssetsOpen,
+    setPluginInstalled,
     newPlugins,
     setNewPlugins,
   };

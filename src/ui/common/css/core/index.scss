@@ -10,3 +10,54 @@
 @use '../deck/SceneController.scss';
 @use '../deck/SourceControl.scss';
 @use '../deck/VolumeControl.scss';
+
+.dialog {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0);
+  z-index: 1000;
+  transition: background-color 0.3s ease;
+}
+
+.dialog.open {
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.dialog-window {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  min-width: 25%;
+  max-width: 80%;
+  max-height: 80%;
+  top: 50%;
+  left: 50%;
+  background-color: var(--color-background-far);
+  border: solid 2px var(--button-border-color);
+  transform: translate(-50%, -50%);
+  border-radius: 8px;
+}
+
+.dialog-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 0.5rem;
+  background-color: var(--color-background-near);
+  border-radius: 8px 8px 0 0;
+}
+
+.dialog-content {
+  padding: 0.5rem;
+  width: 100%;
+  height: 100%;
+}
+
+.dialog-close {
+  position: relative;
+  cursor: pointer;
+}

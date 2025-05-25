@@ -4,6 +4,9 @@ export const obsControlApi = createApi({
   reducerPath: 'obsControlApi',
   baseQuery: fetchBaseQuery({ baseUrl: window.location.origin + '/obs/control' }),
   endpoints: (builder) => ({
+    getOutpuStatus: builder.query({
+      query: () => '/get_output_status',
+    }),
     startStream: builder.mutation({
       query: () => ({
         url: '/start_stream',
@@ -110,6 +113,7 @@ export const obsControlApi = createApi({
 });
 
 export const {
+  useGetOutpuStatusQuery,
   usePauseRecordMutation,
   useResumeRecordMutation,
   useSetCurrentPreviewSceneMutation,

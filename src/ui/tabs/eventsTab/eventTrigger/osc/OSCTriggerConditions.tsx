@@ -2,16 +2,7 @@ import React from 'react';
 import { useFormContext } from 'react-hook-form';
 import { EventTriggerProps, OSCConditionType, OSCHandleType } from '../../../../Types';
 import { buildKey, buildTriggerKey } from '../../FormKeys';
-import {
-  Border,
-  Box,
-  Button,
-  Expandable,
-  FormSelectDropdown,
-  FormTextInput,
-  Stack,
-  TypeFace,
-} from '@greysole/spooder-component-library';
+import { Box, Button, Expandable, Stack } from '@greysole/spooder-component-library';
 import { faPlus, faTrash } from '@fortawesome/free-solid-svg-icons';
 import OSCTriggerConditionGroup from './OSCTriggerConditionGroup';
 
@@ -53,13 +44,15 @@ export default function OSCTriggerConditions(props: EventTriggerProps) {
             deleteConditionGroup={deleteConditionGroup}
           />
         ))}
-        <Button
-          icon={faPlus}
-          label='Add Group'
-          onClick={() => {
-            addConditionGroup();
-          }}
-        />
+        <Box width='100%' justifyContent='flex-end'>
+          <Button
+            icon={faPlus}
+            label='Add Group'
+            onClick={() => {
+              addConditionGroup();
+            }}
+          />
+        </Box>
       </Stack>
     </Expandable>
   );

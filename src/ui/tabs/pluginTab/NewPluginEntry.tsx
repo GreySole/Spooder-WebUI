@@ -47,7 +47,7 @@ export default function NewPluginEntry(props: PluginComponentProps) {
             <Stack spacing='medium'>
               <Stack spacing='none'>
                 <TypeFace fontSize='xlarge'>{plugin.name}</TypeFace>
-                <TypeFace fontSize='medium'>{plugin.version + ' by ' + plugin.author}</TypeFace>
+                <TypeFace fontSize='medium'>{plugin.status + ' : ' + plugin.message}</TypeFace>
               </Stack>
             </Stack>
           </Columns>

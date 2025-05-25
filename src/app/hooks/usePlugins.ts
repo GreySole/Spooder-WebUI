@@ -157,8 +157,8 @@ export default function usePlugins() {
   function getSavePluginSettings() {
     const [savePluginSettingsMutation, { isLoading, isSuccess, error }] =
       useSavePluginSettingsMutation();
-    function savePluginSettings(pluginName: string, newData: any) {
-      return savePluginSettingsMutation({ pluginName, newData });
+    function savePluginSettings(pluginName: string, new_settings: any) {
+      return savePluginSettingsMutation({ pluginName, new_settings });
     }
     return { savePluginSettings, isLoading, isSuccess, error };
   }

@@ -9,8 +9,9 @@ import React from 'react';
 import { usePluginContext } from '../context/PluginTabFormContext';
 import usePlugins from '../../../../app/hooks/usePlugins';
 import { StyleSize } from '../../../Types';
-import { ButtonRow } from '@greysole/spooder-component-library';
+import { Button, ButtonRow, TypeFace } from '@greysole/spooder-component-library';
 import { StyleSizeButton } from '@greysole/spooder-component-library/dist/types/Types';
+import { useDialogContext } from '../../../app/DialogContextProvider';
 
 interface PluginButtonRowProps {
   pluginName: string;
@@ -33,6 +34,7 @@ export default function PluginButtonRow(props: PluginButtonRowProps) {
 
   const { getDeletePlugin } = usePlugins();
   const { deletePlugin } = getDeletePlugin();
+  const { openDialog, closeDialog } = useDialogContext();
 
   function pluginInfo(plugin: string) {
     setPluginSettingsOpen('');
@@ -65,14 +67,27 @@ export default function PluginButtonRow(props: PluginButtonRowProps) {
   }
 
   const confirmDeletePlugin = (pluginName: string) => {
-    const deleteConfirmation = confirm(
-      'Are you sure you want to delete the plugin ' + pluginName + '?',
+    openDialog(
+      `Delete ${pluginName}?`,
+      <TypeFace>Are you sure you want to delete {pluginName}?</TypeFace>,
+      [
+        <Button
+          label='Cancel'
+          onClick={() => {
+            closeDialog();
+          }}
+        />,
+        <Button
+          label='Delete'
+          onClick={() => {
+            deletePlugin(pluginName).then(() => {
+              reloadPlugins();
+              closeDialog();
+            });
+          }}
+        />,
+      ],
     );
-    if (deleteConfirmation) {
-      deletePlugin(pluginName).then(() => {
-        reloadPlugins();
-      });
-    }
   };
 
   return status == 'ok' ? (
@@ -103,7 +118,7 @@ export default function PluginButtonRow(props: PluginButtonRowProps) {
           color: '#000',
           isLink: true,
           linkName: pluginName,
-          link: '/plugins/export_plugin/' + pluginName,
+          link: '/plugin/export_plugin?pluginname=' + pluginName,
           isActive: false,
         },
         {

@@ -4,6 +4,7 @@ import {
   Expandable,
   BoolSwitch,
   TextInput,
+  Stack,
 } from '@greysole/spooder-component-library';
 import React from 'react';
 
@@ -21,7 +22,7 @@ export default function CreateUserModalContent() {
     setPermissions(newPermissions.join(''));
   };
   return (
-    <Box>
+    <Stack spacing='medium'>
       <TextInput
         label='Username'
         value={username}
@@ -47,6 +48,6 @@ export default function CreateUserModalContent() {
           onChange={() => togglePermission('s')}
         />
       </Expandable>
-    </Box>
+    </Stack>
   );
 }

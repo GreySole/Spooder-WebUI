@@ -5,6 +5,7 @@ import {
   TypeFace,
   TextInput,
   Button,
+  Columns,
 } from '@greysole/spooder-component-library';
 import React, { useState } from 'react';
 import useEvents from '../../../../../app/hooks/useEvents';
@@ -46,26 +47,28 @@ export default function ResponseScriptTest(props: ResponseScriptTestProps) {
             <TypeFace>{verifyScriptResponse}</TypeFace>
           </Box>
         </Border>
-        <TextInput
-          placeholder='Input Message'
-          value={inputMessage}
-          onInput={(value) => {
-            setInputMessage(value);
-          }}
-        />
-        <Button
-          label='Verify Script'
-          onClick={() => {
-            verifyResponseScript(command, inputMessage, message).then((res) => {
-              setVerifyScriptResponse(
-                typeof res.data.response == 'string'
-                  ? res.data.response
-                  : JSON.stringify(res.data.response, null, 2),
-              );
-              setVerifyScriptStatus(res.data.status);
-            });
-          }}
-        />
+        <Columns spacing='small'>
+          <TextInput
+            placeholder='Input Message'
+            value={inputMessage}
+            onInput={(value) => {
+              setInputMessage(value);
+            }}
+          />
+          <Button
+            label='Verify Script'
+            onClick={() => {
+              verifyResponseScript(command, inputMessage, message).then((res) => {
+                setVerifyScriptResponse(
+                  typeof res.data.response == 'string'
+                    ? res.data.response
+                    : JSON.stringify(res.data.response, null, 2),
+                );
+                setVerifyScriptStatus(res.data.status);
+              });
+            }}
+          />
+        </Columns>
       </Stack>
     </Box>
   );

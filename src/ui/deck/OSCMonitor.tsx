@@ -6,7 +6,7 @@ import {
   faT,
   faU,
 } from '@fortawesome/free-solid-svg-icons';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { KeyedObject, StyleSize } from '../Types';
 import {
   BoolSwitch,
@@ -17,9 +17,11 @@ import {
   CircleLoader,
   Columns,
   FilterButton,
+  SearchBar,
   Stack,
   TypeFace,
   useOSC,
+  useTheme,
 } from '@greysole/spooder-component-library';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import useServer from '../../app/hooks/useServer';
@@ -33,7 +35,7 @@ export interface Log {
   type: string;
   direction: string;
   address: string;
-  args: any[];
+  args: any[] | any;
 }
 
 interface MasterLog {
@@ -47,6 +49,7 @@ export default function OSCMonitor() {
   const { addListener, removeListener, sendOSC, isReady } = useOSC();
   const { getMonitorLogs } = useServer();
   const { data, isLoading, error } = getMonitorLogs();
+  const { isMobileDevice } = useTheme();
   /*const [typeFilters, setTypeFilters] = useState<String[]>([
     'tcp',
     'udp',
@@ -54,82 +57,91 @@ export default function OSCMonitor() {
     'receive',
     'plugin',
   ]);*/
-  const [addressFilters, setAddressFilters] = useState<String[]>([]);
   const [tcpLogs, setTcpLogs] = useState<Log[]>([]);
   const [udpLogs, setUdpLogs] = useState<Log[]>([]);
   const [pluginLogs, setPluginLogs] = useState<Log[]>([]);
   const [addressInput, setAddressInput] = useState<string>('');
-  const [variables, setVariables] = useState<KeyedObject>({});
-  const [varMode, setVarMode] = useState<boolean>(false);
   const [scrollLock, setScrollLock] = useState<boolean>(false);
   const [selectedTab, setSelectedTab] = useState<string>('tcp');
   const [selectedTypeFilters, setSelectedTypeFilters] = useState<string[]>(['send', 'receive']);
+  const logContainer = useRef<HTMLDivElement>(null);
 
-  const typeFilters = [
-    { label: 'Send', icon: faArrowUp, value: 'send' },
-    { label: 'Receive', icon: faArrowDown, value: 'receive' },
-    { label: 'Plugin', icon: faPlug, value: 'plugin' },
-  ];
+  const getLog = useCallback(
+    (message: any) => {
+      const logObj = JSON.parse(message.args[0]);
+
+      switch (logObj.type) {
+        case 'tcp':
+          setTcpLogs((prevTcpLogs) => [...prevTcpLogs, logObj]);
+          break;
+        case 'udp':
+          setUdpLogs((prevUdpLogs) => [...prevUdpLogs, logObj]);
+          break;
+        case 'plugin':
+          setPluginLogs((prevPluginLogs) => [...prevPluginLogs, logObj]);
+          break;
+      }
+    },
+    [tcpLogs, udpLogs, pluginLogs],
+  );
 
   useEffect(() => {
     if (data) {
-      setTcpLogs([...data.tcp, ...data.tcp]);
+      setTcpLogs(data.tcp);
       setUdpLogs(data.udp);
       setPluginLogs(data.plugin);
     }
     addListener('/spooder/monitor/log', getLog);
-    sendOSC('/spooder/monitor/logging', 1);
+    sendOSC('/spooder/monitor/live_logging', 1);
 
     return () => {
       removeListener('/spooder/monitor/log');
     };
   }, [data]);
 
+  useEffect(() => {
+    const checkScrollLock = (e: any) => {
+      if (e.currentTarget === null) {
+        return;
+      }
+      if (
+        e.currentTarget.scrollTop >=
+        e.currentTarget.scrollHeight - e.currentTarget.clientHeight
+      ) {
+        setScrollLock(true);
+      } else {
+        setScrollLock(false);
+      }
+    };
+    if (logContainer.current) {
+      logContainer.current.addEventListener('scroll', checkScrollLock);
+    }
+    console.log('Log Container Render');
+    return () => {
+      if (logContainer.current) {
+        logContainer.current.removeEventListener('scroll', checkScrollLock);
+      }
+    };
+  }, [logContainer.current]);
+
+  useEffect(() => {
+    if (scrollLock) {
+      scrollToBottom();
+    }
+  }, [tcpLogs, udpLogs, pluginLogs]);
+
   if (!isReady) {
-    return <h1>Hold on...we're connecting to OSC</h1>;
+    return null;
   }
 
   if (isLoading) {
     return <PageCircleLoader />;
   }
 
-  function getLog(message: any) {
-    let logObj = JSON.parse(message.args[0]);
-    console.log(logObj);
-
-    switch (logObj.type) {
-      case 'tcp':
-        setTcpLogs([...tcpLogs, logObj]);
-        break;
-      case 'udp':
-        setUdpLogs([...udpLogs, logObj]);
-        break;
-      case 'plugin':
-        setPluginLogs([...pluginLogs, logObj]);
-        break;
-    }
-  }
-
   function scrollToBottom() {
-    const monitorLog = document.querySelector('.osc-monitor-logs');
-    if (monitorLog) {
-      monitorLog.scrollTop = monitorLog.scrollHeight;
+    if (logContainer.current) {
+      logContainer.current.scrollTop = logContainer.current.scrollHeight;
     }
-  }
-
-  function scrollToLock(e: any) {
-    if (
-      e.currentTarget.scrollTop >=
-      e.currentTarget.scrollHeight - e.currentTarget.getBoundingClientRect().height
-    ) {
-      setScrollLock(true);
-    } else {
-      setScrollLock(false);
-    }
-  }
-
-  function switchModes(e: any) {
-    setVarMode(e.currentTarget.checked);
   }
 
   let displayLogs = [] as Log[];
@@ -141,90 +153,86 @@ export default function OSCMonitor() {
     displayLogs = pluginLogs;
   }
 
-  if (varMode == false) {
-    return (
-      <Box flexFlow='column'>
-        <Box height='100%' flexFlow='column' padding='medium' marginBottom='var(--footer-height)'>
-          {displayLogs.map((log, index) => (
-            <ExpandableLog log={log} key={index} />
-          ))}
-        </Box>
-        <Footer showFooter={true}>
-          <Box
-            width='100%'
-            flexFlow='row'
-            justifyContent='space-between'
-            alignItems='center'
-            padding='small'
-          >
-            <Columns spacing='small'>
-              <ButtonRow
-                buttonSize='large'
-                iconSize='large'
-                buttons={[
-                  { icon: faT, onClick: () => setSelectedTab('tcp') },
-                  { icon: faU, onClick: () => setSelectedTab('udp') },
-                  {
-                    icon: faPlug,
-                    onClick: () => setSelectedTab('plugin'),
-                  },
-                ]}
-              />
-              <FilterButton
-                options={typeFilters}
-                selectedOptions={selectedTypeFilters}
-                onChange={(newSelections) => {
-                  setSelectedTypeFilters(newSelections);
-                }}
-              />
-            </Columns>
-            {scrollLock ? null : <Button icon={faArrowDown} onClick={() => scrollToBottom()} />}
-          </Box>
-        </Footer>
-      </Box>
-    );
-  } else {
-    let varDivs = [] as React.JSX.Element[];
-    for (let v in variables) {
-      let percentage =
-        Math.floor(
-          ((Math.abs(variables[v].min) + variables[v].value) /
-            (Math.abs(variables[v].min) + Math.abs(variables[v].max))) *
-            100,
-        ) + '%';
+  const height = `calc(100dvh - var(--footer-height) - var(--header-height)${isMobileDevice ? '' : ' - var(--navigation-tabs-height)'})`;
 
-      varDivs.push(
-        <div
-          className='osc-monitor-variable'
-          key={v + variables[v].value}
-          style={{
-            background:
-              'linear-gradient(90deg, rgb(0,128,0) ' + percentage + ', rgb(0,70,0) ' + percentage,
-          }}
+  return (
+    <Box flexFlow='column'>
+      <Box ref={logContainer} height={height} flexFlow='column' padding='medium' overflow='auto'>
+        {displayLogs.map((log, index) => (
+          <ExpandableLog log={log} key={index} />
+        ))}
+      </Box>
+      <Footer showFooter={true}>
+        <Box
+          width='100%'
+          flexFlow='row'
+          justifyContent='space-between'
+          alignItems='center'
+          padding='small'
         >
-          <label>{v}</label>
-          <div className='monitor-variable-numbers'>
-            <div className='monitor-variable-numbers-content'>{variables[v].min}</div>
-            <div className='monitor-variable-numbers-content'>{variables[v].value}</div>
-            <div className='monitor-variable-numbers-content'>{variables[v].max}</div>
-          </div>
-        </div>,
-      );
-    }
-    if (varDivs.length == 0) {
-      varDivs = [<label>Send OSC to display variables</label>];
-    }
-    return (
-      <div className='deck-osc-monitor variable'>
-        <div className='osc-monitor-filters'>
-          <div className='osc-monitor-controls-1'>
-            <div className='monitor-variables-switch'>
-              <BoolSwitch label='Variables:' value={varMode} onChange={switchModes} />
-            </div>
-          </div>
-        </div>
-        <div className='osc-monitor-variables'>{varDivs}</div>
-      </div>
-    );
-  }
+          <Columns width='80%' spacing='small' overflow='auto' paddingTop='small'>
+            <SearchBar
+              placeholder='Filter by address...'
+              value={addressInput}
+              onSearch={(e) => setAddressInput(e)}
+            />
+            <ButtonRow
+              buttonSize='small'
+              iconSize='medium'
+              buttons={[
+                {
+                  icon: faT,
+                  onClick: () => setSelectedTab('tcp'),
+                  isActive: selectedTab == 'tcp',
+                },
+                {
+                  icon: faU,
+                  onClick: () => setSelectedTab('udp'),
+                  isActive: selectedTab == 'udp',
+                },
+                {
+                  icon: faPlug,
+                  onClick: () => setSelectedTab('plugin'),
+                  isActive: selectedTab == 'plugin',
+                },
+              ]}
+            />
+            <ButtonRow
+              buttonSize='small'
+              iconSize='medium'
+              buttons={[
+                {
+                  icon: faArrowUp,
+                  onClick: () => {
+                    if (selectedTypeFilters.includes('send')) {
+                      setSelectedTypeFilters(
+                        selectedTypeFilters.filter((filter) => filter !== 'send'),
+                      );
+                    } else {
+                      setSelectedTypeFilters([...selectedTypeFilters, 'send']);
+                    }
+                  },
+                  isActive: selectedTypeFilters.includes('send'),
+                },
+                {
+                  icon: faArrowDown,
+                  onClick: () => {
+                    if (selectedTypeFilters.includes('receive')) {
+                      setSelectedTypeFilters(
+                        selectedTypeFilters.filter((filter) => filter !== 'receive'),
+                      );
+                    } else {
+                      setSelectedTypeFilters([...selectedTypeFilters, 'receive']);
+                    }
+                  },
+                  isActive: selectedTypeFilters.includes('receive'),
+                },
+              ]}
+            />
+          </Columns>
+          {scrollLock ? null : <Button icon={faArrowDown} onClick={() => scrollToBottom()} />}
+        </Box>
+      </Footer>
+    </Box>
+  );
 }

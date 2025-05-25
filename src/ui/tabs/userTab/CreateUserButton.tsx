@@ -4,12 +4,15 @@ import { useFormContext } from 'react-hook-form';
 import { v4 as uuidv4 } from 'uuid';
 import { KeyedObject } from '../../Types';
 import { Button } from '@greysole/spooder-component-library';
+import { useUserCreateModal } from './context/CreateModalContext';
 
 export default function CreateUserButton() {
   const { setValue, watch } = useFormContext();
+  const { openModal } = useUserCreateModal();
   const users = watch('trusted_users');
 
   const createUser = () => {
+    console.log('createUser');
     let newName = 'newuser';
     let newState = {} as KeyedObject;
     let renameCount = 1;
@@ -31,8 +34,9 @@ export default function CreateUserButton() {
 
     newState.username = newName;
     newState.permission = [];
-
+    console.log('newState', newState);
     setValue(`trusted_users.pending.${newUserId}`, newState);
+    openModal();
   };
   return (
     <Button label='Create User' icon={faPlusCircle} iconSize='lg' onClick={() => createUser()} />

@@ -53,7 +53,7 @@ export default function AddGroupInput() {
             <span> Event name already taken</span>
           </TypeFace>
         ) : null}
-        <Columns spacing='medium' padding='small'>
+        <Columns spacing='medium'>
           <TextInput
             placeholder='Add Group'
             value={addGroupName}
@@ -61,7 +61,7 @@ export default function AddGroupInput() {
             onFocus={() => setInputFocused(true)}
             onBlur={() => setInputFocused(false)}
           />
-          <Button label='Add' onClick={() => onInput(addGroupName)} />
+          <Button label='Add' onClick={() => addGroup(addGroupName)} />
         </Columns>
       </Stack>
     </HotkeysProvider>

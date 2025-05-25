@@ -10,6 +10,7 @@ import React, {
 import { KeyedObject } from '../../../Types';
 import { useOSC } from '@greysole/spooder-component-library';
 import useOBS from '../../../../app/hooks/useOBS';
+import { current } from '@reduxjs/toolkit';
 
 export const ObsWebsocketContext = createContext({
   inputs: {} as KeyedObject,
@@ -47,6 +48,8 @@ export const ObsWebsocketProvider = (props: ObsWebsocketProviderProps) => {
   const [meterNames, setMeterNames] = useState<KeyedObject>({});
   const [groups, setGroups] = useState<KeyedObject>({});
   const [isReady, setIsReady] = useState<boolean>(false);
+  const lastUpdateTime = useRef(Date.now());
+  const currentTime = useRef(Date.now());
 
   function activateInputVolumeMeters() {
     sendOSC('/obs/event/InputVolumeMeters', 1);
@@ -144,6 +147,7 @@ export const ObsWebsocketProvider = (props: ObsWebsocketProviderProps) => {
 
   const receiveMeter = useCallback(
     (data: any) => {
+      currentTime.current = Date.now();
       try {
         const recMeters = JSON.parse(data.args[0]);
         let newMeters = Object.assign({}, meters);
@@ -163,11 +167,21 @@ export const ObsWebsocketProvider = (props: ObsWebsocketProviderProps) => {
               if (meterLevel[speaker] == null) {
                 meterLevel[speaker] = [0, 0, 0];
               }
+              const fallSpeed = Math.pow(0.001, 0.2);
 
-              if (Math.pow(recLevel[speaker][1], 0.2) > meterLevel[speaker][1]) {
-                meterLevel[speaker][1] = Math.pow(recLevel[speaker][1], 0.2);
+              let targetLevel = Math.pow(recLevel[speaker][1], 0.2); // Or whatever your "raw" level is
+
+              if (targetLevel > meterLevel[speaker][1]) {
+                // Attack:  Instantly jump to the new level (or you could smooth this too)
+                meterLevel[speaker][1] = targetLevel;
               } else {
-                meterLevel[speaker][1] = meterLevel[speaker][1] - 0.003 ** 2;
+                const elapsedTime = (currentTime.current - lastUpdateTime.current) / 1000; // Assuming time in milliseconds
+                lastUpdateTime.current = currentTime.current;
+
+                // Adjust the decay based on elapsed time
+                meterLevel[speaker][1] = meterLevel[speaker][1] - fallSpeed * elapsedTime;
+                // Ensure we don't go below 0
+                meterLevel[speaker][1] = Math.max(0, meterLevel[speaker][1]);
               }
             }
           } else {

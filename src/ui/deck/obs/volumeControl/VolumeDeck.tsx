@@ -35,6 +35,9 @@ export default function VolumeDeck() {
     for (let g in groups) {
       for (let s in groups[g].items) {
         if (groups[g].items[s].sourceName == inputName) {
+          if (!meters[m]) {
+            continue;
+          }
           groupNames.push(inputName);
 
           groupLevel[g].enabled = true;
@@ -67,7 +70,7 @@ export default function VolumeDeck() {
     const groupSourceNames = groups[g].items.map((i: any) => i.sourceName);
     groupElements.push(
       <VolumeGroupControl
-        key={g}
+        key={g + '-group'}
         groupName={g}
         groupMeterNames={groupSourceNames}
         groupLevelL={groupLevel[g].l[1]}

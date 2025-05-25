@@ -10,9 +10,7 @@ import { useFormContext } from 'react-hook-form';
 export default function EventTableModal() {
   const { eventName, isOpen, close } = useEventTableModal();
 
-  const { reset } = useFormContext();
   const handleClose = () => {
-    reset();
     close();
   };
 

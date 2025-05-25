@@ -11,23 +11,28 @@ import {
   useTheme,
 } from '@greysole/spooder-component-library';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import useOBS from '../../../../app/hooks/useOBS';
+import { get } from 'react-hook-form';
 
 export default function OutputController() {
   const { addListener, removeListener, sendOSC } = useOSC();
-  const [streamStatus, setStreamStatus] = useState({
-    outputActive: false,
-    outputReconnecting: false,
-    outputBytes: 0,
-    outputTimecode: 0,
-    outputSkippedFrames: 0,
-    outputTotalFrames: 0,
-  });
-  const [recordStatus, setRecordStatus] = useState({
-    outputActive: false,
-    outputPaused: false,
-    outputTimecode: 0,
-    outputBytes: 0,
-  });
+  const { getObsControlApi, getObsFetchApi } = useOBS();
+  const {
+    getStartStream,
+    getStopStream,
+    getStartRecord,
+    getStopRecord,
+    getPauseRecord,
+    getResumeRecord,
+  } = getObsControlApi();
+  const { getStreamStatusQuery, getRecordStatusQuery } = getObsFetchApi();
+  const { startStream } = getStartStream();
+  const { stopStream } = getStopStream();
+  const { startRecord } = getStartRecord();
+  const { stopRecord } = getStopRecord();
+  const { pauseRecord } = getPauseRecord();
+  const { resumeRecord } = getResumeRecord();
+
   const [settings, setSettings] = useState({
     recordRename: false,
     frameDropAlert: false,
@@ -35,20 +40,50 @@ export default function OutputController() {
   });
   const [settingsOpen, setSettingsOpen] = useState<Boolean>(false);
   const { isMobileDevice } = useTheme();
+  const [outputInterval, setOutputInterval] = useState<any>();
+
+  const {
+    data: streamStatus,
+    isLoading: streamLoading,
+    refetch: refetchStream,
+  } = getStreamStatusQuery();
+  const {
+    data: recordStatus,
+    isLoading: recordLoading,
+    refetch: refetchRecord,
+  } = getRecordStatusQuery();
 
   useEffect(() => {
-    addListener('/obs/get/status', getStatus);
     addListener('/obs/event/RecordStateChanged', recordStateChanged);
     addListener('/obs/event/StreamStateChanged', streamStateChanged);
-    addListener('/obs/status/interval', activateInterval);
 
     return () => {
-      removeListener('/obs/get/status');
       removeListener('/obs/event/RecordStateChanged');
       removeListener('/obs/event/StreamStateChanged');
-      removeListener('/obs/status/interval');
     };
   }, []);
+
+  useEffect(() => {
+    if (!streamStatus || !recordStatus) {
+      return;
+    }
+    console.log('Output interval', outputInterval, streamStatus);
+    if (!outputInterval && (streamStatus.outputActive || recordStatus.outputActive)) {
+      setOutputInterval(
+        setInterval(() => {
+          refetchStream();
+          refetchRecord();
+        }, 1000),
+      );
+    } else if (outputInterval && !streamStatus.outputActive && !recordStatus.outputActive) {
+      clearInterval(outputInterval);
+      setOutputInterval(null);
+    }
+  }, [streamStatus, recordStatus]);
+
+  if (streamLoading || recordLoading) {
+    return null;
+  }
 
   function getSettings() {
     fetch('/obs/get_output_settings')
@@ -71,51 +106,36 @@ export default function OutputController() {
       });
   }
 
-  function activateInterval() {
-    sendOSC('/obs/status/interval', 1);
-  }
-
-  function getStatus(data: any) {
-    let statusData = JSON.parse(data.args[0]);
-    if (statusData.stream.outputActive == true || statusData.record.outputActive == true) {
-      sendOSC('/obs/status/interval', 1);
-    }
-    setStreamStatus(statusData.stream);
-    setRecordStatus(statusData.record);
-  }
-
   function toggleStream() {
-    sendOSC('/obs/stream', 'toggle');
-    if (streamStatus.outputActive == false) {
-      sendOSC('/obs/status/interval', 1);
+    if (streamStatus.outputActive) {
+      stopStream();
+    } else {
+      startStream();
     }
   }
 
   function toggleRecord() {
-    sendOSC('/obs/record', 'toggle');
-    if (recordStatus.outputActive == false) {
-      sendOSC('/obs/status/interval', 1);
+    if (recordStatus.outputActive) {
+      stopRecord();
+    } else {
+      startRecord();
     }
   }
 
   function toggleRecordPause() {
-    sendOSC('/obs/record', recordStatus.outputPaused ? 'resume' : 'pause');
+    if (recordStatus.outputPaused) {
+      resumeRecord();
+    } else {
+      pauseRecord();
+    }
   }
 
   function streamStateChanged(data: any) {
-    let streamObj = JSON.parse(data.args[0]);
-    let newStreamStatus = Object.assign(streamStatus);
-    newStreamStatus.outputActive = streamObj.outputActive;
-
-    setStreamStatus(newStreamStatus);
+    refetchStream();
   }
 
   function recordStateChanged(data: any) {
-    let recordObj = JSON.parse(data.args[0]);
-    let newRecordStatus = Object.assign(recordStatus);
-    newRecordStatus.outputActive = recordObj.outputActive;
-
-    setRecordStatus(newRecordStatus);
+    refetchRecord();
   }
 
   function convertBytes(bytes: number) {

@@ -73,7 +73,6 @@ export default function VolumeControl(props: VolumeControlProps) {
         value: prevVolume,
       }),
     );
-    setVolume(prevVolume);
   };
 
   return (

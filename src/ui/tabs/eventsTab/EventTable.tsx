@@ -89,9 +89,12 @@ export default function EventTable() {
         forceOpen={searchEnabled || filterEnabled}
       >
         <Box flexFlow='column'>
-          <AddEventInput groupName={groupName} />
+          <Box>
+            <AddEventInput groupName={groupName} />
+            <DeleteGroupButton groupName={groupName} />
+          </Box>
+
           {groupObjects[groupName]}
-          <DeleteGroupButton groupName={groupName} />
         </Box>
       </Expandable>
     );
@@ -100,7 +103,9 @@ export default function EventTable() {
   return (
     <Box flexFlow='column' width='inherit' marginBottom='var(--footer-height)'>
       <Box flexFlow='column' padding='medium'>
-        <AddGroupInput />
+        <Box marginBottom='medium'>
+          <AddGroupInput />
+        </Box>
         {groupElements}
       </Box>
       <Footer showFooter={true}>
@@ -117,12 +122,6 @@ export default function EventTable() {
               onChange={(e) => (setFilter(e), console.log(e))}
             />
           </Columns>
-          {formState.isDirty ? (
-            <Columns spacing='medium' padding='small'>
-              <ResetButton />
-              <SaveButton saveFunction={saveEvents} />
-            </Columns>
-          ) : null}
         </Box>
       </Footer>
     </Box>

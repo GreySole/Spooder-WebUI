@@ -98,7 +98,9 @@ export default function SourceControl() {
 
   function sceneItemEnableStateChanged(data: any) {
     let sceneItemData = JSON.parse(data.args[0]);
-
+    refreshSceneItems(sceneItemData.sceneName);
+    /*
+    console.log('SCENE ITEM ENABLE STATE CHANGED', sceneItemData, groups, sceneItems);
     if (Object.keys(groups).includes(sceneItemData.sceneName)) {
       let newGroups = { ...groups };
       for (let sceneItem in newGroups[sceneItemData.sceneName].items) {
@@ -121,7 +123,7 @@ export default function SourceControl() {
         }
       }
       setSceneItems(newItems);
-    }
+    }*/
   }
 
   function toggleVisible(sceneName: string, sceneItemId: any, sceneItemEnabled: boolean) {

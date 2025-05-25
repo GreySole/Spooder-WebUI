@@ -9,7 +9,7 @@ export default function useUsers() {
   function getResetPassword() {
     const [resetPasswordMutation, { data, isLoading, error }] = useResetPasswordMutation();
     function resetPassword(username: string) {
-      resetPasswordMutation(username);
+      return resetPasswordMutation(username);
     }
     return { resetPassword, data, isLoading, error };
   }

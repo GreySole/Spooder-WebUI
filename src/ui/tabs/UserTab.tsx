@@ -18,8 +18,6 @@ export default function UserTab() {
     return <PageCircleLoader />;
   }
 
-  console.log('USERS', users);
-
   return (
     <UserTabFormContextProvider users={users}>
       <EditModalProvider>

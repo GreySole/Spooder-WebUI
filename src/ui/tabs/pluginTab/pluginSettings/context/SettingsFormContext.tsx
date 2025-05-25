@@ -15,7 +15,7 @@ export default function SettingsFormContextProvider(props: SettingsFormContextPr
   console.log('Settings Values', values);
 
   const SettingsFormContext = useForm({
-    defaultValues: values,
+    defaultValues: values ?? {},
   });
 
   return <FormProvider {...SettingsFormContext}>{children}</FormProvider>;

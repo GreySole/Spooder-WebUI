@@ -44,16 +44,7 @@ export default function OBS() {
       return <h1>Hold on...we're connecting to OSC</h1>;
     } else if (!obsData.connected) {
       return (
-        <div className='App-content deck'>
-          <h1 style={{ fontSize: '24px' }}>OBS not connected!</h1>
-          <br></br>
-          <p>
-            OBS is connected by Spooder itself. So only one connect is needed for all your Web UI
-            clients. Check 'Remember' to save this info on file and Spooder will automatically
-            attempt to connect to OBS when starting up.
-          </p>
-          <ObsLogin obsConfig={obsData} />
-        </div>
+        <ObsLogin obsConfig={obsData} />
       );
     }
   }

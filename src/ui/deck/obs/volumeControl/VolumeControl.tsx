@@ -7,40 +7,32 @@ import {
 import React, { useEffect, useState } from 'react';
 import { useObsWebsocketContext } from './VolumeContext';
 import {
-  RangeInput,
   Button,
   useOSC,
   Stack,
   Box,
   Columns,
   TypeFace,
-  Slider,
   useTheme,
   StyleSizeButton,
+  Slider,
 } from '@greysole/spooder-component-library';
 import VolumeMeter from './VolumeMeter';
 
 interface VolumeControlProps {
+  inputName: string;
   meterIndex: string;
 }
 
 export default function VolumeControl(props: VolumeControlProps) {
-  const { meterIndex } = props;
-  const { meters, inputs } = useObsWebsocketContext();
+  const { inputName, meterIndex } = props;
+  const { inputs } = useObsWebsocketContext();
   const { themeColors } = useTheme();
 
-  if (meters[meterIndex] == undefined) {
+  if (!inputs[inputName]) {
     return null;
   }
 
-  const inputName = meters[meterIndex].inputName;
-
-  if (inputs[inputName] == undefined) {
-    return null;
-  }
-
-  const channelL = meters[meterIndex].inputLevelsMul[0][1];
-  const channelR = meters[meterIndex].inputLevelsMul[1][1];
   const volume = inputs[inputName].volumeData.inputVolumeMul;
   const dbLevel = inputs[inputName].volumeData.inputVolumeDb;
   const muted = inputs[inputName].volumeMuteData.inputMuted;
@@ -85,8 +77,8 @@ export default function VolumeControl(props: VolumeControlProps) {
       </TypeFace>
       <Box flexFlow='row'>
         <Columns spacing='none'>
-          <VolumeMeter level={channelL} muted={muted} />
-          <VolumeMeter level={channelR} muted={muted} />
+          <VolumeMeter channel='l' meterIndex={meterIndex} muted={muted} />
+          <VolumeMeter channel='r' meterIndex={meterIndex} muted={muted} />
         </Columns>
         <Box height='100%' justifyContent='flex-end' marginLeft='medium' paddingTop='medium'>
           <Slider

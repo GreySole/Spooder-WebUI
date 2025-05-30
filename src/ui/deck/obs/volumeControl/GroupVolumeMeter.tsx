@@ -1,21 +1,12 @@
 import React from 'react';
-import { useObsWebsocketContext } from './VolumeContext';
 
 interface VolumeMeterProps {
-  channel: 'l' | 'r';
-  meterIndex: string;
+  level: number;
   muted: boolean;
 }
 
-export default function VolumeMeter(props: VolumeMeterProps) {
-  const { meterIndex, channel, muted } = props;
-  const { meters } = useObsWebsocketContext();
-
-  if (!meters[meterIndex]) {
-    return null;
-  }
-
-  const level = meters[meterIndex].inputLevelsMul[channel === 'l' ? 0 : 1][1];
+export default function GroupVolumeMeter(props: VolumeMeterProps) {
+  const { level = 0, muted } = props;
 
   let scaleDim = window.innerWidth < 600 ? 'Y' : 'Y';
 

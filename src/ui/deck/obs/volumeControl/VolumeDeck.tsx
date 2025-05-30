@@ -23,7 +23,7 @@ export default function VolumeDeck() {
   }
 
   if (Object.keys(inputs).length == 0 || Object.keys(meterNames).length == 0) {
-    return <div key={'' + isReady} className='deck-component deck-volume-control'></div>;
+    return null;
   }
 
   for (let m in meterNames) {
@@ -42,7 +42,11 @@ export default function VolumeDeck() {
 
           groupLevel[g].enabled = true;
           groupItemElements[g].push(
-            <VolumeControl key={g + '-' + meters[m].inputName} meterIndex={m} />,
+            <VolumeControl
+              key={g + '-' + meters[m].inputName}
+              inputName={meters[m].inputName}
+              meterIndex={m}
+            />,
           );
 
           if (meters[m].inputLevelsMul.length > 0) {
@@ -58,7 +62,9 @@ export default function VolumeDeck() {
     }
     if (!groupNames.includes(inputName)) {
       if (inputs[inputName] != null) {
-        meterElements.push(<VolumeControl key={meterNames[m].inputName} meterIndex={m} />);
+        meterElements.push(
+          <VolumeControl key={meterNames[m]} inputName={meterNames[m]} meterIndex={m} />,
+        );
       }
     }
   }

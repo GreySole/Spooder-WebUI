@@ -11,6 +11,7 @@ import {
   TypeFace,
   useOSC,
 } from '@greysole/spooder-component-library';
+import GroupVolumeMeter from './GroupVolumeMeter';
 
 interface VolumeGroupMeterProps {
   groupName: string;
@@ -44,8 +45,8 @@ export default function VolumeGroupControl(props: VolumeGroupMeterProps) {
           </TypeFace>
           <Box flexFlow='row'>
             <Columns spacing='none'>
-              <VolumeMeter level={groupLevelL} muted={groupMuted} />
-              <VolumeMeter level={groupLevelR} muted={groupMuted} />
+              <GroupVolumeMeter level={groupLevelL} muted={groupMuted} />
+              <GroupVolumeMeter level={groupLevelR} muted={groupMuted} />
             </Columns>
             <Box flexFlow='column' justifyContent='flex-end' marginLeft='medium'>
               <Stack spacing='small'>

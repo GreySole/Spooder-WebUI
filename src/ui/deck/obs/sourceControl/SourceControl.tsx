@@ -1,4 +1,4 @@
-import React, { ReactNode, useEffect, useState } from 'react';
+import React, { ReactNode, useEffect, useRef, useState } from 'react';
 import { faEye, faEyeSlash, faPlus, faMinus, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import { KeyedObject } from '../../../Types';
 import {
@@ -15,18 +15,15 @@ import useOBS from '../../../../app/hooks/useOBS';
 export default function SourceControl() {
   const { addListener, removeListener } = useOSC();
   const { getObsControlApi, getObsFetchApi } = useOBS();
-  const {
-    getCurrentProgramSceneQuery,
-    getSceneItemListQuery,
-    getStudioModeEnabledQuery,
-    getGroupSceneItemListQuery,
-  } = getObsFetchApi();
+  const { getCurrentProgramSceneQuery, getSceneItemListQuery, getGroupSceneItemListQuery } =
+    getObsFetchApi();
   const { getCurrentProgramScene } = getCurrentProgramSceneQuery();
   const { getSceneItemList } = getSceneItemListQuery();
   const { getGroupSceneItemList } = getGroupSceneItemListQuery();
   const { getSetSceneItemEnabled } = getObsControlApi();
   const { setSceneItemEnabled } = getSetSceneItemEnabled();
   const [currentProgramScene, setCurrentProgramScene] = useState<string>('');
+  const currentProgramSceneRef = useRef<string>('');
   const [sceneItems, setSceneItems] = useState<KeyedObject>({});
   const [groups, setGroups] = useState<KeyedObject>({});
 
@@ -46,6 +43,7 @@ export default function SourceControl() {
 
   async function refreshSceneItems(newProgramSceneName: string) {
     setCurrentProgramScene(newProgramSceneName);
+    currentProgramSceneRef.current = newProgramSceneName;
     const newSceneItemListResponse = await getSceneItemList(newProgramSceneName);
     console.log('NEW SCENE ITEMS', newSceneItemListResponse);
     const newSceneItemsRaw = newSceneItemListResponse.data.data.sceneItems;
@@ -97,33 +95,7 @@ export default function SourceControl() {
   }
 
   function sceneItemEnableStateChanged(data: any) {
-    let sceneItemData = JSON.parse(data.args[0]);
-    refreshSceneItems(sceneItemData.sceneName);
-    /*
-    console.log('SCENE ITEM ENABLE STATE CHANGED', sceneItemData, groups, sceneItems);
-    if (Object.keys(groups).includes(sceneItemData.sceneName)) {
-      let newGroups = { ...groups };
-      for (let sceneItem in newGroups[sceneItemData.sceneName].items) {
-        if (
-          newGroups[sceneItemData.sceneName].items[sceneItem].sceneItemId ==
-          sceneItemData.sceneItemId
-        ) {
-          newGroups[sceneItemData.sceneName].items[sceneItem].sceneItemEnabled =
-            sceneItemData.sceneItemEnabled;
-          break;
-        }
-      }
-      setGroups(newGroups);
-    } else {
-      let newItems: KeyedObject = { ...sceneItems };
-      for (let item in newItems) {
-        if (newItems[item].id == sceneItemData.sceneItemId) {
-          newItems[item].enabled = sceneItemData.sceneItemEnabled;
-          break;
-        }
-      }
-      setSceneItems(newItems);
-    }*/
+    refreshSceneItems(currentProgramSceneRef.current);
   }
 
   function toggleVisible(sceneName: string, sceneItemId: any, sceneItemEnabled: boolean) {
@@ -140,7 +112,6 @@ export default function SourceControl() {
   let groupElements = [] as ReactNode[];
 
   for (let g in groups) {
-    let thisGroupElement = <div></div>;
     let thisGroupSceneItem = { id: -1, name: '', enabled: false };
     for (let item in sceneItems) {
       if (sceneItems[item].name == g) {
@@ -153,7 +124,7 @@ export default function SourceControl() {
     console.log('EXPANDED', groups[g].expanded);
 
     groupElements.push(
-      <Border>
+      <Border key={g + 'group-scene-item'}>
         <Box flexFlow='row'>
           <Columns spacing='medium' padding='medium'>
             <Button
@@ -179,6 +150,7 @@ export default function SourceControl() {
                   const item = groups[g].items[itemIndex];
                   return (
                     <Button
+                      key={g + '-' + item.id}
                       width={StyleSizeButton.large}
                       label={item.name}
                       icon={item.enabled ? faEye : faEyeSlash}
@@ -203,6 +175,7 @@ export default function SourceControl() {
     if (!Object.keys(groups).includes(sceneItems[s].name)) {
       regularSceneItems.push(
         <Button
+          key={s + 'regular-scene-item'}
           width={StyleSizeButton.large}
           label={sceneItems[s].name}
           icon={sceneItems[s].enabled ? faEye : faEyeSlash}

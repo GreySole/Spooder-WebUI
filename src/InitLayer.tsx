@@ -30,7 +30,7 @@ export default function InitLayer() {
   }
 
   return (
-    <OscProvider host={data.host} port={data.port} interfaceName='webui'>
+    <OscProvider host={data.host} port={data.port}>
       <DialogContextProvider>
         <App />
       </DialogContextProvider>

@@ -54,7 +54,7 @@ export default function DeleteGroupButton(props: DeleteGroupButtonProps) {
   }
   return (
     <Box padding='medium'>
-      <Button label='Delete Group' icon={faTrash} onClick={() => deleteGroup(groupName)} />
+      <Button label='Delete Group' icon={faTrash} onClick={() => deleteGroup(groupName)} className='delete-button' />
     </Box>
   );
 }

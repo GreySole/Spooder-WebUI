@@ -6,6 +6,7 @@ import {
   ResetButton,
   SaveButton,
   useTheme,
+  Stack,
 } from '@greysole/spooder-component-library';
 import EditCustomSpooder from './configTab/customSpooderInput/EditCustomSpooder';
 import ThemeColor from './configTab/themeColor/ThemeColor';
@@ -19,8 +20,10 @@ export default function ThemeTab() {
 
   return (
     <Box flexFlow='column' width='inherit' marginBottom='var(--footer-height)'>
-      <ThemeColor />
-      <EditCustomSpooder />
+      <Stack spacing='large' width='100%' padding='medium'>
+        <ThemeColor />
+        <EditCustomSpooder />
+      </Stack>
       <Footer showFooter={true}>
         <Box width='100%' justifyContent='flex-end' padding='medium'>
           <Button

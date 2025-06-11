@@ -1,0 +1,9 @@
+{
+  "version": "v1",
+  "packages": {
+    "@greysole/spooder-component-library": {
+      "signature": "9288811200359a9a980d9faac0a990e2",
+      "file": true
+    }
+  }
+}

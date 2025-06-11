@@ -26,7 +26,7 @@ export default function DashboardTab() {
   }
 
   return (
-    <Stack spacing='medium'>
+    <Stack spacing='medium' padding='medium'>
       <SystemMeters cpuUsage={data.cpu} ramUsage={data.memory} />
       <DiskMeters diskUsage={data.disk} />
       <NetworkMeters networkUsage={data.net} />

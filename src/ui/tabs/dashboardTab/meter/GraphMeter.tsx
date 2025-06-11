@@ -18,29 +18,37 @@ export default function GraphMeter({ data, color = 'blue', width, height }: Grap
 
   const points = data
     .map((value, index) => {
-      const x = (index / (data.length - 1)) * paddedWidth;
-      const y = paddedHeight - ((value - minDataValue) / dataRange) * paddedHeight;
-      return `${x},${y}`;
+      let x = (index / (data.length - 1)) * paddedWidth;
+      let y = paddedHeight - ((value - minDataValue) / dataRange) * paddedHeight;
+
+      typeof x !== 'number' && (x = 0);
+      typeof y !== 'number' && (y = 0);
+
+      return [x,y];
     })
-    .join(' ');
+
+    const buffer = 1;
+
+    // Adds 4 points to the graph to complete the shape and allow a filled background
+    const completedPoints = `${-buffer},${paddedHeight} ${-buffer},${points[0][1]} ${points.map(([x, y]) => `${x},${y}`).join(' ')} ${points[points.length - 1][0] + buffer},${points[points.length - 1][1]} ${paddedWidth + buffer},${paddedHeight}`;
 
   return (
-    <svg width={width} height={height} style={{ border: '1px solid white' }}>
+    <svg width={width} height={height} style={{ border: '1px solid var(--theme-text-color)' }}>
       <rect
         width={paddedWidth}
         height={paddedHeight}
-        fill={themeVariables.isDarkTheme ? 'black' : 'white'}
+        fill={themeVariables.isDarkTheme ? '#000c' : '#fffe'}
       />
-      <text x={paddedWidth + 5} y={height * 0.1} fill='white' fontSize={height * 0.1}>
-        {formatBytes(maxDataValue, 0)}
+      <text x={paddedWidth + 5} y={height * 0.08} fill='var(--theme-text-color)' fontSize={height * 0.08}>
+        {`${formatBytes(maxDataValue, 0)}/s`}
       </text>
-      <text x={paddedWidth + 5} y={paddedHeight / 2} fill='white' fontSize={height * 0.1}>
-        {formatBytes(maxDataValue / 2, 0)}
+      <text x={paddedWidth + 5} y={paddedHeight / 2} fill='var(--theme-text-color)' fontSize={height * 0.08}>
+        {`${formatBytes(maxDataValue / 2, 0)}/s`}
       </text>
-      <text x={paddedWidth + 5} y={paddedHeight - 5} fill='white' fontSize={height * 0.1}>
-        {formatBytes(minDataValue, 0)}
+      <text x={paddedWidth + 5} y={paddedHeight - 5} fill='var(--theme-text-color)' fontSize={height * 0.08}>
+        {`${formatBytes(minDataValue, 0)}/s`}
       </text>
-      <polyline fill='none' stroke={color} strokeWidth='2' points={points} />
+      <polyline fill={color + '33'} stroke={color} strokeWidth='2' points={completedPoints} style={{ clipPath: `inset(0 2px 0 0)` }}/>
     </svg>
   );
 }

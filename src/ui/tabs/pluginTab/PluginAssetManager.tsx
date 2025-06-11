@@ -11,7 +11,6 @@ import {
   faTrash,
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import path from 'path-browserify';
 import {
   FormLoader,
   getMediaType,
@@ -44,6 +43,10 @@ export default function PluginAssetManager(props: PluginComponentProps) {
   const [currentFolder, setCurrentFolder] = useState('/');
   const { data, isLoading, error, refetch } = getPluginAssets(pluginName, currentFolder);
 
+  function pathJoin(...segments: string[]) {
+    return segments.join('/');
+  }
+
   if (!isReady || isLoading) {
     return <FormLoader numRows={4} />;
   }
@@ -57,7 +60,7 @@ export default function PluginAssetManager(props: PluginComponentProps) {
   }
 
   function selectAsset(assetName: string) {
-    let assetFilePreview = path.join(plugin.assetBrowserPath, assetName);
+    let assetFilePreview = pathJoin(plugin.assetBrowserPath, assetName);
     if (getMediaType(assetName) == 'sound') {
       if (audioPreviewRef.current !== null) {
         audioPreviewRef.current.pause();
@@ -80,7 +83,7 @@ export default function PluginAssetManager(props: PluginComponentProps) {
     if (assetName === '/') {
       folderPath = '/';
     } else {
-      folderPath = path.join(currentFolder, assetName);
+      folderPath = pathJoin(currentFolder, assetName);
     }
     setCurrentFolder(folderPath);
     refetch();
@@ -144,16 +147,16 @@ export default function PluginAssetManager(props: PluginComponentProps) {
   if (assetFilePreview != null) {
     const previewMediaType = getMediaType(assetFilePreview);
     if (previewMediaType == 'sound') {
-      previewAudio = path.join(plugin.assetPath, assetFilePreview);
+      previewAudio = pathJoin(plugin.assetPath, assetFilePreview);
       previewHTML = null;
     } else if (previewMediaType == 'image') {
       previewAudio = null;
-      previewHTML = getMediaHTML(path.join(plugin.assetPath, assetFilePreview));
+      previewHTML = getMediaHTML(pathJoin(plugin.assetPath, assetFilePreview));
       previewHTML = (
         <ImageFile
           width='100%'
           height='100%'
-          src={path.join(plugin.assetPath, assetFilePreview)}
+          src={pathJoin(plugin.assetPath, assetFilePreview)}
           objectFit='contain'
         />
       );

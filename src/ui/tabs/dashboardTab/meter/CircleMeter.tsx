@@ -23,7 +23,7 @@ export default function CircleMeter(props: CircleMeterProps) {
   return (
     <div style={{ textAlign: 'center', transition: 'all' }}>
       <svg width='200' height='200'>
-        <text x='100' y='50' fill='white' textAnchor='middle' dy='.3em' fontSize='20'>
+        <text x='100' y='50' fill='var(--theme-text-color)' textAnchor='middle' dy='.3em' fontSize='20'>
           {label}
         </text>
         <circle
@@ -48,17 +48,17 @@ export default function CircleMeter(props: CircleMeterProps) {
         />
         {showMax ? (
           <>
-            <text x='100' y='85' fill='white' textAnchor='middle' dy='.3em' fontSize='20'>
+            <text x='100' y='86' fill='var(--theme-text-color)' textAnchor='middle' dy='.3em' fontSize='22'>
               {formatByteData ? formatBytes(value) : `${value} ${unit}`}
             </text>
-            <line x1='50' y1='100' x2='150' y2='100' stroke='white' strokeWidth='2' />
-            <text x='100' y='115' fill='white' textAnchor='middle' dy='.3em' fontSize='20'>
+            <line x1='50' y1='100' x2='150' y2='100' stroke='var(--theme-text-color)' strokeWidth='2' />
+            <text x='100' y='117' fill='var(--theme-text-color)' textAnchor='middle' dy='.3em' fontSize='22' fontWeight='800'>
               {formatByteData ? formatBytes(max) : `${max} ${unit}`}
             </text>
           </>
         ) : (
-          <text x='100' y='100' fill='white' textAnchor='middle' dy='.3em' fontSize='20'>
-            {formatByteData ? formatBytes(value) : `${value} ${unit}`}
+          <text x='100' y='102' fill='var(--theme-text-color)' textAnchor='middle' dy='.3em' fontSize='40' fontWeight='700'>
+            {formatByteData ? formatBytes(value) : `${value}${unit}`}
           </text>
         )}
       </svg>

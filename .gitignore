@@ -24,6 +24,11 @@ lib-cov
 coverage
 *.lcov
 
+.yalc
+yalc.lock
+
+package-lock.json
+
 # nyc test coverage
 .nyc_output
 

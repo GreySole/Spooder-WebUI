@@ -52,6 +52,7 @@ export default function EventElement(props: EventElementProps) {
         />,
         <Button
           label='Delete'
+          className='delete-button'
           onClick={() => {
             unregister(buildKey(EVENT_KEY, eventName));
             saveEvents(getValues());
@@ -108,6 +109,7 @@ export default function EventElement(props: EventElementProps) {
             },
             {
               icon: faTrash,
+              className: 'delete-button',
               onClick: () => deleteEvent(),
             },
           ]}

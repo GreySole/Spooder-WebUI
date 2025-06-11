@@ -10,9 +10,9 @@ interface DiskMetersProps {
 export default function DiskMeters(props: DiskMetersProps) {
   const { diskUsage } = props;
   return (
-    <Box flexFlow={'column'} alignItems={'center'} justifyContent={'center'}>
+    <Box flexFlow='column' alignItems='center' justifyContent='center'>
       <h1>Disk</h1>
-      <Box flexFlow={'row wrap'} alignItems={'center'} justifyContent={'center'}>
+      <Box flexFlow='row wrap' alignItems='center' justifyContent='center'>
         {diskUsage.map((disk: KeyedObject) => {
           const label = disk.label.includes('/') ? disk.label.split('/').pop() : disk.label;
           return (

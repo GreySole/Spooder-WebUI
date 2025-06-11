@@ -17,7 +17,7 @@ export const DialogContextProvider = ({ children }: { children: ReactNode }) => 
   const [isOpen, setIsOpen] = useState(false);
   const [title, setTitle] = useState<string>('');
   const [content, setContent] = useState<ReactNode>(null);
-  const [buttons, setButtons] = useState<ReactNode[]>([<Button label='OK' onClick={() => {}} />]);
+  const [buttons, setButtons] = useState<ReactNode[]>([<Button key={`button-${crypto.randomUUID()}`} label='OK' onClick={() => {}} />]);
 
   const openDialog = (title: string, content: ReactNode, buttons: ReactNode[]) => {
     setTitle(title);

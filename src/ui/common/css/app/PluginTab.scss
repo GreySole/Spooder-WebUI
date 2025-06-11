@@ -198,6 +198,10 @@
 .plugin-button {
   border-radius: 0;
   width: 75px;
+
+  &:not(:first-child) {
+    margin-left: 2px;
+  }
 }
 
 .plugin-button.start {

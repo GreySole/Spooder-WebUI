@@ -65,6 +65,7 @@
   overflow: hidden;
 
   padding-top: 20px;
+  padding-left: 2px;
 
   background-color: var(--color-background-far);
 
@@ -73,12 +74,13 @@
 
     position: relative;
 
-    color: var(--white);
+    color: var(--input-text-color);
     background-color: var(--color-background-far);
 
     cursor: pointer;
 
     margin-top: calc(-1 * var(--tab-pop));
+    margin-right: 2px;
     padding: 0.5rem 1.1rem calc(0.5rem + var(--tab-pop));
     border-radius: var(--interactive-radius) var(--interactive-radius) 0 0;
 
@@ -92,6 +94,7 @@
       outline-offset 0.2s ease-in-out,
       filter 0.2s,
       padding 0.2s ease-in-out,
+      font-weight 0.2s,
       margin 0.2s ease-in-out;
 
     &:hover,
@@ -114,6 +117,8 @@
     &.selected {
       --tab-pop: 0.5rem;
       background-color: var(--color-background-near);
+
+    font-weight: 800;
 
       filter: brightness(1);
 

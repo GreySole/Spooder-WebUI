@@ -1,6 +1,7 @@
 import { faX } from '@fortawesome/free-solid-svg-icons';
 import { Box, Button, Columns, Icon, TypeFace } from '@greysole/spooder-component-library';
 import React, { createContext, useContext, useState, ReactNode } from 'react';
+import { v4 as uuidv4 } from 'uuid';
 
 // Define the shape of the dialog context
 interface DialogContextType {
@@ -17,7 +18,9 @@ export const DialogContextProvider = ({ children }: { children: ReactNode }) => 
   const [isOpen, setIsOpen] = useState(false);
   const [title, setTitle] = useState<string>('');
   const [content, setContent] = useState<ReactNode>(null);
-  const [buttons, setButtons] = useState<ReactNode[]>([<Button key={`button-${crypto.randomUUID()}`} label='OK' onClick={() => {}} />]);
+  const [buttons, setButtons] = useState<ReactNode[]>([
+    <Button key={`button-${uuidv4()}`} label='OK' onClick={() => {}} />,
+  ]);
 
   const openDialog = (title: string, content: ReactNode, buttons: ReactNode[]) => {
     setTitle(title);

@@ -1,7 +1,8 @@
 import { useFormContext } from 'react-hook-form';
 import useTwitch from '../../../../app/hooks/useTwitch';
 import React from 'react';
-import { BoolSwitch } from '@greysole/spooder-component-library';
+import { BoolSwitch, Button, TypeFace, useDialog } from '@greysole/spooder-component-library';
+import useShare from '../../../../app/hooks/useShare';
 
 interface AutoShareSwitchProps {
   shareKey: string;
@@ -9,38 +10,44 @@ interface AutoShareSwitchProps {
 
 export default function AutoShareSwitch(props: AutoShareSwitchProps) {
   const { shareKey } = props;
-  const { watch } = useFormContext();
-  const share = watch(shareKey);
-  const { getEventSubsByUser, getDeleteEventSub, getInitEventSub } = useTwitch();
-  const { data, isLoading, error, refetch } = getEventSubsByUser(
-    share.streamPlatforms.twitch.userId,
-  );
-  const { deleteEventSub } = getDeleteEventSub();
-  const { initEventSub } = getInitEventSub();
+  const { watch, setValue } = useFormContext();
+  const { getSetAutoShare } = useShare();
+  const { setAutoShare, isLoading } = getSetAutoShare();
+  const { openDialog, closeDialog } = useDialog();
+  const autoShareEnabled = watch(`${shareKey}.autoShare`, false);
 
   if (isLoading) {
     return null;
   }
 
-  const autoShareEnabled = data.data.filter((sub: any) => sub.type === 'stream.online').length > 0;
-  console.log('autoShareEnabled', autoShareEnabled, data);
-
-  const setAutoShare = async () => {
-    if (autoShareEnabled) {
-      data.data.forEach(async (sub: any) => {
-        if (sub.type === 'stream.online' || sub.type === 'stream.offline') {
-          await deleteEventSub(sub.id);
-        }
-      });
-    } else {
-      await initEventSub('stream.online', share.streamPlatforms.twitch.userId);
-      await initEventSub('stream.offline', share.streamPlatforms.twitch.userId);
-    }
-
-    refetch();
+  const autoShareClick = () => {
+    openDialog(
+      'Enable Auto Share',
+      <TypeFace>
+        Enabling Auto Share will make your bot start sharing when your client goes live and stop
+        when they end stream. Making sharing autonomous. Is that okay?
+      </TypeFace>,
+      [
+        <Button label='Cancel' onClick={() => closeDialog()} />,
+        <Button
+          label='Enable'
+          onClick={() => {
+            const newAutoShareEnabled = !autoShareEnabled;
+            setAutoShare(shareKey, newAutoShareEnabled).then(() => {
+              setValue(`${shareKey}.autoShare`, newAutoShareEnabled);
+              closeDialog();
+            });
+          }}
+        />,
+      ],
+    );
   };
 
   return (
-    <BoolSwitch label='Live Auto Share' value={autoShareEnabled} onChange={() => setAutoShare()} />
+    <BoolSwitch
+      label='Live Auto Share'
+      value={autoShareEnabled}
+      onChange={() => autoShareClick()}
+    />
   );
 }

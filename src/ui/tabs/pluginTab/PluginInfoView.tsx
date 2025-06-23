@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { faSync, faImage } from '@fortawesome/free-solid-svg-icons';
 import { useRef } from 'react';
-import useToast from '../../../app/hooks/useToast';
-import { ToastType } from '../../Types';
 import {
   Box,
   TypeFace,
@@ -11,6 +9,8 @@ import {
   Columns,
   Button,
   BoolSwitch,
+  useToast,
+  ToastType,
 } from '@greysole/spooder-component-library';
 import usePlugins from '../../../app/hooks/usePlugins';
 import { usePluginContext } from './context/PluginTabFormContext';
@@ -49,7 +49,7 @@ export default function PluginInfoView(props: PluginInfoViewProps) {
 
   async function refreshSinglePluginClick(pluginName: string) {
     refreshPlugin(pluginName);
-    showToast(`${pluginName} refreshed!`, ToastType.REFRESH);
+    showToast(`${pluginName} refreshed!`, ToastType.INFO);
   }
 
   const hiddenIconInput = useRef<HTMLInputElement>(null);

@@ -5,10 +5,7 @@ import {
   useSaveEventsMutation,
   useVerifyResponseScriptMutation,
 } from '../api/eventSlice';
-import { buildEventKey } from '../../ui/tabs/eventsTab/FormKeys';
-import useToast from './useToast';
-import { ToastType } from '../../ui/Types';
-import { convertReactFormToFormData } from '@greysole/spooder-component-library';
+import { useToast, ToastType } from '@greysole/spooder-component-library';
 
 interface Event {
   name: string;
@@ -133,7 +130,7 @@ export default function useEvents() {
     const [saveEventsMutation, { isLoading, isSuccess, error }] = useSaveEventsMutation();
     function saveEvents(form: FieldValues) {
       saveEventsMutation(form).then((response) => {
-        showToast('Events Saved!', ToastType.SAVE);
+        showToast('Events Saved!', ToastType.SUCCESS);
       });
       console.log('SAVING', form);
     }

@@ -1,9 +1,16 @@
 import React from 'react';
 import useServer from './app/hooks/useServer';
 import App from './ui/app/App';
-import { Box, Stack, TypeFace, OscProvider } from '@greysole/spooder-component-library';
+import {
+  Box,
+  Stack,
+  TypeFace,
+  OscProvider,
+  TooltipProvider,
+  ToastProvider,
+  DialogProvider,
+} from '@greysole/spooder-component-library';
 import './ui/common/css/core/index.scss';
-import { DialogContextProvider } from './ui/app/DialogContextProvider';
 
 export default function InitLayer() {
   const { getServerState } = useServer();
@@ -30,9 +37,13 @@ export default function InitLayer() {
 
   return (
     <OscProvider host={data.host} port={data.port}>
-      <DialogContextProvider>
-        <App />
-      </DialogContextProvider>
+      <TooltipProvider>
+        <ToastProvider>
+          <DialogProvider>
+            <App />
+          </DialogProvider>
+        </ToastProvider>
+      </TooltipProvider>
     </OscProvider>
   );
 }

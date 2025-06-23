@@ -131,3 +131,6 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+yalc.lock
+.yalc/@greysole/spooder-component-library/yalc.sig
+.yalc/@greysole/spooder-component-library/README.md

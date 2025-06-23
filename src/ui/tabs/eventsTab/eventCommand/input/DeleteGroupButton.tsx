@@ -1,9 +1,8 @@
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
 import { EVENT_KEY, GROUP_KEY } from '../../FormKeys';
-import { Box, Button, TypeFace } from '@greysole/spooder-component-library';
+import { Box, Button, TypeFace, useDialog } from '@greysole/spooder-component-library';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
-import { useDialogContext } from '../../../../app/DialogContextProvider';
 import useEvents from '../../../../../app/hooks/useEvents';
 
 interface DeleteGroupButtonProps {
@@ -15,7 +14,7 @@ export default function DeleteGroupButton(props: DeleteGroupButtonProps) {
   const { getSaveEvents, getEvents } = useEvents();
   const { saveEvents } = getSaveEvents();
   const { refetch } = getEvents();
-  const { openDialog, closeDialog } = useDialogContext();
+  const { openDialog, closeDialog } = useDialog();
   const { groupName } = props;
   function deleteGroup(groupName: string) {
     openDialog(
@@ -54,7 +53,12 @@ export default function DeleteGroupButton(props: DeleteGroupButtonProps) {
   }
   return (
     <Box padding='medium'>
-      <Button label='Delete Group' icon={faTrash} onClick={() => deleteGroup(groupName)} className='delete-button' />
+      <Button
+        label='Delete Group'
+        icon={faTrash}
+        onClick={() => deleteGroup(groupName)}
+        className='delete-button'
+      />
     </Box>
   );
 }

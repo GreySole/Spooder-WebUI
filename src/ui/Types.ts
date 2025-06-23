@@ -4,13 +4,6 @@ export interface FilterProps {
   value: string;
 }
 
-export enum ToastType {
-  SAVE = 'toast-save',
-  ERROR = 'toast-error',
-  REFRESH = 'toast-refresh',
-  SUCCESS = 'toast-success',
-}
-
 export enum OSCConditionType {
   equal = '==',
   notEqual = '!=',
@@ -190,4 +183,8 @@ export interface PluginPages {
   overlay: boolean;
   utility: boolean;
   public: boolean;
+}
+
+export interface SharedElement {
+  [key: string]: boolean;
 }

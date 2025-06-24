@@ -7,8 +7,6 @@ import EditCustomSpooderForm from './EditCustomSpooderForm';
 export default function EditCustomSpooder() {
   const { customSpooder } = useTheme();
 
-  console.log('EditCustomSpooder', customSpooder);
-
   return (
     <EditCustomSpooderFormProvider data={customSpooder}>
       <TypeFace fontSize='large' fontWeight='bold'>Custom Spooder</TypeFace>

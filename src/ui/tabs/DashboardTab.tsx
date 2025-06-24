@@ -1,6 +1,4 @@
-import { Stack, Button } from '@greysole/spooder-component-library';
-import useToast from '../../app/hooks/useToast';
-import { ToastType } from '../../ui/Types';
+import { Stack, Button, useToast } from '@greysole/spooder-component-library';
 import { useEffect } from 'react';
 import React from 'react';
 import { useGetSystemStatusQuery } from '../../app/api/serverSlice';
@@ -28,17 +26,11 @@ export default function DashboardTab() {
     return <PageCircleLoader />;
   }
 
-  const showToasts = () => {
-    console.log('Toasts button clicked');
-    showToast(`Toast!`, ToastType.SUCCESS);
-  };
-
   return (
     <Stack spacing='medium' padding='medium'>
       <SystemMeters cpuUsage={data.cpu} ramUsage={data.memory} />
       <DiskMeters diskUsage={data.disk} />
       <NetworkMeters networkUsage={data.net} />
-      <Button label='Toasts' onClick={showToasts} />
     </Stack>
   );
 }

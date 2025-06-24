@@ -9,7 +9,7 @@ import {
   Stack,
   useToast,
   ToastType,
-    useTooltip,
+  useTooltip,
 } from '@greysole/spooder-component-library';
 import EditCustomSpooder from './configTab/customSpooderInput/EditCustomSpooder';
 import ThemeColor from './configTab/themeColor/ThemeColor';

@@ -1,4 +1,4 @@
-import { CircleLoader, Stack } from '@greysole/spooder-component-library';
+import { Stack, Button, useToast } from '@greysole/spooder-component-library';
 import { useEffect } from 'react';
 import React from 'react';
 import { useGetSystemStatusQuery } from '../../app/api/serverSlice';
@@ -9,6 +9,7 @@ import PageCircleLoader from '../common/input/general/PageCircleLoader';
 
 export default function DashboardTab() {
   const { data, isLoading, error, refetch } = useGetSystemStatusQuery(null);
+  const { showToast } = useToast();
 
   useEffect(() => {
     console.log('DashboardTab');

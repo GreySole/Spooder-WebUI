@@ -7,6 +7,9 @@ import {
   SaveButton,
   useTheme,
   Stack,
+  useToast,
+  ToastType,
+  useTooltip,
 } from '@greysole/spooder-component-library';
 import EditCustomSpooder from './configTab/customSpooderInput/EditCustomSpooder';
 import ThemeColor from './configTab/themeColor/ThemeColor';
@@ -17,6 +20,7 @@ export default function ThemeTab() {
   const { getSaveTheme, getSaveCustomSpooder } = useThemeApi();
   const { saveTheme } = getSaveTheme();
   const { saveCustomSpooder } = getSaveCustomSpooder();
+  const { showToast } = useToast();
 
   return (
     <Box flexFlow='column' width='inherit' marginBottom='var(--footer-height)'>
@@ -31,6 +35,9 @@ export default function ThemeTab() {
             onClick={() => {
               saveTheme(themeVariables.hue, themeVariables.saturation, themeVariables.isDarkTheme);
               saveCustomSpooder(customSpooder.parts, customSpooder.colors);
+              setTimeout(() => {
+                showToast(`Theme and Custom Spooder settings saved!`, ToastType.SUCCESS);
+              }, 100);
             }}
           />
         </Box>

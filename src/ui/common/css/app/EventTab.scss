@@ -1,6 +1,24 @@
 .timeline-editor {
 	width: 100%;
 	height: 200px;
+
+    background-color: var(--color-background-far);
+
+    font-family: var(--font-family);
+}
+
+.timeline-editor-action {
+    background-color: var(--button-background-color);
+    border: solid 2px var(--button-border-color);
+    // border-radius: var(--interactive-radius);
+}
+
+.timeline-editor-time-unit {
+    border-right-color: var(--text-color);
+}
+
+.timeline-editor-time-unit-scale {
+    color: var(--text-color);
 }
 
 .timeline-zoom-slider {

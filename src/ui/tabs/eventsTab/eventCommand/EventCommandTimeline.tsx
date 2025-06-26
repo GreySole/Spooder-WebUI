@@ -54,8 +54,13 @@ export default function EventCommandTimeline(props: EventCommandTimelineProps) {
     });
   }
 
+  const sliderClickHandler = () => {
+    console.log('Slider double clicked');
+    setTimelineZoom(0.5);
+  };
+
   const timelineZoomSlider = (
-    <Slider orientation='horizontal' step={0.01} value={timelineZoom} onChange={setTimelineZoom} />
+    <Slider orientation='horizontal' step={0.01} value={timelineZoom} onChange={setTimelineZoom} onDoubleClick={sliderClickHandler} />
   );
 
   function onUpdateTimeline(frames: any) {
@@ -84,9 +89,6 @@ export default function EventCommandTimeline(props: EventCommandTimelineProps) {
         scale={timelineZoom * maxDuration}
         dragLine={true}
         gridSnap={true}
-        style={{
-          backgroundColor: themeVariables.isDarkTheme ? 'white' : '#1e1e1e',
-        }}
         getActionRender={(action: any, row) => {
           if (eventCommands.length == 0) {
             return <></>;

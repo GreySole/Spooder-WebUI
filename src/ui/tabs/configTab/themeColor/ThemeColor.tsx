@@ -7,9 +7,9 @@ import {
   BoolSwitch,
   useTheme,
   TextInput,
-    NumberInput,
+  NumberInput,
   TypeFace,
-  hslToHex
+  hslToHex,
 } from '@greysole/spooder-component-library';
 
 export default function ThemeColor() {

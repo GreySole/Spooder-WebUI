@@ -9,8 +9,10 @@ import {
   translateCondition,
   Box,
   TypeFace,
+  Stack,
+  BoolSwitch,
 } from '@greysole/spooder-component-library';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useFormContext } from 'react-hook-form';
 import FormOBSSceneItemSelect from '../../../../common/input/form/FormOBSSceneItemSelect';
 import FormUdpSelectDropdown from '../../../../common/input/form/FormUdpSelectDropdown';
@@ -32,6 +34,16 @@ interface PluginInputProps {
 export default function PluginInput(props: PluginInputProps) {
   const { formKey, label, type, options } = props;
   const { pluginName } = usePluginSettingsContext();
+
+  function getFlaggedKey(flag: string) {
+    const lastDotIndex = formKey.lastIndexOf('.');
+    if (lastDotIndex === -1) {
+      // No dot found, append flag to the end
+      return `${flag}${formKey}`;
+    }
+    // Insert flag before the last part (after the last dot)
+    return `${formKey.substring(0, lastDotIndex)}.${flag}${formKey.substring(lastDotIndex + 1)}`;
+  }
 
   function getInput(type?: string) {
     switch (type) {
@@ -59,7 +71,15 @@ export default function PluginInput(props: PluginInputProps) {
           />
         );
       case 'code':
-        return <FormCodeInput formKey={formKey} label={label} />;
+        return (
+          <Stack spacing='small'>
+            <FormCodeInput formKey={formKey} label={label} />
+            <FormBoolSwitch
+              formKey={`${getFlaggedKey('_')}.use_response_processor`}
+              label='Use Response Processor'
+            />
+          </Stack>
+        );
       case 'text':
         return <FormTextInput formKey={formKey} label={label} />;
       case 'number':

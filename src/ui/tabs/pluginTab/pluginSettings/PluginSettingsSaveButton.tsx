@@ -18,12 +18,17 @@ export default function PluginSettingsSaveButton() {
       if (newSettings[key]._name_changes) {
         for (let name in newSettings[key]._name_changes) {
           const newName = newSettings[key]._name_changes[name];
+          if (name === newName) {
+            continue;
+          }
           newSettings[key][newName] = structuredClone(newSettings[key][name]);
+
           delete newSettings[key][name];
         }
         delete newSettings[key]._name_changes;
       }
     }
+
     savePluginSettings(pluginSettingsOpen, newSettings).then(() => {
       refetch();
       setPluginSettingsOpen('');

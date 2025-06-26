@@ -5,6 +5,7 @@ import { useFormContext } from 'react-hook-form';
 import usePlugins from '../../../../app/hooks/usePlugins';
 import { Box, Button, CircleLoader, useTheme } from '@greysole/spooder-component-library';
 import PageCircleLoader from '../../../common/input/general/PageCircleLoader';
+import { SharedElement } from '../../../Types';
 
 interface ToggleGridProps {
   formKey: string;
@@ -18,7 +19,7 @@ export default function PluginToggleGrid(props: ToggleGridProps) {
   const { themeColors } = useTheme();
   const pluginKey = `${formKey}.plugins`;
 
-  const selected = watch(pluginKey, []);
+  const selected = watch(pluginKey, {} as SharedElement);
 
   if (isLoading || !plugins) {
     return <PageCircleLoader />;
@@ -27,11 +28,11 @@ export default function PluginToggleGrid(props: ToggleGridProps) {
   const gridData = Object.keys(plugins).map((plugin: string) => plugin);
 
   const onToggleChange = (element: string, isSelected: boolean) => {
-    let newSelected = [...selected];
+    let newSelected = { ...selected } as SharedElement;
     if (isSelected) {
-      newSelected.push(element);
+      newSelected[element] = true;
     } else {
-      newSelected = newSelected.filter((value: string) => value !== element);
+      delete newSelected[element];
     }
     setValue(formKey, newSelected);
   };
@@ -44,9 +45,9 @@ export default function PluginToggleGrid(props: ToggleGridProps) {
         icon={window.location.origin + '/icons/' + element + '.png'}
         fallbackIcon={faPlug}
         iconPosition='top'
-        onClick={() => onToggleChange(element, !selected.includes(element))}
+        onClick={() => onToggleChange(element, !Object.keys(selected).includes(element))}
         color={
-          selected.includes(element)
+          Object.keys(selected).includes(element)
             ? themeColors.darkColorAnalogousCW
             : themeColors.buttonBackgroundColor
         }

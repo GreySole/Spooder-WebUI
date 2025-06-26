@@ -1,11 +1,10 @@
+import { ToastType, useToast } from '@greysole/spooder-component-library';
 import {
   useGetConfigQuery,
   useGetOSCTunnelsQuery,
   useGetUdpServersQuery,
   useSaveConfigMutation,
 } from '../api/configSlice';
-import useToast from './useToast';
-import { ToastType } from '../../ui/Types';
 import { FieldValues } from 'react-hook-form';
 
 export default function useConfig() {

@@ -5,6 +5,7 @@ import { useFormContext } from 'react-hook-form';
 import useEvents from '../../../../app/hooks/useEvents';
 import { Box, Button, CircleLoader, useTheme } from '@greysole/spooder-component-library';
 import PageCircleLoader from '../../../common/input/general/PageCircleLoader';
+import { SharedElement } from '../../../Types';
 
 interface ToggleGridProps {
   formKey: string;
@@ -16,7 +17,7 @@ export default function CommandToggleGrid(props: ToggleGridProps) {
   const { data: chatCommands, isLoading, error } = getChatCommands();
   const { watch, setValue } = useFormContext();
   const commandKey = `${formKey}.commands`;
-  const selected = watch(commandKey, []);
+  const selected = watch(commandKey, {} as SharedElement);
   const { themeColors } = useTheme();
 
   if (isLoading) {
@@ -24,11 +25,11 @@ export default function CommandToggleGrid(props: ToggleGridProps) {
   }
 
   const onToggleChange = (element: string, isSelected: boolean) => {
-    let newSelected = [...selected];
+    let newSelected = { ...selected } as SharedElement;
     if (isSelected) {
-      newSelected.push(element);
+      newSelected[element] = true;
     } else {
-      newSelected = newSelected.filter((value: string) => value !== element);
+      delete newSelected[element];
     }
     setValue(commandKey, newSelected);
   };
@@ -40,9 +41,9 @@ export default function CommandToggleGrid(props: ToggleGridProps) {
         label={chatCommands[element].command}
         icon={faCommentDots}
         iconPosition='top'
-        onClick={() => onToggleChange(element, !selected.includes(element))}
+        onClick={() => onToggleChange(element, !Object.keys(selected).includes(element))}
         color={
-          selected.includes(element)
+          Object.keys(selected).includes(element)
             ? themeColors.colorAnalogousCW
             : themeColors.buttonBackgroundColor
         }

@@ -39,7 +39,7 @@ export default function ShareEntryCommandSettings(props: ShareEntrySettingsProps
             <Button label='Set' onClick={() => setOpenSettings(true)} />
           </Box>
         </Stack>
-        {share.commands.join(', ')}
+        {Object.keys(share.commands).join(', ')}
       </Stack>
     );
   }

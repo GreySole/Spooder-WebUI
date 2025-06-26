@@ -53,7 +53,7 @@ export default function ShareEntryPluginSettings(props: ShareEntrySettingsProps)
             <Button label='Set' onClick={() => setOpenSettings(true)} />
           </Box>
         </Stack>
-        {share.plugins
+        {Object.keys(share.plugins)
           .map((plugin: string) => (plugins[plugin] ? plugins[plugin].name : plugin))
           .join(', ')}
       </Stack>

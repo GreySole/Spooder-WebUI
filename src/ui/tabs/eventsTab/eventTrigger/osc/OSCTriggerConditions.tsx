@@ -6,16 +6,19 @@ import { Box, Button, Expandable, Stack } from '@greysole/spooder-component-libr
 import { faPlus, faTrash } from '@fortawesome/free-solid-svg-icons';
 import OSCTriggerConditionGroup from './OSCTriggerConditionGroup';
 
-export default function OSCTriggerConditions(props: EventTriggerProps) {
-  const { eventName } = props;
+interface OSCTriggerConditionProps {
+  formKey: string;
+  eventName: string;
+  label: string;
+}
+
+export default function OSCTriggerConditions(props: OSCTriggerConditionProps) {
+  const { formKey, eventName, label } = props;
   const { watch, setValue } = useFormContext();
 
   const oscTriggerKey = buildTriggerKey(eventName, 'osc');
 
-  const handleTypeKey = buildKey(oscTriggerKey, 'handletype');
-  const handleType = watch(handleTypeKey, OSCHandleType.trigger);
-
-  const conditionKey = buildKey(oscTriggerKey, 'condition_groups_on');
+  const conditionKey = buildKey(oscTriggerKey, formKey);
   const conditionGroups = watch(conditionKey, []);
 
   const addConditionGroup = () => {
@@ -35,7 +38,7 @@ export default function OSCTriggerConditions(props: EventTriggerProps) {
   console.log('CONDITION RENDER', conditionGroups);
 
   return (
-    <Expandable label='Conditions' forceOpen>
+    <Expandable label={label} forceOpen>
       <Stack width='100%' spacing='medium'>
         {conditionGroups.map((condition: any, index: number) => (
           <OSCTriggerConditionGroup

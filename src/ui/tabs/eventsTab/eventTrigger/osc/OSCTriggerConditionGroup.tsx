@@ -6,12 +6,14 @@ import {
   FormSelectDropdown,
   Button,
   TypeFace,
+  Columns,
 } from '@greysole/spooder-component-library';
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
 import { OSCConditionType } from '../../../../Types';
 import { buildKey } from '../../FormKeys';
 import OSCTriggerCondition from './OSCTriggerConditionsValue';
+import TutorialButton from '../../../../app/TutorialButton';
 
 interface TriggerConditionGroup {
   formKey: string;
@@ -45,14 +47,17 @@ export default function OSCTriggerConditionGroup(props: TriggerConditionGroup) {
       <Stack width='100%' spacing='small' padding='small'>
         <Border borderBottom>
           <Box flexFlow='row' justifyContent='space-between' marginBottom='small'>
-            <FormSelectDropdown
-              formKey={groupModeKey}
-              label='Mode'
-              options={[
-                { value: 'AND', label: 'AND' },
-                { value: 'OR', label: 'OR' },
-              ]}
-            />
+            <Columns spacing='small'>
+              <FormSelectDropdown
+                formKey={groupModeKey}
+                label='Mode'
+                options={[
+                  { value: 'AND', label: 'AND' },
+                  { value: 'OR', label: 'OR' },
+                ]}
+              />
+              <TutorialButton tooltipText='OR will trigger if any group is true. AND will trigger if all groups are true.' />
+            </Columns>
             <Box height='50px'>
               <Button
                 label='Delete Group'
@@ -67,7 +72,7 @@ export default function OSCTriggerConditionGroup(props: TriggerConditionGroup) {
         </Border>
         <Stack spacing='medium' marginTop='small'>
           <Box justifyContent='space-between'>
-            <TypeFace>Index</TypeFace>
+            <TypeFace>Arg</TypeFace>
             <TypeFace>Condition</TypeFace>
             <TypeFace>Action</TypeFace>
           </Box>

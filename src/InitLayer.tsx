@@ -6,11 +6,11 @@ import {
   Stack,
   TypeFace,
   OscProvider,
-  ToastProvider,
   TooltipProvider,
+  ToastProvider,
+  DialogProvider,
 } from '@greysole/spooder-component-library';
 import './ui/common/css/core/index.scss';
-import { DialogContextProvider } from './ui/app/DialogContextProvider';
 
 export default function InitLayer() {
   const { getServerState } = useServer();
@@ -39,9 +39,9 @@ export default function InitLayer() {
     <OscProvider host={data.host} port={data.port}>
       <TooltipProvider>
         <ToastProvider>
-          <DialogContextProvider>
+          <DialogProvider>
             <App />
-          </DialogContextProvider>
+          </DialogProvider>
         </ToastProvider>
       </TooltipProvider>
     </OscProvider>

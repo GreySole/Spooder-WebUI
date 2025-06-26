@@ -8,10 +8,7 @@ import {
 import React from 'react';
 import { usePluginContext } from '../context/PluginTabFormContext';
 import usePlugins from '../../../../app/hooks/usePlugins';
-import { StyleSize } from '../../../Types';
-import { Button, ButtonRow, TypeFace } from '@greysole/spooder-component-library';
-import { StyleSizeButton } from '@greysole/spooder-component-library/dist/types/Types';
-import { useDialogContext } from '../../../app/DialogContextProvider';
+import { Button, ButtonRow, TypeFace, useDialog } from '@greysole/spooder-component-library';
 
 interface PluginButtonRowProps {
   pluginName: string;
@@ -34,7 +31,7 @@ export default function PluginButtonRow(props: PluginButtonRowProps) {
 
   const { getDeletePlugin } = usePlugins();
   const { deletePlugin } = getDeletePlugin();
-  const { openDialog, closeDialog } = useDialogContext();
+  const { openDialog, closeDialog } = useDialog();
 
   function pluginInfo(plugin: string) {
     setPluginSettingsOpen('');

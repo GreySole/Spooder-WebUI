@@ -1,10 +1,9 @@
-import { translateCondition } from '@greysole/spooder-component-library';
+import { Columns, TooltipButton, translateCondition } from '@greysole/spooder-component-library';
 import { useFormContext } from 'react-hook-form';
 import { usePluginSettingsContext } from '../context/PluginSettingsContext';
 import React from 'react';
 import PluginInput from './PluginInput';
 import PluginMultiInput from './PluginMultiInput';
-import PluginSubform from '../PluginSubform';
 
 interface PluginInputProcessorProps {
   formKey: string;
@@ -28,38 +27,52 @@ export default function PluginInputProcessor(props: PluginInputProcessorProps) {
       : '_null',
   );
 
-  console.log('SHOW IF', formKeyVariable, showIfValue, formKeyPrefix, formKeyVariable);
+  console.log(
+    'SHOW IF',
+    `'${showIfValue}' ${translateCondition(form[formKeyVariable].showif?.condition ?? 'equals')} '${form[formKeyVariable].showif?.value}'`,
+  );
 
-  if (typeof showIfValue !== 'undefined') {
+  try {
     const shouldHide = !eval(
-      `${showIfValue} ${translateCondition(form[formKeyVariable].showif?.condition ?? 'equals')} ${form[formKeyVariable].showif?.value}`,
+      `'${showIfValue}' ${translateCondition(form[formKeyVariable].showif?.condition ?? 'equals')} '${form[formKeyVariable].showif?.value}'`,
     );
     if (shouldHide) {
       return null;
     }
+  } catch (e) {
+    console.error(`Error evaluating showif condition for ${formKey}:`, e);
   }
 
   const input = form[formKeyVariable];
-  console.log(input);
   if (input['multi-select']) {
     return (
-      <PluginMultiInput
-        key={`custom-input-multi-${formKey}`}
-        formKey={formKey}
-        type={input.type}
-        label={input.label}
-        options={input.options}
-      />
+      <Columns spacing='small'>
+        <PluginMultiInput
+          key={`custom-input-multi-${formKey}`}
+          formKey={formKey}
+          type={input.type}
+          label={input.label}
+          options={input.options}
+        />
+        {input.description ? (
+          <TooltipButton tooltipText={input.description} iconSize='medium' />
+        ) : null}
+      </Columns>
     );
   } else {
     return (
-      <PluginInput
-        key={`custom-input-${formKey}`}
-        formKey={formKey}
-        type={input.type}
-        label={input.label}
-        options={input.options}
-      />
+      <Columns spacing='small'>
+        <PluginInput
+          key={`custom-input-${formKey}`}
+          formKey={formKey}
+          type={input.type}
+          label={input.label}
+          options={input.options}
+        />
+        {input.description ? (
+          <TooltipButton tooltipText={input.description} iconSize='medium' />
+        ) : null}
+      </Columns>
     );
   }
 }

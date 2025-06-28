@@ -32,10 +32,6 @@ export default function App() {
   useEffect(() => {
     addListener('/obs/status/connection', (message: any) => {});
     refreshThemeColors();
-    if (serverData?.themes?.spooderpet) {
-      setCustomSpooder(serverData.themes.spooderpet.parts, serverData.themes.spooderpet.colors);
-    }
-
     return () => {
       removeListener('/obs/status/connection');
     };

@@ -1,3 +1,4 @@
+import { SpooderPetPair } from '@greysole/spooder-component-library';
 import { KeyedObject } from '../../ui/Types';
 import {
   useGetCustomSpooderQuery,
@@ -29,8 +30,8 @@ export default function useThemeApi() {
   function getSaveCustomSpooder() {
     const [saveCustomSpooderMutation, { isLoading, isSuccess, error }] =
       useSaveCustomSpooderMutation();
-    function saveCustomSpooder(parts: KeyedObject, colors: KeyedObject) {
-      saveCustomSpooderMutation({ parts, colors });
+    function saveCustomSpooder(customSpooder: SpooderPetPair[]) {
+      saveCustomSpooderMutation(customSpooder);
     }
 
     return { saveCustomSpooder, isLoading, isSuccess, error };

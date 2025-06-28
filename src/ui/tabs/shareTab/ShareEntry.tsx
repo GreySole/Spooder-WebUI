@@ -13,6 +13,7 @@ import { useFormContext } from 'react-hook-form';
 import ShareCategoryButtonRow from './input/ShareCategoryButtonRow';
 import ToggleShareButton from './input/ToggleShareButton';
 import ShareTabContent from './tab/ShareTabContent';
+import ShareUiLink from './input/ShareUiLink';
 
 interface ShareEntryProps {
   shareKey: string;
@@ -20,13 +21,13 @@ interface ShareEntryProps {
 
 export default function ShareEntry(props: ShareEntryProps) {
   const { shareKey } = props;
-  const { watch, setValue } = useFormContext();
+  const { watch, setValue, unregister } = useFormContext();
   const [tab, setTab] = useState('overview');
   const { isMobileDevice } = useTheme();
   const share = watch(shareKey);
 
   const removeShareEntry = () => {
-    setValue(shareKey, null);
+    unregister(shareKey);
   };
 
   return (
@@ -46,10 +47,11 @@ export default function ShareEntry(props: ShareEntryProps) {
 
                 <Columns spacing='medium' padding='small'>
                   <LinkButton
-                    iconOnly={true}
+                    label='Go to Stream'
                     mode='newtab'
                     link={'https://twitch.tv/' + share.streamPlatforms.twitch.username}
                   />
+                  <ShareUiLink shareKey={shareKey} />
                   <ToggleShareButton shareKey={shareKey} />
                 </Columns>
               </Stack>

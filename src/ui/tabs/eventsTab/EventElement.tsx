@@ -14,13 +14,13 @@ import {
   useTheme,
   Icon,
   Button,
+  useDialog,
 } from '@greysole/spooder-component-library';
 import { useFormContext } from 'react-hook-form';
 import { StyleSize } from '../../Types';
 import { useEventTableModal } from './context/EventTableModalContext';
 import { EVENT_KEY, buildEventKey, buildKey } from './FormKeys';
 import { TwitchIcon } from '../../common/icons/icons';
-import { useDialogContext } from '../../app/DialogContextProvider';
 import useEvents from '../../../app/hooks/useEvents';
 
 interface EventElementProps {
@@ -33,7 +33,7 @@ export default function EventElement(props: EventElementProps) {
   const { getEvents, getSaveEvents } = useEvents();
   const { refetch } = getEvents();
   const { saveEvents } = getSaveEvents();
-  const { openDialog, closeDialog } = useDialogContext();
+  const { openDialog, closeDialog } = useDialog();
   const { open, setEventName } = useEventTableModal();
   const { isMobileDevice } = useTheme();
   const event = getValues(`${EVENT_KEY}.${eventName}`);

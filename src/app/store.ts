@@ -6,7 +6,6 @@ import { discordApi } from './api/discordSlice';
 import { obsApi } from './api/obsSlice';
 import { twitchApi } from './api/twitchSlice';
 import { pluginApi } from './api/pluginSlice';
-import toastSlice from './slice/toastSlice';
 import { serverApi } from './api/serverSlice';
 import { shareApi } from './api/shareSlice';
 import { userApi } from './api/userSlice';
@@ -19,7 +18,6 @@ import { obsControlApi } from './api/obsControlSlice';
 const store = configureStore({
   reducer: {
     navigationSlice,
-    toastSlice,
     footerSlice,
     [themeApi.reducerPath]: themeApi.reducer,
     [recoveryApi.reducerPath]: recoveryApi.reducer,

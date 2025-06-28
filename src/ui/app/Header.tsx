@@ -2,21 +2,14 @@ import { faTimes, faBars } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React from 'react';
 import useNavigation from '../../app/hooks/useNavigation';
-import useToast from '../../app/hooks/useToast';
 import NavigationTabs from './navigation/NavigationTabs';
 import { Box, useTheme, CustomSpooder } from '@greysole/spooder-component-library';
 
 export default function Header() {
   const { navigationOpen, toggleNavigation } = useNavigation();
-  const { toastOpen, toastText, toastType } = useToast();
   const { isMobileDevice } = useTheme();
   return (
-    <Box
-      className={`top-header ${toastType} ${toastOpen ? 'toast-open' : ''}`}
-      width='100%'
-      flexFlow='column'
-      justifyContent='center'
-    >
+    <Box className={`top-header`} width='100%' flexFlow='column' justifyContent='center'>
       <Box
         className='navigation-bar'
         flexFlow='row nowrap'
@@ -30,7 +23,6 @@ export default function Header() {
         <div className='navigation-open-button'>
           <FontAwesomeIcon icon={navigationOpen ? faTimes : faBars} size='2x' />
         </div>
-        <div className='toast-text'>{toastText}</div>
         <CustomSpooder />
       </Box>
       {!isMobileDevice ? <NavigationTabs /> : null}

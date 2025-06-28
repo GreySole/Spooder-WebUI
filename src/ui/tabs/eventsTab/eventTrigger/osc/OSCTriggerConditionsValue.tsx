@@ -7,6 +7,7 @@ import {
   FormSelectDropdown,
   FormTextInput,
   Button,
+  FormNumberInput,
 } from '@greysole/spooder-component-library';
 import { OSCConditionType } from '../../../../Types';
 import { buildKey } from '../../FormKeys';
@@ -26,7 +27,7 @@ export default function OSCTriggerCondition(props: TriggerCondition) {
 
   return (
     <Box flexFlow='row' justifyContent='space-between' alignItems='center'>
-      <TypeFace>{conditionIndex}</TypeFace>
+      <FormNumberInput width='3rem' formKey={buildKey(conditionKey, 'arg')} />
       <Stack spacing='small'>
         <FormSelectDropdown
           formKey={typeKey}

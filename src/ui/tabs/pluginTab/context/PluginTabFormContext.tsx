@@ -1,9 +1,8 @@
 import React from 'react';
 import { ReactNode, createContext, useContext, useEffect, useState } from 'react';
 import usePlugins from '../../../../app/hooks/usePlugins';
-import { PluginsObject, ToastType } from '../../../Types';
-import useToast from '../../../../app/hooks/useToast';
-import { useOSC } from '@greysole/spooder-component-library';
+import { PluginsObject } from '../../../Types';
+import { ToastType, useOSC, useToast } from '@greysole/spooder-component-library';
 import { preProcessFile } from 'typescript';
 
 export const PluginContext = createContext({

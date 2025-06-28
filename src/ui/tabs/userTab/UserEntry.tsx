@@ -7,13 +7,13 @@ import {
   Columns,
   LinkButton,
   Stack,
+  useDialog,
 } from '@greysole/spooder-component-library';
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
 import useUsers from '../../../app/hooks/useUsers';
 import UserEntryLabel from './UserEntryLabel';
 import { useUserEditModal } from './context/EditModalContext';
-import { useDialogContext } from '../../app/DialogContextProvider';
 
 interface UserEntryProps {
   username: string;
@@ -25,7 +25,7 @@ export default function UserEntry(props: UserEntryProps) {
   const { getResetPassword } = useUsers();
   const { resetPassword } = getResetPassword();
   const { setUser, openModal } = useUserEditModal();
-  const { openDialog, closeDialog } = useDialogContext();
+  const { openDialog, closeDialog } = useDialog();
 
   const userId = watch(`trusted_users.user_names.${username}`);
   const displayName = watch(`trusted_users.display_names.${userId}`);

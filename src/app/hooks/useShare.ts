@@ -1,12 +1,15 @@
 import { FieldValues } from 'react-hook-form';
 import {
+  useCreateShareKeyMutation,
+  useDeleteShareKeyMutation,
   useGetActiveSharesQuery,
   useGetSharesQuery,
   useSaveSharesMutation,
+  useSetAutoShareMutation,
   useSetShareMutation,
   useVerifyShareTargetMutation,
 } from '../api/shareSlice';
-import { convertReactFormToFormData } from '@greysole/spooder-component-library';
+import { convertReactFormToFormData, KeyedObject } from '@greysole/spooder-component-library';
 
 export default function useShare() {
   function getShares() {
@@ -72,6 +75,78 @@ export default function useShare() {
     };
   }
 
+  function getSetAutoShare() {
+    const [setAutoShareMutation, { data, isLoading, error }] = useSetAutoShareMutation();
+
+    function setAutoShare(shareId: string, enabled: boolean) {
+      return new Promise((res, rej) => {
+        setAutoShareMutation({
+          shareId: shareId,
+          enabled: enabled,
+        })
+          .then((data) => {
+            res(data);
+          })
+          .catch((error) => {
+            rej(error);
+          });
+      });
+    }
+
+    return {
+      setAutoShare,
+      data,
+      isLoading,
+      error,
+    };
+  }
+
+  function getCreateShareKey() {
+    const [createShareKeyMutation, { data, isLoading, error }] = useCreateShareKeyMutation();
+
+    function createShareKey(shareId: string) {
+      return new Promise<KeyedObject>((res, rej) => {
+        createShareKeyMutation({ shareId: shareId })
+          .then((data) => {
+            res(data);
+          })
+          .catch((error) => {
+            rej(error);
+          });
+      });
+    }
+
+    return {
+      createShareKey,
+      data,
+      isLoading,
+      error,
+    };
+  }
+
+  function getDeleteShareKey() {
+    const [deleteShareKeyMutation, { data, isLoading, error }] = useDeleteShareKeyMutation();
+
+    function deleteShareKey(shareId: string) {
+      return new Promise((res, rej) => {
+        deleteShareKeyMutation({ shareId: shareId })
+          .then((data) => {
+            res(data);
+          })
+          .catch((error) => {
+            rej(error);
+          });
+      });
+    }
+
+    return {
+      deleteShareKey,
+      data,
+      isLoading,
+      error,
+    };
+  }
+
   function getSaveShares() {
     const [saveSharesMutation, { data, isLoading, error }] = useSaveSharesMutation();
     function saveShares(form: FieldValues) {
@@ -88,6 +163,9 @@ export default function useShare() {
   }
 
   return {
+    getCreateShareKey,
+    getDeleteShareKey,
+    getSetAutoShare,
     getShares,
     getActiveShares,
     getVerifyShareTarget,

@@ -32,6 +32,7 @@ export default function OSCTrigger(props: EventTriggerProps) {
   const enabled = watch(enabledKey, false);
   const addressKey = buildKey(oscTriggerKey, 'address');
   const handleTypeKey = buildKey(oscTriggerKey, 'handletype');
+  const handleType = watch(handleTypeKey, 'trigger');
 
   if (!enabled) {
     return (
@@ -56,7 +57,26 @@ export default function OSCTrigger(props: EventTriggerProps) {
             ]}
           />
           <FormTextInput width='100%' label='Address: ' formKey={addressKey} />
-          <OSCTriggerConditions eventName={eventName} />
+          {handleType === 'toggle' ? (
+            <>
+              <OSCTriggerConditions
+                formKey='condition_groups_on'
+                eventName={eventName}
+                label='Conditions On'
+              />
+              <OSCTriggerConditions
+                formKey='condition_groups_off'
+                eventName={eventName}
+                label='Conditions Off'
+              />
+            </>
+          ) : (
+            <OSCTriggerConditions
+              formKey='condition_groups_on'
+              eventName={eventName}
+              label='Conditions'
+            />
+          )}
         </Stack>
       </Box>
     </Border>

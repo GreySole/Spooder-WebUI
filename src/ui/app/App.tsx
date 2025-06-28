@@ -1,10 +1,16 @@
 import React, { useEffect } from 'react';
-import { useOSC } from '@greysole/spooder-component-library';
+import {
+  Button,
+  Stack,
+  TooltipButton,
+  TypeFace,
+  useDialog,
+  useOSC,
+} from '@greysole/spooder-component-library';
 import { useTheme } from '@greysole/spooder-component-library';
 import useNavigation from '../../app/hooks/useNavigation';
 import useServer from '../../app/hooks/useServer';
-import { CircleLoader, Box } from '@greysole/spooder-component-library';
-import useFooter from '../../app/hooks/useFooter';
+import { Box } from '@greysole/spooder-component-library';
 import ModUI from '../deck/ModUI';
 import OBS from '../deck/OBS';
 import OSCMonitor from '../deck/OSCMonitor';
@@ -23,19 +29,22 @@ import PageCircleLoader from '../common/input/general/PageCircleLoader';
 
 export default function App() {
   const { currentTab } = useNavigation();
+  const { openDialog, closeDialog } = useDialog();
   const { setCustomSpooder, refreshThemeColors, isMobileDevice } = useTheme();
 
   const { getServerState } = useServer();
   const { data: serverData, isLoading: serverLoading, error: serverError } = getServerState();
   const { addListener, removeListener } = useOSC();
+  const tutorialDialog = localStorage.getItem('tutorial');
 
   useEffect(() => {
     addListener('/obs/status/connection', (message: any) => {});
     refreshThemeColors();
+
     return () => {
       removeListener('/obs/status/connection');
     };
-  }, [serverData]);
+  }, [serverData, tutorialDialog]);
 
   if (serverLoading) {
     return <PageCircleLoader />;

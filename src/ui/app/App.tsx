@@ -40,42 +40,6 @@ export default function App() {
   useEffect(() => {
     addListener('/obs/status/connection', (message: any) => {});
     refreshThemeColors();
-    if (serverData?.themes?.spooderpet) {
-      setCustomSpooder(serverData.themes.spooderpet.parts, serverData.themes.spooderpet.colors);
-    }
-
-    setTimeout(() => {
-      if (!tutorialDialog) {
-        openDialog(
-          'Enable Tutorial',
-          <Stack spacing='medium' padding='medium' align='center'>
-            <TypeFace>Would you like to enable tutorial buttons?</TypeFace>
-            <Box>
-              <TooltipButton
-                tooltipText='These can show some handy info about the UI.'
-                iconSize='medium'
-              />
-            </Box>
-          </Stack>,
-          [
-            <Button
-              label='Nah, I got this'
-              onClick={() => {
-                localStorage.setItem('tutorial', 'false');
-                closeDialog();
-              }}
-            />,
-            <Button
-              label='Yes, enable'
-              onClick={() => {
-                localStorage.setItem('tutorial', 'true');
-                closeDialog();
-              }}
-            />,
-          ],
-        );
-      }
-    }, 1000);
 
     return () => {
       removeListener('/obs/status/connection');

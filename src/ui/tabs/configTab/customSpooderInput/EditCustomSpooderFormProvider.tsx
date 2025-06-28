@@ -11,7 +11,7 @@ export default function EditCustomSpooderFormProvider(props: EditCustomSpooderFo
   const { data, children } = props;
 
   const customSpooderForm = useForm({
-    defaultValues: data,
+    defaultValues: { parts: data },
   });
 
   return <FormProvider {...customSpooderForm}>{children}</FormProvider>;

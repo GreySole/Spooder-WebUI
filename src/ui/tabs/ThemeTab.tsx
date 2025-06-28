@@ -11,9 +11,10 @@ import {
   ToastType,
   useTooltip,
 } from '@greysole/spooder-component-library';
-import EditCustomSpooder from './configTab/customSpooderInput/EditCustomSpooder';
 import ThemeColor from './configTab/themeColor/ThemeColor';
 import useThemeApi from '../../app/hooks/useThemeApi';
+import EditCustomSpooder from './configTab/customSpooderInput/EditCustomSpooder';
+import { useFormContext } from 'react-hook-form';
 
 export default function ThemeTab() {
   const { themeVariables, customSpooder } = useTheme();
@@ -34,7 +35,7 @@ export default function ThemeTab() {
             label='Save'
             onClick={() => {
               saveTheme(themeVariables.hue, themeVariables.saturation, themeVariables.isDarkTheme);
-              saveCustomSpooder(customSpooder.parts, customSpooder.colors);
+              saveCustomSpooder(customSpooder);
               setTimeout(() => {
                 showToast(`Theme and Custom Spooder settings saved!`, ToastType.SUCCESS);
               }, 100);

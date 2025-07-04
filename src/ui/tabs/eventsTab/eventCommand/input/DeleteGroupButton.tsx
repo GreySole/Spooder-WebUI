@@ -42,10 +42,10 @@ export default function DeleteGroupButton(props: DeleteGroupButtonProps) {
             newGroups.splice(newGroups.indexOf(groupName), 1);
             setValue(EVENT_KEY, newEvents);
             setValue(GROUP_KEY, newGroups);
-            saveEvents({ events: newEvents, groups: newGroups });
-            reset();
-            refetch();
-            closeDialog();
+            saveEvents({ events: newEvents, groups: newGroups }).then(() => {
+              refetch();
+              closeDialog();
+            });
           }}
         />,
       ],

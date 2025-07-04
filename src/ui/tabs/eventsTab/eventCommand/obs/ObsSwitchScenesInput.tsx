@@ -3,16 +3,24 @@ import { useFormContext } from 'react-hook-form';
 import { buildKey } from '../../FormKeys';
 import { SelectOption } from '../../../../Types';
 import { FormSelectDropdown, FormNumberInput } from '@greysole/spooder-component-library';
+import useOBS from '../../../../../app/hooks/useOBS';
 
 interface ObsSwitchScenesInputProps {
   formKey: string;
-  sceneOptions: SelectOption[];
 }
 
 export default function ObsSwitchScenesInput(props: ObsSwitchScenesInputProps) {
-  const { formKey, sceneOptions } = props;
+  const { formKey } = props;
+  const { getScenes } = useOBS();
+  const { data: sceneData, isLoading: scenesLoading, error: scenesError } = getScenes();
 
   const { watch } = useFormContext();
+
+  console.log(sceneData);
+
+  const sceneOptions = sceneData.scenes
+    .map((scene: any) => ({ label: scene.sceneName, value: scene.sceneName }))
+    .unshift({ value: '', label: 'Choose Scene' });
 
   const itemOffFormKey = buildKey(formKey, 'itemOff');
   const itemOnFormKey = buildKey(formKey, 'itemOn');
@@ -20,6 +28,10 @@ export default function ObsSwitchScenesInput(props: ObsSwitchScenesInputProps) {
   const delayFormKey = buildKey(formKey, 'delay');
   const eventTypeFormKey = buildKey(formKey, 'etype');
   const eType = watch(eventTypeFormKey, '');
+
+  if (scenesLoading || scenesError) {
+    return null;
+  }
 
   return (
     <div className='command-content'>

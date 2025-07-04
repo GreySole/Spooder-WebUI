@@ -57,7 +57,7 @@ export default function ShareUiLink(props: ShareUiLinkProps) {
       <Box>
         <Button
           icon={faExclamationTriangle}
-          label='Share Key Warning'
+          label='Share Warning'
           onClick={() => {
             openDialog(
               'Public Hosting Required',
@@ -79,7 +79,7 @@ export default function ShareUiLink(props: ShareUiLinkProps) {
       <Box>
         <Button
           icon={faExclamationTriangle}
-          label='Share Key Warning'
+          label='Share Warning'
           onClick={() => {
             openDialog(
               'Create Share Key?',
@@ -122,7 +122,7 @@ export default function ShareUiLink(props: ShareUiLinkProps) {
     return (
       <Button
         icon={faKey}
-        label='Create Share URL'
+        label='Share URL'
         onClick={() => {
           openDialog(
             'Create Share Key?',
@@ -142,7 +142,7 @@ export default function ShareUiLink(props: ShareUiLinkProps) {
   return (
     <Box>
       <LinkButton
-        label={'Copy Share URL'}
+        label={'Share URL'}
         mode='copy'
         link={publicUrls.http + '/share?key=' + share.shareKey}
       />

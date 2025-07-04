@@ -43,14 +43,7 @@ export default function useConfig() {
     function saveConfig(form: FieldValues) {
       console.log('SAVING', form);
 
-      saveConfigMutation(form)
-        .unwrap()
-        .then(() => {
-          showToast('Config saved successfully!', ToastType.SUCCESS);
-        })
-        .catch((err) => {
-          showToast(`Error saving config: ${err.message}`, ToastType.ERROR);
-        });
+      return saveConfigMutation(form);
     }
 
     return { saveConfig, isLoading, isSuccess, error };

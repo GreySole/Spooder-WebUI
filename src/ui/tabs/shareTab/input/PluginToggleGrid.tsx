@@ -34,7 +34,7 @@ export default function PluginToggleGrid(props: ToggleGridProps) {
     } else {
       delete newSelected[element];
     }
-    setValue(formKey, newSelected);
+    setValue(pluginKey, newSelected);
   };
 
   const gridItems = gridData.map((element: string) => (

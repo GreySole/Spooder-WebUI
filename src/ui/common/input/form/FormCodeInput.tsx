@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import CodeEditor from '@uiw/react-textarea-code-editor';
-import { Button, Columns, Stack, TypeFace } from '@greysole/spooder-component-library';
+import { Button, Columns, Stack, TypeFace, useTheme } from '@greysole/spooder-component-library';
 import { faQuestionCircle } from '@fortawesome/free-solid-svg-icons';
 import ResponseCommandCheatSheet from '../../../tabs/eventsTab/eventCommand/response/ResponseCommandCheatSheet';
 interface TextInputProps {
@@ -11,6 +11,7 @@ interface TextInputProps {
 export default function FormCodeInput(props: TextInputProps) {
   const { formKey, label } = props;
   const { register, watch } = useFormContext();
+  const { themeVariables } = useTheme();
   const [responseCheatSheetOpen, setResponseCheatSheetOpen] = useState(false);
   const value = watch(formKey);
   return (
@@ -28,6 +29,7 @@ export default function FormCodeInput(props: TextInputProps) {
       <ResponseCommandCheatSheet isOpen={responseCheatSheetOpen} />
       <CodeEditor
         id={`code-${formKey}`}
+        data-color-mode={themeVariables.isDarkTheme ? 'dark' : 'light'}
         className='response-code-editor'
         language='js'
         placeholder="return 'Hello '+event.displayName"

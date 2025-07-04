@@ -9,14 +9,11 @@ import {
   Stack,
   BoolSwitch,
 } from '@greysole/spooder-component-library';
-import usePlugins from '../../../app/hooks/usePlugins';
 import useShare from '../../../app/hooks/useShare';
 import TabButton from './TabButton';
 
 export default function NavigationMenu() {
   const { urlParams, tabOptions, deckTabOptions, navigationOpen, setStayHere } = useNavigation();
-  const { getRefreshPlugins } = usePlugins();
-  const { refreshPlugins } = getRefreshPlugins();
   const { getShares, getActiveShares } = useShare();
   const { data: shares, isLoading: sharesLoading } = getShares();
   const { data: activeShares, isLoading: activeSharesLoading } = getActiveShares();
@@ -87,10 +84,6 @@ export default function NavigationMenu() {
           value={urlParams.get('tab') != null}
           label='Stay Here'
         />
-        <Columns spacing='small'>
-          <Button label='Refresh Plugins' onClick={refreshPlugins} />
-          <Button label='Restart Chat' onClick={() => {}} />
-        </Columns>
       </Stack>
       <Stack padding='small' spacing='small'>
         <TypeFace fontSize='large'>Shares</TypeFace>

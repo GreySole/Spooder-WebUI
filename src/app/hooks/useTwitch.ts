@@ -81,8 +81,7 @@ export default function useTwitch() {
     const [saveTwitchConfigMutation, { isLoading, isSuccess, error }] =
       useSaveTwitchConfigMutation();
     function saveTwitchConfig(form: FieldValues) {
-      const formData = convertReactFormToFormData(form);
-      saveTwitchConfigMutation(formData);
+      saveTwitchConfigMutation(form);
     }
     return { saveTwitchConfig, isLoading, isSuccess, error };
   }

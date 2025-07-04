@@ -26,6 +26,8 @@ export default function EventGeneral(props: EventGeneralProps) {
   const groupKey = buildKey(eventKey, 'group');
   const cooldownKey = buildKey(eventKey, 'cooldown');
 
+  console.log(descriptionKey);
+
   return (
     <Stack spacing='medium' paddingTop='medium'>
       <TypeFace>Internal Name: {eventName}</TypeFace>

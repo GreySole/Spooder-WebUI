@@ -1,19 +1,17 @@
-import React, { createContext, useState, useContext, ReactNode } from 'react';
-import EventGeneral from '../EventGeneral';
-import EventCommands from '../EventCommands';
-import EventTriggers from '../EventTriggers';
-import { useFormContext } from 'react-hook-form';
-import { EVENT_KEY } from '../FormKeys';
-import { Box, Button, Modal, MultiPageModal } from '@greysole/spooder-component-library';
+import React, { createContext, useState, useContext, ReactNode, useRef } from 'react';
 import EventTable from '../EventTable';
 import EventTableModal from './EventTableModal';
+import useEvents from '../../../../app/hooks/useEvents';
+import EventTableFormContextProvider from './EventTableFormContext';
 
 interface EventModalContextProps {
   open: () => void;
   close: () => void;
+  cancel: () => void;
   setEventName: (eventName: string) => void;
   eventName: string;
   isOpen: boolean;
+  resetFormRef: React.MutableRefObject<(() => void) | null>;
 }
 
 const EventTableModalContext = createContext<EventModalContextProps | undefined>(undefined);
@@ -21,12 +19,24 @@ const EventTableModalContext = createContext<EventModalContextProps | undefined>
 export function EventTableModalProvider() {
   const [isOpen, setIsOpen] = useState(false);
   const [eventName, setEventName] = useState('');
+  const { getEvents } = useEvents();
+  const { events, groups, isLoading } = getEvents();
+  const resetFormRef = useRef<(() => void) | null>(null);
 
   const openModal = () => {
     setIsOpen(true);
   };
   const closeModal = () => {
+    // Reset the form when closing
+
     setIsOpen(false);
+  };
+
+  const cancelModal = () => {
+    if (resetFormRef.current) {
+      resetFormRef.current();
+    }
+    closeModal();
   };
 
   return (
@@ -34,13 +44,19 @@ export function EventTableModalProvider() {
       value={{
         open: openModal,
         close: closeModal,
+        cancel: cancelModal,
         isOpen,
         setEventName,
         eventName,
+        resetFormRef,
       }}
     >
-      <EventTableModal />
-      <EventTable />
+      <EventTableFormContextProvider defaultEvents={events} defaultGroups={groups}>
+        <>
+          <EventTableModal />
+          <EventTable />
+        </>
+      </EventTableFormContextProvider>
     </EventTableModalContext.Provider>
   );
 }

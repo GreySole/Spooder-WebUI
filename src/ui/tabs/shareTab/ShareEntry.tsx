@@ -47,7 +47,7 @@ export default function ShareEntry(props: ShareEntryProps) {
 
                 <Columns spacing='medium' padding='small'>
                   <LinkButton
-                    label='Go to Stream'
+                    label='Stream'
                     mode='newtab'
                     link={'https://twitch.tv/' + share.streamPlatforms.twitch.username}
                   />

@@ -1,6 +1,5 @@
 import { LinkButton } from '@greysole/spooder-component-library';
 import React from 'react';
-import { config } from 'react-transition-group';
 import useTwitch from '../../../../app/hooks/useTwitch';
 import useConfig from '../../../../app/hooks/useConfig';
 
@@ -22,7 +21,7 @@ export default function BotAuthButton() {
         'https://id.twitch.tv/oauth2/authorize?client_id=' +
         twitchConfig['client-id'] +
         '&redirect_uri=http://localhost:' +
-        config.host_port +
+        config.network.host_port +
         '/twitch/authorize/bot&response_type=code&scope=' +
         scopes.join('%20')
       }

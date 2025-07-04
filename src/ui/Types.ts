@@ -11,6 +11,7 @@ export enum OSCConditionType {
   lessThanOrEqual = '<=',
   greaterThan = '>',
   lessThan = '<',
+  searchAndMatch = 'search_and_match',
 }
 
 export enum OSCHandleType {

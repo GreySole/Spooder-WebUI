@@ -11,18 +11,28 @@ export default function EventSaveButton() {
   const { getSaveEvents } = useEvents();
   const { saveEvents } = getSaveEvents();
   const { showToast } = useToast();
+  const { getEvents } = useEvents();
+  const { refetch } = getEvents();
 
   const saveEventsClick = () => {
-    saveEvents(getValues());
-    close();
-    setTimeout(() => {
-      showToast(`Event saved successfully!`, ToastType.SUCCESS);
-    }, 100);
+    saveEvents(getValues()).then((response) => {
+      refetch();
+      close();
+      setTimeout(() => {
+        showToast(`Event saved successfully!`, ToastType.SUCCESS);
+      }, 100);
+    });
   };
 
   return (
     <Box>
-      <Button label='Save' icon={faCheck} iconSize='large' onClick={saveEventsClick} className='save-button' tooltipText='Save Event'/>
+      <Button
+        label='Save'
+        icon={faCheck}
+        iconSize='large'
+        onClick={saveEventsClick}
+        className='save-button'
+      />
     </Box>
   );
 }

@@ -14,6 +14,7 @@ import footerSlice from './slice/footerSlice';
 import { themeApi } from './api/themeSlice';
 import { obsFetchApi } from './api/obsFetchSlice';
 import { obsControlApi } from './api/obsControlSlice';
+import { moduleApi } from './api/moduleSlice';
 
 const store = configureStore({
   reducer: {
@@ -23,6 +24,7 @@ const store = configureStore({
     [recoveryApi.reducerPath]: recoveryApi.reducer,
     [eventApi.reducerPath]: eventApi.reducer,
     [configApi.reducerPath]: configApi.reducer,
+    [moduleApi.reducerPath]: moduleApi.reducer,
     [discordApi.reducerPath]: discordApi.reducer,
     [obsApi.reducerPath]: obsApi.reducer,
     [obsFetchApi.reducerPath]: obsFetchApi.reducer,
@@ -39,6 +41,7 @@ const store = configureStore({
       .concat(recoveryApi.middleware)
       .concat(eventApi.middleware)
       .concat(configApi.middleware)
+      .concat(moduleApi.middleware)
       .concat(discordApi.middleware)
       .concat(obsApi.middleware)
       .concat(obsFetchApi.middleware)

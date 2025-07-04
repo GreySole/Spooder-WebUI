@@ -20,14 +20,11 @@ import EventElement from './EventElement';
 import { TwitchIcon } from '../../common/icons/icons';
 
 export default function EventTable() {
-  const { watch, formState } = useFormContext();
   const [searchText, setSearchText] = useState<string>('');
   const [filter, setFilter] = useState<string[]>([]);
-  const { getSaveEvents } = useEvents();
-  const { saveEvents } = getSaveEvents();
 
-  const events = watch('events');
-  const groups = watch('groups');
+  const { getEvents } = useEvents();
+  const { events, groups, isLoading } = getEvents();
 
   const searchEnabled = searchText !== '';
   const filterEnabled = filter.length > 0;
@@ -89,7 +86,7 @@ export default function EventTable() {
         forceOpen={searchEnabled || filterEnabled}
       >
         <Box flexFlow='column'>
-          <Box>
+          <Box flexFlow='row wrap'>
             <AddEventInput groupName={groupName} />
             <DeleteGroupButton groupName={groupName} />
           </Box>

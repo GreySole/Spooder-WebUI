@@ -36,8 +36,7 @@ export default function EventElement(props: EventElementProps) {
   const { openDialog, closeDialog } = useDialog();
   const { open, setEventName } = useEventTableModal();
   const { isMobileDevice } = useTheme();
-  const event = getValues(`${EVENT_KEY}.${eventName}`);
-  const eventTriggers = event.triggers;
+  const event = watch(`${EVENT_KEY}.${eventName}`);
 
   function deleteEvent() {
     openDialog(
@@ -63,6 +62,11 @@ export default function EventElement(props: EventElementProps) {
       ],
     );
   }
+
+  if (!event) {
+    return null;
+  }
+  const eventTriggers = event.triggers;
 
   function editEvent() {
     setEventName(eventName);

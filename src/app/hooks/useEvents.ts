@@ -129,10 +129,7 @@ export default function useEvents() {
   function getSaveEvents() {
     const [saveEventsMutation, { isLoading, isSuccess, error }] = useSaveEventsMutation();
     function saveEvents(form: FieldValues) {
-      saveEventsMutation(form).then((response) => {
-        showToast('Events Saved!', ToastType.SUCCESS);
-      });
-      console.log('SAVING', form);
+      return saveEventsMutation(form);
     }
 
     return { saveEvents, isLoading, isSuccess, error };

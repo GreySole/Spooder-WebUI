@@ -12,9 +12,13 @@ import {
 } from '@greysole/spooder-component-library';
 import { faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import useEvents from '../../../../../app/hooks/useEvents';
 
 export default function AddGroupInput() {
-  const { setValue, watch } = useFormContext();
+  const { setValue, getValues, watch } = useFormContext();
+  const { getSaveEvents, getEvents } = useEvents();
+  const { saveEvents } = getSaveEvents();
+  const { refetch } = getEvents();
   const [addGroupName, setAddGroupName] = useState<string>('');
   const [inputFocused, setInputFocused] = useState<boolean>(false);
   const [isGroupTaken, setIsGroupTaken] = useState<boolean>(false);
@@ -27,6 +31,12 @@ export default function AddGroupInput() {
     const newGroups = [...groups];
     newGroups.push(groupName);
     setValue('groups', newGroups);
+    saveEvents(getValues()).then(() => {
+      refetch();
+      setAddGroupName('');
+      setIsGroupTaken(false);
+      setInputFocused(false);
+    });
   }
 
   function checkGroupTaken(groupName: string) {

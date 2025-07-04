@@ -12,9 +12,5 @@ export default function EventTab() {
   if (isLoading) {
     return <PageCircleLoader />;
   }
-  return (
-    <EventTableFormContextProvider defaultEvents={events} defaultGroups={groups}>
-      <EventTableModalProvider />
-    </EventTableFormContextProvider>
-  );
+  return <EventTableModalProvider />;
 }

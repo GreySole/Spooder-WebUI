@@ -7,15 +7,17 @@ import {
   FormBoolSwitch,
   FormNumberInput,
 } from '@greysole/spooder-component-library';
+import useOBS from '../../../../../app/hooks/useOBS';
 
 interface ObsSetInputMuteInputProps {
   formKey: string;
-  inputItemOptions: SelectOption[];
 }
 
 export default function ObsSetInputMuteInput(props: ObsSetInputMuteInputProps) {
-  const { formKey, inputItemOptions } = props;
+  const { formKey } = props;
   const { watch } = useFormContext();
+  const { getScenes } = useOBS();
+  const { data: sceneData, isLoading: scenesLoading, error: scenesError } = getScenes();
 
   const valueOffFormKey = buildKey(formKey, 'valueOff');
   const valueOnFormKey = buildKey(formKey, 'valueOn');
@@ -24,6 +26,17 @@ export default function ObsSetInputMuteInput(props: ObsSetInputMuteInputProps) {
   const delayFormKey = buildKey(formKey, 'delay');
   const eventTypeFormKey = buildKey(formKey, 'etype');
   const eType = watch(eventTypeFormKey, '');
+
+  if (scenesLoading || scenesError) {
+    return null;
+  }
+
+  const inputItemOptions = sceneData.inputs.map((input: any) => ({
+    label: input.inputName,
+    value: input.inputName,
+  }));
+
+  inputItemOptions.unshift({ value: '', label: 'Choose Input' });
 
   return (
     <div className='command-content'>

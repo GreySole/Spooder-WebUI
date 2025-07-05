@@ -10,7 +10,6 @@ export default function EventSaveButton() {
   const { getValues } = useFormContext();
   const { getSaveEvents } = useEvents();
   const { saveEvents } = getSaveEvents();
-  const { showToast } = useToast();
   const { getEvents } = useEvents();
   const { refetch } = getEvents();
 
@@ -18,9 +17,6 @@ export default function EventSaveButton() {
     saveEvents(getValues()).then((response) => {
       refetch();
       close();
-      setTimeout(() => {
-        showToast(`Event saved successfully!`, ToastType.SUCCESS);
-      }, 100);
     });
   };
 

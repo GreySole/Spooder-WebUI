@@ -21,7 +21,7 @@ export default function ThemeTab() {
   const { getSaveTheme, getSaveCustomSpooder } = useThemeApi();
   const { saveTheme } = getSaveTheme();
   const { saveCustomSpooder } = getSaveCustomSpooder();
-  const { showToast } = useToast();
+  const { showSuccess } = useToast();
 
   return (
     <Box flexFlow='column' width='inherit' marginBottom='var(--footer-height)'>
@@ -36,9 +36,7 @@ export default function ThemeTab() {
             onClick={() => {
               saveTheme(themeVariables.hue, themeVariables.saturation, themeVariables.isDarkTheme);
               saveCustomSpooder(customSpooder);
-              setTimeout(() => {
-                showToast(`Theme and Custom Spooder settings saved!`, ToastType.SUCCESS);
-              }, 100);
+              showSuccess(`Theme and Custom Spooder settings saved!`);
             }}
           />
         </Box>

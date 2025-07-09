@@ -14,10 +14,12 @@ export const PluginContext = createContext({
   pluginInfoOpen: '',
   pluginSettingsOpen: '',
   pluginAssetsOpen: '',
+  pluginExportOpen: '',
   pluginInstalled: '',
   setPluginInfoOpen: (info: string) => {},
   setPluginSettingsOpen: (settings: string) => {},
   setPluginAssetsOpen: (assets: string) => {},
+  setPluginExportOpen: (exportedPlugin: string) => {},
   setPluginInstalled: (installedPlugin: string) => {},
   newPlugins: {} as PluginsObject,
   setNewPlugins: (newPlugins: PluginsObject) => {},
@@ -38,6 +40,7 @@ export const PluginProvider = (props: PluginProviderProps) => {
   const [pluginInfoOpen, setPluginInfoOpen] = useState('');
   const [pluginSettingsOpen, setPluginSettingsOpen] = useState('');
   const [pluginAssetsOpen, setPluginAssetsOpen] = useState('');
+  const [pluginExportOpen, setPluginExportOpen] = useState('');
   const [pluginInstalled, setPluginInstalled] = useState('');
   const [newPlugins, setNewPlugins] = useState({} as PluginsObject);
   const { showToast } = useToast();
@@ -91,6 +94,8 @@ export const PluginProvider = (props: PluginProviderProps) => {
     setPluginInfoOpen,
     setPluginSettingsOpen,
     setPluginAssetsOpen,
+    pluginExportOpen,
+    setPluginExportOpen,
     setPluginInstalled,
     newPlugins,
     setNewPlugins,

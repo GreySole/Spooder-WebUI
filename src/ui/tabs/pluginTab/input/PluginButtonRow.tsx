@@ -5,10 +5,18 @@ import {
   faDownload,
   faTrash,
 } from '@fortawesome/free-solid-svg-icons';
-import React from 'react';
+import React, { useState } from 'react';
 import { usePluginContext } from '../context/PluginTabFormContext';
 import usePlugins from '../../../../app/hooks/usePlugins';
-import { Button, ButtonRow, TypeFace, useDialog } from '@greysole/spooder-component-library';
+import {
+  BoolSwitch,
+  Button,
+  ButtonRow,
+  LinkButton,
+  Stack,
+  TypeFace,
+  useDialog,
+} from '@greysole/spooder-component-library';
 
 interface PluginButtonRowProps {
   pluginName: string;
@@ -27,6 +35,8 @@ export default function PluginButtonRow(props: PluginButtonRowProps) {
     setPluginInfoOpen,
     setPluginSettingsOpen,
     setPluginAssetsOpen,
+    setPluginExportOpen,
+    pluginExportOpen,
   } = usePluginContext();
 
   const { getDeletePlugin } = usePlugins();
@@ -60,6 +70,17 @@ export default function PluginButtonRow(props: PluginButtonRowProps) {
       setPluginSettingsOpen('');
     } else {
       setPluginSettingsOpen(plugin);
+    }
+  }
+
+  function pluginExport(plugin: string) {
+    setPluginInfoOpen('');
+    setPluginSettingsOpen('');
+    setPluginAssetsOpen('');
+    if (plugin == pluginExportOpen) {
+      setPluginExportOpen('');
+    } else {
+      setPluginExportOpen(plugin);
     }
   }
 
@@ -112,11 +133,8 @@ export default function PluginButtonRow(props: PluginButtonRowProps) {
         },
         {
           icon: faDownload,
-          color: '#000',
-          isLink: true,
-          linkName: pluginName,
-          link: '/plugin/export_plugin?pluginname=' + pluginName,
           isActive: false,
+          onClick: () => pluginExport(pluginName),
         },
         {
           icon: faTrash,

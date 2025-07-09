@@ -8,6 +8,7 @@ import { faPlusCircle, faFileImport } from '@fortawesome/free-solid-svg-icons';
 import CreatePluginModal from './pluginTab/input/CreatePluginModal';
 import InstallPluginModal from './pluginTab/input/InstallPluginModal';
 import CreatePluginFormContextProvider from './pluginTab/context/CreatePluginFormContext';
+import ExportPluginModal from './pluginTab/input/ExportPluginModal';
 
 export default function PluginTab() {
   const [createPluginOpen, setCreatePluginOpen] = useState(false);
@@ -18,6 +19,7 @@ export default function PluginTab() {
         <CreatePluginModal isOpen={createPluginOpen} setIsOpen={setCreatePluginOpen} />
       </CreatePluginFormContextProvider>
       <InstallPluginModal isOpen={installPluginOpen} setIsOpen={setInstallPluginOpen} />
+      <ExportPluginModal />
       <Box flexFlow='column' width='100%' marginBottom='var(--footer-height)'>
         <PluginList />
       </Box>

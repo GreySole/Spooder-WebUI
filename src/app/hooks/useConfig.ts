@@ -8,7 +8,7 @@ import {
 import { FieldValues } from 'react-hook-form';
 
 export default function useConfig() {
-  const { showToast } = useToast();
+  const { showToast, showError, showSuccess } = useToast();
 
   function getConfig() {
     const { data, isLoading, error } = useGetConfigQuery(null);
@@ -43,7 +43,14 @@ export default function useConfig() {
     function saveConfig(form: FieldValues) {
       console.log('SAVING', form);
 
-      return saveConfigMutation(form);
+      return saveConfigMutation(form)
+        .unwrap()
+        .then(() => {
+          showSuccess('Config saved successfully!');
+        })
+        .catch((err) => {
+          showError(`Error saving config: ${err.message}`);
+        });
     }
 
     return { saveConfig, isLoading, isSuccess, error };

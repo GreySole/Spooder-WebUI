@@ -43,7 +43,7 @@ export const PluginProvider = (props: PluginProviderProps) => {
   const [pluginExportOpen, setPluginExportOpen] = useState('');
   const [pluginInstalled, setPluginInstalled] = useState('');
   const [newPlugins, setNewPlugins] = useState({} as PluginsObject);
-  const { showToast } = useToast();
+  const { showToast, showError, showSuccess } = useToast();
 
   const { addListener, removeListener } = useOSC();
 
@@ -102,7 +102,7 @@ export const PluginProvider = (props: PluginProviderProps) => {
   };
 
   if (error) {
-    showToast('Failed to fetch plugins', ToastType.ERROR);
+    showError('Failed to fetch plugins');
   }
 
   return <PluginContext.Provider value={value}>{children}</PluginContext.Provider>;

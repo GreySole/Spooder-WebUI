@@ -21,7 +21,7 @@ interface PluginInfoViewProps {
 
 export default function PluginInfoView(props: PluginInfoViewProps) {
   const { pluginName } = props;
-  const { showToast } = useToast();
+  const { showToast, showInfo } = useToast();
   const {
     getRefreshPlugin,
     getReinstallPlugin,
@@ -49,7 +49,7 @@ export default function PluginInfoView(props: PluginInfoViewProps) {
 
   async function refreshSinglePluginClick(pluginName: string) {
     refreshPlugin(pluginName);
-    showToast(`${pluginName} refreshed!`, ToastType.INFO);
+    showInfo(`${pluginName} refreshed!`);
   }
 
   const hiddenIconInput = useRef<HTMLInputElement>(null);

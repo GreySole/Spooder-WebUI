@@ -30,7 +30,7 @@ export default function TwitchEventSubList() {
         );
       }
       subTable.push(
-        <Border borderBottom>
+        <Border borderBottom key={`${event}-${sub}`}>
           <Box width='100%' justifyContent='space-between' padding='medium'>
             <Stack spacing='small'>
               <TypeFace>

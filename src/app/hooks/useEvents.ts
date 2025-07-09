@@ -104,7 +104,7 @@ export default function useEvents() {
     },
   };
 
-  const { showToast } = useToast();
+  const { showError, showSuccess } = useToast();
 
   function getEvents() {
     const { data, isLoading, error, refetch } = useGetEventsQuery(null);
@@ -129,7 +129,13 @@ export default function useEvents() {
   function getSaveEvents() {
     const [saveEventsMutation, { isLoading, isSuccess, error }] = useSaveEventsMutation();
     function saveEvents(form: FieldValues) {
-      return saveEventsMutation(form);
+      return saveEventsMutation(form).then((response) => {
+        if (response.error) {
+          showError('An error occurred while saving the event.');
+        } else {
+          showSuccess('Event saved successfully!');
+        }
+      });
     }
 
     return { saveEvents, isLoading, isSuccess, error };

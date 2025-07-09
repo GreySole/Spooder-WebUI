@@ -1,4 +1,4 @@
-import React, { Key } from 'react';
+import React, { Key, useEffect, useState } from 'react';
 import {
   Stack,
   Columns,
@@ -7,17 +7,34 @@ import {
   TypeFace,
   EditCustomSpooderInputPair,
   EditCustomSpooderForm,
-  EditCustomSpooderAddButton,
   SpooderPetPair,
 } from '@greysole/spooder-component-library';
+import { v4 as uuidv4 } from 'uuid';
 import EditCustomSpooderFormProvider from './EditCustomSpooderFormProvider';
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
 export default function EditCustomSpooder() {
-  const { customSpooder } = useTheme();
+  const { customSpooder, setCustomSpooder } = useTheme();
+  useEffect(() => {
+    // Ensure each part has a stable ID for drag and drop
+    const updatedParts = customSpooder.map((part: any) =>
+      part.id ? part : { ...part, id: uuidv4() },
+    );
 
-  const addInputGroup = () => {
-    // Logic to add a new input group can be implemented here
-    console.log('Add new input group');
+    if (updatedParts.some((part: any, index: number) => part !== customSpooder[index])) {
+      setCustomSpooder(updatedParts);
+    }
+  }, [customSpooder, setCustomSpooder]);
+
+  const handleDragEnd = (result: any) => {
+    if (!result.destination) return;
+
+    const reorderedParts = Array.from(customSpooder);
+    const [movedParts] = reorderedParts.splice(result.source.index, 1);
+
+    reorderedParts.splice(result.destination.index, 0, movedParts);
+
+    setCustomSpooder(reorderedParts);
   };
 
   return (
@@ -26,28 +43,47 @@ export default function EditCustomSpooder() {
         Custom Spooder
       </TypeFace>
       <EditCustomSpooderForm>
-        {customSpooder.map((part: SpooderPetPair, index: number) => (
-          <EditCustomSpooderInputPair
-            key={`spooder-part-${index}`}
-            customSpooder={customSpooder}
-            index={index}
-          />
-        ))}
-
-        {/* <EditCustomSpooderInputPair customSpooder={customSpooder} label={'Long Leg Left'} partName={'longlegleft'} />
-        <EditCustomSpooderInputPair customSpooder={customSpooder} label={'Short Leg Left'} partName={'shortlegleft'} />
-        <EditCustomSpooderInputPair customSpooder={customSpooder} label={'Body Left'} partName={'bodyleft'} />
-        <EditCustomSpooderInputPair customSpooder={customSpooder} label={'Little Eye Left'} partName={'littleeyeleft'} />
-        <EditCustomSpooderInputPair customSpooder={customSpooder} label={'Big Eye Left'} partName={'bigeyeleft'} />
-        <EditCustomSpooderInputPair customSpooder={customSpooder} label={'Fang Left'} partName={'fangleft'} />
-        <EditCustomSpooderInputPair customSpooder={customSpooder} label={'Mouth'} partName={'mouth'} />
-        <EditCustomSpooderInputPair customSpooder={customSpooder} label={'Fang Right'} partName={'fangright'} />
-        <EditCustomSpooderInputPair customSpooder={customSpooder} label={'Big Eye Right'} partName={'bigeyeright'} />
-        <EditCustomSpooderInputPair customSpooder={customSpooder} label={'Little Eye Right'} partName={'littleeyeright'} />
-        <EditCustomSpooderInputPair customSpooder={customSpooder} label={'Body Right'} partName={'bodyright'} />
-        <EditCustomSpooderInputPair customSpooder={customSpooder} label={'Short Leg Right'} partName={'shortlegright'} />
-        <EditCustomSpooderInputPair customSpooder={customSpooder} label={'Long Leg Right'} partName={'longlegright'} /> */}
-        <EditCustomSpooderAddButton onClick={addInputGroup} />
+        <DragDropContext onDragEnd={handleDragEnd}>
+          <Droppable droppableId='custom-spooder-parts' direction='horizontal'>
+            {(provided, snapshot) => (
+              <div ref={provided.innerRef} {...provided.droppableProps}>
+                <Box
+                  flexFlow={`row${snapshot.isDraggingOver ? '' : ' wrap'}`}
+                  spacing='small'
+                  overflow='scroll'
+                >
+                  {customSpooder.map(
+                    (
+                      part: { partString: string; partColor: string; id?: string },
+                      index: number,
+                    ) => (
+                      <Draggable
+                        key={part.id || `spooder-part-drag-${index}`}
+                        draggableId={part.id || `spooder-part-drag-${index}`}
+                        index={index}
+                      >
+                        {(provided) => (
+                          <div
+                            ref={provided.innerRef}
+                            {...provided.draggableProps}
+                            {...provided.dragHandleProps}
+                          >
+                            <EditCustomSpooderInputPair
+                              customSpooder={customSpooder}
+                              setCustomSpooder={setCustomSpooder}
+                              index={index}
+                              dragHandle={provided.dragHandleProps}
+                            />
+                          </div>
+                        )}
+                      </Draggable>
+                    ),
+                  )}
+                </Box>
+              </div>
+            )}
+          </Droppable>
+        </DragDropContext>
       </EditCustomSpooderForm>
     </EditCustomSpooderFormProvider>
   );

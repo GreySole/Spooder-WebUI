@@ -8,33 +8,21 @@ import {
   useSensors,
 } from '@dnd-kit/core';
 import {
-  arrayMove,
   SortableContext,
   sortableKeyboardCoordinates,
-  horizontalListSortingStrategy,
-  AnimateLayoutChanges,
   defaultAnimateLayoutChanges,
   rectSortingStrategy,
 } from '@dnd-kit/sortable';
-import {
-  useTheme,
-  Box,
-  Button,
-  Grid,
-  TypeFace,
-  EditCustomSpooderForm,
-} from '@greysole/spooder-component-library';
-import { v4 as uuidv4 } from 'uuid';
+import { useTheme, Grid } from '@greysole/spooder-component-library';
 import EditCustomSpooderInputPair from './EditCustomSpooderInputPair';
-import EditCustomSpooderFormProvider from './EditCustomSpooderFormProvider';
-import SortableItem from './SortableItem';
+import SortableItem from '../../../common/dragAndDrop/SortableItem';
 // import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
 export default function EditCustomSpooder() {
   const { customSpooder, setCustomSpooder } = useTheme();
 
   const [spooderParts, setSpooderParts] = useState(
-    Array.from({ length: customSpooder.length }, (_, i) => `${customSpooder[i].id}`),
+    Array.from({ length: customSpooder.length }, (_, i) => `part-${i + 1}`),
   );
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -62,48 +50,51 @@ export default function EditCustomSpooder() {
       console.log('Old Custom Spooder:', customSpooder);
 
       const newCustomSpooder = [...customSpooder];
+      const newSpooderParts = [...spooderParts];
       const oldIndex = spooderParts.indexOf(active.id);
       const newIndex = spooderParts.indexOf(over.id);
+
+      // Reorder both arrays
       newCustomSpooder.splice(newIndex, 0, newCustomSpooder.splice(oldIndex, 1)[0]);
+      newSpooderParts.splice(newIndex, 0, newSpooderParts.splice(oldIndex, 1)[0]);
 
       console.log('New Custom Spooder:', newCustomSpooder);
 
       setCustomSpooder(newCustomSpooder);
+      setSpooderParts(newSpooderParts);
     }
   };
 
+  console.log('EDIT CUSTOM SPOODER RENDER');
+
   return (
-    <EditCustomSpooderFormProvider data={customSpooder}>
-      <EditCustomSpooderForm>
-        <TypeFace fontSize='large' fontWeight='bold'>
-          Custom Spooder
-        </TypeFace>
-        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-          <Grid
-            columns={'repeat(auto-fill, 160px)'}
-            spacing='medium'
-            overflow='scroll'
-            padding='small'
-          >
-            <SortableContext items={spooderParts} strategy={rectSortingStrategy}>
-              {spooderParts.map((id, i) => (
-                <SortableItem
-                  key={id}
-                  id={id}
+    <>
+      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+        <Grid
+          columns={'repeat(auto-fill, 160px)'}
+          width='100vw'
+          spacing='medium'
+          overflow='auto'
+          padding='small'
+        >
+          <SortableContext items={spooderParts} strategy={rectSortingStrategy}>
+            {spooderParts.map((id, i) => (
+              <SortableItem
+                key={id}
+                id={id}
+                index={i}
+                animateLayoutChanges={defaultAnimateLayoutChanges}
+              >
+                <EditCustomSpooderInputPair
+                  customSpooder={customSpooder}
+                  setCustomSpooder={setCustomSpooder}
                   index={i}
-                  animateLayoutChanges={defaultAnimateLayoutChanges}
-                >
-                  <EditCustomSpooderInputPair
-                    customSpooder={customSpooder}
-                    setCustomSpooder={setCustomSpooder}
-                    index={i}
-                  />
-                </SortableItem>
-              ))}
-            </SortableContext>
-          </Grid>
-        </DndContext>
-      </EditCustomSpooderForm>
-    </EditCustomSpooderFormProvider>
+                />
+              </SortableItem>
+            ))}
+          </SortableContext>
+        </Grid>
+      </DndContext>
+    </>
   );
 }

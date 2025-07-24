@@ -1,16 +1,14 @@
-import React, { useEffect } from 'react';
-import { get } from 'react-hook-form';
+import React from 'react';
 import {
   Stack,
   Columns,
   Box,
   TypeFace,
-  FormTextInput,
-  FormColorInput,
-  SpooderPet,
   SpooderPetPair,
   calculateContrastRatio,
   Button,
+  TextInput,
+  ColorInput,
 } from '@greysole/spooder-component-library';
 import { faPlus, faTrash, faX } from '@fortawesome/free-solid-svg-icons';
 
@@ -35,15 +33,24 @@ export default function EditCustomSpooderInputPair(props: EditCustomSpooderInput
   const { customSpooder, index, setCustomSpooder } = props;
   const themeBgColor = document.documentElement.style.getPropertyValue('--color-background-far');
 
+  // Safety check to ensure the current item exists
+  if (!customSpooder || index < 0 || index >= customSpooder.length || !customSpooder[index]) {
+    return null; // or return a placeholder component
+  }
+
+  const currentItem = customSpooder[index];
+
   const outOfContrastRange = () => {
-    return calculateContrastWarning(customSpooder[index].partColor);
+    return calculateContrastWarning(currentItem.partColor);
   };
 
   const AddPartRight = () => {
-    // Logic to acid a part to the rignt
+    // Logic to add a part to the right
+    if (!customSpooder || index < 0 || index >= customSpooder.length) return;
+
     const newPart: SpooderPetPair = {
       partString: '',
-      partColor: '',
+      partColor: '#FFFFFF',
     };
     let newCustomSpooder = [...customSpooder];
     newCustomSpooder.splice(index + 1, 0, newPart);
@@ -51,10 +58,12 @@ export default function EditCustomSpooderInputPair(props: EditCustomSpooderInput
   };
 
   const AddPartLeft = () => {
-    // Logic to acid a part to the left
+    // Logic to add a part to the left
+    if (!customSpooder || index < 0 || index > customSpooder.length) return;
+
     const newPart: SpooderPetPair = {
       partString: '',
-      partColor: '',
+      partColor: '#FFFFFF',
     };
     let newCustomSpooder = [...customSpooder];
     newCustomSpooder.splice(index, 0, newPart);
@@ -63,6 +72,9 @@ export default function EditCustomSpooderInputPair(props: EditCustomSpooderInput
 
   const handleDeletePart = () => {
     // Logic to delete the part
+    if (!customSpooder || index < 0 || index >= customSpooder.length || customSpooder.length <= 1)
+      return;
+
     let newCustomSpooder = [...customSpooder];
     newCustomSpooder.splice(index, 1);
     setCustomSpooder(newCustomSpooder);
@@ -87,16 +99,34 @@ export default function EditCustomSpooderInputPair(props: EditCustomSpooderInput
         ></Button>
       </Box>
       <Stack align='center' spacing='small'>
-        <FormTextInput
+        <TextInput
           width='100%'
-          formKey={`parts.${index}.partString`}
           color={customSpooder[index].partColor}
-          style={{ textAlign: 'center', backgroundColor: 'var(--color-background-far)' }}
+          style={{
+            textAlign: 'center',
+            backgroundColor: 'var(--color-background-far)',
+          }}
+          onInput={(value) => {
+            if (!customSpooder || index < 0 || index >= customSpooder.length) return;
+            const newCustomSpooder = [...customSpooder];
+            newCustomSpooder[index].partString = value;
+            setCustomSpooder(newCustomSpooder);
+          }}
+          value={currentItem.partString}
         />
         <Columns width='100%' spacing='small'>
-          <FormColorInput formKey={`parts.${index}.partColor`} showWarning={outOfContrastRange()} />
+          <ColorInput
+            onChange={(value) => {
+              if (!customSpooder || index < 0 || index >= customSpooder.length) return;
+              const newCustomSpooder = [...customSpooder];
+              newCustomSpooder[index].partColor = value;
+              setCustomSpooder(newCustomSpooder);
+            }}
+            value={currentItem.partColor}
+            showWarning={outOfContrastRange()}
+          />
           <TypeFace width='106px' textAlign='center' fontWeight={'bold'}>
-            {customSpooder[index].partColor}
+            {currentItem.partColor}
           </TypeFace>
         </Columns>
         <TypeFace

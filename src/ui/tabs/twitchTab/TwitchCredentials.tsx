@@ -14,29 +14,15 @@ import { FieldValues } from 'react-hook-form';
 export default function TwitchCredentials() {
     const { getSaveTwitchConfig } = useTwitch();
     const { saveTwitchConfig, isLoading, isSuccess, error } = getSaveTwitchConfig();
-    const { showToast } = useToast();
+    const { showError, showSuccess } = useToast();
 
     useEffect(() => {
-        const toastError = {
-            message: 'An error occurred while saving Twitch configuration.',
-            type: ToastType.ERROR,
-            delay: 100
-        };
-        const toastSuccess = {
-            message: 'Twitch configuration saved successfully!',
-            type: ToastType.SUCCESS,
-            delay: 100
-        };
         if (isSuccess) {
-            showToast({
-                ...toastSuccess,
-            });
+            showSuccess('Twitch configuration saved successfully!');
         } else if (error) {
-            showToast({
-                ...toastError,
-            });
+            showError('An error occurred while saving Twitch configuration.');
         }
-    }, [isSuccess, showToast]);
+    }, [isSuccess, showError, showSuccess, error]);
 
     const saveTwitchConfigHandler = (form: FieldValues) => {
         saveTwitchConfig(form);

@@ -22,7 +22,7 @@ export default function UserTab() {
     <UserTabFormContextProvider users={users}>
       <EditModalProvider>
         <CreateModalProvider>
-          <Box flexFlow='column' padding='medium' marginBottom='var(--footer-height)'>
+          <Box flexFlow='column' marginBottom='var(--footer-height)'>
             <UserList />
           </Box>
           <Footer showFooter={true}>

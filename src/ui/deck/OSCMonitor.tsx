@@ -153,11 +153,9 @@ export default function OSCMonitor() {
     displayLogs = pluginLogs;
   }
 
-  const height = `calc(100dvh - var(--footer-height) - var(--header-height)${isMobileDevice ? '' : ' - var(--navigation-tabs-height)'})`;
-
   return (
-    <Box flexFlow='column'>
-      <Box ref={logContainer} height={height} flexFlow='column' padding='medium' overflow='auto'>
+    <Box flexFlow='column' width={'100%'}>
+      <Box ref={logContainer} flexFlow='column' overflow='auto'>
         {displayLogs.map((log, index) => (
           <ExpandableLog log={log} key={index} />
         ))}

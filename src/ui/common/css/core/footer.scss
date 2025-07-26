@@ -1,29 +1,48 @@
-.box.footer{
-  position:fixed;
-  bottom:0;
-  background-color:var(--color-background-far);
-  outline: solid 2px var(--button-border-color);
-  border-radius: var(--interactive-radius) var(--interactive-radius) 0 0;
-  max-height:0;
+:root {
+  --footer-height: 78px;
 }
 
-.slide-appear{
-  max-height:0 !important;
+.footer {
+
+  position: fixed;
+  bottom: calc(-1 * var(--footer-height));
+  background-color: var(--color-background-far);
+  max-height: var(--footer-height);
+
+  transition: max-height 0.3s ease-in-out;
+
+  &:before {
+    position: absolute;
+    content: '';
+    bottom: 100%;
+    height: calc(var(--interactive-radius) * 2);
+    width: calc(var(--interactive-radius) * 2);
+    border-radius: 0 0 0 calc(var(--interactive-radius) * 2);
+    background-color: var(--color-background-near);
+    box-shadow: -4px 4px 0px 2px var(--color-background-far);
+    border: 2px solid var(--button-border-color);
+    border-top-width: 0;
+    border-right-width: 0;
+    z-index: 3;
+  }
 }
 
 .slide-enter {
-  max-height:0 !important;
+  bottom: calc(-1 * var(--footer-height));
 }
+
 .slide-enter-active,
 .slide-enter-done {
-  max-height:var(--footer-height) !important;
-  transition: transform, max-height 300ms;
+  bottom: 0;
+  transition: bottom 0.3s ease-in-out;
 }
+
 .slide-exit {
-  max-height:var(--footer-height) !important;
+  bottom: 0;
 }
+
 .slide-exit-active,
 .slide-exit-done {
-  max-height:0 !important;
-  transition: transform, max-height 300ms;
+  bottom: calc(-1 * var(--footer-height));
+  transition: bottom 0.3s ease-in-out;
 }

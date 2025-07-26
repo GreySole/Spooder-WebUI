@@ -9,23 +9,21 @@ export default function Header() {
   const { navigationOpen, toggleNavigation } = useNavigation();
   const { isMobileDevice } = useTheme();
   return (
-    <Box className={`top-header`} width='100%' flexFlow='column' justifyContent='center'>
+    <Box flexFlow='column' justifyContent='start' paddingBottom='medium' backgroundColor='var(--color-background-far)' style={{ borderRadius: 0, borderRight: '2px solid var(--button-border-color)' }}>
       <Box
         className='navigation-bar'
-        flexFlow='row nowrap'
-        width='100%'
+        flexFlow='column'
         justifyContent='space-between'
-        alignItems='center'
-        paddingLeft='small'
-        paddingRight='small'
+        alignItems='start'
+        padding='medium'
         onClick={toggleNavigation}
       >
-        <div className='navigation-open-button'>
+        <div className='navigation-open-button' style={{ zIndex: 9999}}>
           <FontAwesomeIcon icon={navigationOpen ? faTimes : faBars} size='2x' />
         </div>
-        <CustomSpooder />
       </Box>
-      {!isMobileDevice ? <NavigationTabs /> : null}
+      <NavigationTabs />
+      {/* {!isMobileDevice && <NavigationTabs />} */}
     </Box>
   );
 }

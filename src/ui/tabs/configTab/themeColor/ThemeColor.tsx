@@ -37,12 +37,12 @@ export default function ThemeColor() {
     return gradientColors.join(', ');
   };
   return (
-    <Stack spacing='small' width='100%'>
+    <Stack spacing='medium' width='100%'>
       <TypeFace fontSize='large' fontWeight='bold'>
         Theme Color
       </TypeFace>
       <Columns spacing='xlarge' width='100%'>
-        <Box width='50%'>
+        <Box width='50%' padding='xsmall'>
           <Slider
             orientation={'horizontal'}
             gradient={'#FF0000, #FFFF00, #00FF00, #00FFFF, #0000FF, #FF00FF, #FF0000'}
@@ -54,17 +54,17 @@ export default function ThemeColor() {
           />
         </Box>
         <Box width='50%'>
-          <NumberInput
+          <TextInput
             label='Hue'
-            value={Math.round(themeVariables.hue * 360)}
-            onInput={(value) => setThemeHue(parseHueInput(`${value}`))}
+            value={`${Math.round(themeVariables.hue * 360)}`}
+            onInput={(value) => setThemeHue(parseHueInput(value))}
             selectOnFocus={true}
             unit='°'
           />
         </Box>
       </Columns>
       <Columns spacing='xlarge' width='100%'>
-        <Box width='50%'>
+        <Box width='50%' padding='xsmall'>
           <Slider
             orientation={'horizontal'}
             gradient={parseHueSliderColors(themeVariables.hue)}

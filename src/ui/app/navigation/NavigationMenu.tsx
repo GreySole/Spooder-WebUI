@@ -41,7 +41,7 @@ export default function NavigationMenu() {
     const tabLabel = tabOptions[tab];
     return (
       <Box key={tab} padding='small'>
-        <TabButton tabLable={tabLabel} tabName={tab} />
+        <TabButton tabLabel={tabLabel} tabName={tab} index={index} />
       </Box>
     );
   });
@@ -50,7 +50,7 @@ export default function NavigationMenu() {
     const deckLabel = deckTabOptions[deck];
     return (
       <Box key={deck} padding='small'>
-        <TabButton tabLable={deckLabel} tabName={deck} />
+        <TabButton tabLabel={deckLabel} tabName={deck} index={index} />
       </Box>
     );
   });
@@ -78,17 +78,19 @@ export default function NavigationMenu() {
           </Box>
         </Stack>
       </Box>
-      <Stack padding='small' spacing='medium'>
+      {/* <Stack padding='small' spacing='medium'>
         <BoolSwitch
           onChange={() => setStayHere(urlParams.get('tab') == null)}
           value={urlParams.get('tab') != null}
           label='Stay Here'
         />
-      </Stack>
-      <Stack padding='small' spacing='small'>
-        <TypeFace fontSize='large'>Shares</TypeFace>
-        {shareElements}
-      </Stack>
+      </Stack> */}
+      {shareElements.length > 0 && (
+        <Stack padding='small' spacing='small'>
+          <TypeFace fontSize='large'>Shares</TypeFace>
+          {shareElements}
+        </Stack>
+      )}
     </Box>
   );
 }

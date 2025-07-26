@@ -21,7 +21,7 @@ export default function ConfigTab() {
         <ConfigTabFormContextProvider defaultConfig={data}>
           <ConfigForm />
         </ConfigTabFormContextProvider>
-        <Stack spacing='none' paddingLeft='medium' paddingRight='medium'>
+        <Stack spacing='none'>
           <Expandable label='Backup/Restore'>
             <BackupRestore />
           </Expandable>

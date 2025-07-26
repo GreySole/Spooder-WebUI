@@ -34,7 +34,6 @@ export default function ModuleTab() {
       flexFlow='row'
       alignItems='center'
       justifyContent='space-evenly'
-      padding='medium'
     >
       <Button
         label={modules.stream.twitch.name}
@@ -53,7 +52,7 @@ export default function ModuleTab() {
       />
     </Box>
   ) : (
-    <Stack spacing='medium' padding='medium'>
+    <Stack spacing='medium'>
       <Box>
         <Button
           label='Back'

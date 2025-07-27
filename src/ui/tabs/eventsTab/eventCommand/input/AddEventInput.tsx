@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { EVENT_KEY } from '../../FormKeys';
 import { useState } from 'react';
@@ -13,6 +13,7 @@ import {
   TextInput,
   TypeFace,
   useTheme,
+  useToast,
 } from '@greysole/spooder-component-library';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
@@ -31,6 +32,13 @@ export default function AddEventInput(props: AddEventButtonProps) {
   const { open, setEventName } = useEventTableModal();
   const { themeColors } = useTheme();
   const events = watch('events');
+  const { showSuccess, showError } = useToast();
+
+  useEffect(() => {
+    if (isEventTaken) {
+      showError('Event name already taken');
+    }
+  }, [isEventTaken]);
 
   function checkEventTaken(eventName: string) {
     if (Object.keys(events).includes(eventName)) {
@@ -70,15 +78,7 @@ export default function AddEventInput(props: AddEventButtonProps) {
   return (
     <HotkeysProvider enter={() => (inputFocused ? addEvent(addEventName, groupName) : null)}>
       <Stack spacing='small' padding='medium'>
-        {isEventTaken ? (
-          <TypeFace color={themeColors.colorAnalogousCW}>
-            <span>
-              <FontAwesomeIcon icon={faExclamationTriangle} />
-            </span>
-            <span> Event name already taken</span>
-          </TypeFace>
-        ) : null}
-        <Columns spacing='medium'>
+        <Columns spacing='none'>
           <TextInput
             placeholder='Add Event'
             value={addEventName}
@@ -87,7 +87,7 @@ export default function AddEventInput(props: AddEventButtonProps) {
             onBlur={() => setInputFocused(false)}
             jsonFriendly
           />
-          <Button label='Add' onClick={() => addEvent(addEventName, groupName)} />
+          <Button label='Add' onClick={() => addEvent(addEventName, groupName)} disabled={isEventTaken || !addEventName} className='merge-with-input'/>
         </Columns>
       </Stack>
     </HotkeysProvider>

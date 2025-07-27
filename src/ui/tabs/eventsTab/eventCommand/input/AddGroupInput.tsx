@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { HotkeysProvider } from '../../../../../app/hooks/useHotkeys';
@@ -9,6 +9,7 @@ import {
   Button,
   Stack,
   useTheme,
+  useToast,
 } from '@greysole/spooder-component-library';
 import { faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -24,6 +25,14 @@ export default function AddGroupInput() {
   const [isGroupTaken, setIsGroupTaken] = useState<boolean>(false);
   const { themeColors } = useTheme();
   const groups = watch('groups');
+  const { showError } = useToast();
+
+  useEffect(() => {
+    if (isGroupTaken) {
+      showError('Group name already taken');
+    }
+  }, [isGroupTaken]);
+
   function addGroup(groupName: string) {
     if (isGroupTaken) {
       return;
@@ -52,18 +61,11 @@ export default function AddGroupInput() {
     setIsGroupTaken(checkGroupTaken(value));
     setAddGroupName(value);
   };
+
   return (
     <HotkeysProvider enter={() => (inputFocused ? addGroup(addGroupName) : null)}>
       <Stack spacing='small'>
-        {isGroupTaken ? (
-          <TypeFace color={themeColors.colorAnalogousCW}>
-            <span>
-              <FontAwesomeIcon icon={faExclamationTriangle} />
-            </span>
-            <span> Event name already taken</span>
-          </TypeFace>
-        ) : null}
-        <Columns spacing='medium'>
+        <Columns spacing='none'>
           <TextInput
             placeholder='Add Group'
             value={addGroupName}
@@ -71,7 +73,7 @@ export default function AddGroupInput() {
             onFocus={() => setInputFocused(true)}
             onBlur={() => setInputFocused(false)}
           />
-          <Button label='Add' onClick={() => addGroup(addGroupName)} />
+          <Button label='Add' onClick={() => addGroup(addGroupName)} disabled={isGroupTaken || !addGroupName} className='merge-with-input' />
         </Columns>
       </Stack>
     </HotkeysProvider>

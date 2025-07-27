@@ -4,7 +4,7 @@ import { PluginProvider } from './pluginTab/context/PluginTabFormContext';
 import RefreshAllPluginsButton from './pluginTab/input/RefreshAllPluginsButton';
 import PluginList from './pluginTab/PluginList';
 import { Footer } from '../app/Footer';
-import { faPlusCircle, faFileImport } from '@fortawesome/free-solid-svg-icons';
+import { faPlusCircle, faFileImport, faDownload } from '@fortawesome/free-solid-svg-icons';
 import CreatePluginModal from './pluginTab/input/CreatePluginModal';
 import InstallPluginModal from './pluginTab/input/InstallPluginModal';
 import CreatePluginFormContextProvider from './pluginTab/context/CreatePluginFormContext';
@@ -24,7 +24,7 @@ export default function PluginTab() {
         <PluginList />
       </Box>
       <Footer showFooter>
-        <Columns spacing='medium' padding='small'>
+        <Box width='100%' spacing='medium' padding='medium' justifyContent='flex-end'>
           <Button
             label='Create'
             onClick={() => setCreatePluginOpen(!createPluginOpen)}
@@ -32,13 +32,13 @@ export default function PluginTab() {
           />
           <Button
             label='Install'
-            icon={faFileImport}
+            icon={faDownload}
             onClick={() => {
               setInstallPluginOpen(!installPluginOpen);
             }}
           />
           <RefreshAllPluginsButton />
-        </Columns>
+        </Box>
       </Footer>
     </PluginProvider>
   );

@@ -61,7 +61,9 @@ export default function NavigationMenu() {
       className={`navigation-menu ${navigationOpen ? 'open' : ''}`}
       overflow='auto'
       padding='medium'
-      height='calc(100vh - 70px)'
+      height='100dvh'
+      width='calc(100% - var(--menu-width))'
+      style={{ left: 'var(--menu-width)' }}
     >
       <Box flexFlow='column'>
         <Stack spacing='medium' padding='small'>

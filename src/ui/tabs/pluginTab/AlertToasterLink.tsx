@@ -1,9 +1,9 @@
-import { LinkButton } from '@greysole/spooder-component-library';
+import { Box, LinkButton } from '@greysole/spooder-component-library';
 import React from 'react';
 
 export default function AlertToasterLink() {
   return (
-    <div className='no-plugins-div'>
+    <Box className='no-plugins-div' flexFlow='column' width='100%' spacing='medium' alignItems='start'>
       <h1>No plugins yet, get an Alert Toaster!</h1>
       <p>
         Alert Toaster has slide in alerts for Spooder, Twitch, and any plugin that calls
@@ -12,11 +12,11 @@ export default function AlertToasterLink() {
       </p>
       <LinkButton
         mode='newtab'
-        label='Get the Latest Release'
+        label='Get the Latest Spooder'
         link={'https://github.com/GreySole/Spooder-AlertToaster/releases/tag/latest'}
         name={''}
         iconOnly={false}
       />
-    </div>
+    </Box>
   );
 }

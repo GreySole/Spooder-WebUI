@@ -12,6 +12,9 @@ import {
   faPerson,
   faPaintRoller,
   faShareNodes,
+  faTv,
+  faGamepad,
+  faHammer,
 } from '@fortawesome/free-solid-svg-icons';
 
 interface TabButtonProps {
@@ -26,17 +29,21 @@ export default function TabButton(props: TabButtonProps) {
   const { themeVariables } = useTheme();
 
   const iconMap: Record<string, IconProp> = {
-    'dashboard': faDashboard,
-    'commands': faClapperboard,
-    'plugins': faPlug,
-    'osctunnels': faArrowsSplitUpAndLeft,
-    'module': faPuzzlePiece,
-    'users': faPerson,
-    'sharing': faShareNodes,
-    'theme': faPaintRoller,
-    'config': faGears,
+    dashboard: faDashboard,
+    commands: faClapperboard,
+    plugins: faPlug,
+    osctunnels: faArrowsSplitUpAndLeft,
+    module: faPuzzlePiece,
+    users: faPerson,
+    sharing: faShareNodes,
+    theme: faPaintRoller,
+    config: faGears,
+    obs: faGamepad,
+    osc: faTv,
+    mod: faHammer,
   };
 
+  console.log(tabName);
 
   const tabs = Object.keys(iconMap);
   const selectedTabIndex = tabs.indexOf(currentTab);
@@ -44,19 +51,23 @@ export default function TabButton(props: TabButtonProps) {
 
   const diffMag = tabs.length / 2;
 
-  const tabHue = (themeVariables.hue * 360) - (distanceFromSelected * diffMag);
+  const tabHue = themeVariables.hue * 360 - distanceFromSelected * diffMag;
   const tabSaturation = themeVariables.saturation * 100;
-  const tabLightness = 50 + Math.abs(distanceFromSelected * diffMag);
-  const tabAlpha = 100 - (Math.abs(distanceFromSelected) * diffMag);
+  const tabLightness = themeVariables.isDarkTheme ? 80 : 20;
 
-  const iconAndTextColor = `hsla(${tabHue % 360}deg, ${tabSaturation}%, ${tabLightness}%, ${tabAlpha}% )`;
-
-  console.log(`${tabName} ${iconAndTextColor}`);
+  const iconAndTextColor = `hsl(${tabHue % 360}deg, ${tabSaturation}%, ${tabLightness}%)`;
 
   return (
     <Button
       className={'tab-button minimal' + (currentTab == tabName ? ' selected' : '')}
-      style={{ flexDirection: 'row-reverse', justifyContent: 'start', padding: '.625rem', color: iconAndTextColor }}
+      style={{
+        flexDirection: 'row-reverse',
+        justifyContent: 'start',
+        padding: '.5rem',
+        color: iconAndTextColor,
+        fontWeight: '500',
+        margin: '1px 0',
+      }}
       iconColor={iconAndTextColor}
       iconGap='smedium'
       onClick={() => {

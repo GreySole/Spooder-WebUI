@@ -9,8 +9,8 @@ export default function Header() {
   const { navigationOpen, toggleNavigation } = useNavigation();
   const { isMobileDevice } = useTheme();
   return (
-    <Box flexFlow='column' justifyContent='start' paddingBottom='medium' backgroundColor='var(--color-background-far)' style={{ borderRadius: 0, borderRight: '2px solid var(--button-border-color)' }}>
-      <Box
+    <Box flexFlow='column' justifyContent='start' paddingBottom='medium' backgroundColor='var(--color-background-far)' width='100%' style={{ borderRadius: 0, borderRight: '2px solid var(--button-border-color)' }}>
+      {/* <Box
         className='navigation-bar'
         flexFlow='column'
         justifyContent='space-between'
@@ -18,10 +18,10 @@ export default function Header() {
         padding='medium'
         onClick={toggleNavigation}
       >
-        <div className='navigation-open-button' style={{ zIndex: 9999}}>
+        <div className='navigation-open-button' style={{ zIndex: 11}}>
           <FontAwesomeIcon icon={navigationOpen ? faTimes : faBars} size='2x' />
         </div>
-      </Box>
+      </Box> */}
       <NavigationTabs />
       {/* {!isMobileDevice && <NavigationTabs />} */}
     </Box>

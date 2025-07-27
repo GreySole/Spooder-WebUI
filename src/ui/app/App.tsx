@@ -104,7 +104,7 @@ export default function App() {
   }
 
   return (
-    <Grid columns={'150px 1fr'} rows={'1fr'} spacing='medium' height={'100dvh'} overflow='hidden' justifyContent='center' justifyItems='center'>
+    <Grid columns={'var(--menu-width) 1fr'} rows={'1fr'} spacing='medium' height={'100dvh'} overflow='hidden' justifyContent='center' justifyItems='center' alignItems='stretch'>
       <Header />
       <Box flexFlow='column' alignItems='end' overflow='hidden scroll' width={'100%'} style={{maxWidth: '1200px'}}>
         <Box paddingTop='smedium'>

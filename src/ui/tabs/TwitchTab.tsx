@@ -17,7 +17,7 @@ export default function TwitchTab() {
   }
 
   return (
-    <Stack spacing='medium'>
+    <Stack spacing='medium' width='100%'>
       <TwitchTabFormContextProvider
         twitchConfig={{
           'client-id': twitchConfig['client-id'],

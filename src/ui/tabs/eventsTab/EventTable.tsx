@@ -105,9 +105,8 @@ export default function EventTable() {
         </Box>
         {groupElements}
       </Box>
-      <Footer showFooter={true}>
-        <Box width='inherit' alignItems='center' padding='small' justifyContent='space-between'>
-          <Columns spacing='medium' padding='small'>
+      <Footer showFooter>
+          <Box width='100%' spacing='medium' padding='medium' justifyContent='end'>
             <SearchBar placeholder='Search Events...' value={searchText} onSearch={setSearchText} />
             <FilterButton
               options={[
@@ -118,8 +117,7 @@ export default function EventTable() {
               selectedOptions={filter}
               onChange={(e) => (setFilter(e), console.log(e))}
             />
-          </Columns>
-        </Box>
+          </Box>
       </Footer>
     </Box>
   );

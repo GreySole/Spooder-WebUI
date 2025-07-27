@@ -26,8 +26,6 @@ export default function ModuleTab() {
     setModule('');
   };
 
-  console.log(DiscordIcon);
-
   return module === '' ? (
     <Box
       width='100%'
@@ -39,6 +37,7 @@ export default function ModuleTab() {
         label={modules.stream.twitch.name}
         icon={modules.stream.twitch.icon}
         iconSize='100px'
+        fontSize='large'
         onClick={() => setModule('twitch')}
         iconPosition='bottom'
       />
@@ -47,12 +46,13 @@ export default function ModuleTab() {
         label={modules.community.discord.name}
         icon={modules.community.discord.icon}
         iconSize='100px'
+        fontSize='large'
         onClick={() => setModule('discord')}
         iconPosition='bottom'
       />
     </Box>
   ) : (
-    <Stack spacing='medium'>
+    <Stack spacing='medium' width='100%'>
       <Box>
         <Button
           label='Back'

@@ -47,7 +47,7 @@ export default function TwitchAuthManager() {
                 {linkedAccounts.botUser != null ? linkedAccounts.botUser.display_name : ''}
               </TypeFace>
               <BotAuthButton />
-              <Button label='Revoke' onClick={() => revokeToken()} />
+              <Button label='Revoke' onClick={() => revokeToken()} className='delete-button' />
             </Stack>
             <Stack spacing='small' align='center' margin='medium'>
               <TypeFace>Broadcaster</TypeFace>
@@ -68,7 +68,7 @@ export default function TwitchAuthManager() {
                   : ''}
               </TypeFace>
               <BroadcasterAuthButton />
-              <Button label='Revoke' onClick={() => revokeToken()} />
+              <Button label='Revoke' onClick={() => revokeToken()} className='delete-button' />
             </Stack>
           </Box>
         ) : (

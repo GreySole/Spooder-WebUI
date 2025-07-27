@@ -108,18 +108,16 @@ export default function ThemeTab() {
         <EditCustomSpooder />
       </Stack>
       <Footer showFooter>
-        <Box width='100%' justifyContent='flex-end' padding='medium' spacing='medium'>
-          {themeHasChanged && (
-            <Button icon={faArrowRotateLeft} label='Revert' onClick={revertThemeChanges} />
-          )}
-          <Button
-            label='Save'
-            className='save-button'
-            icon={faSave}
-            tooltipText='Save your theme and custom spooder settings'
-            onClick={handleSaveTheme}
-          />
-        </Box>
+        {themeHasChanged && (
+          <Button icon={faArrowRotateLeft} label='Revert' onClick={revertThemeChanges} />
+        )}
+        <Button
+          label='Save'
+          className='save-button'
+          icon={faSave}
+          tooltipText='Save your theme and custom spooder settings'
+          onClick={handleSaveTheme}
+        />
       </Footer>
     </Box>
   );

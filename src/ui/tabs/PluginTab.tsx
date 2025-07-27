@@ -24,21 +24,19 @@ export default function PluginTab() {
         <PluginList />
       </Box>
       <Footer showFooter>
-        <Box width='100%' spacing='medium' padding='medium' justifyContent='flex-end'>
-          <Button
-            label='Create'
-            onClick={() => setCreatePluginOpen(!createPluginOpen)}
-            icon={faPlusCircle}
-          />
-          <Button
-            label='Install'
-            icon={faDownload}
-            onClick={() => {
-              setInstallPluginOpen(!installPluginOpen);
-            }}
-          />
-          <RefreshAllPluginsButton />
-        </Box>
+        <Button
+          label='Create'
+          onClick={() => setCreatePluginOpen(!createPluginOpen)}
+          icon={faPlusCircle}
+        />
+        <Button
+          label='Install'
+          icon={faDownload}
+          onClick={() => {
+            setInstallPluginOpen(!installPluginOpen);
+          }}
+        />
+        <RefreshAllPluginsButton />
       </Footer>
     </PluginProvider>
   );

@@ -18,7 +18,7 @@ export function Footer({ children, showFooter }: FooterProps) {
       in={showFooter}
       timeout={300}
     >
-      <Box ref={ref} className='footer' width='calc(100% - var(--menu-width))' style={{ left: 'calc(var(--menu-width) - 2px)', borderTop: 'solid 2px var(--button-border-color)', backgroundColor: 'var(--color-background-far)', borderRadius: 0, zIndex: 3}}>
+      <Box ref={ref} className='footer' spacing='smedium' padding='smedium' justifyContent='end' width='calc(100% - var(--menu-width))' style={{ left: 'calc(var(--menu-width) - 2px)', borderTop: 'solid 2px var(--button-border-color)', backgroundColor: 'var(--color-background-far)', borderRadius: 0, zIndex: 3}}>
         {children}
       </Box>
     </CSSTransition>

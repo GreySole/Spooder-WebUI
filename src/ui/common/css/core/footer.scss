@@ -15,6 +15,7 @@
     position: absolute;
     content: '';
     bottom: 100%;
+    left: 0;
     height: calc(var(--interactive-radius) * 2);
     width: calc(var(--interactive-radius) * 2);
     border-radius: 0 0 0 calc(var(--interactive-radius) * 2);

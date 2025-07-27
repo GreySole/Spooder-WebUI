@@ -106,18 +106,16 @@ export default function EventTable() {
         {groupElements}
       </Box>
       <Footer showFooter>
-          <Box width='100%' spacing='medium' padding='medium' justifyContent='end'>
-            <SearchBar placeholder='Search Events...' value={searchText} onSearch={setSearchText} />
-            <FilterButton
-              options={[
-                { label: 'Chat', icon: faComment, value: 'chat' },
-                { label: 'OSC', icon: faNetworkWired, value: 'osc' },
-                { label: 'Twitch', icon: TwitchIcon, value: 'twitch' },
-              ]}
-              selectedOptions={filter}
-              onChange={(e) => (setFilter(e), console.log(e))}
-            />
-          </Box>
+        <SearchBar placeholder='Search Events...' value={searchText} onSearch={setSearchText} />
+        <FilterButton
+          options={[
+            { label: 'Chat', icon: faComment, value: 'chat' },
+            { label: 'OSC', icon: faNetworkWired, value: 'osc' },
+            { label: 'Twitch', icon: TwitchIcon, value: 'twitch' },
+          ]}
+          selectedOptions={filter}
+          onChange={(e) => (setFilter(e), console.log(e))}
+        />
       </Footer>
     </Box>
   );

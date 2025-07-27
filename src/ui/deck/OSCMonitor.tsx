@@ -161,73 +161,65 @@ export default function OSCMonitor() {
         ))}
       </Box>
       <Footer showFooter={true}>
-        <Box
-          width='100%'
-          flexFlow='row'
-          justifyContent='space-between'
-          alignItems='center'
-          padding='small'
-        >
-          <Columns width='80%' spacing='small' overflow='auto' paddingTop='small'>
-            <SearchBar
-              placeholder='Filter by address...'
-              value={addressInput}
-              onSearch={(e) => setAddressInput(e)}
-            />
-            <ButtonRow
-              buttonSize='small'
-              iconSize='medium'
-              buttons={[
-                {
-                  icon: faT,
-                  onClick: () => setSelectedTab('tcp'),
-                  isActive: selectedTab == 'tcp',
+        <Box padding='none' spacing='medium'>
+          <SearchBar
+            placeholder='Filter by address...'
+            value={addressInput}
+            onSearch={(e) => setAddressInput(e)}
+          />
+          <ButtonRow
+            buttonSize='small'
+            iconSize='medium'
+            buttons={[
+              {
+                icon: faT,
+                onClick: () => setSelectedTab('tcp'),
+                isActive: selectedTab == 'tcp',
+              },
+              {
+                icon: faU,
+                onClick: () => setSelectedTab('udp'),
+                isActive: selectedTab == 'udp',
+              },
+              {
+                icon: faPlug,
+                onClick: () => setSelectedTab('plugin'),
+                isActive: selectedTab == 'plugin',
+              },
+            ]}
+          />
+          <ButtonRow
+            buttonSize='small'
+            iconSize='medium'
+            buttons={[
+              {
+                icon: faArrowUp,
+                onClick: () => {
+                  if (selectedTypeFilters.includes('send')) {
+                    setSelectedTypeFilters(
+                      selectedTypeFilters.filter((filter) => filter !== 'send'),
+                    );
+                  } else {
+                    setSelectedTypeFilters([...selectedTypeFilters, 'send']);
+                  }
                 },
-                {
-                  icon: faU,
-                  onClick: () => setSelectedTab('udp'),
-                  isActive: selectedTab == 'udp',
+                isActive: selectedTypeFilters.includes('send'),
+              },
+              {
+                icon: faArrowDown,
+                onClick: () => {
+                  if (selectedTypeFilters.includes('receive')) {
+                    setSelectedTypeFilters(
+                      selectedTypeFilters.filter((filter) => filter !== 'receive'),
+                    );
+                  } else {
+                    setSelectedTypeFilters([...selectedTypeFilters, 'receive']);
+                  }
                 },
-                {
-                  icon: faPlug,
-                  onClick: () => setSelectedTab('plugin'),
-                  isActive: selectedTab == 'plugin',
-                },
-              ]}
-            />
-            <ButtonRow
-              buttonSize='small'
-              iconSize='medium'
-              buttons={[
-                {
-                  icon: faArrowUp,
-                  onClick: () => {
-                    if (selectedTypeFilters.includes('send')) {
-                      setSelectedTypeFilters(
-                        selectedTypeFilters.filter((filter) => filter !== 'send'),
-                      );
-                    } else {
-                      setSelectedTypeFilters([...selectedTypeFilters, 'send']);
-                    }
-                  },
-                  isActive: selectedTypeFilters.includes('send'),
-                },
-                {
-                  icon: faArrowDown,
-                  onClick: () => {
-                    if (selectedTypeFilters.includes('receive')) {
-                      setSelectedTypeFilters(
-                        selectedTypeFilters.filter((filter) => filter !== 'receive'),
-                      );
-                    } else {
-                      setSelectedTypeFilters([...selectedTypeFilters, 'receive']);
-                    }
-                  },
-                  isActive: selectedTypeFilters.includes('receive'),
-                },
-              ]}
-            />
-          </Columns>
+                isActive: selectedTypeFilters.includes('receive'),
+              },
+            ]}
+          />
           {scrollLock ? null : <Button icon={faArrowDown} onClick={() => scrollToBottom()} />}
         </Box>
       </Footer>

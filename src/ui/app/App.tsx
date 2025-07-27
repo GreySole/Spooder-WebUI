@@ -19,7 +19,6 @@ import OSCMonitor from '../deck/OSCMonitor';
 import ConfigTab from '../tabs/ConfigTab';
 import DashboardTab from '../tabs/DashboardTab';
 import EventTab from '../tabs/EventTab';
-import ModuleTab from '../tabs/ModuleTab';
 import OSCTunnelTab from '../tabs/OSCTunnelTab';
 import PluginTab from '../tabs/PluginTab';
 import ShareTab from '../tabs/ShareTab';

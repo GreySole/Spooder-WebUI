@@ -13,6 +13,7 @@ A list of known bugs in Spooder-WebUI
 * Footer animates in cleanly, but does not animate out
 * Need to check all tabcontent for consistency, after menu placement changes, some might not be full-width in the right places. ***I think this is fixed, but needs to be checked.***
 * LinkButtons, SaveButtons, etc. need to be combined with the regular Button component, so that they can be used in places where a button is expected and use functionality/style available to Button.
+* "Remember where I was" button needs to be updated. Currently, the function only applies to the current tab (the tab the switch is on, Config tab), but it should apply to last tab visited.
 * ~~input clear button disappears when button itself is focused, should stay visible~~
 * ~~Events modal is not full screen~~
 * ~~Hamburger menu button overlaps with content in the navigation menu. Need to adjust the nav menu to account for the new menu layout.~~

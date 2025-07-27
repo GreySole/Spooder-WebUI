@@ -38,19 +38,19 @@ export default function NavigationMenu() {
   }
 
   const tabButtons = Object.keys(tabOptions).map((tab: string, index) => {
-    const tabLabel = tabOptions[tab];
+    const tabData = tabOptions[tab];
     return (
       <Box key={tab} padding='small'>
-        <TabButton tabLabel={tabLabel} tabName={tab} index={index} />
+        <TabButton tabLabel={tabData.label} tabName={tab} index={index} icon={tabData.icon} />
       </Box>
     );
   });
 
   const deckButtons = Object.keys(deckTabOptions).map((deck: string, index) => {
-    const deckLabel = deckTabOptions[deck];
+    const deckData = deckTabOptions[deck];
     return (
       <Box key={deck} padding='small'>
-        <TabButton tabLabel={deckLabel} tabName={deck} index={index} />
+        <TabButton tabLabel={deckData.label} tabName={deck} index={index} icon={deckData.icon} />
       </Box>
     );
   });

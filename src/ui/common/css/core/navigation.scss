@@ -1,5 +1,5 @@
 :root {
-    --menu-width: 170px;
+  --menu-width: 170px;
 }
 
 .nav-share-container {
@@ -98,7 +98,7 @@
       --tab-pop: 0.5rem;
       background-color: var(--color-background-near);
 
-    font-weight: 800;
+      font-weight: 800;
 
       filter: brightness(1);
 
@@ -107,6 +107,11 @@
       z-index: 2;
     }
   }
+}
+
+.folder-tab-button.expanded {
+  outline: solid 2px var(--button-border-color);
+  outline-offset: -1px;
 }
 
 .navigation-tabs-mobile {

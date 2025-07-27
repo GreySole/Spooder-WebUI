@@ -12,7 +12,6 @@ import {
   ButtonRow,
 } from '@greysole/spooder-component-library';
 import { faDownload, faTrash } from '@fortawesome/free-solid-svg-icons';
-import { StyleSize } from '../../../../Types';
 
 export default function BackupSettingsInput() {
   const { getBackupSettings, getSettingsBackups, getDeleteBackupSettings } = useRecovery();

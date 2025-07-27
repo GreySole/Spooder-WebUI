@@ -5,6 +5,7 @@ import { IRootState } from '../store';
 export default function useNavigation() {
   const dispatch = useDispatch();
   const currentTab = useSelector((state: IRootState) => state.navigationSlice.currentTab);
+  const currentFolder = useSelector((state: IRootState) => state.navigationSlice.currentFolder);
   const tabOptions = useSelector((state: IRootState) => state.navigationSlice.tabOptions);
   const deckTabOptions = useSelector((state: IRootState) => state.navigationSlice.deckTabOptions);
   const navigationOpen = useSelector((state: IRootState) => state.navigationSlice.navigationOpen);
@@ -12,8 +13,8 @@ export default function useNavigation() {
 
   const queryString = window.location.search;
   const urlParams = new URLSearchParams(queryString);
-  function setTab(tabName: string) {
-    dispatch(_setTab({ tab: tabName }));
+  function setTab(tabName: string, folderName?: string) {
+    dispatch(_setTab({ tab: tabName, folder: folderName }));
   }
 
   function toggleNavigation() {
@@ -45,6 +46,7 @@ export default function useNavigation() {
     tabOptions,
     deckTabOptions,
     currentTab,
+    currentFolder,
     urlParams,
   };
 }

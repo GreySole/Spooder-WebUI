@@ -24,7 +24,7 @@ export default function DiscordTab() {
   }
 
   return (
-    <Stack spacing='medium'>
+    <Stack width='100%' spacing='medium'>
       <DiscordTabFormContextProvider discordConfig={discordData}>
         <DiscordLoginSettings />
         <DiscordConfig />

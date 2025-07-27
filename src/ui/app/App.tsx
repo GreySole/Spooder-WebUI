@@ -28,6 +28,8 @@ import UserTab from '../tabs/UserTab';
 import Header from './Header';
 import NavigationMenu from './navigation/NavigationMenu';
 import PageCircleLoader from '../common/input/general/PageCircleLoader';
+import TwitchTab from '../tabs/TwitchTab';
+import DiscordTab from '../tabs/DiscordTab';
 
 export default function App() {
   const { currentTab } = useNavigation();
@@ -86,8 +88,11 @@ export default function App() {
     case 'users':
       tabContent = <UserTab />;
       break;
-    case 'module':
-      tabContent = <ModuleTab />;
+    case 'twitch':
+      tabContent = <TwitchTab />;
+      break;
+    case 'discord':
+      tabContent = <DiscordTab />;
       break;
     case 'obs':
       tabContent = <OBS />;
@@ -104,9 +109,24 @@ export default function App() {
   }
 
   return (
-    <Grid columns={'var(--menu-width) 1fr'} rows={'1fr'} spacing='medium' height={'100dvh'} overflow='hidden' justifyContent='center' justifyItems='center' alignItems='stretch'>
+    <Grid
+      columns={'var(--menu-width) 1fr'}
+      rows={'1fr'}
+      spacing='medium'
+      height={'100dvh'}
+      overflow='hidden'
+      justifyContent='center'
+      justifyItems='center'
+      alignItems='stretch'
+    >
       <Header />
-      <Box flexFlow='column' alignItems='end' overflow='hidden scroll' width={'100%'} style={{maxWidth: '1200px'}}>
+      <Box
+        flexFlow='column'
+        alignItems='end'
+        overflow='hidden scroll'
+        width={'100%'}
+        style={{ maxWidth: '1200px' }}
+      >
         <Box paddingTop='smedium'>
           <CustomSpooder />
         </Box>

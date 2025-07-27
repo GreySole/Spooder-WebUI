@@ -18,7 +18,7 @@ export default function ShareTab() {
 
   return (
     <ShareTabFormContextProvider shares={shares}>
-      <Box marginBottom='var(--footer-height)'>
+      <Box width='100%' marginBottom='var(--footer-height)'>
         <Stack spacing='medium' width='100%'>
           {Object.keys(shares).map((s: string) => {
             return (

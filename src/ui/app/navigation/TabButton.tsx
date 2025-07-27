@@ -2,51 +2,27 @@ import React from 'react';
 import useNavigation from '../../../app/hooks/useNavigation';
 import { Button, useTheme } from '@greysole/spooder-component-library';
 import { icon, IconProp } from '@fortawesome/fontawesome-svg-core';
-import {
-  faDashboard,
-  faGears,
-  faClapperboard,
-  faPlug,
-  faArrowsSplitUpAndLeft,
-  faPuzzlePiece,
-  faPerson,
-  faPaintRoller,
-  faShareNodes,
-  faTv,
-  faGamepad,
-  faHammer,
-} from '@fortawesome/free-solid-svg-icons';
 
 interface TabButtonProps {
   tabName: string;
   tabLabel: string;
+  icon: IconProp;
   index: number;
+  tabFolder?: string;
 }
 
 export default function TabButton(props: TabButtonProps) {
-  const { tabName, tabLabel, index } = props;
-  const { setTab, currentTab, setNavigation } = useNavigation();
+  const { tabName, tabFolder, tabLabel, index, icon } = props;
+  const { setTab, currentTab, currentFolder, setNavigation, tabOptions, deckTabOptions } =
+    useNavigation();
   const { themeVariables } = useTheme();
 
-  const iconMap: Record<string, IconProp> = {
-    dashboard: faDashboard,
-    commands: faClapperboard,
-    plugins: faPlug,
-    osctunnels: faArrowsSplitUpAndLeft,
-    module: faPuzzlePiece,
-    users: faPerson,
-    sharing: faShareNodes,
-    theme: faPaintRoller,
-    config: faGears,
-    obs: faGamepad,
-    osc: faTv,
-    mod: faHammer,
-  };
+  const iconMap = { ...tabOptions, ...deckTabOptions };
 
   console.log(tabName);
 
   const tabs = Object.keys(iconMap);
-  const selectedTabIndex = tabs.indexOf(currentTab);
+  const selectedTabIndex = currentFolder ? tabs.indexOf(currentFolder) : tabs.indexOf(currentTab);
   const distanceFromSelected = selectedTabIndex - index;
 
   const diffMag = tabs.length / 2;
@@ -71,11 +47,11 @@ export default function TabButton(props: TabButtonProps) {
       iconColor={iconAndTextColor}
       iconGap='smedium'
       onClick={() => {
-        setTab(tabName);
+        setTab(tabName, tabFolder);
         setNavigation(false);
       }}
       label={tabLabel}
-      icon={iconMap[tabName]}
+      icon={icon}
     />
   );
 }

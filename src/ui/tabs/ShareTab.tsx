@@ -30,9 +30,7 @@ export default function ShareTab() {
         </Stack>
       </Box>
       <Footer showFooter={true}>
-        <Box width='100%' justifyContent='flex-end' padding='medium'>
-          <SaveButton saveFunction={saveShares} />
-        </Box>
+        <SaveButton saveFunction={saveShares} />
       </Footer>
     </ShareTabFormContextProvider>
   );

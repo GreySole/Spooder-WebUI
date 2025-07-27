@@ -82,6 +82,7 @@ export default function useTwitch() {
       useSaveTwitchConfigMutation();
     function saveTwitchConfig(form: FieldValues) {
       saveTwitchConfigMutation(form);
+      return { isLoading, isSuccess, error };
     }
     return { saveTwitchConfig, isLoading, isSuccess, error };
   }

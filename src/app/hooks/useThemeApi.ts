@@ -1,5 +1,4 @@
 import { SpooderPetPair } from '@greysole/spooder-component-library';
-import { KeyedObject } from '../../ui/Types';
 import {
   useGetCustomSpooderQuery,
   useGetMainThemeQuery,
@@ -15,8 +14,8 @@ export default function useThemeApi() {
 
   function getSaveTheme() {
     const [saveThemeMutation, { isLoading, isSuccess, error }] = useSaveThemeMutation();
-    function saveTheme(hue: number, saturation: number, isDarkTheme: boolean) {
-      saveThemeMutation({ hue, saturation, isDarkTheme });
+    function saveTheme(hue: number, saturation: number, isDarkTheme: boolean, isMonospacedFont: boolean, fontWeight: number, letterSpacing: number) {
+      saveThemeMutation({ hue, saturation, isDarkTheme, isMonospacedFont, fontWeight, letterSpacing });
     }
 
     return { saveTheme, isLoading, isSuccess, error };

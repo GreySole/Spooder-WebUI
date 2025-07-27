@@ -26,10 +26,6 @@
   background-color: var(--tab-inactive-color);
 }
 
-.no-plugins-div {
-  padding: 15px;
-}
-
 .no-plugins-div h1 {
   font-size: 24px;
   margin-bottom: 5px;
@@ -166,7 +162,7 @@
 .plugin-button,
 .asset-button,
 .link-button-button {
-  padding: 15px;
+  padding: 12px;
   cursor: pointer;
 }
 
@@ -200,7 +196,7 @@
   width: 75px;
 
   &:not(:first-child) {
-    margin-left: 2px;
+    margin-left: -2px;
   }
 }
 

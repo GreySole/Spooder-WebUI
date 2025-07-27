@@ -23,7 +23,7 @@ export default function OSCTunnelTab() {
 
   return (
     <OSCTunnelTabContextProvider tunnels={tunnels}>
-      <Box width='100%' marginBottom='var(--footer-height)' padding='medium'>
+      <Box width='100%' marginBottom='var(--footer-height)'>
         <OSCTunnelList />
       </Box>
       <Footer showFooter={true}>

@@ -22,14 +22,12 @@ export default function UserTab() {
     <UserTabFormContextProvider users={users}>
       <EditModalProvider>
         <CreateModalProvider>
-          <Box flexFlow='column' padding='medium' marginBottom='var(--footer-height)'>
+          <Box flexFlow='column' marginBottom='var(--footer-height)'>
             <UserList />
           </Box>
           <Footer showFooter={true}>
-            <Box width='100%' padding='medium' justifyContent='space-between'>
-              <CreateUserButton />
-              <SaveButton saveFunction={saveUsers} />
-            </Box>
+            <CreateUserButton />
+            <SaveButton saveFunction={saveUsers} />
           </Footer>
         </CreateModalProvider>
       </EditModalProvider>

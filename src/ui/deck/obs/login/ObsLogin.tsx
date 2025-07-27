@@ -25,7 +25,7 @@ export default function ObsLogin(props: ObsLoginProps) {
 
   return (
     <FormProvider {...ObsLogin}>
-      <Stack spacing='medium' padding='medium'>
+      <Stack spacing='medium' width='100%'>
         <TypeFace>
           Enter your OBS websocket credentials here. Click Remember to save the login to file!
         </TypeFace>

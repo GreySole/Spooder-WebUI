@@ -32,7 +32,7 @@ export default function OBS() {
 
   if (isOSCReady && obsStatus.connected) {
     return (
-      <Box flexFlow='column'>
+      <Box flexFlow='column' width='100%'>
         <OutputController />
         <SceneController />
         <SourceControl />

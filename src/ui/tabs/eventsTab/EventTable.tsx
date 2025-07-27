@@ -99,27 +99,23 @@ export default function EventTable() {
 
   return (
     <Box flexFlow='column' width='inherit' marginBottom='var(--footer-height)'>
-      <Box flexFlow='column' padding='medium'>
+      <Box flexFlow='column'>
         <Box marginBottom='medium'>
           <AddGroupInput />
         </Box>
         {groupElements}
       </Box>
-      <Footer showFooter={true}>
-        <Box width='inherit' alignItems='center' padding='small' justifyContent='space-between'>
-          <Columns spacing='medium' padding='small'>
-            <SearchBar placeholder='Search Events...' value={searchText} onSearch={setSearchText} />
-            <FilterButton
-              options={[
-                { label: 'Chat', icon: faComment, value: 'chat' },
-                { label: 'OSC', icon: faNetworkWired, value: 'osc' },
-                { label: 'Twitch', icon: TwitchIcon, value: 'twitch' },
-              ]}
-              selectedOptions={filter}
-              onChange={(e) => (setFilter(e), console.log(e))}
-            />
-          </Columns>
-        </Box>
+      <Footer showFooter>
+        <SearchBar placeholder='Search Events...' value={searchText} onSearch={setSearchText} />
+        <FilterButton
+          options={[
+            { label: 'Chat', icon: faComment, value: 'chat' },
+            { label: 'OSC', icon: faNetworkWired, value: 'osc' },
+            { label: 'Twitch', icon: TwitchIcon, value: 'twitch' },
+          ]}
+          selectedOptions={filter}
+          onChange={(e) => (setFilter(e), console.log(e))}
+        />
       </Footer>
     </Box>
   );

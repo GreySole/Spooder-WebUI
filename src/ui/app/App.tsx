@@ -6,6 +6,8 @@ import {
   TypeFace,
   useDialog,
   useOSC,
+  Grid,
+  CustomSpooder,
 } from '@greysole/spooder-component-library';
 import { useTheme } from '@greysole/spooder-component-library';
 import useNavigation from '../../app/hooks/useNavigation';
@@ -101,27 +103,16 @@ export default function App() {
       break;
   }
 
-  const height = `calc(100dvh - var(--header-height)${isMobileDevice ? '' : ' - var(--navigation-tabs-height)'})`;
-
-  console.log('APP RENDER');
-
   return (
-    <Box flexFlow='column'>
+    <Grid columns={'var(--menu-width) 1fr'} rows={'1fr'} spacing='medium' height={'100dvh'} overflow='hidden' justifyContent='center' justifyItems='center' alignItems='stretch'>
       <Header />
-      <NavigationMenu />
-      <Box
-        width='100%'
-        height={height}
-        marginTop={
-          isMobileDevice
-            ? 'calc(var(--header-height)'
-            : 'calc(var(--header-height) + var(--navigation-tabs-height))'
-        }
-        flexFlow='column'
-        overflow='auto'
-      >
+      <Box flexFlow='column' alignItems='end' overflow='hidden scroll' width={'100%'} style={{maxWidth: '1200px'}}>
+        <Box paddingTop='smedium'>
+          <CustomSpooder />
+        </Box>
         {tabContent}
       </Box>
-    </Box>
+      <NavigationMenu />
+    </Grid>
   );
 }

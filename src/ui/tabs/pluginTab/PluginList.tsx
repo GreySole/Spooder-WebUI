@@ -83,7 +83,7 @@ export default function PluginList() {
   console.log(pluginSettingsOpen, activePlugin);
 
   return (
-    <Stack spacing='medium' padding='medium'>
+    <Stack spacing='medium'>
       <Modal
         title={plugins[activePlugin]?.name}
         isOpen={modalOpen}

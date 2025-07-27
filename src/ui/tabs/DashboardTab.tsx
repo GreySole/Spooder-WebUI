@@ -1,4 +1,4 @@
-import { Stack, Button, useToast } from '@greysole/spooder-component-library';
+import { Box, Button, useToast } from '@greysole/spooder-component-library';
 import { useEffect } from 'react';
 import React from 'react';
 import { useGetSystemStatusQuery } from '../../app/api/serverSlice';
@@ -27,10 +27,10 @@ export default function DashboardTab() {
   }
 
   return (
-    <Stack spacing='medium' padding='medium'>
+    <Box flexFlow='column' spacing='medium' width={'100%'}>
       <SystemMeters cpuUsage={data.cpu} ramUsage={data.memory} />
       <DiskMeters diskUsage={data.disk} />
       <NetworkMeters networkUsage={data.net} />
-    </Stack>
+    </Box>
   );
 }

@@ -25,25 +25,17 @@ export default function ConfigForm() {
   const { data: publicUrls, isLoading: publicUrlLoading } = getPublicUrl();
   return (
     <>
-      <Stack spacing='medium' padding='medium'>
-        <ConfigBotSection />
-        <ConfigNetworkSection />
-        <ExternalHandleSection />
-        <UdpServerSection />
-      </Stack>
-      <Footer showFooter={true}>
-        <Box width='100%' justifyContent='space-between'>
-          {publicUrlLoading ? (
-            <Box> </Box>
-          ) : (
-            <Box padding='medium'>
-              <LinkButton label={'Copy Mod URL'} mode='copy' link={publicUrls.http + '/mod'} />
-            </Box>
-          )}
-          <Box padding='medium'>
-            <SaveButton saveFunction={saveConfig} />
-          </Box>
-        </Box>
+      <ConfigBotSection />
+      <ConfigNetworkSection />
+      <ExternalHandleSection />
+      <UdpServerSection />
+      <Footer showFooter>
+        {publicUrlLoading ? (
+          <Box> </Box>
+        ) : (
+          <LinkButton label={'Copy Mod URL'} mode='copy' link={publicUrls.http + '/mod'} />
+        )}
+        <SaveButton saveFunction={saveConfig} />
       </Footer>
     </>
   );

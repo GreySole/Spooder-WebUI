@@ -51,8 +51,11 @@ export default function usePlugins() {
   function getUploadPluginIcon() {
     const [uploadPluginIconMutation, { isLoading, isSuccess, error }] =
       useUploadPluginIconMutation();
-    function uploadPluginIcon(assetPath: string, form: FormData) {
-      uploadPluginIconMutation({ assetPath, form });
+    function uploadPluginIcon(pluginName: string, file: File) {
+      const form = new FormData();
+      form.append('file', file);
+      form.append('pluginName', pluginName);
+      return uploadPluginIconMutation(form);
     }
     return { uploadPluginIcon, isLoading, isSuccess, error };
   }

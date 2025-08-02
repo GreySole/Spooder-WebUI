@@ -3,13 +3,16 @@
 }
 
 .footer {
-
   position: fixed;
   bottom: calc(-1 * var(--footer-height));
   background-color: var(--color-background-far);
   max-height: var(--footer-height);
 
-  transition: max-height 0.3s ease-in-out;
+  transition:
+    max-height 0.3s ease-in-out,
+    width 0.5s,
+    left 0.5s,
+    bottom 0.3s ease-in-out;
 
   &:before {
     position: absolute;
@@ -35,7 +38,6 @@
 .slide-enter-active,
 .slide-enter-done {
   bottom: 0;
-  transition: bottom 0.3s ease-in-out;
 }
 
 .slide-exit {
@@ -45,5 +47,4 @@
 .slide-exit-active,
 .slide-exit-done {
   bottom: calc(-1 * var(--footer-height));
-  transition: bottom 0.3s ease-in-out;
 }

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   faTriangleExclamation,
   faPlug,
@@ -36,8 +36,13 @@ interface Plugin {
 export default function PluginEntry(props: PluginComponentProps) {
   const { pluginName, setRef } = props;
 
-  const { plugins, isReady, pluginInfoOpen, pluginSettingsOpen, pluginAssetsOpen } =
-    usePluginContext();
+  const { plugins, isReady, pluginInfoOpen } = usePluginContext();
+
+  const [iconCacheBuster, setIconCacheBuster] = useState(Date.now());
+
+  useEffect(() => {
+    setIconCacheBuster(Date.now());
+  }, [pluginInfoOpen]);
 
   const entryRef = useRef(null);
 
@@ -90,7 +95,7 @@ export default function PluginEntry(props: PluginComponentProps) {
           <Columns spacing='medium' padding='small'>
             {plugin.status === 'ok' ? (
               <Icon
-                icon={window.location.origin + '/icons/' + pluginName + '.png'}
+                icon={window.location.origin + '/icons/' + pluginName + '.png?v=' + iconCacheBuster}
                 fallbackIcon={faPlug}
                 iconSize='100px'
               />

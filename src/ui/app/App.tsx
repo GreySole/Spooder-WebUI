@@ -31,7 +31,7 @@ import TwitchTab from '../tabs/TwitchTab';
 import DiscordTab from '../tabs/DiscordTab';
 
 export default function App() {
-  const { currentTab } = useNavigation();
+  const { currentTab, navigationOpen } = useNavigation();
   const { openDialog, closeDialog } = useDialog();
   const { setCustomSpooder, refreshThemeColors, isMobileDevice } = useTheme();
 
@@ -109,7 +109,8 @@ export default function App() {
 
   return (
     <Grid
-      columns={'var(--menu-width) 1fr'}
+      className='app-container'
+      columns={`${!isMobileDevice || navigationOpen ? 'var(--menu-width)' : '0'} 1fr`}
       rows={'1fr'}
       spacing='medium'
       height={'100dvh'}
@@ -131,7 +132,6 @@ export default function App() {
         </Box>
         {tabContent}
       </Box>
-      <NavigationMenu />
     </Grid>
   );
 }

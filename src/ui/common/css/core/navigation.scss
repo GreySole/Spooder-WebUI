@@ -18,6 +18,34 @@
   }
 }
 
+.nav-toggle {
+  position: fixed;
+}
+
+.nav-menu {
+  transition:
+    width 0.5s,
+    border-right 0.5s;
+  border-right: 2px solid transparent;
+
+  &.open {
+    border-right: 2px solid var(--button-border-color);
+  }
+}
+
+.nav-menu .nav-buttons {
+  clip-path: inset(0 var(--menu-width) 0 0);
+  transition: clip-path 0.5s;
+}
+
+.nav-menu.open .nav-buttons {
+  clip-path: inset(0 0 0 0);
+}
+
+.app-container {
+  transition: grid-template-columns 0.5s;
+}
+
 .navigation-menu {
   position: fixed;
   top: var(--header-height);

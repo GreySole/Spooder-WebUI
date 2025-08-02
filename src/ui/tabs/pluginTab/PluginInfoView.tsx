@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { faSync, faImage } from '@fortawesome/free-solid-svg-icons';
+import { faSync, faImage, faPlug } from '@fortawesome/free-solid-svg-icons';
 import { useRef } from 'react';
 import {
   Box,
@@ -11,6 +11,8 @@ import {
   BoolSwitch,
   useToast,
   ToastType,
+  Icon,
+  FileDropZone,
 } from '@greysole/spooder-component-library';
 import usePlugins from '../../../app/hooks/usePlugins';
 import { usePluginContext } from './context/PluginTabFormContext';
@@ -21,7 +23,7 @@ interface PluginInfoViewProps {
 
 export default function PluginInfoView(props: PluginInfoViewProps) {
   const { pluginName } = props;
-  const { showToast, showInfo } = useToast();
+  const { showSuccess, showError, showInfo } = useToast();
   const {
     getRefreshPlugin,
     getReinstallPlugin,
@@ -35,7 +37,10 @@ export default function PluginInfoView(props: PluginInfoViewProps) {
   const { reinstallPlugin } = getReinstallPlugin();
   const { setPluginEnabled } = getSetPluginEnabled();
   const { setPluginDevMode } = getSetPluginDevMode();
+  const { getUploadPluginIcon } = usePlugins();
+  const { uploadPluginIcon } = getUploadPluginIcon();
   const [isEnabled, setIsEnabled] = useState(false);
+  const [iconCacheBuster, setIconCacheBuster] = useState(Date.now());
 
   useEffect(() => {
     setIsEnabled(plugins[pluginName].status !== 'disabled');
@@ -52,11 +57,16 @@ export default function PluginInfoView(props: PluginInfoViewProps) {
     showInfo(`${pluginName} refreshed!`);
   }
 
-  const hiddenIconInput = useRef<HTMLInputElement>(null);
-  function handleIconUploadClick() {
-    if (hiddenIconInput.current) {
-      hiddenIconInput.current.click();
-    }
+  function handleIconUploadClick(file: File) {
+    uploadPluginIcon(pluginName, file)
+      .then(() => {
+        showSuccess(`Icon for ${pluginName} uploaded successfully!`);
+        setIconCacheBuster(Date.now()); // Update cache buster to force image reload
+        reloadPlugins();
+      })
+      .catch((error) => {
+        showError(`Failed to upload icon for ${pluginName}: ${error.message}`);
+      });
   }
 
   let dependenciesElements = null;
@@ -134,12 +144,17 @@ export default function PluginInfoView(props: PluginInfoViewProps) {
             iconSize='lg'
             onClick={() => refreshSinglePluginClick(pluginName)}
           />
-          <Button
-            label='Replace Icon'
-            icon={faImage}
-            iconSize='lg'
-            onClick={handleIconUploadClick}
-          />
+
+          <FileDropZone handleFile={(files) => handleIconUploadClick(files[0])}>
+            <Stack spacing='small' align='center' padding='medium'>
+              <TypeFace fontSize='large'>Upload Icon</TypeFace>
+              <Icon
+                icon={window.location.origin + '/icons/' + pluginName + '.png?v=' + iconCacheBuster}
+                fallbackIcon={faPlug}
+                iconSize='100px'
+              />
+            </Stack>
+          </FileDropZone>
         </Columns>
       </Stack>
     </Border>

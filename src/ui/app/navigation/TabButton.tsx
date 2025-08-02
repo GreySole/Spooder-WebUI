@@ -43,6 +43,8 @@ export default function TabButton(props: TabButtonProps) {
         color: iconAndTextColor,
         fontWeight: '500',
         margin: '1px 0',
+        wordBreak: 'keep-all',
+        whiteSpace: 'nowrap',
       }}
       iconColor={iconAndTextColor}
       iconGap='smedium'

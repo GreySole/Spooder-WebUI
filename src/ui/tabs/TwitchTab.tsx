@@ -27,7 +27,7 @@ export default function TwitchTab() {
         <TwitchCredentials />
       </TwitchTabFormContextProvider>
       <TwitchAuthManager />
-      <TwitchEventSubList />
+      {twitchConfig['client-id'] && twitchConfig['client-secret'] ? <TwitchEventSubList /> : null}
     </Stack>
   );
 }

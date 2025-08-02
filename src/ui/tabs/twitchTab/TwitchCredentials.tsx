@@ -12,8 +12,9 @@ import useTwitch from '../../../app/hooks/useTwitch';
 import { FieldValues } from 'react-hook-form';
 
 export default function TwitchCredentials() {
-  const { getSaveTwitchConfig } = useTwitch();
+  const { getSaveTwitchConfig, getTwitchConfig } = useTwitch();
   const { saveTwitchConfig, isLoading, isSuccess, error } = getSaveTwitchConfig();
+  const { refetch } = getTwitchConfig();
   const { showError, showSuccess } = useToast();
 
   useEffect(() => {
@@ -25,7 +26,9 @@ export default function TwitchCredentials() {
   }, [isSuccess, showError, showSuccess, error]);
 
   const saveTwitchConfigHandler = (form: FieldValues) => {
-    saveTwitchConfig(form);
+    saveTwitchConfig(form).then(() => {
+      refetch();
+    });
   };
 
   return (

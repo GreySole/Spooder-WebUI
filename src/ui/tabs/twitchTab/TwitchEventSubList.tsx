@@ -15,6 +15,12 @@ export default function TwitchEventSubList() {
   const { data: twitchConfig, isLoading: twitchConfigLoading } = getTwitchConfig();
   const { data: eventsubs, isLoading: eventsubsLoading } = getEventSubs();
   const { deleteEventSub } = getDeleteEventSub();
+  if (twitchConfigLoading || eventsubsLoading) {
+    return null;
+  }
+  if (eventsubs.error) {
+    return null;
+  }
   let subTable = [];
   for (let event in eventsubs) {
     for (let sub in eventsubs[event]) {

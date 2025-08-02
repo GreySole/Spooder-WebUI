@@ -1,4 +1,4 @@
-import { LinkButton } from '@greysole/spooder-component-library';
+import { LinkButton, TypeFace } from '@greysole/spooder-component-library';
 import React from 'react';
 import useTwitch from '../../../../app/hooks/useTwitch';
 import useConfig from '../../../../app/hooks/useConfig';
@@ -10,8 +10,14 @@ export default function BroadcasterAuthButton() {
   const { data: twitchConfig, isLoading: twitchConfigLoading } = getTwitchConfig();
   const { data: scopes, isLoading: scopesLoading } = getAvailableScopes();
 
+  const isLocalhost = window.location.hostname === 'localhost';
+
   if (twitchConfigLoading || scopesLoading || configLoading) {
     return null;
+  }
+
+  if (!isLocalhost) {
+    return <TypeFace>Authorization only works on localhost</TypeFace>;
   }
 
   return (

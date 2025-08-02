@@ -18,11 +18,12 @@ export default function useDiscord() {
   }
 
   function getDiscordConfig() {
-    const { data, isLoading, error } = useGetConfigQuery(null);
+    const { data, isLoading, error, refetch } = useGetConfigQuery(null);
     return {
       data,
       isLoading,
       error,
+      refetch,
     };
   }
 
@@ -53,7 +54,7 @@ export default function useDiscord() {
     const [saveDiscordConfigMutation, { isLoading, isSuccess, error }] =
       useSaveDiscordConfigMutation();
     function saveDiscordConfig(form: FieldValues) {
-      saveDiscordConfigMutation(form);
+      return saveDiscordConfigMutation(form);
     }
 
     return { saveDiscordConfig, isLoading, isSuccess, error };

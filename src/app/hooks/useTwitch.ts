@@ -19,9 +19,9 @@ import { convertReactFormToFormData } from '@greysole/spooder-component-library'
 
 export default function useTwitch() {
   function getTwitchConfig() {
-    const { data, isLoading, error } = useGetConfigQuery(null);
+    const { data, isLoading, error, refetch } = useGetConfigQuery(null);
 
-    return { data, isLoading, error };
+    return { data, isLoading, error, refetch };
   }
 
   function getChannelPointRewards() {
@@ -81,8 +81,7 @@ export default function useTwitch() {
     const [saveTwitchConfigMutation, { isLoading, isSuccess, error }] =
       useSaveTwitchConfigMutation();
     function saveTwitchConfig(form: FieldValues) {
-      saveTwitchConfigMutation(form);
-      return { isLoading, isSuccess, error };
+      return saveTwitchConfigMutation(form);
     }
     return { saveTwitchConfig, isLoading, isSuccess, error };
   }

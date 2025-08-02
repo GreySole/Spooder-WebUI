@@ -27,7 +27,7 @@ export function Footer({ children, showFooter }: FooterProps) {
         spacing='smedium'
         padding='smedium'
         justifyContent='end'
-        width={`calc(100% - ${!isMobileDevice || navigationOpen ? 'var(--menu-width)' : '0'})`}
+        width={`${!isMobileDevice || navigationOpen ? 'calc(100% - var(--menu-width))' : '100%'}`}
         style={{
           left: `${!isMobileDevice || navigationOpen ? 'calc(var(--menu-width) - 2px)' : '-2px'}`,
           borderTop: 'solid 2px var(--button-border-color)',

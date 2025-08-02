@@ -127,7 +127,7 @@ export default function App() {
         width={'100%'}
         style={{ maxWidth: '1200px' }}
       >
-        <Box paddingTop='smedium'>
+        <Box paddingTop='smedium' paddingBottom='smedium'>
           <CustomSpooder />
         </Box>
         {tabContent}

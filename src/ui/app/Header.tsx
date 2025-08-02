@@ -20,7 +20,12 @@ export default function Header() {
       }}
     >
       {isMobileDevice ? (
-        <Box className='nav-toggle' onClick={toggleNavigation} padding='medium'>
+        <Box
+          className='nav-toggle'
+          onClick={toggleNavigation}
+          padding='medium'
+          style={{ cursor: 'pointer' }}
+        >
           {navigationOpen ? (
             <Icon icon={faTimes} iconSize='xlarge' />
           ) : (

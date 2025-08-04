@@ -13,7 +13,7 @@ import useShare from '../../../app/hooks/useShare';
 import TabButton from './TabButton';
 
 export default function NavigationMenu() {
-  const { urlParams, tabOptions, deckTabOptions, navigationOpen, setStayHere } = useNavigation();
+  const { urlParams, tabOptions, deckTabOptions, navigationOpen } = useNavigation();
   const { getShares, getActiveShares } = useShare();
   const { data: shares, isLoading: sharesLoading } = getShares();
   const { data: activeShares, isLoading: activeSharesLoading } = getActiveShares();

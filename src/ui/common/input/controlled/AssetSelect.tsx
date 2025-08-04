@@ -1,8 +1,9 @@
-import { faFileImport } from '@fortawesome/free-solid-svg-icons';
+import { faExpandArrowsAlt, faFileImport } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import usePlugins from '../../../../app/hooks/usePlugins';
 import React, { useRef } from 'react';
-import { Box, Button, SelectDropdown } from '@greysole/spooder-component-library';
+import { Box, Button, SelectDropdown, useDialog } from '@greysole/spooder-component-library';
+import PluginAssetPreview from '../../../tabs/pluginTab/PluginAssetPreview';
 
 interface AssetSelectProps {
   label?: string;
@@ -19,6 +20,7 @@ export default function AssetSelect(props: AssetSelectProps) {
   const { getPluginAssets, getUploadPluginAssets } = usePlugins();
   const { data: assets, isLoading, error, refetch } = getPluginAssets(pluginName, assetFolderPath);
   const { uploadPluginAssets } = getUploadPluginAssets();
+  const { openDialog } = useDialog();
 
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -48,7 +50,12 @@ export default function AssetSelect(props: AssetSelectProps) {
   }
 
   return (
-    <Box>
+    <Box flexFlow='column'>
+      {value ? (
+        <Box height='100px'>
+          <PluginAssetPreview assetFilePreview={value} assetPath={`assets/${pluginName}`} />
+        </Box>
+      ) : null}
       <SelectDropdown label={label} options={assetOptions} value={value} onChange={onChange} />
       <Box marginLeft='medium'>
         <Button icon={faFileImport} onClick={handleClick} />

@@ -220,6 +220,10 @@ export default function usePlugins() {
     };
   }
 
+  function getAssetUrl(pluginName: string, assetPath: string) {
+    return `assets/${pluginName}/${assetPath}`;
+  }
+
   return {
     getInstallPlugin,
     getPlugins,
@@ -240,5 +244,6 @@ export default function usePlugins() {
     getBuildPlugin,
     getCreatePlugin,
     getSavePluginSettings,
+    getAssetUrl,
   };
 }

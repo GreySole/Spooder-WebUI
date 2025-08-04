@@ -14,19 +14,18 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   FormLoader,
   getMediaType,
-  getMediaHTML,
   Border,
   Box,
   Stack,
   ButtonRow,
   TypeFace,
   useTheme,
-  ImageFile,
   FileDropZone,
 } from '@greysole/spooder-component-library';
 import usePlugins from '../../../app/hooks/usePlugins';
 import { PluginComponentProps } from '../../Types';
 import { usePluginContext } from './context/PluginTabFormContext';
+import PluginAssetPreview from './PluginAssetPreview';
 
 export default function PluginAssetManager(props: PluginComponentProps) {
   const { pluginName } = props;
@@ -36,7 +35,6 @@ export default function PluginAssetManager(props: PluginComponentProps) {
   const { uploadPluginAssets, error: pluginUploadError } = getUploadPluginAssets();
   const { themeConstants } = useTheme();
 
-  const audioPreviewRef = useRef<HTMLMediaElement>(null);
   const [assetFilePreview, setAssetFilePreview] = useState<string>('');
   const hiddenAssetInput = useRef<HTMLInputElement>(null);
 
@@ -61,12 +59,6 @@ export default function PluginAssetManager(props: PluginComponentProps) {
 
   function selectAsset(assetName: string) {
     let assetFilePreview = pathJoin(plugin.assetBrowserPath, assetName);
-    if (getMediaType(assetName) == 'sound') {
-      if (audioPreviewRef.current !== null) {
-        audioPreviewRef.current.pause();
-        audioPreviewRef.current.load();
-      }
-    }
     setAssetFilePreview(assetFilePreview);
   }
 
@@ -142,29 +134,8 @@ export default function PluginAssetManager(props: PluginComponentProps) {
     );
   }
 
-  let previewHTML = null;
-  let previewAudio = null;
-  if (assetFilePreview != null) {
-    const previewMediaType = getMediaType(assetFilePreview);
-    if (previewMediaType == 'sound') {
-      previewAudio = pathJoin(plugin.assetPath, assetFilePreview);
-      previewHTML = null;
-    } else if (previewMediaType == 'image') {
-      previewAudio = null;
-      previewHTML = getMediaHTML(pathJoin(plugin.assetPath, assetFilePreview));
-      previewHTML = (
-        <ImageFile
-          width='100%'
-          height='100%'
-          src={pathJoin(plugin.assetPath, assetFilePreview)}
-          objectFit='contain'
-        />
-      );
-    }
-  }
-
   return (
-    <Box width='100%' flexFlow='column' padding='medium'>
+    <Box width='100%' height='100%' flexFlow='column' padding='medium'>
       <Stack spacing='small'>
         <ButtonRow
           buttonSize='large'
@@ -179,19 +150,20 @@ export default function PluginAssetManager(props: PluginComponentProps) {
         <TypeFace fontSize='large'>{plugin.assetBrowserPath}</TypeFace>
         <Box className='asset-select' justifyContent='space-between' alignItems='center'>
           <Box width='100%' height='100%' flexFlow='column'>
-            <FileDropZone width='100%' height='100%' handleFile={handleDroppedFiles} multiple>
+            <FileDropZone
+              width='100%'
+              height='100%'
+              handleFile={handleDroppedFiles}
+              multiple
+              disableClickToBrowse
+            >
               <Box width='100%' height='100%' flexFlow='column' overflow='auto' padding='small'>
                 {folderTable}
                 {fileTable}
               </Box>
             </FileDropZone>
           </Box>
-          <Box width='100%' height='100%' justifyContent='center' alignItems='center'>
-            {previewHTML}
-            <audio id='audioPreview' ref={audioPreviewRef} controls>
-              {previewAudio ? <source src={previewAudio}></source> : null}
-            </audio>
-          </Box>
+          <PluginAssetPreview assetFilePreview={assetFilePreview} assetPath={plugin.assetPath} />
         </Box>
         <ButtonRow
           buttonSize='large'

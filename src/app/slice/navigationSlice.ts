@@ -98,10 +98,13 @@ export const navigationSlice = createSlice({
         icon: faHammer,
       },
     } as TabOptions,
-    currentTab: new URLSearchParams(window.location.search).get('tab') ?? 'dashboard',
+    currentTab:
+      new URLSearchParams(window.location.search).get('tab') ??
+      localStorage.getItem('lastTab') ??
+      'dashboard',
     currentFolder: undefined,
     navigationOpen: false,
-    stayHere: window.location.search.includes('tab'),
+    rememberLastTab: localStorage.getItem('lastTab') != null,
   },
   reducers: {
     _setTab: (state, action) => {
@@ -114,13 +117,13 @@ export const navigationSlice = createSlice({
     _setNavigation: (state, action) => {
       state.navigationOpen = action.payload.isOpen;
     },
-    _setStayHere: (state, action) => {
-      console.log('SETTING STATE', action.payload.stayHere);
-      state.stayHere = action.payload.stayHere;
+    _setRememberLastTab: (state, action) => {
+      state.rememberLastTab = action.payload.isRemembering;
     },
   },
 });
 
-export const { _setTab, _toggleNavigation, _setNavigation, _setStayHere } = navigationSlice.actions;
+export const { _setTab, _toggleNavigation, _setNavigation, _setRememberLastTab } =
+  navigationSlice.actions;
 
 export default navigationSlice.reducer;

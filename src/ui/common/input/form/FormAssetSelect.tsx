@@ -1,4 +1,4 @@
-import { faFileImport } from '@fortawesome/free-solid-svg-icons';
+import { faExpandArrowsAlt, faFileImport } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import usePlugins from '../../../../app/hooks/usePlugins';
 import React, { useRef } from 'react';
@@ -8,7 +8,10 @@ import {
   FormLoader,
   FormSelectDropdown,
   TypeFace,
+  useDialog,
 } from '@greysole/spooder-component-library';
+import { useFormContext } from 'react-hook-form';
+import PluginAssetPreview from '../../../tabs/pluginTab/PluginAssetPreview';
 
 interface FormAssetSelectProps {
   formKey: string;
@@ -21,8 +24,12 @@ interface FormAssetSelectProps {
 export default function FormAssetSelect(props: FormAssetSelectProps) {
   const { formKey, label, assetType, pluginName, assetFolderPath } = props;
   const acceptedFormat = assetType != null ? assetType + '/*' : '*';
-  const { getPluginAssets, getUploadPluginAssets } = usePlugins();
+  const { getPluginAssets, getUploadPluginAssets, getAssetUrl } = usePlugins();
   const { uploadPluginAssets } = getUploadPluginAssets();
+  const { setValue, watch } = useFormContext();
+  const { openDialog } = useDialog();
+
+  const currentAsset = watch(formKey);
 
   console.log('ASSET FOLDER PATH', assetFolderPath);
 
@@ -45,6 +52,7 @@ export default function FormAssetSelect(props: FormAssetSelectProps) {
     if (files && files.length > 0) {
       await uploadPluginAssets(pluginName, assetFolderPath, files);
       refetch();
+      setValue(formKey, `${assetFolderPath}/${files[0].name}`);
     }
   }
 
@@ -57,10 +65,15 @@ export default function FormAssetSelect(props: FormAssetSelectProps) {
   return (
     <Box flexFlow='column'>
       <TypeFace fontWeight='bold'>{label}</TypeFace>
-
+      {currentAsset ? (
+        <Box height='100px'>
+          <PluginAssetPreview assetFilePreview={currentAsset} assetPath={`assets/${pluginName}`} />
+        </Box>
+      ) : null}
       <Box>
         <FormSelectDropdown formKey={formKey} options={assetOptions} />
-        <Box marginLeft='medium'>
+
+        <Box marginLeft='medium' spacing='small'>
           <Button icon={faFileImport} onClick={handleClick} />
         </Box>
       </Box>

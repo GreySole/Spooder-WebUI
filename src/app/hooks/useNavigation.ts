@@ -1,5 +1,10 @@
 import { useDispatch, useSelector } from 'react-redux';
-import { _setNavigation, _setStayHere, _setTab, _toggleNavigation } from '../slice/navigationSlice';
+import {
+  _setNavigation,
+  _setRememberLastTab,
+  _setTab,
+  _toggleNavigation,
+} from '../slice/navigationSlice';
 import { IRootState } from '../store';
 
 export default function useNavigation() {
@@ -9,11 +14,14 @@ export default function useNavigation() {
   const tabOptions = useSelector((state: IRootState) => state.navigationSlice.tabOptions);
   const deckTabOptions = useSelector((state: IRootState) => state.navigationSlice.deckTabOptions);
   const navigationOpen = useSelector((state: IRootState) => state.navigationSlice.navigationOpen);
-  const stayHere = useSelector((state: IRootState) => state.navigationSlice.stayHere);
+  const rememberLastTab = useSelector((state: IRootState) => state.navigationSlice.rememberLastTab);
 
   const queryString = window.location.search;
   const urlParams = new URLSearchParams(queryString);
   function setTab(tabName: string, folderName?: string) {
+    if (rememberLastTab) {
+      localStorage.setItem('lastTab', tabName);
+    }
     dispatch(_setTab({ tab: tabName, folder: folderName }));
   }
 
@@ -25,15 +33,14 @@ export default function useNavigation() {
     dispatch(_setNavigation({ isOpen }));
   }
 
-  function setStayHere(isStaying: boolean) {
-    if (isStaying) {
-      urlParams.set('tab', currentTab);
-      window.history.replaceState({}, '', `${window.location.pathname}?${urlParams}`);
+  function setRememberLastTab(isRemembering: boolean) {
+    console.log('setRememberLastTab', isRemembering);
+    if (isRemembering) {
+      localStorage.setItem('lastTab', currentTab);
     } else {
-      urlParams.delete('tab');
-      window.history.replaceState({}, '', `${window.location.pathname}`);
+      localStorage.removeItem('lastTab');
     }
-    dispatch(_setStayHere({ stayHere: isStaying }));
+    dispatch(_setRememberLastTab({ isRemembering }));
   }
 
   return {
@@ -41,12 +48,11 @@ export default function useNavigation() {
     setTab,
     toggleNavigation,
     setNavigation,
-    setStayHere,
-    stayHere,
     tabOptions,
     deckTabOptions,
     currentTab,
     currentFolder,
     urlParams,
+    setRememberLastTab,
   };
 }

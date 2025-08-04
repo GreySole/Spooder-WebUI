@@ -56,6 +56,7 @@ export default function CreatePluginModal(props: CreatePluginModalProps) {
       },
     });
     reset();
+    setIsOpen(false);
   }
 
   return (

@@ -17,11 +17,14 @@ export default function ConfigTab() {
   const { getConfig, getSaveConfig } = useConfig();
   const { saveConfig } = getSaveConfig();
   const { data, isLoading, error } = getConfig();
-  const { urlParams, tabOptions, deckTabOptions, navigationOpen, setStayHere } = useNavigation();
+  const { urlParams, tabOptions, deckTabOptions, navigationOpen, setRememberLastTab } =
+    useNavigation();
 
   if (isLoading) {
     return <PageCircleLoader />;
   }
+
+  const isRemembering = localStorage.getItem('lastTab') != null;
 
   return (
     <Box flexFlow='column' width='inherit' marginBottom='var(--footer-height)' spacing='medium'>
@@ -32,8 +35,8 @@ export default function ConfigTab() {
         <BackupRestore />
       </Expandable>
       <BoolSwitch
-        onChange={() => setStayHere(urlParams.get('tab') == null)}
-        value={urlParams.get('tab') != null}
+        onChange={() => setRememberLastTab(localStorage.getItem('lastTab') == null)}
+        value={isRemembering}
         label='Remember Where I Was'
         tooltipText='If enabled, the app will remember the last tab you were on and return to it when you reload the page.'
       />

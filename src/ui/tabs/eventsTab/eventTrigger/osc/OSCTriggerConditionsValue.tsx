@@ -27,7 +27,7 @@ export default function OSCTriggerCondition(props: TriggerCondition) {
 
   return (
     <Box flexFlow='row' justifyContent='space-between' alignItems='center'>
-      <FormNumberInput width='3rem' formKey={buildKey(conditionKey, 'arg')} />
+      <FormNumberInput width='5rem' formKey={buildKey(conditionKey, 'arg')} />
       <Stack spacing='small'>
         <FormSelectDropdown
           formKey={typeKey}
@@ -38,7 +38,6 @@ export default function OSCTriggerCondition(props: TriggerCondition) {
             { value: OSCConditionType.lessThanOrEqual, label: 'Less than or equal to' },
             { value: OSCConditionType.greaterThan, label: 'Greater than' },
             { value: OSCConditionType.lessThan, label: 'Less than' },
-            { value: OSCConditionType.searchAndMatch, label: 'Search and Match' },
           ]}
         />
         <FormTextInput width='100%' formKey={valueKey} />

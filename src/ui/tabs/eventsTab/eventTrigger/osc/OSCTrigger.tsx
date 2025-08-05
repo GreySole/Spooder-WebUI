@@ -101,7 +101,7 @@ function OSCTriggerConditionsSelector(props: { eventName: string; handleType: st
     return (
       <Stack spacing='small'>
         <FormNumberInput
-          width='3rem'
+          width='5rem'
           label='Arg'
           formKey={buildKey(oscTriggerKey, 'search', 'arg')}
         />
@@ -115,10 +115,10 @@ function OSCTriggerConditionsSelector(props: { eventName: string; handleType: st
         </Columns>
         <ResponseSearchAndMatchCheatSheet isOpen={cheatSheetOpen} />
         <OSCTriggerConditions
-        formKey='condition_groups_on'
-        eventName={eventName}
-        label='Conditions'
-      />
+          formKey='condition_groups_on'
+          eventName={eventName}
+          label='Conditions'
+        />
       </Stack>
     );
   }

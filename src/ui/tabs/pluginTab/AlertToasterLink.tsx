@@ -3,7 +3,13 @@ import React from 'react';
 
 export default function AlertToasterLink() {
   return (
-    <Box className='no-plugins-div' flexFlow='column' width='100%' spacing='medium' alignItems='start'>
+    <Box
+      className='no-plugins-div'
+      flexFlow='column'
+      width='100%'
+      spacing='medium'
+      alignItems='start'
+    >
       <h1>No plugins yet, get an Alert Toaster!</h1>
       <p>
         Alert Toaster has slide in alerts for Spooder, Twitch, and any plugin that calls
@@ -12,7 +18,7 @@ export default function AlertToasterLink() {
       </p>
       <LinkButton
         mode='newtab'
-        label='Get the Latest Spooder'
+        label='Get the Latest Alert Toaster'
         link={'https://github.com/GreySole/Spooder-AlertToaster/releases/tag/latest'}
         name={''}
         iconOnly={false}

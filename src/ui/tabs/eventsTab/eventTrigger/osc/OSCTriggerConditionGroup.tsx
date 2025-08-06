@@ -32,7 +32,7 @@ export default function OSCTriggerConditionGroup(props: TriggerConditionGroup) {
   const addCondition = () => {
     setValue(groupConditionKey, [
       ...groupConditionValues,
-      { type: OSCConditionType.equal, value: '0' },
+      { arg: groupConditionValues.length, type: OSCConditionType.equal, value: '0' },
     ]);
   };
 

@@ -24,7 +24,7 @@ export default function OSCTriggerConditions(props: OSCTriggerConditionProps) {
   const addConditionGroup = () => {
     setValue(conditionKey, [
       ...conditionGroups,
-      { mode: 'OR', conditions: [{ type: OSCConditionType.equal, value: '0' }] },
+      { mode: 'OR', conditions: [{ arg: 0, type: OSCConditionType.equal, value: '0' }] },
     ]);
     console.log('CONDITIONS GROUPS', conditionGroups);
   };

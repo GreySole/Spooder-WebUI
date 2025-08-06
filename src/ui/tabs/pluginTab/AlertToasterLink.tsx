@@ -19,7 +19,7 @@ export default function AlertToasterLink() {
       <LinkButton
         mode='newtab'
         label='Get the Latest Alert Toaster'
-        link={'https://github.com/GreySole/Spooder-AlertToaster/releases/tag/latest'}
+        link={'https://github.com/GreySole/Spooder-AlertToaster/releases/latest'}
         name={''}
         iconOnly={false}
       />

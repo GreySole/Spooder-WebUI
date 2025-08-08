@@ -1,62 +1,61 @@
 import { Columns, TooltipButton, translateCondition } from '@greysole/spooder-component-library';
 import { useFormContext } from 'react-hook-form';
-import { usePluginSettingsContext } from '../context/PluginSettingsContext';
 import React from 'react';
 import PluginInput from './PluginInput';
 import PluginMultiInput from './PluginMultiInput';
 
 interface PluginInputProcessorProps {
   formKey: string;
+  type: string;
+  label: string;
+  options?: any;
+  description?: string;
+  showif?: any;
+  'multi-select'?: boolean;
 }
 
 export default function PluginInputProcessor(props: PluginInputProcessorProps) {
-  const { formKey } = props;
-  const { form } = usePluginSettingsContext();
+  const { formKey, type, label, options, description, showif, 'multi-select': multiSelect } = props;
   const { watch } = useFormContext();
 
   const formKeyPrefix = formKey.includes('.')
     ? formKey.substring(0, formKey.lastIndexOf('.') + 1)
     : '';
-  const formKeyVariable = formKey.includes('.')
-    ? formKey.substring(formKey.lastIndexOf('.') + 1)
-    : formKey;
 
-  const showIfValue = watch(
-    form[formKeyVariable].showif?.variable
-      ? `${formKeyPrefix}${form[formKeyVariable].showif?.variable}`
-      : '_null',
-  );
-
-  console.log(
-    'SHOW IF',
-    `'${showIfValue}' ${translateCondition(form[formKeyVariable].showif?.condition ?? 'equals')} '${form[formKeyVariable].showif?.value}'`,
-  );
-
-  try {
-    const shouldHide = !eval(
-      `'${showIfValue}' ${translateCondition(form[formKeyVariable].showif?.condition ?? 'equals')} '${form[formKeyVariable].showif?.value}'`,
-    );
-    if (shouldHide) {
-      return null;
+  // Helper to evaluate a single condition
+  function evaluateShowIfCondition(condObj: any): boolean {
+    const value = watch(condObj.variable ? `${formKeyPrefix}${condObj.variable}` : '_null');
+    try {
+      return eval(
+        `'${value}' ${translateCondition(condObj.condition ?? 'equals')} '${condObj.value}'`,
+      );
+    } catch (e) {
+      console.error(`Error evaluating showif condition for ${formKey}:`, e);
+      return false;
     }
-  } catch (e) {
-    console.error(`Error evaluating showif condition for ${formKey}:`, e);
   }
 
-  const input = form[formKeyVariable];
-  if (input['multi-select']) {
+  let shouldHide = false;
+  if (Array.isArray(showif)) {
+    // Hide if any condition is not met
+    shouldHide = showif.some((condObj) => !evaluateShowIfCondition(condObj));
+  } else if (showif) {
+    shouldHide = !evaluateShowIfCondition(showif);
+  }
+  if (shouldHide) {
+    return null;
+  }
+  if (multiSelect) {
     return (
       <Columns spacing='small'>
         <PluginMultiInput
           key={`custom-input-multi-${formKey}`}
           formKey={formKey}
-          type={input.type}
-          label={input.label}
-          options={input.options}
+          type={type}
+          label={label}
+          options={options}
         />
-        {input.description ? (
-          <TooltipButton tooltipText={input.description} iconSize='medium' />
-        ) : null}
+        {description ? <TooltipButton tooltipText={description} iconSize='medium' /> : null}
       </Columns>
     );
   } else {
@@ -65,13 +64,11 @@ export default function PluginInputProcessor(props: PluginInputProcessorProps) {
         <PluginInput
           key={`custom-input-${formKey}`}
           formKey={formKey}
-          type={input.type}
-          label={input.label}
-          options={input.options}
+          type={type}
+          label={label}
+          options={options}
         />
-        {input.description ? (
-          <TooltipButton tooltipText={input.description} iconSize='medium' />
-        ) : null}
+        {description ? <TooltipButton tooltipText={description} iconSize='medium' /> : null}
       </Columns>
     );
   }

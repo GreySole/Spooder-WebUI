@@ -21,27 +21,43 @@ export default function SettingsForm(props: PluginComponentProps) {
     return null;
   }
 
-  const values = Object.assign({}, pluginSettings);
+  const values = JSON.parse(JSON.stringify(pluginSettings || {}));
 
   const form = pluginSettingsForm.form;
   const defaults = pluginSettingsForm.defaults;
 
-  for (let d in defaults) {
-    if (values[d] == null) {
-      if (typeof defaults[d] == 'object' && !Array.isArray(defaults[d])) {
-        values[d] = {};
-      } else if (typeof defaults[d] == 'object' && Array.isArray(defaults[d])) {
-        values[d] = [];
+  // Helper function to process defaults recursively
+  function processDefaults(defaults: any, values: any, form: any) {
+    for (let d in defaults) {
+      const formEntry = form[d];
+
+      // Handle sections - process their fields
+      if (formEntry && formEntry.type === 'section' && formEntry.fields) {
+        if (values[d] == null) {
+          values[d] = {};
+        }
+        // Ensure the section object is extensible
+        if (typeof values[d] !== 'object' || values[d] === null) {
+          values[d] = {};
+        }
+        // Process section fields
+        if (defaults[d] && typeof defaults[d] === 'object') {
+          for (let fieldKey in defaults[d]) {
+            if (values[d][fieldKey] == null) {
+              values[d][fieldKey] = JSON.parse(JSON.stringify(defaults[d][fieldKey]));
+            }
+          }
+        }
       } else {
-        values[d] = defaults[d];
+        // Handle regular form fields
+        if (values[d] == null) {
+          values[d] = JSON.parse(JSON.stringify(defaults[d]));
+        }
       }
     }
-    if (Array.isArray(defaults[d]) && !Array.isArray(values[d])) {
-      values[d] = [values[d]];
-    } else if (!Array.isArray(defaults[d]) && Array.isArray(values[d])) {
-      values[d] = values[d][0];
-    }
   }
+
+  processDefaults(defaults, values, form);
 
   return (
     <PluginSettingsContextProvider pluginName={pluginName} form={form} defaults={defaults}>

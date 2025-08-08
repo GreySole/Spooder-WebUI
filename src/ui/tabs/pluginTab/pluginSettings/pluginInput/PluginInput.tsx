@@ -47,12 +47,6 @@ export default function PluginInput(props: PluginInputProps) {
 
   function getInput(type?: string) {
     switch (type) {
-      case 'section':
-        return (
-          <TypeFace fontSize='large' fontWeight='bold'>
-            {label}
-          </TypeFace>
-        );
       case 'boolean':
       case 'checkbox':
         return <FormBoolSwitch formKey={formKey} label={label} />;

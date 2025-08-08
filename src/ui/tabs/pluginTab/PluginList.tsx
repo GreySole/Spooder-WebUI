@@ -67,8 +67,6 @@ export default function PluginList() {
     for (let sp in sortedPluginKeys) {
       let p = sortedPluginKeys[sp];
 
-      console.log('plugin', p, plugins[p]);
-
       if (plugins[p] == null) {
         continue;
       }

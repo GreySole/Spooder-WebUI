@@ -65,9 +65,10 @@ export default function PluginInput(props: PluginInputProps) {
           <FormRangeInput
             formKey={formKey}
             label={label}
-            min={options?.min}
-            max={options?.max}
-            step={options?.step}
+            min={options?.min ?? 0}
+            max={options?.max ?? 100}
+            step={options?.step ?? 1}
+            showValue
           />
         );
       case 'code':

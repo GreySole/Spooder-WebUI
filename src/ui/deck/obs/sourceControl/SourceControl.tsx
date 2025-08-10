@@ -27,6 +27,19 @@ export default function SourceControl() {
   const [sceneItems, setSceneItems] = useState<KeyedObject>({});
   const [groups, setGroups] = useState<KeyedObject>({});
 
+  // Add refs to track current state
+  const groupsRef = useRef<KeyedObject>({});
+  const sceneItemsRef = useRef<KeyedObject>({});
+
+  // Update refs when state changes
+  useEffect(() => {
+    groupsRef.current = groups;
+  }, [groups]);
+
+  useEffect(() => {
+    sceneItemsRef.current = sceneItems;
+  }, [sceneItems]);
+
   useEffect(() => {
     getCurrentProgramScene().then((response) => {
       refreshSceneItems(response.data.data.currentProgramSceneName);
@@ -95,7 +108,80 @@ export default function SourceControl() {
   }
 
   function sceneItemEnableStateChanged(data: any) {
-    refreshSceneItems(currentProgramSceneRef.current);
+    updateSceneItems(data);
+  }
+
+  function updateSceneItems(data: any) {
+    const changedSceneItem = JSON.parse(data.args[0]);
+    const { sceneItemEnabled, sceneItemId, sceneName } = changedSceneItem;
+
+    console.log('Scene item change:', { sceneItemEnabled, sceneItemId, sceneName });
+
+    console.log(
+      'IS GROUP',
+      Object.keys(groupsRef.current),
+      sceneName,
+      Object.keys(groupsRef.current).includes(sceneName),
+    );
+
+    if (Object.keys(groupsRef.current).includes(sceneName)) {
+      setGroups((prevGroups) => {
+        const newGroups = { ...prevGroups };
+        const group = newGroups[sceneName];
+        if (group && group.items) {
+          // Find the item by ID in the group
+          for (let itemKey in group.items) {
+            if (group.items[itemKey].id === sceneItemId) {
+              console.log(
+                'Updating group item:',
+                itemKey,
+                'from',
+                group.items[itemKey].enabled,
+                'to',
+                sceneItemEnabled,
+              );
+              newGroups[sceneName] = {
+                ...group,
+                items: {
+                  ...group.items,
+                  [itemKey]: {
+                    ...group.items[itemKey],
+                    enabled: sceneItemEnabled,
+                  },
+                },
+              };
+              break;
+            }
+          }
+        }
+        console.log('GROUP SCENE ITEM CHANGE', newGroups);
+        return newGroups;
+      });
+    } else {
+      console.log('SCENE ITEM CHANGE');
+      setSceneItems((prevSceneItems) => {
+        const newSceneItems = { ...prevSceneItems };
+        // Find the item by ID in scene items
+        for (let itemKey in newSceneItems) {
+          if (newSceneItems[itemKey].id === sceneItemId) {
+            console.log(
+              'Updating scene item:',
+              itemKey,
+              'from',
+              newSceneItems[itemKey].enabled,
+              'to',
+              sceneItemEnabled,
+            );
+            newSceneItems[itemKey] = {
+              ...newSceneItems[itemKey],
+              enabled: sceneItemEnabled,
+            };
+            break;
+          }
+        }
+        return newSceneItems;
+      });
+    }
   }
 
   function toggleVisible(sceneName: string, sceneItemId: any, sceneItemEnabled: boolean) {

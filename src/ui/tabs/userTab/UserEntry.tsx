@@ -16,20 +16,20 @@ import UserEntryLabel from './UserEntryLabel';
 import { useUserEditModal } from './context/EditModalContext';
 
 interface UserEntryProps {
+  userId: string;
   username: string;
+  displayName: string;
+  hasPassword: boolean;
 }
 
 export default function UserEntry(props: UserEntryProps) {
-  const { username } = props;
-  const { watch, setValue, unregister } = useFormContext();
-  const { getResetPassword } = useUsers();
+  const { userId, username, displayName, hasPassword } = props;
+  const { getResetPassword, getDeleteUser, getUsers } = useUsers();
+  const { deleteUser } = getDeleteUser();
   const { resetPassword } = getResetPassword();
   const { setUser, openModal } = useUserEditModal();
   const { openDialog, closeDialog } = useDialog();
-
-  const userId = watch(`trusted_users.user_names.${username}`);
-  const displayName = watch(`trusted_users.display_names.${userId}`);
-  const hasPassword = watch(`trusted_users_pw.${userId}`, false);
+  const { refetch } = getUsers();
 
   console.log('UserEntry', userId, hasPassword);
 
@@ -86,7 +86,7 @@ export default function UserEntry(props: UserEntryProps) {
     );
   };
 
-  const deleteUser = () => {
+  const deleteUserClick = () => {
     openDialog(
       `Delete ${displayName}?`,
       <TypeFace>Are you sure you want to delete {displayName}?</TypeFace>,
@@ -100,10 +100,10 @@ export default function UserEntry(props: UserEntryProps) {
         <Button
           label='Delete'
           onClick={() => {
-            unregister(`trusted_users.permissions.${userId}`);
-            unregister(`trusted_users.user_names.${userId}`);
-            unregister(`trusted_users.display_names.${userId}`);
-            unregister(`trusted_users_pw.${userId}`);
+            deleteUser(userId).then(() => {
+              closeDialog();
+              refetch();
+            });
           }}
         />,
       ],
@@ -112,7 +112,7 @@ export default function UserEntry(props: UserEntryProps) {
 
   return (
     <Box justifyContent='space-between' alignItems='center'>
-      <UserEntryLabel username={username} />
+      <UserEntryLabel username={username} displayName={displayName} />
       <ButtonRow
         buttonSize='medium'
         iconSize='large'
@@ -120,13 +120,12 @@ export default function UserEntry(props: UserEntryProps) {
           {
             icon: faEdit,
             onClick: () => {
-              setValue(`name_changes.${username}`, username);
-              setUser(userId, username);
+              setUser(username);
               openModal();
             },
           },
           { icon: faDeleteLeft, onClick: () => safeDeleteUserPassword() },
-          { icon: faTrash, onClick: () => deleteUser() },
+          { icon: faTrash, onClick: () => deleteUserClick() },
         ]}
       />
     </Box>

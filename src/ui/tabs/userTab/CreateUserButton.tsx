@@ -3,42 +3,70 @@ import React from 'react';
 import { useFormContext } from 'react-hook-form';
 import { v4 as uuidv4 } from 'uuid';
 import { KeyedObject } from '../../Types';
-import { Button } from '@greysole/spooder-component-library';
+import {
+  Button,
+  LinkButton,
+  Stack,
+  TypeFace,
+  useDialog,
+} from '@greysole/spooder-component-library';
 import { useUserCreateModal } from './context/CreateModalContext';
+import useUsers from '../../../app/hooks/useUsers';
 
 export default function CreateUserButton() {
-  const { setValue, watch } = useFormContext();
-  const { openModal } = useUserCreateModal();
-  const users = watch('trusted_users');
+  const { getCreateUser, getUsers } = useUsers();
+  const { refetch } = getUsers();
+  const { createUser } = getCreateUser();
+  const { openDialog, closeDialog } = useDialog();
 
-  const createUser = () => {
-    console.log('createUser');
-    let newName = 'newuser';
-    let newState = {} as KeyedObject;
-    let renameCount = 1;
-    const newUserId = uuidv4();
-
-    const usernames = Object.keys(users.user_names).map((key) => users.user_names[key]);
-
-    while (usernames.includes(newName + renameCount) == true) {
-      if (usernames.includes(newName + renameCount) == false) {
-        newName += renameCount;
-        break;
-      } else {
-        renameCount++;
-      }
-    }
-    if (usernames.includes(newName + renameCount) == false) {
-      newName += renameCount;
-    }
-
-    newState.username = newName;
-    newState.permission = [];
-    console.log('newState', newState);
-    setValue(`trusted_users.pending.${newUserId}`, newState);
-    openModal();
+  const createUserClick = () => {
+    openDialog(
+      'Create User',
+      <Stack spacing='medium'>
+        <TypeFace>
+          Creating a user will create an ID and give you an invite code. Send the code to the user
+          and they can use it to register when they need to login for the ModUI
+        </TypeFace>
+      </Stack>,
+      [
+        <Button label='Cancel' onClick={() => closeDialog()} />,
+        <Button
+          label='Create'
+          onClick={() => {
+            createUser().then((response) => {
+              console.log(response);
+              openDialog(
+                'User Created',
+                <TypeFace>
+                  User created successfully. Invite code: {response.data.invite_code}
+                </TypeFace>,
+                [
+                  <LinkButton
+                    label='Copy Invite Code'
+                    mode='copy'
+                    link={response.data.invite_code}
+                  />,
+                  <Button
+                    label='Ok'
+                    onClick={() => {
+                      refetch();
+                      closeDialog();
+                    }}
+                  />,
+                ],
+              );
+            });
+          }}
+        />,
+      ],
+    );
   };
   return (
-    <Button label='Create User' icon={faPlusCircle} iconSize='lg' onClick={() => createUser()} />
+    <Button
+      label='Create User'
+      icon={faPlusCircle}
+      iconSize='lg'
+      onClick={() => createUserClick()}
+    />
   );
 }

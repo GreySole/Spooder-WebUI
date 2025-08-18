@@ -33,19 +33,9 @@ export default function CreateUserModalContent() {
 
       <Expandable label='Permissions'>
         <BoolSwitch
-          label='Admin'
-          value={permissions.includes('a')}
-          onChange={() => togglePermission('a')}
-        />
-        <BoolSwitch
           label='Mod UI'
           value={permissions.includes('m')}
           onChange={() => togglePermission('m')}
-        />
-        <BoolSwitch
-          label='Share UI'
-          value={permissions.includes('s')}
-          onChange={() => togglePermission('s')}
         />
       </Expandable>
     </Stack>

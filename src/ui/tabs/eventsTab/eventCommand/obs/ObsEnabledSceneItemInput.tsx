@@ -6,6 +6,7 @@ import {
   FormSelectDropdown,
   FormBoolSwitch,
   FormNumberInput,
+  Stack,
 } from '@greysole/spooder-component-library';
 import useOBS from '../../../../../app/hooks/useOBS';
 
@@ -23,39 +24,44 @@ export default function ObsEnableSceneItemInput(props: ObsEnableSceneItemInputPr
   const { watch } = useFormContext();
   const valueOffFormKey = buildKey(formKey, 'itemOff');
   const valueOnFormKey = buildKey(formKey, 'itemOn');
-  const sceneFormKey = buildKey(formKey, 'item');
+  const sceneFormKey = buildKey(formKey, 'scene');
   const itemFormKey = buildKey(formKey, 'item');
   const durationFormKey = buildKey(formKey, 'duration');
   const delayFormKey = buildKey(formKey, 'delay');
   const eventTypeFormKey = buildKey(formKey, 'etype');
   const eType = watch(eventTypeFormKey, '');
-  const scene = watch(sceneFormKey);
+  const scene = watch(sceneFormKey, '');
 
   if (obsLoading || obsError || scenesLoading || scenesError) {
     return null;
   }
 
-  const sceneOptions = sceneData.scenes
-    .map((scene: any) => ({ label: scene.sceneName, value: scene.sceneName }))
-    .unshift({ value: '', label: 'Choose Scene' });
+  const sceneOptions = Object.values(sceneData.scenes).map((scene: any) => ({
+    label: scene.sceneName,
+    value: scene.sceneName,
+  }));
+
+  console.log(sceneOptions);
+  sceneOptions.unshift({ value: '', label: 'Choose Scene' });
 
   let sceneItemOptions = [{ value: '', label: 'Choose Item' }];
   let sceneIndex = -1;
-  Object.keys(obsData.scenes).forEach((key: string) => {
-    if (scene == obsData.scenes[key].sceneName) {
+  console.log(sceneFormKey, scene);
+  Object.keys(sceneData.scenes).forEach((key: string) => {
+    if (scene == sceneData.scenes[key].sceneName) {
       sceneIndex = parseInt(key);
     }
   });
 
-  for (let si in obsData.sceneItems[sceneIndex]) {
+  for (let si in sceneData.sceneItems[sceneIndex]) {
     sceneItemOptions.push({
-      value: obsData.sceneItems[sceneIndex][si].sceneItemId,
-      label: obsData.sceneItems[sceneIndex][si].sourceName,
+      value: sceneData.sceneItems[sceneIndex][si].sceneItemId,
+      label: sceneData.sceneItems[sceneIndex][si].sourceName,
     });
   }
 
   return (
-    <div className='command-content'>
+    <Stack spacing='small'>
       <FormSelectDropdown label='Scene:' formKey={sceneFormKey} options={sceneOptions} />
       <FormSelectDropdown label='Item:' formKey={itemFormKey} options={sceneItemOptions} />
       <FormBoolSwitch label='Value On:' formKey={valueOnFormKey} />
@@ -72,6 +78,6 @@ export default function ObsEnableSceneItemInput(props: ObsEnableSceneItemInputPr
         <FormNumberInput label='Duration (Seconds):' formKey={durationFormKey} />
       ) : null}
       <FormNumberInput label='Delay (Milliseconds):' formKey={delayFormKey} />
-    </div>
+    </Stack>
   );
 }

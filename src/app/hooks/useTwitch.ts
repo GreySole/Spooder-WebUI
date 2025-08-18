@@ -2,6 +2,8 @@ import { FieldValues } from 'react-hook-form';
 import {
   useConvertEventSubToSpooderMutation,
   useDeleteEventSubMutation,
+  useDisableTestEventsubMutation,
+  useEnableTestEventsubMutation,
   useGetAvailableEventSubsQuery,
   useGetAvailableScopesQuery,
   useGetChannelPointRewardsQuery,
@@ -9,6 +11,7 @@ import {
   useGetEventSubsByUserQuery,
   useGetEventSubsQuery,
   useGetLinkedAccountsQuery,
+  useGetTestEventsubStatusQuery,
   useInitEventSubMutation,
   useRefreshEventSubsMutation,
   useRevokeTokenMutation,
@@ -58,6 +61,30 @@ export default function useTwitch() {
     const { data, isLoading, error, refetch } = useGetEventSubsByUserQuery(twitchId);
 
     return { data, isLoading, error, refetch };
+  }
+
+  function getEventsubTestStatus() {
+    const { data, isLoading, error, refetch } = useGetTestEventsubStatusQuery(null);
+
+    return { data, isLoading, error, refetch };
+  }
+
+  function getEnableTestEventsub(host: string, port: number) {
+    const [enableTestEventsubMutation, { isLoading, isSuccess, error }] =
+      useEnableTestEventsubMutation();
+    function triggerEnableTestEventsub() {
+      return enableTestEventsubMutation({ host, port });
+    }
+    return { triggerEnableTestEventsub, isLoading, isSuccess, error };
+  }
+
+  function getDisableTestEventsub() {
+    const [disableTestEventsubMutation, { isLoading, isSuccess, error }] =
+      useDisableTestEventsubMutation();
+    function triggerDisableTestEventsub() {
+      return disableTestEventsubMutation(null);
+    }
+    return { triggerDisableTestEventsub, isLoading, isSuccess, error };
   }
 
   function getRevokeToken() {
@@ -129,6 +156,9 @@ export default function useTwitch() {
     getEventSubs,
     getEventSubsByUser,
     getRevokeToken,
+    getEventsubTestStatus,
+    getEnableTestEventsub,
+    getDisableTestEventsub,
     getSaveAuthToBroadcaster,
     getSaveTwitchConfig,
     getConvertEventSubToSpooder,

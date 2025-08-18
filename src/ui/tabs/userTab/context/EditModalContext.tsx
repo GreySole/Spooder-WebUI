@@ -2,6 +2,8 @@ import { Box, Button, Modal, SaveButton } from '@greysole/spooder-component-libr
 import React, { createContext, useState, useContext, ReactNode } from 'react';
 import EditUserModalContent from '../EditUserModalContent';
 import useUsers from '../../../../app/hooks/useUsers';
+import { FieldValues } from 'react-hook-form';
+import EditUserModalForm from './EditUserModalForm';
 
 interface UserModalProviderProps {
   children: ReactNode;
@@ -11,8 +13,9 @@ interface UserModalProviderProps {
 interface EditModalContextProps {
   isOpen: boolean;
   username: string;
+  displayName: string;
   userId: string;
-  setUser: (userId: string, username: string) => void;
+  setUser: (username: string) => void;
   openModal: () => void;
   closeModal: () => void;
 }
@@ -22,31 +25,34 @@ const EditModalContext = createContext<EditModalContextProps | undefined>(undefi
 export function EditModalProvider({ children }: UserModalProviderProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [username, setUsername] = useState('');
+  const [displayName, setDisplayName] = useState('');
   const [userId, setUserId] = useState('');
-  const { getSaveUsers } = useUsers();
-  const { saveUsers } = getSaveUsers();
+  const { getUsers } = useUsers();
+  const { data } = getUsers();
 
-  const setUser = (userId: string, username: string) => {
+  const setUser = (username: string) => {
+    const userId = data.trusted_users.user_names[username];
     setUsername(username);
     setUserId(userId);
+    setDisplayName(data.trusted_users.display_names[userId]);
   };
 
   const openModal = () => setIsOpen(true);
   const closeModal = () => setIsOpen(false);
 
   return (
-    <EditModalContext.Provider value={{ isOpen, username, userId, setUser, openModal, closeModal }}>
-      <Modal
-        title='Edit User'
-        isOpen={isOpen}
-        onClose={closeModal}
-        content={<EditUserModalContent />}
-        footerContent={
-          <Box justifyContent='flex-end'>
-            <SaveButton saveFunction={saveUsers} />
-          </Box>
-        }
-      />
+    <EditModalContext.Provider
+      value={{
+        isOpen,
+        username,
+        displayName,
+        userId,
+        setUser,
+        openModal,
+        closeModal,
+      }}
+    >
+      <EditUserModalForm />
       {children}
     </EditModalContext.Provider>
   );

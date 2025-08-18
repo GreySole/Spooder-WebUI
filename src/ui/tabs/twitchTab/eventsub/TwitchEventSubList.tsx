@@ -7,8 +7,8 @@ import {
   TypeFace,
 } from '@greysole/spooder-component-library';
 import React from 'react';
-import useTwitch from '../../../app/hooks/useTwitch';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
+import useTwitch from '../../../../app/hooks/useTwitch';
 
 export default function TwitchEventSubList() {
   const { getTwitchConfig, getEventSubs, getDeleteEventSub } = useTwitch();
@@ -64,5 +64,5 @@ export default function TwitchEventSubList() {
       );
     }
   }
-  return <Expandable label='EventSubs'>{subTable}</Expandable>;
+  return <>{subTable}</>;
 }

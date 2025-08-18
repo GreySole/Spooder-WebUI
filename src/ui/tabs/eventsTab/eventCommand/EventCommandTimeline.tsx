@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { buildKey, buildCommandKey, EVENT_KEY } from '../FormKeys';
 import { DiscordIcon, ObsIcon } from '../../../common/icons/icons';
-import { Box, Icon, Slider, TypeFace, useTheme } from '@greysole/spooder-component-library';
+import { Box, Icon, Slider, TypeFace } from '@greysole/spooder-component-library';
 
 interface EventCommandTimelineProps {
   eventName: string;
@@ -14,7 +14,6 @@ export default function EventCommandTimeline(props: EventCommandTimelineProps) {
   const { eventName } = props;
   let maxDuration = 1;
   const [timelineZoom, setTimelineZoom] = useState<number>(0.5);
-  const { themeVariables } = useTheme();
   const { setValue, watch } = useFormContext();
   const eventCommands = watch(`${EVENT_KEY}.${eventName}.commands`, []);
 
@@ -31,9 +30,15 @@ export default function EventCommandTimeline(props: EventCommandTimelineProps) {
   };
 
   for (let c = 0; c < eventCommands.length; c++) {
-    maxDuration = Math.max(eventCommands[c].delay / 1000 + eventCommands[c].duration, maxDuration);
+    maxDuration = Math.max(
+      eventCommands[c].delay / 1000 + parseFloat(eventCommands[c].duration),
+      maxDuration,
+    );
+    console.log('MAX DURATION', eventCommands[c].delay / 1000 + eventCommands[c].duration);
     if (isNaN(maxDuration)) {
       maxDuration = 1;
+    } else {
+      maxDuration = parseFloat(maxDuration.toFixed(2));
     }
 
     const id = eventCommands[c].type + '-' + c;
@@ -54,13 +59,22 @@ export default function EventCommandTimeline(props: EventCommandTimelineProps) {
     });
   }
 
+  console.log('MAX DURATION', maxDuration);
+
   const sliderClickHandler = () => {
     console.log('Slider double clicked');
     setTimelineZoom(0.5);
   };
 
   const timelineZoomSlider = (
-    <Slider orientation='horizontal' step={0.01} value={timelineZoom} onChange={setTimelineZoom} onDoubleClick={sliderClickHandler} />
+    <Slider
+      orientation='horizontal'
+      step={0.01}
+      minMax={[0.1, 1]}
+      value={timelineZoom}
+      onChange={setTimelineZoom}
+      onDoubleClick={sliderClickHandler}
+    />
   );
 
   function onUpdateTimeline(frames: any) {
@@ -86,7 +100,7 @@ export default function EventCommandTimeline(props: EventCommandTimelineProps) {
         effects={timelineEffectData}
         onChange={onUpdateTimeline}
         autoScroll={true}
-        scale={timelineZoom * maxDuration}
+        scale={timelineZoom * (maxDuration / 2)}
         dragLine={true}
         gridSnap={true}
         getActionRender={(action: any, row) => {
@@ -146,7 +160,7 @@ export default function EventCommandTimeline(props: EventCommandTimelineProps) {
           }
         }}
       />
-      {timelineZoomSlider}
+      <Box padding='medium'>{timelineZoomSlider}</Box>
     </Box>
   );
 }

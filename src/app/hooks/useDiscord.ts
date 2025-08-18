@@ -2,6 +2,7 @@ import { FieldValue, FieldValues, get } from 'react-hook-form';
 import {
   useGetConfigQuery,
   useGetGuildsQuery,
+  useGetRolesQuery,
   useGetUserQuery,
   useSaveDiscordConfigMutation,
   useVerifyDiscordTargetMutation,
@@ -36,6 +37,16 @@ export default function useDiscord() {
     };
   }
 
+  function getRoles(guildId: string) {
+    const { data, isLoading, error, refetch } = useGetRolesQuery(guildId);
+    return {
+      data,
+      isLoading,
+      error,
+      refetch,
+    };
+  }
+
   function getVerifyDiscordTarget() {
     const [verifyDiscordTargetMutation, { data, isLoading, error }] =
       useVerifyDiscordTargetMutation();
@@ -64,6 +75,7 @@ export default function useDiscord() {
     getDiscordGuilds,
     getDiscordConfig,
     getDiscordUser,
+    getRoles,
     getVerifyDiscordTarget,
     getSaveDiscordConfig,
   };

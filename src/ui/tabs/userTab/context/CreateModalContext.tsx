@@ -1,6 +1,9 @@
-import { Modal } from '@greysole/spooder-component-library';
+import { Box, Modal, SaveButton } from '@greysole/spooder-component-library';
 import React, { createContext, ReactNode, useState, useContext } from 'react';
 import CreateUserModalContent from '../CreateUserModalContent';
+import useUsers from '../../../../app/hooks/useUsers';
+import { FieldValues } from 'react-hook-form';
+import CreateUserModalForm from './CreateUserModalForm';
 
 interface CreateModalContextProps {
   isOpen: boolean;
@@ -22,12 +25,7 @@ export const CreateModalProvider = ({ children }: UserModalProviderProps) => {
 
   return (
     <CreateModalContext.Provider value={{ isOpen, openModal, closeModal }}>
-      <Modal
-        title='Create User'
-        isOpen={isOpen}
-        onClose={closeModal}
-        content={<CreateUserModalContent />}
-      />
+      <CreateUserModalForm />
       {children}
     </CreateModalContext.Provider>
   );

@@ -27,6 +27,27 @@ export const twitchApi = createApi({
     getEventSubsByUser: builder.query({
       query: (twitchId: string) => `/get_eventsubs_by_user?twitchid=${twitchId}`,
     }),
+    getTestEventsubStatus: builder.query({
+      query: () => '/get_test_eventsub_status',
+    }),
+    enableTestEventsub: builder.mutation({
+      query: ({ host, port }) => ({
+        url: `/enable_test_eventsub?host=${host}&port=${port}`,
+        method: 'get',
+        headers: {
+          'Content-type': 'application/json; charset=UTF-8',
+        },
+      }),
+    }),
+    disableTestEventsub: builder.mutation({
+      query: () => ({
+        url: `/disable_test_eventsub`,
+        method: 'get',
+        headers: {
+          'Content-type': 'application/json; charset=UTF-8',
+        },
+      }),
+    }),
     revokeToken: builder.mutation({
       query: () => ({
         url: `/revoke`,
@@ -103,6 +124,9 @@ export const {
   useGetConfigQuery,
   useGetChannelPointRewardsQuery,
   useGetEventSubsByUserQuery,
+  useGetTestEventsubStatusQuery,
+  useEnableTestEventsubMutation,
+  useDisableTestEventsubMutation,
   useRevokeTokenMutation,
   useSaveAuthToBroadcasterMutation,
   useSaveTwitchConfigMutation,

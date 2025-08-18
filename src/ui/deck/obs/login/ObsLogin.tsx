@@ -29,10 +29,10 @@ export default function ObsLogin(props: ObsLoginProps) {
         <TypeFace>
           Enter your OBS websocket credentials here. Click Remember to save the login to file!
         </TypeFace>
-        <FormTextInput formKey='url' label='IP Address' />
+        <FormTextInput formKey='host' label='IP Address' />
         <FormTextInput formKey='port' label='Port' />
         <FormTextInput formKey='password' label='Password' password />
-        <FormBoolSwitch formKey='remember' label='Remember' />
+        <FormBoolSwitch formKey='remember' label={obsConfig.host ? 'Replace' : 'Remember'} />
         <Box>
           <ObsConnectButton />
         </Box>

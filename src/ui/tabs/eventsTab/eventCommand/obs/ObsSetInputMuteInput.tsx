@@ -6,6 +6,7 @@ import {
   FormSelectDropdown,
   FormBoolSwitch,
   FormNumberInput,
+  Stack,
 } from '@greysole/spooder-component-library';
 import useOBS from '../../../../../app/hooks/useOBS';
 
@@ -39,7 +40,7 @@ export default function ObsSetInputMuteInput(props: ObsSetInputMuteInputProps) {
   inputItemOptions.unshift({ value: '', label: 'Choose Input' });
 
   return (
-    <div className='command-content'>
+    <Stack spacing='small'>
       <FormSelectDropdown label='Item:' formKey={itemFormKey} options={inputItemOptions} />
       <FormBoolSwitch label='Value On:' formKey={valueOnFormKey} />
       {eType == 'timed' ? <FormBoolSwitch label='Value Off:' formKey={valueOffFormKey} /> : null}
@@ -55,6 +56,6 @@ export default function ObsSetInputMuteInput(props: ObsSetInputMuteInputProps) {
         <FormNumberInput label='Duration (Seconds):' formKey={durationFormKey} />
       ) : null}
       <FormNumberInput label='Delay (Milliseconds):' formKey={delayFormKey} />
-    </div>
+    </Stack>
   );
 }

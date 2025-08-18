@@ -9,7 +9,7 @@ interface EditUserPermissionsProps {
 export default function EditUserPermissions(props: EditUserPermissionsProps) {
   const { userId } = props;
   const { watch, setValue } = useFormContext();
-  const userPermissions = watch(`trusted_users.permissions.${userId}`);
+  const userPermissions = watch(`permissions.${userId}`);
 
   const togglePermission = (permission: string) => {
     let newPermissions = [...permission];
@@ -18,7 +18,7 @@ export default function EditUserPermissions(props: EditUserPermissionsProps) {
     } else {
       newPermissions.push(permission);
     }
-    setValue(`trusted_users.permissions.${userId}`, newPermissions);
+    setValue(`permissions.${userId}`, newPermissions);
   };
   return (
     <Expandable label='Permissions'>

@@ -4,8 +4,8 @@ import TwitchTabFormContextProvider from './twitchTab/context/TwitchFormContext'
 import TwitchCredentials from './twitchTab/TwitchCredentials';
 import TwitchAuthManager from './twitchTab/TwitchAuthManager';
 import { CircleLoader, Button, TypeFace, Stack } from '@greysole/spooder-component-library';
-import TwitchEventSubList from './twitchTab/TwitchEventSubList';
 import PageCircleLoader from '../common/input/general/PageCircleLoader';
+import TwitchEventSub from './twitchTab/eventsub/TwitchEventSub';
 
 export default function TwitchTab() {
   const { getTwitchConfig } = useTwitch();
@@ -27,7 +27,7 @@ export default function TwitchTab() {
         <TwitchCredentials />
       </TwitchTabFormContextProvider>
       <TwitchAuthManager />
-      {twitchConfig['client-id'] && twitchConfig['client-secret'] ? <TwitchEventSubList /> : null}
+      {twitchConfig['client-id'] && twitchConfig['client-secret'] ? <TwitchEventSub /> : null}
     </Stack>
   );
 }

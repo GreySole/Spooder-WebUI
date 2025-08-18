@@ -28,6 +28,7 @@ export default function EventDiscordCommand(props: EventCommandProps) {
   const delayFormKey = buildKey(formKey, 'delay');
   const discordGuildFormKey = buildKey(formKey, 'guild');
   const discordChannelFormKey = buildKey(formKey, 'channel');
+  const discordRoleFormKey = buildKey(formKey, 'role');
   const useLinkButtonFormKey = buildKey(formKey, 'use_link_button');
   const linkButtonTextFormKey = buildKey(formKey, 'link_label');
   const linkFormKey = buildKey(formKey, 'link_url');
@@ -40,12 +41,14 @@ export default function EventDiscordCommand(props: EventCommandProps) {
     isLoading: channelsLoading,
     error: channelsError,
   } = getDiscordGuilds();
-  if (channelsLoading) {
+
+  if (channelsLoading || channelsError) {
     return null;
   }
 
   const guildOptions = [{ value: '', label: 'Select Guild' }];
   const channelOptions = [{ value: '', label: 'Select Channel' }];
+  const roleOptions = [{ value: '', label: 'Select Role' }];
 
   for (let d in channelData) {
     guildOptions.push({ value: d, label: channelData[d].name });
@@ -53,6 +56,13 @@ export default function EventDiscordCommand(props: EventCommandProps) {
 
   for (let c in channelData[selectedGuild]?.channels) {
     channelOptions.push({ value: c, label: channelData[selectedGuild]?.channels[c].name });
+  }
+
+  for (let r in channelData[selectedGuild]?.roles) {
+    roleOptions.push({
+      value: channelData[selectedGuild]?.roles[r].id,
+      label: channelData[selectedGuild]?.roles[r].name,
+    });
   }
 
   return (
@@ -63,6 +73,7 @@ export default function EventDiscordCommand(props: EventCommandProps) {
         label='Channel'
         options={channelOptions}
       />
+      <FormSelectDropdown formKey={discordRoleFormKey} label='Tag Role' options={roleOptions} />
       <Box flexFlow='column'>
         <FormCodeInput label='Script' formKey={messageFormKey} />
       </Box>

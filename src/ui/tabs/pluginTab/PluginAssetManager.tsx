@@ -42,7 +42,19 @@ export default function PluginAssetManager(props: PluginComponentProps) {
   const { data, isLoading, error, refetch } = getPluginAssets(pluginName, currentFolder);
 
   function pathJoin(...segments: string[]) {
-    return segments.join('/');
+    segments = segments.map((segment) => segment.replace(/(^\/+|\/+$)/g, ''));
+    let parts: string[] = [];
+    for (let segment of segments) {
+      segment = segment.replace(/(^\/+|\/+$)/g, '');
+      if (segment === '..') {
+        if (parts.length > 0) {
+          parts.pop();
+        }
+      } else if (segment !== '' && segment !== '.') {
+        parts.push(segment);
+      }
+    }
+    return '/' + parts.join('/');
   }
 
   if (!isReady || isLoading) {
@@ -86,13 +98,13 @@ export default function PluginAssetManager(props: PluginComponentProps) {
       return;
     }
 
-    await uploadPluginAssets(pluginName, plugin.assetBrowserPath, files);
+    await uploadPluginAssets(pluginName, currentFolder, files);
 
     refetch();
   }
 
   function handleDroppedFiles(files: FileList | File) {
-    uploadPluginAssets(pluginName, plugin.assetBrowserPath, files as FileList).then(() => {
+    uploadPluginAssets(pluginName, currentFolder, files as FileList).then(() => {
       refetch();
     });
   }
@@ -147,7 +159,7 @@ export default function PluginAssetManager(props: PluginComponentProps) {
             { icon: faSync, onClick: () => browseFolder('') },
           ]}
         />
-        <TypeFace fontSize='large'>{plugin.assetBrowserPath}</TypeFace>
+        <TypeFace fontSize='large'>{currentFolder}</TypeFace>
         <Box className='asset-select' justifyContent='space-between' alignItems='center'>
           <Box width='100%' height='100%' flexFlow='column'>
             <FileDropZone

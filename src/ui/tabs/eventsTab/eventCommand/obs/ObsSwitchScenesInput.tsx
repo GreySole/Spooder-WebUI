@@ -2,7 +2,7 @@ import React from 'react';
 import { useFormContext } from 'react-hook-form';
 import { buildKey } from '../../FormKeys';
 import { SelectOption } from '../../../../Types';
-import { FormSelectDropdown, FormNumberInput } from '@greysole/spooder-component-library';
+import { FormSelectDropdown, FormNumberInput, Stack } from '@greysole/spooder-component-library';
 import useOBS from '../../../../../app/hooks/useOBS';
 
 interface ObsSwitchScenesInputProps {
@@ -18,9 +18,12 @@ export default function ObsSwitchScenesInput(props: ObsSwitchScenesInputProps) {
 
   console.log(sceneData);
 
-  const sceneOptions = sceneData.scenes
-    .map((scene: any) => ({ label: scene.sceneName, value: scene.sceneName }))
-    .unshift({ value: '', label: 'Choose Scene' });
+  const sceneOptions = Object.values(sceneData.scenes).map((scene: any) => ({
+    label: scene.sceneName,
+    value: scene.sceneName,
+  }));
+
+  sceneOptions.unshift({ value: '', label: 'Choose Scene' });
 
   const itemOffFormKey = buildKey(formKey, 'itemOff');
   const itemOnFormKey = buildKey(formKey, 'itemOn');
@@ -34,7 +37,7 @@ export default function ObsSwitchScenesInput(props: ObsSwitchScenesInputProps) {
   }
 
   return (
-    <div className='command-content'>
+    <Stack spacing='small'>
       <FormSelectDropdown label='Scene On:' formKey={itemOnFormKey} options={sceneOptions} />
       {eType === 'timed' ? (
         <FormSelectDropdown label='Scene Off:' formKey={itemOffFormKey} options={sceneOptions} />
@@ -49,6 +52,6 @@ export default function ObsSwitchScenesInput(props: ObsSwitchScenesInputProps) {
       />
       <FormNumberInput label='Duration (Seconds):' formKey={durationFormKey} />
       <FormNumberInput label='Delay (Milliseconds):' formKey={delayFormKey} />
-    </div>
+    </Stack>
   );
 }

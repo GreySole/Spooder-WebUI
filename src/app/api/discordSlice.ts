@@ -13,6 +13,9 @@ export const discordApi = createApi({
     getUser: builder.query({
       query: () => '/user',
     }),
+    getRoles: builder.query({
+      query: (guildId: string) => '/roles?guild=' + guildId,
+    }),
     verifyDiscordTarget: builder.mutation({
       query: (discordId) => ({
         url: '/user?userid=' + discordId,
@@ -39,6 +42,7 @@ export const {
   useGetGuildsQuery,
   useGetConfigQuery,
   useGetUserQuery,
+  useGetRolesQuery,
   useVerifyDiscordTargetMutation,
   useSaveDiscordConfigMutation,
 } = discordApi;

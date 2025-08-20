@@ -12,7 +12,7 @@ export default function ObsConnectButton() {
   const connectObsClick = async () => {
     const values = getValues();
     console.log('CONNECT OBS');
-    await connectObs(values.url, values.port, values.password, values.remember);
+    await connectObs(values.host, values.port, values.password, values.remember);
     setTimeout(() => {
       refetch();
     }, 1000);

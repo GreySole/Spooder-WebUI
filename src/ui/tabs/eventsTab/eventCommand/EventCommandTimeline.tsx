@@ -103,6 +103,7 @@ export default function EventCommandTimeline(props: EventCommandTimelineProps) {
         scale={timelineZoom * (maxDuration / 2)}
         dragLine={true}
         gridSnap={true}
+        style={{ width: '100%' }}
         getActionRender={(action: any, row) => {
           if (eventCommands.length == 0) {
             return <></>;

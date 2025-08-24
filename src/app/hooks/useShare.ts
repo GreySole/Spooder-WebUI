@@ -1,23 +1,28 @@
 import { FieldValues } from 'react-hook-form';
 import {
   useCreateShareKeyMutation,
+  useCreateShareMutation,
   useDeleteShareKeyMutation,
+  useDeleteShareMutation,
   useGetActiveSharesQuery,
   useGetSharesQuery,
+  useSaveShareMutation,
   useSaveSharesMutation,
   useSetAutoShareMutation,
   useSetShareMutation,
   useVerifyShareTargetMutation,
 } from '../api/shareSlice';
 import { convertReactFormToFormData, KeyedObject } from '@greysole/spooder-component-library';
+import { useCreateUserMutation, useDeleteUserMutation } from '../api/userSlice';
 
 export default function useShare() {
   function getShares() {
-    const { data, isLoading, error } = useGetSharesQuery(null);
+    const { data, isLoading, error, refetch } = useGetSharesQuery(null);
     return {
       data,
       isLoading,
       error,
+      refetch,
     };
   }
 
@@ -32,10 +37,51 @@ export default function useShare() {
   }
 
   function getVerifyShareTarget() {
-    const [verifyShareTarget, { data, isLoading, error }] = useVerifyShareTargetMutation();
-
+    const [verifyShareTargetMutation, { data, isLoading, error }] = useVerifyShareTargetMutation();
+    function verifyShareTarget(shareUser: string) {
+      return verifyShareTargetMutation({ shareuser: shareUser, shareplatform: 'twitch' });
+    }
     return {
       verifyShareTarget,
+      data,
+      isLoading,
+      error,
+    };
+  }
+
+  function getCreateShare() {
+    const [createShareMutation, { data, isLoading, error }] = useCreateShareMutation();
+    function createShare(streamingPlatforms: KeyedObject) {
+      return createShareMutation({ streamingPlatforms });
+    }
+    return {
+      createShare,
+      data,
+      isLoading,
+      error,
+    };
+  }
+
+  function getDeleteShare() {
+    const [deleteShareMutation, { data, isLoading, error }] = useDeleteShareMutation();
+    function deleteShare(shareId: string) {
+      return deleteShareMutation({ shareId: shareId });
+    }
+    return {
+      deleteShare,
+      data,
+      isLoading,
+      error,
+    };
+  }
+
+  function getSaveShare() {
+    const [saveShareMutation, { data, isLoading, error }] = useSaveShareMutation();
+    function saveShare(shareId: string, shareData: FieldValues) {
+      return saveShareMutation({ shareId, shareData });
+    }
+    return {
+      saveShare,
       data,
       isLoading,
       error,
@@ -147,22 +193,10 @@ export default function useShare() {
     };
   }
 
-  function getSaveShares() {
-    const [saveSharesMutation, { data, isLoading, error }] = useSaveSharesMutation();
-    function saveShares(form: FieldValues) {
-      console.log('SAVING', form);
-
-      saveSharesMutation(form);
-    }
-    return {
-      saveShares,
-      data,
-      isLoading,
-      error,
-    };
-  }
-
   return {
+    getCreateShare,
+    getDeleteShare,
+    getSaveShare,
     getCreateShareKey,
     getDeleteShareKey,
     getSetAutoShare,
@@ -170,6 +204,5 @@ export default function useShare() {
     getActiveShares,
     getVerifyShareTarget,
     getSetShare,
-    getSaveShares,
   };
 }

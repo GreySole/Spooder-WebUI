@@ -1,10 +1,11 @@
 import React from 'react';
-import ShareEntryPluginSettings from '../input/ShareEntryPluginSettings';
+import { Stack } from '@greysole/spooder-component-library';
+import PluginToggleGrid from '../input/PluginToggleGrid';
 
-interface SharePluginTabProps {
-  shareKey: string;
-}
-
-export default function SharePluginTab({ shareKey }: SharePluginTabProps) {
-  return <ShareEntryPluginSettings shareKey={shareKey} />;
+export default function SharePluginTab() {
+  return (
+    <Stack spacing='medium'>
+      <PluginToggleGrid />
+    </Stack>
+  );
 }

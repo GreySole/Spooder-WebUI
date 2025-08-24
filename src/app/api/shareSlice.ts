@@ -11,9 +11,39 @@ export const shareApi = createApi({
       query: () => '/active_shares',
     }),
     verifyShareTarget: builder.mutation({
-      query: (shareUser) => ({
-        url: '/verify_share_target?shareuser=' + shareUser,
+      query: (form) => ({
+        url: `/verify_share_target?shareuser=${form.shareuser}&shareplatform=${form.shareplatform}`,
         method: 'get',
+        headers: {
+          'Content-type': 'application/json; charset=UTF-8',
+        },
+      }),
+    }),
+    createShare: builder.mutation({
+      query: (form) => ({
+        url: '/create_share',
+        method: 'post',
+        body: form,
+        headers: {
+          'Content-type': 'application/json; charset=UTF-8',
+        },
+      }),
+    }),
+    deleteShare: builder.mutation({
+      query: (form) => ({
+        url: '/delete_share',
+        method: 'post',
+        body: form,
+        headers: {
+          'Content-type': 'application/json; charset=UTF-8',
+        },
+      }),
+    }),
+    saveShare: builder.mutation({
+      query: (form) => ({
+        url: '/save_share',
+        method: 'post',
+        body: form,
         headers: {
           'Content-type': 'application/json; charset=UTF-8',
         },
@@ -73,6 +103,9 @@ export const shareApi = createApi({
 });
 
 export const {
+  useCreateShareMutation,
+  useDeleteShareMutation,
+  useSaveShareMutation,
   useCreateShareKeyMutation,
   useDeleteShareKeyMutation,
   useSetAutoShareMutation,

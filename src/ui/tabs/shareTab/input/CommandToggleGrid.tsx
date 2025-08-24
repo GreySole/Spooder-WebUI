@@ -1,5 +1,4 @@
 import React from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCommentDots } from '@fortawesome/free-solid-svg-icons';
 import { useFormContext } from 'react-hook-form';
 import useEvents from '../../../../app/hooks/useEvents';
@@ -7,16 +6,11 @@ import { Box, Button, CircleLoader, useTheme } from '@greysole/spooder-component
 import PageCircleLoader from '../../../common/input/general/PageCircleLoader';
 import { SharedElement } from '../../../Types';
 
-interface ToggleGridProps {
-  formKey: string;
-}
-
-export default function CommandToggleGrid(props: ToggleGridProps) {
-  const { formKey } = props;
+export default function CommandToggleGrid() {
   const { getChatCommands } = useEvents();
   const { data: chatCommands, isLoading, error } = getChatCommands();
   const { watch, setValue } = useFormContext();
-  const commandKey = `${formKey}.commands`;
+  const commandKey = `commands`;
   const selected = watch(commandKey, {} as SharedElement);
   const { themeColors } = useTheme();
 
@@ -31,7 +25,7 @@ export default function CommandToggleGrid(props: ToggleGridProps) {
     } else {
       delete newSelected[element];
     }
-    setValue(commandKey, newSelected);
+    setValue(commandKey, newSelected, { shouldDirty: true });
   };
 
   const gridItems = Object.keys(chatCommands).map((element: string) => (

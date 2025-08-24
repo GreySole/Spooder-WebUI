@@ -22,13 +22,15 @@ interface ShareUiLinkProps {
 
 export default function ShareUiLink(props: ShareUiLinkProps) {
   const { shareKey } = props;
-  const { watch, setValue } = useFormContext();
+  const { watch, setValue, getValues } = useFormContext();
   const { openDialog, closeDialog } = useDialog();
   const { getPlugins } = usePlugins();
   const { getPublicUrl } = useServer();
-  const { getCreateShareKey } = useShare();
+  const { getCreateShareKey, getSaveShare } = useShare();
   const { createShareKey } = getCreateShareKey();
-  const share = watch(`${shareKey}`, {} as KeyedObject);
+  const { saveShare } = getSaveShare();
+  const share = watch();
+  console.log(share);
   const { data: plugins, isLoading } = getPlugins();
   const { data: publicUrls, isLoading: publicUrlLoading } = getPublicUrl();
 
@@ -95,9 +97,13 @@ export default function ShareUiLink(props: ShareUiLinkProps) {
                 <Button
                   label='Create'
                   onClick={() => {
-                    createShareKey(shareKey).then((data) => {
+                    createShareKey(shareKey).then((response) => {
+                      const data = response.data;
                       if (data.status === 'ok') {
-                        setValue(`${shareKey}.shareKey`, data.shareKey);
+                        setValue('shareKey', data.shareKey);
+                        saveShare(shareKey, getValues()).then(() => {
+                          closeDialog();
+                        });
                       } else {
                         closeDialog();
                         openDialog(
@@ -106,7 +112,6 @@ export default function ShareUiLink(props: ShareUiLinkProps) {
                           [<Button label='Ok' onClick={() => closeDialog()} />],
                         );
                       }
-                      closeDialog();
                     });
                   }}
                 />,
@@ -132,7 +137,30 @@ export default function ShareUiLink(props: ShareUiLinkProps) {
               your shared plugins. In case of abuse or unauthorized use, you may delete or
               regenerate the key. Sound good?
             </TypeFace>,
-            [],
+            [
+              <Button label='Cancel' onClick={() => closeDialog()} />,
+              <Button
+                label='Create'
+                onClick={() => {
+                  createShareKey(shareKey).then((response) => {
+                    const data = response.data;
+                    if (data.status === 'ok') {
+                      setValue('shareKey', data.shareKey);
+                      saveShare(shareKey, getValues()).then(() => {
+                        closeDialog();
+                      });
+                    } else {
+                      closeDialog();
+                      openDialog(
+                        'Error',
+                        <TypeFace>There was an error creating a share key.</TypeFace>,
+                        [<Button label='Ok' onClick={() => closeDialog()} />],
+                      );
+                    }
+                  });
+                }}
+              />,
+            ],
           );
         }}
       />

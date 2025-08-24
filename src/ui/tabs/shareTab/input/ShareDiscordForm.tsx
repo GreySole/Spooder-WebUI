@@ -11,8 +11,8 @@ interface ShareDiscordFormProps {
 export default function ShareDiscordForm(props: ShareDiscordFormProps) {
   const { shareKey } = props;
   const { watch, setValue, unregister } = useFormContext();
-  const userId = watch(`${shareKey}.notificationPlatforms.discord.userId`, null);
-  const username = watch(`${shareKey}.notificationPlatforms.discord.username`, null);
+  const userId = watch('notificationPlatforms.discord.userId', null);
+  const username = watch('notificationPlatforms.discord.username', null);
 
   const [addDiscordID, setAddDiscordID] = useState('');
   const [openAddDiscord, setOpenAddDiscord] = useState(false);
@@ -21,7 +21,7 @@ export default function ShareDiscordForm(props: ShareDiscordFormProps) {
     unregister(`${shareKey}.notificationPlatforms.discord`);
   };
   const addDiscord = () => {
-    setValue(`${shareKey}.notificationPlatforms.discord.userId`, addDiscordID);
+    setValue('notificationPlatforms.discord.userId', addDiscordID);
     setAddDiscordID('');
     setOpenAddDiscord(false);
   };

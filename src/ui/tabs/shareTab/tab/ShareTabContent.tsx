@@ -13,13 +13,13 @@ export default function ShareTabContent({ shareKey, tab }: ShareTabContentProps)
   let tabContent = null;
   switch (tab) {
     case 'overview':
-      tabContent = <ShareOverviewTab shareKey={shareKey} />;
+      tabContent = <ShareOverviewTab />;
       break;
     case 'commands':
-      tabContent = <ShareCommandTab shareKey={shareKey} />;
+      tabContent = <ShareCommandTab />;
       break;
     case 'plugins':
-      tabContent = <SharePluginTab shareKey={shareKey} />;
+      tabContent = <SharePluginTab />;
       break;
     case 'integration':
       tabContent = <ShareIntegrationTab shareKey={shareKey} />;

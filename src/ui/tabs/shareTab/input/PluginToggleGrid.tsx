@@ -7,17 +7,12 @@ import { Box, Button, CircleLoader, useTheme } from '@greysole/spooder-component
 import PageCircleLoader from '../../../common/input/general/PageCircleLoader';
 import { SharedElement } from '../../../Types';
 
-interface ToggleGridProps {
-  formKey: string;
-}
-
-export default function PluginToggleGrid(props: ToggleGridProps) {
-  const { formKey } = props;
+export default function PluginToggleGrid() {
   const { getPlugins } = usePlugins();
   const { data: plugins, isLoading, error } = getPlugins();
   const { watch, setValue } = useFormContext();
   const { themeColors } = useTheme();
-  const pluginKey = `${formKey}.plugins`;
+  const pluginKey = `plugins`;
 
   const selected = watch(pluginKey, {} as SharedElement);
 
@@ -34,7 +29,7 @@ export default function PluginToggleGrid(props: ToggleGridProps) {
     } else {
       delete newSelected[element];
     }
-    setValue(pluginKey, newSelected);
+    setValue(pluginKey, newSelected, { shouldDirty: true });
   };
 
   const gridItems = gridData.map((element: string) => (

@@ -22,11 +22,11 @@ export default function ToggleShareButton(props: ToggleShareButtonProps) {
   const isActive = Object.keys(activeShares).includes(shareKey);
 
   const getJoinMessage = () => {
-    return getValues(`${shareKey}.joinMessage`);
+    return getValues('joinMessage');
   };
 
   const getLeaveMessage = () => {
-    return getValues(`${shareKey}.leaveMessage`);
+    return getValues('leaveMessage');
   };
 
   const startShare = async () => {

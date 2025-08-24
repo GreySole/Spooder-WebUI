@@ -1,10 +1,11 @@
 import React from 'react';
-import ShareEntryCommandSettings from '../input/ShareEntryCommandSettings';
+import { Stack } from '@greysole/spooder-component-library';
+import CommandToggleGrid from '../input/CommandToggleGrid';
 
-interface ShareCommandTabProps {
-  shareKey: string;
-}
-
-export default function ShareCommandTab({ shareKey }: ShareCommandTabProps) {
-  return <ShareEntryCommandSettings shareKey={shareKey} />;
+export default function ShareCommandTab() {
+  return (
+    <Stack spacing='medium'>
+      <CommandToggleGrid />
+    </Stack>
+  );
 }

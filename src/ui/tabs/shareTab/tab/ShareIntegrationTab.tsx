@@ -11,9 +11,10 @@ interface ShareIntegrationTabProps {
 
 export default function ShareIntegrationTab(props: ShareIntegrationTabProps) {
   const { shareKey } = props;
-  const { setValue } = useFormContext();
+  const { setValue, reset } = useFormContext();
   const { openDialog, closeDialog } = useDialog();
-  const { getCreateShareKey, getDeleteShareKey } = useShare();
+  const { getCreateShareKey, getDeleteShareKey, getShares } = useShare();
+  const { refetch } = getShares();
   const { createShareKey, isLoading } = getCreateShareKey();
   const { deleteShareKey, isLoading: deleteLoading } = getDeleteShareKey();
 
@@ -29,20 +30,32 @@ export default function ShareIntegrationTab(props: ShareIntegrationTabProps) {
           <Button
             label='Regenerate Key'
             onClick={() => {
-              createShareKey(shareKey).then((data) => {
-                if (data.status === 'ok') {
-                  setValue(`${shareKey}.shareKey`, data.shareKey);
-                  openDialog('Share Key Created', <TypeFace>Share Key Regenerated!</TypeFace>, [
-                    <Button label='Ok' onClick={() => closeDialog()} />,
-                  ]);
-                } else {
-                  openDialog(
-                    'Error',
-                    <TypeFace>Something went wrong while creating the Share Key.</TypeFace>,
-                    [<Button label='Ok' onClick={() => closeDialog()} />],
-                  );
-                }
-              });
+              openDialog(
+                'Regenerate Share Key',
+                <TypeFace>You will have to resend your share URL. Regenerate share key?</TypeFace>,
+                [
+                  <Button label='Cancel' onClick={() => closeDialog()} />,
+                  <Button
+                    label='Regenerate'
+                    onClick={() => {
+                      createShareKey(shareKey).then((response) => {
+                        const data = response.data;
+                        if (data.status === 'ok') {
+                          setValue('shareKey', data.shareKey);
+                          refetch();
+                          closeDialog();
+                        } else {
+                          openDialog(
+                            'Error',
+                            <TypeFace>Something went wrong while creating the Share Key.</TypeFace>,
+                            [<Button label='Ok' onClick={() => closeDialog()} />],
+                          );
+                        }
+                      });
+                    }}
+                  />,
+                ],
+              );
             }}
           />
         </Box>
@@ -50,9 +63,23 @@ export default function ShareIntegrationTab(props: ShareIntegrationTabProps) {
           <Button
             label='Delete Key'
             onClick={() => {
-              deleteShareKey(shareKey).then(() => {
-                openDialog('Share Key Deleted', <TypeFace>Share Key Deleted.</TypeFace>, []);
-              });
+              openDialog(
+                'Delete Share Key',
+                <TypeFace>Are you sure you want to delete this share key?</TypeFace>,
+                [
+                  <Button label='Cancel' onClick={() => closeDialog()} />,
+                  <Button
+                    label='Delete'
+                    onClick={() => {
+                      deleteShareKey(shareKey).then(() => {
+                        setValue('shareKey', '');
+                        refetch();
+                        closeDialog();
+                      });
+                    }}
+                  />,
+                ],
+              );
             }}
           />
         </Box>

@@ -14,7 +14,7 @@ export default function AutoShareSwitch(props: AutoShareSwitchProps) {
   const { getSetAutoShare } = useShare();
   const { setAutoShare, isLoading } = getSetAutoShare();
   const { openDialog, closeDialog } = useDialog();
-  const autoShareEnabled = watch(`${shareKey}.autoShare`, false);
+  const autoShareEnabled = watch('autoShare', false);
 
   if (isLoading) {
     return null;
@@ -34,7 +34,7 @@ export default function AutoShareSwitch(props: AutoShareSwitchProps) {
           onClick={() => {
             const newAutoShareEnabled = !autoShareEnabled;
             setAutoShare(shareKey, newAutoShareEnabled).then(() => {
-              setValue(`${shareKey}.autoShare`, newAutoShareEnabled);
+              setValue('autoShare', newAutoShareEnabled);
               closeDialog();
             });
           }}

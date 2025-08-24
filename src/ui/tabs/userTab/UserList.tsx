@@ -1,7 +1,7 @@
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
 import UserEntry from './UserEntry';
-import { FormLoader, Stack } from '@greysole/spooder-component-library';
+import { FormLoader, Stack, TypeFace } from '@greysole/spooder-component-library';
 import PendingUserEntry from './PendingUserEntry';
 import useUsers from '../../../app/hooks/useUsers';
 import PageCircleLoader from '../../common/input/general/PageCircleLoader';
@@ -12,6 +12,20 @@ export default function UserList() {
 
   if (isLoading) {
     return <PageCircleLoader />;
+  }
+
+  if (
+    !users.trusted_users ||
+    (Object.keys(users.trusted_users?.user_names).length === 0 &&
+      Object.keys(users.trusted_users?.pending).length === 0)
+  ) {
+    return (
+      <TypeFace>
+        No users found. Create a user by clicking Create User at the bottom. You will get an invite
+        code to send to your user. They can enter this code at the login screen when accessing the
+        ModUI. Get the ModUI in the Config tab (must have public hosting set up)
+      </TypeFace>
+    );
   }
 
   return (

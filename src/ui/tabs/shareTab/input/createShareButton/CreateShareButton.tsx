@@ -34,8 +34,16 @@ export default function CreateShareButton() {
                   if (response.data.status === 'ok') {
                     createShare({ twitch: response.data.info });
                     refetch();
+                    closeDialog();
+                  } else {
+                    openDialog(
+                      'Error',
+                      <TypeFace>
+                        Couldn't verify on Twitch. Please check the username and try again.
+                      </TypeFace>,
+                      [<Button label='Ok' onClick={() => closeDialog()} />],
+                    );
                   }
-                  closeDialog();
                 });
               }}
             />,

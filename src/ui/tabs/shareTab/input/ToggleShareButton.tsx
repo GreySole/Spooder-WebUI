@@ -31,12 +31,16 @@ export default function ToggleShareButton(props: ToggleShareButtonProps) {
 
   const startShare = async () => {
     await setShare(shareKey, true, getJoinMessage(), getLeaveMessage());
-    refetch();
+    setTimeout(() => {
+      refetch();
+    }, 1000);
   };
 
   const stopShare = async () => {
     await setShare(shareKey, false, getJoinMessage(), getLeaveMessage());
-    refetch();
+    setTimeout(() => {
+      refetch();
+    }, 1000);
   };
 
   return (

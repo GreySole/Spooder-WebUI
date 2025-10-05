@@ -17,6 +17,9 @@ export const twitchApi = createApi({
     getLinkedAccounts: builder.query({
       query: () => '/get_linked_accounts',
     }),
+    getUseWebhookTransport: builder.query({
+      query: () => '/get_eventsub_use_webhook',
+    }),
     getConfig: builder.query({
       query: () => '/get_config',
     }),
@@ -29,6 +32,16 @@ export const twitchApi = createApi({
     }),
     getTestEventsubStatus: builder.query({
       query: () => '/get_test_eventsub_status',
+    }),
+    setUseWebhookTransport: builder.mutation({
+      query: ({ useWebhookTransport }) => ({
+        url: `/set_eventsub_use_webhook`,
+        method: 'POST',
+        headers: {
+          'Content-type': 'application/json; charset=UTF-8',
+        },
+        body: JSON.stringify({ useWebhookTransport }),
+      }),
     }),
     enableTestEventsub: builder.mutation({
       query: ({ host, port }) => ({
@@ -43,6 +56,16 @@ export const twitchApi = createApi({
       query: () => ({
         url: `/disable_test_eventsub`,
         method: 'get',
+        headers: {
+          'Content-type': 'application/json; charset=UTF-8',
+        },
+      }),
+    }),
+    testEventsub: builder.mutation({
+      query: ({ type, args }) => ({
+        url: `/test_eventsub`,
+        method: 'post',
+        body: JSON.stringify({ type, args }),
         headers: {
           'Content-type': 'application/json; charset=UTF-8',
         },
@@ -116,6 +139,9 @@ export const twitchApi = createApi({
 });
 
 export const {
+  useTestEventsubMutation,
+  useGetUseWebhookTransportQuery,
+  useSetUseWebhookTransportMutation,
   useConvertEventSubToSpooderMutation,
   useGetEventSubsQuery,
   useGetAvailableEventSubsQuery,

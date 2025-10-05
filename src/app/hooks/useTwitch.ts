@@ -12,11 +12,14 @@ import {
   useGetEventSubsQuery,
   useGetLinkedAccountsQuery,
   useGetTestEventsubStatusQuery,
+  useGetUseWebhookTransportQuery,
   useInitEventSubMutation,
   useRefreshEventSubsMutation,
   useRevokeTokenMutation,
   useSaveAuthToBroadcasterMutation,
   useSaveTwitchConfigMutation,
+  useSetUseWebhookTransportMutation,
+  useTestEventsubMutation,
 } from '../api/twitchSlice';
 import { convertReactFormToFormData } from '@greysole/spooder-component-library';
 
@@ -34,9 +37,9 @@ export default function useTwitch() {
   }
 
   function getEventSubs() {
-    const { data, isLoading, error } = useGetEventSubsQuery(null);
+    const { data, isLoading, error, refetch } = useGetEventSubsQuery(null);
 
-    return { data, isLoading, error };
+    return { data, isLoading, error, refetch };
   }
 
   function getAvailableEventSubs() {
@@ -69,6 +72,23 @@ export default function useTwitch() {
     return { data, isLoading, error, refetch };
   }
 
+  function getUseWebhookTransport() {
+    const { data, isLoading, error, refetch } = useGetUseWebhookTransportQuery(null);
+
+    return { data, isLoading, error, refetch };
+  }
+
+  function getSetUseWebhookTransport() {
+    const [setUseWebhookTransportMutation, { isLoading, isSuccess, error }] =
+      useSetUseWebhookTransportMutation();
+
+    function setUseWebhookTransport(useWebhookTransport: boolean) {
+      return setUseWebhookTransportMutation({ useWebhookTransport });
+    }
+
+    return { setUseWebhookTransport, isLoading, isSuccess, error };
+  }
+
   function getEnableTestEventsub(host: string, port: number) {
     const [enableTestEventsubMutation, { isLoading, isSuccess, error }] =
       useEnableTestEventsubMutation();
@@ -85,6 +105,14 @@ export default function useTwitch() {
       return disableTestEventsubMutation(null);
     }
     return { triggerDisableTestEventsub, isLoading, isSuccess, error };
+  }
+
+  function getTestEventsub() {
+    const [testEventsubMutation, { isLoading, isSuccess, error }] = useTestEventsubMutation();
+    function testEventsub(eventType: string, args?: string) {
+      return testEventsubMutation({ type: eventType, args });
+    }
+    return { testEventsub, isLoading, isSuccess, error };
   }
 
   function getRevokeToken() {
@@ -134,7 +162,7 @@ export default function useTwitch() {
     const [refreshEventSubsMutation, { isLoading, isSuccess, error }] =
       useRefreshEventSubsMutation();
     function refreshEventSubs() {
-      refreshEventSubsMutation(null);
+      return refreshEventSubsMutation(null);
     }
     return { refreshEventSubs, isLoading, isSuccess, error };
   }
@@ -148,6 +176,9 @@ export default function useTwitch() {
   }
 
   return {
+    getTestEventsub,
+    getUseWebhookTransport,
+    getSetUseWebhookTransport,
     getTwitchConfig,
     getChannelPointRewards,
     getAvailableEventSubs,

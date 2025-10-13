@@ -13,9 +13,11 @@ export default function TwitchEventSubWebhook() {
   const { getUseWebhookTransport, getSetUseWebhookTransport } = useTwitch();
   const { getPublicUrl } = useServer();
   const { data: publicUrl, isLoading: publicUrlLoading } = getPublicUrl();
-  const { data: useWebhookTransport, isLoading, error, refetch } = getUseWebhookTransport();
+  const { data: useWebhookData, isLoading, error, refetch } = getUseWebhookTransport();
   const { setUseWebhookTransport } = getSetUseWebhookTransport();
   const { openDialog, closeDialog } = useDialog();
+
+  const useWebhookTransport = useWebhookData?.useWebhookTransport || false;
 
   const webhookSwitched = (value: boolean) => {
     setUseWebhookTransport(!useWebhookTransport).then(() => {

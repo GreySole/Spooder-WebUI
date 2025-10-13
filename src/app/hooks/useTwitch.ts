@@ -7,6 +7,7 @@ import {
   useGetAvailableEventSubsQuery,
   useGetAvailableScopesQuery,
   useGetChannelPointRewardsQuery,
+  useGetCliInstalledQuery,
   useGetConfigQuery,
   useGetEventSubsByUserQuery,
   useGetEventSubsQuery,
@@ -14,6 +15,7 @@ import {
   useGetTestEventsubStatusQuery,
   useGetUseWebhookTransportQuery,
   useInitEventSubMutation,
+  useInstallCliMutation,
   useRefreshEventSubsMutation,
   useRevokeTokenMutation,
   useSaveAuthToBroadcasterMutation,
@@ -76,6 +78,20 @@ export default function useTwitch() {
     const { data, isLoading, error, refetch } = useGetUseWebhookTransportQuery(null);
 
     return { data, isLoading, error, refetch };
+  }
+
+  function getCliInstalled() {
+    const { data, isLoading, error, refetch } = useGetCliInstalledQuery(null);
+
+    return { data, isLoading, error, refetch };
+  }
+
+  function getInstallCli() {
+    const [installCliMutation, { isLoading, isSuccess, error }] = useInstallCliMutation();
+    function installCli() {
+      return installCliMutation(null);
+    }
+    return { installCli, isLoading, isSuccess, error };
   }
 
   function getSetUseWebhookTransport() {
@@ -188,6 +204,8 @@ export default function useTwitch() {
     getEventSubsByUser,
     getRevokeToken,
     getEventsubTestStatus,
+    getCliInstalled,
+    getInstallCli,
     getEnableTestEventsub,
     getDisableTestEventsub,
     getSaveAuthToBroadcaster,

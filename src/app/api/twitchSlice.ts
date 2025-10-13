@@ -33,6 +33,18 @@ export const twitchApi = createApi({
     getTestEventsubStatus: builder.query({
       query: () => '/get_test_eventsub_status',
     }),
+    getCliInstalled: builder.query({
+      query: () => '/is_cli_installed',
+    }),
+    installCli: builder.mutation({
+      query: () => ({
+        url: '/install_cli',
+        method: 'get',
+        headers: {
+          'Content-type': 'application/json; charset=UTF-8',
+        },
+      }),
+    }),
     setUseWebhookTransport: builder.mutation({
       query: ({ useWebhookTransport }) => ({
         url: `/set_eventsub_use_webhook`,
@@ -150,6 +162,8 @@ export const {
   useGetConfigQuery,
   useGetChannelPointRewardsQuery,
   useGetEventSubsByUserQuery,
+  useGetCliInstalledQuery,
+  useInstallCliMutation,
   useGetTestEventsubStatusQuery,
   useEnableTestEventsubMutation,
   useDisableTestEventsubMutation,

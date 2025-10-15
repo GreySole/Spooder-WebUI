@@ -42,7 +42,17 @@ export default function TwitchTriggerTest(props: TwitchTriggerTestProps) {
       {twitchTriggerType === 'redeem' ? (
         <TypeFace>Better to test this with your actual redeem.</TypeFace>
       ) : (
-        <TypeFace>You can add extra arguments to the test by using the input below.</TypeFace>
+        <TypeFace>
+          You can add extra arguments to the test by using the input below. You can find available
+          args{' '}
+          <a
+            target='_blank'
+            href='https://dev.twitch.tv/docs/cli/event-command#flags-to-use-when-triggering-events'
+          >
+            here
+          </a>
+          .
+        </TypeFace>
       )}
       {twitchTriggerType !== 'redeem' ? (
         <Box spacing='small' marginTop='small'>

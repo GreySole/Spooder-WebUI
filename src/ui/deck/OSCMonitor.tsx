@@ -29,6 +29,7 @@ import { icon } from '@fortawesome/fontawesome-svg-core';
 import { Footer } from '../app/Footer';
 import ExpandableLog from './oscMonitor/ExpandableLog';
 import PageCircleLoader from '../common/input/general/PageCircleLoader';
+import { useScrollContext } from '../../app/context/ScrollContext';
 
 export interface Log {
   timestamp: string;
@@ -64,10 +65,11 @@ export default function OSCMonitor() {
   const [scrollLock, setScrollLock] = useState<boolean>(false);
   const [selectedTab, setSelectedTab] = useState<string>('tcp');
   const [selectedTypeFilters, setSelectedTypeFilters] = useState<string[]>(['send', 'receive']);
-  const logContainer = useRef<HTMLDivElement>(null);
+  const { scrollToBottom, scrollContainerRef, getScrollPosition, isAtBottom } = useScrollContext();
 
   const getLog = useCallback(
     (message: any) => {
+      console.log('Received log message:', message);
       const logObj = JSON.parse(message.args[0]);
 
       switch (logObj.type) {
@@ -100,29 +102,26 @@ export default function OSCMonitor() {
   }, [data]);
 
   useEffect(() => {
-    const checkScrollLock = (e: any) => {
-      if (e.currentTarget === null) {
-        return;
-      }
-      if (
-        e.currentTarget.scrollTop >=
-        e.currentTarget.scrollHeight - e.currentTarget.clientHeight
-      ) {
-        setScrollLock(true);
-      } else {
-        setScrollLock(false);
+    const checkScrollLock = () => {
+      if (scrollContainerRef.current) {
+        const { scrollTop, scrollHeight, clientHeight } = getScrollPosition();
+        const isAtBottomNow = Math.abs(scrollHeight - clientHeight - scrollTop) < 1;
+        if (!scrollLock) {
+          setScrollLock(isAtBottomNow);
+        }
       }
     };
-    if (logContainer.current) {
-      logContainer.current.addEventListener('scroll', checkScrollLock);
+
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.addEventListener('wheel', checkScrollLock);
     }
-    console.log('Log Container Render');
+
     return () => {
-      if (logContainer.current) {
-        logContainer.current.removeEventListener('scroll', checkScrollLock);
+      if (scrollContainerRef.current) {
+        scrollContainerRef.current.removeEventListener('wheel', checkScrollLock);
       }
     };
-  }, [logContainer.current]);
+  }, [scrollContainerRef, getScrollPosition]);
 
   useEffect(() => {
     if (scrollLock) {
@@ -138,10 +137,9 @@ export default function OSCMonitor() {
     return <PageCircleLoader />;
   }
 
-  function scrollToBottom() {
-    if (logContainer.current) {
-      logContainer.current.scrollTop = logContainer.current.scrollHeight;
-    }
+  function scrollToBottomClick() {
+    scrollToBottom();
+    setScrollLock(true);
   }
 
   let displayLogs = [] as Log[];
@@ -155,7 +153,7 @@ export default function OSCMonitor() {
 
   return (
     <Box flexFlow='column' width={'100%'}>
-      <Box ref={logContainer} flexFlow='column' overflow='auto'>
+      <Box flexFlow='column' overflow='auto' width='100%' paddingBottom={'var(--footer-height)'}>
         {displayLogs.map((log, index) => (
           <ExpandableLog log={log} key={index} />
         ))}
@@ -220,7 +218,7 @@ export default function OSCMonitor() {
               },
             ]}
           />
-          {scrollLock ? null : <Button icon={faArrowDown} onClick={() => scrollToBottom()} />}
+          {scrollLock ? null : <Button icon={faArrowDown} onClick={() => scrollToBottomClick()} />}
         </Box>
       </Footer>
     </Box>

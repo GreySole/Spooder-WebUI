@@ -1,6 +1,7 @@
 import React from 'react';
 import useServer from './app/hooks/useServer';
 import App from './ui/app/App';
+import { ScrollProvider } from './app/context/ScrollContext';
 import {
   Box,
   Stack,
@@ -40,7 +41,9 @@ export default function InitLayer() {
       <TooltipProvider>
         <ToastProvider>
           <DialogProvider>
-            <App />
+            <ScrollProvider>
+              <App />
+            </ScrollProvider>
           </DialogProvider>
         </ToastProvider>
       </TooltipProvider>

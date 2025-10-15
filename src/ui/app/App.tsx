@@ -12,6 +12,7 @@ import {
 import { useTheme } from '@greysole/spooder-component-library';
 import useNavigation from '../../app/hooks/useNavigation';
 import useServer from '../../app/hooks/useServer';
+import { useScrollContext } from '../../app/context/ScrollContext';
 import { Box } from '@greysole/spooder-component-library';
 import ModUI from '../deck/ModUI';
 import OBS from '../deck/OBS';
@@ -32,8 +33,8 @@ import DiscordTab from '../tabs/DiscordTab';
 
 export default function App() {
   const { currentTab, navigationOpen } = useNavigation();
-  const { openDialog, closeDialog } = useDialog();
-  const { setCustomSpooder, refreshThemeColors, isMobileDevice } = useTheme();
+  const { refreshThemeColors, isMobileDevice } = useTheme();
+  const { scrollContainerRef } = useScrollContext();
 
   const { getServerState } = useServer();
   const { data: serverData, isLoading: serverLoading, error: serverError } = getServerState();
@@ -41,12 +42,7 @@ export default function App() {
   const tutorialDialog = localStorage.getItem('tutorial');
 
   useEffect(() => {
-    addListener('/obs/status/connection', (message: any) => {});
     refreshThemeColors();
-
-    return () => {
-      removeListener('/obs/status/connection');
-    };
   }, [serverData, tutorialDialog]);
 
   if (serverLoading) {
@@ -121,6 +117,7 @@ export default function App() {
     >
       <Header />
       <Box
+        ref={scrollContainerRef}
         flexFlow='column'
         alignItems='end'
         overflow='hidden scroll'

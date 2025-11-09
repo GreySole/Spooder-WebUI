@@ -6,6 +6,7 @@ import OSCTrigger from './eventTrigger/osc/OSCTrigger';
 import { EVENT_KEY } from './FormKeys';
 import TwitchTrigger from './eventTrigger/twitch/TwitchTrigger';
 import { Box, Button, SelectDropdown, Stack } from '@greysole/spooder-component-library';
+import JoystickTrigger from './eventTrigger/joystick/JoystickTrigger';
 
 interface EventTriggersProps {
   eventName: string;
@@ -29,6 +30,11 @@ export default function EventTriggers(props: EventTriggersProps) {
       case 'twitch':
         triggerElements.push(<TwitchTrigger key={`twitch-${eventName}`} eventName={eventName} />);
         break;
+      case 'joystick':
+        triggerElements.push(
+          <JoystickTrigger key={`joystick-${eventName}`} eventName={eventName} />,
+        );
+        break;
     }
   }
 
@@ -36,6 +42,7 @@ export default function EventTriggers(props: EventTriggersProps) {
     { label: 'Select Trigger', value: '' },
     { label: 'Chat', value: 'chat' },
     { label: 'Twitch', value: 'twitch' },
+    { label: 'Joystick', value: 'joystick' },
     { label: 'OSC', value: 'osc' },
   ];
 

@@ -12,7 +12,6 @@ export default function BackupRestore() {
   const [restoreSettingsOpen, setRestoreSettingsOpen] = useState<boolean>(false);
   const [backupPluginsOpen, setBackupPluginsOpen] = useState<boolean>(false);
   const [restorePluginsOpen, setRestorePluginsOpen] = useState<boolean>(false);
-  const [autoBackupOpen, setAutoBackupOpen] = useState<boolean>(false);
 
   return (
     <>

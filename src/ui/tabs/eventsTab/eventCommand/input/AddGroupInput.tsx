@@ -40,7 +40,11 @@ export default function AddGroupInput() {
     const newGroups = [...groups];
     newGroups.push(groupName);
     setValue('groups', newGroups);
-    saveEvents(getValues()).then(() => {
+    saveEvents(
+      getValues(),
+      'Group added successfully!',
+      'An error occurred while adding the group.',
+    ).then(() => {
       refetch();
       setAddGroupName('');
       setIsGroupTaken(false);
@@ -73,7 +77,12 @@ export default function AddGroupInput() {
             onFocus={() => setInputFocused(true)}
             onBlur={() => setInputFocused(false)}
           />
-          <Button label='Add' onClick={() => addGroup(addGroupName)} disabled={isGroupTaken || !addGroupName} className='merge-with-input' />
+          <Button
+            label='Add'
+            onClick={() => addGroup(addGroupName)}
+            disabled={isGroupTaken || !addGroupName}
+            className='merge-with-input'
+          />
         </Columns>
       </Stack>
     </HotkeysProvider>

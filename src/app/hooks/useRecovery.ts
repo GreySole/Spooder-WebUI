@@ -6,12 +6,14 @@ import {
   useCheckInSettingsMutation,
   useDeleteBackupPluginsMutation,
   useDeleteBackupSettingsMutation,
+  useGetAutoBackupSettingsQuery,
   useGetPluginsBackupsQuery,
   useGetSettingsBackupsQuery,
   usePrepareRestorePluginsMutation,
   usePrepareRestoreSettingsMutation,
   useRestorePluginsMutation,
   useRestoreSettingsMutation,
+  useSetAutoBackupSettingsMutation,
 } from '../api/recoverySlice';
 
 export default function useRecovery() {
@@ -22,6 +24,11 @@ export default function useRecovery() {
 
   function getPluginsBackups() {
     const { data, isLoading, error, refetch } = useGetPluginsBackupsQuery(null);
+    return { data, isLoading, error, refetch };
+  }
+
+  function getAutoBackupSettings() {
+    const { data, isLoading, error, refetch } = useGetAutoBackupSettingsQuery(null);
     return { data, isLoading, error, refetch };
   }
 
@@ -130,9 +137,19 @@ export default function useRecovery() {
     return { restorePlugins, isLoading, isSuccess, error };
   }
 
+  function getSetAutoBackupSettings() {
+    const [setAutoBackupSettingsMutation, { isLoading, isSuccess, error }] =
+      useSetAutoBackupSettingsMutation();
+    function setAutoBackupSettings(settings: KeyedObject) {
+      return setAutoBackupSettingsMutation(settings);
+    }
+    return { setAutoBackupSettings, isLoading, isSuccess, error };
+  }
+
   return {
     getSettingsBackups,
     getPluginsBackups,
+    getAutoBackupSettings,
     getCheckInSettings,
     getCheckInPlugins,
     getBackupSettings,
@@ -143,5 +160,6 @@ export default function useRecovery() {
     getPrepareRestorePlugins,
     getRestoreSettings,
     getRestorePlugins,
+    getSetAutoBackupSettings,
   };
 }

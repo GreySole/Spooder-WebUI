@@ -17,6 +17,7 @@ import ConfigNetworkSection from './ConfigNetworkSection';
 import ExternalHandleSection from './ExternalHandleSection';
 import UdpServerSection from './UdpServerSection';
 import useServer from '../../../../app/hooks/useServer';
+import AutoBackupSection from './AutoBackupSection';
 
 export default function ConfigForm() {
   const { getSaveConfig } = useConfig();
@@ -29,6 +30,7 @@ export default function ConfigForm() {
       <ConfigNetworkSection />
       <ExternalHandleSection />
       <UdpServerSection />
+      <AutoBackupSection />
       <Footer showFooter>
         {publicUrlLoading ? (
           <Box> </Box>

@@ -10,12 +10,32 @@ interface DeleteGroupButtonProps {
 }
 
 export default function DeleteGroupButton(props: DeleteGroupButtonProps) {
-  const { setValue, getValues, reset } = useFormContext();
+  const { setValue, getValues } = useFormContext();
   const { getSaveEvents, getEvents } = useEvents();
   const { saveEvents } = getSaveEvents();
-  const { refetch } = getEvents();
   const { openDialog, closeDialog } = useDialog();
   const { groupName } = props;
+  const deleteClick = () => {
+    const events = getValues(EVENT_KEY);
+    const groups = getValues(GROUP_KEY);
+    let newEvents = Object.assign(events);
+    let newGroups = Object.assign(groups);
+    for (let ev in newEvents) {
+      if (newEvents[ev].group == groupName) {
+        delete newEvents[ev];
+      }
+    }
+    newGroups.splice(newGroups.indexOf(groupName), 1);
+    setValue(EVENT_KEY, newEvents);
+    setValue(GROUP_KEY, newGroups);
+    saveEvents(
+      { events: newEvents, groups: newGroups },
+      'Group deleted successfully!',
+      'An error occurred while deleting the group.',
+    ).then(() => {
+      closeDialog();
+    });
+  };
   function deleteGroup(groupName: string) {
     openDialog(
       `Delete ${groupName}?`,
@@ -27,27 +47,7 @@ export default function DeleteGroupButton(props: DeleteGroupButtonProps) {
             closeDialog();
           }}
         />,
-        <Button
-          label='Delete'
-          onClick={() => {
-            const events = getValues(EVENT_KEY);
-            const groups = getValues(GROUP_KEY);
-            let newEvents = Object.assign(events);
-            let newGroups = Object.assign(groups);
-            for (let ev in newEvents) {
-              if (newEvents[ev].group == groupName) {
-                delete newEvents[ev];
-              }
-            }
-            newGroups.splice(newGroups.indexOf(groupName), 1);
-            setValue(EVENT_KEY, newEvents);
-            setValue(GROUP_KEY, newGroups);
-            saveEvents({ events: newEvents, groups: newGroups }).then(() => {
-              refetch();
-              closeDialog();
-            });
-          }}
-        />,
+        <Button label='Delete' onClick={deleteClick} />,
       ],
     );
   }

@@ -18,13 +18,16 @@ import AddGroupInput from './eventCommand/input/AddGroupInput';
 import DeleteGroupButton from './eventCommand/input/DeleteGroupButton';
 import EventElement from './EventElement';
 import { TwitchIcon } from '../../common/icons/icons';
+import ExportGroupButton from './eventCommand/input/ExportGroupButton';
+import ImportGroupButton from './eventCommand/input/ImportGroupButton';
 
 export default function EventTable() {
   const [searchText, setSearchText] = useState<string>('');
   const [filter, setFilter] = useState<string[]>([]);
 
-  const { getEvents } = useEvents();
-  const { events, groups, isLoading } = getEvents();
+  const { watch } = useFormContext();
+  const events = watch('events');
+  const groups = watch('groups');
 
   const searchEnabled = searchText !== '';
   const filterEnabled = filter.length > 0;
@@ -89,6 +92,7 @@ export default function EventTable() {
           <Box flexFlow='row wrap'>
             <AddEventInput groupName={groupName} />
             <DeleteGroupButton groupName={groupName} />
+            <ExportGroupButton groupName={groupName} />
           </Box>
 
           {groupObjects[groupName]}
@@ -102,6 +106,7 @@ export default function EventTable() {
       <Box flexFlow='column'>
         <Box marginBottom='medium'>
           <AddGroupInput />
+          <ImportGroupButton />
         </Box>
         {groupElements}
       </Box>

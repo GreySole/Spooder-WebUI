@@ -128,12 +128,12 @@ export default function useEvents() {
 
   function getSaveEvents() {
     const [saveEventsMutation, { isLoading, isSuccess, error }] = useSaveEventsMutation();
-    function saveEvents(form: FieldValues) {
+    function saveEvents(form: FieldValues, successText: string, errorText: string) {
       return saveEventsMutation(form).then((response) => {
         if (response.error) {
-          showError('An error occurred while saving the event.');
+          showError(errorText);
         } else {
-          showSuccess('Event saved successfully!');
+          showSuccess(successText);
         }
       });
     }

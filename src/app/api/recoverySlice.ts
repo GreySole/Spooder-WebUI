@@ -10,6 +10,9 @@ export const recoveryApi = createApi({
     getPluginsBackups: builder.query({
       query: () => '/get_backups_plugins',
     }),
+    getAutoBackupSettings: builder.query({
+      query: () => '/get_auto_backup_settings',
+    }),
     checkInSettings: builder.mutation({
       query: (form) => ({
         url: '/checkin_settings',
@@ -94,12 +97,24 @@ export const recoveryApi = createApi({
         },
       }),
     }),
+
+    setAutoBackupSettings: builder.mutation({
+      query: (form) => ({
+        url: '/set_auto_backup_settings',
+        method: 'post',
+        body: form,
+        headers: {
+          'Content-type': 'application/json; charset=UTF-8',
+        },
+      }),
+    }),
   }),
 });
 
 export const {
   useGetSettingsBackupsQuery,
   useGetPluginsBackupsQuery,
+  useGetAutoBackupSettingsQuery,
   useCheckInSettingsMutation,
   useCheckInPluginsMutation,
   useBackupPluginsMutation,
@@ -110,4 +125,5 @@ export const {
   usePrepareRestorePluginsMutation,
   useRestorePluginsMutation,
   useRestoreSettingsMutation,
+  useSetAutoBackupSettingsMutation,
 } = recoveryApi;

@@ -12,7 +12,11 @@ export default function EventSaveButton() {
   const { refetch } = getEvents();
 
   const saveEventsClick = () => {
-    saveEvents(getValues()).then((response) => {
+    saveEvents(
+      getValues(),
+      'Events saved successfully!',
+      'An error occurred while saving the events.',
+    ).then((response) => {
       refetch();
     });
   };

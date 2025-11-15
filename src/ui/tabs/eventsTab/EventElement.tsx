@@ -54,9 +54,13 @@ export default function EventElement(props: EventElementProps) {
           className='delete-button'
           onClick={() => {
             unregister(buildKey(EVENT_KEY, eventName));
-            saveEvents(getValues());
-            refetch();
-            closeDialog();
+            saveEvents(
+              getValues(),
+              'Event deleted successfully!',
+              'An error occurred while deleting the event.',
+            ).then(() => {
+              closeDialog();
+            });
           }}
         />,
       ],

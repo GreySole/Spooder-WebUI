@@ -1,9 +1,9 @@
-import { Box, FormBoolSwitch, Border, Stack } from '@greysole/spooder-component-library';
+import { Border, Box, FormBoolSwitch, Stack } from '@greysole/spooder-component-library';
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
-import { buildTriggerKey, buildKey } from '../../FormKeys';
-import JoystickTriggerType from './JoystickTriggerType';
 import { EventTriggerProps } from '../../../../Types';
+import { buildKey, buildTriggerKey } from '../../FormKeys';
+import JoystickTriggerType from './JoystickTriggerType';
 import JoystickTriggerTypeDetails from './JoystickTriggerTypeDetails';
 
 export default function JoystickTrigger(props: EventTriggerProps) {
@@ -14,9 +14,6 @@ export default function JoystickTrigger(props: EventTriggerProps) {
 
   const enabledKey = buildKey(joystickTriggerKey, 'enabled');
   const enabled = watch(enabledKey, false);
-
-  const typeKey = buildKey(joystickTriggerKey, 'type');
-  const type = watch(typeKey, '');
 
   if (!enabled) {
     return (

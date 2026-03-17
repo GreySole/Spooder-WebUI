@@ -1,11 +1,11 @@
 import {
-  EventTriggerProps,
+  FormNumberInput,
   FormSelectDropdown,
   FormTextInput,
 } from '@greysole/spooder-component-library';
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
-import { buildTriggerKey, buildKey } from '../../../FormKeys';
+import { buildKey } from '../../../FormKeys';
 
 interface JoystickTipConditionProps {
   conditionKey: string;
@@ -22,7 +22,7 @@ export default function JoystickTipCondition(props: JoystickTipConditionProps) {
   if (mode === 'item') {
     return (
       <>
-        <FormTextInput formKey={buildKey(modeKey, 'item')} label='Tip Item Name:' />
+        <FormTextInput formKey={buildKey(conditionKey, 'item')} label='Tip Item Name:' />
       </>
     );
   }
@@ -42,9 +42,9 @@ export default function JoystickTipCondition(props: JoystickTipConditionProps) {
           { value: '<>', label: 'Outside of Range' },
         ]}
       />
-      <FormTextInput formKey={buildKey(modeKey, 'amount')} label='Tip Amount:' />
+      <FormNumberInput formKey={buildKey(conditionKey, 'amount')} label='Tip Amount:' />
       {operator === '><' || operator === '<>' ? (
-        <FormTextInput formKey={buildKey(modeKey, 'amount2')} label='Tip Amount 2:' />
+        <FormNumberInput formKey={buildKey(conditionKey, 'amount2')} label='Tip Amount 2:' />
       ) : null}
     </>
   );

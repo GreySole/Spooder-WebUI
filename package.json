@@ -4,6 +4,8 @@
   "description": "Web interface for Spooder",
   "main": "spooder.js",
   "scripts": {
+    "prestart": "node scripts/generate-registry.js",
+    "prebuild": "node scripts/generate-registry.js",
     "start": "react-scripts start",
     "build": "react-scripts build"
   },

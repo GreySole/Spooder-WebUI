@@ -1,5 +1,5 @@
-import React from 'react';
 import { formatBytes, useTheme } from '@greysole/spooder-component-library';
+import React from 'react';
 
 interface GraphMeterProps {
   data: number[];
@@ -12,13 +12,11 @@ export default function GraphMeter({ data, color = 'blue', width, height }: Grap
   const paddedWidth = width * 0.75;
   const paddedHeight = height * 1.0;
   const maxDataValue = Math.max(...data);
-  const minDataValue = Math.min(...data);
-  const dataRange = maxDataValue - minDataValue;
   const { themeVariables } = useTheme();
 
   const points = data.map((value, index) => {
     let x = (index / (data.length - 1)) * paddedWidth;
-    let y = paddedHeight - ((value - minDataValue) / dataRange) * paddedHeight;
+    let y = paddedHeight - (value / maxDataValue) * paddedHeight;
 
     isNaN(x) && (x = 0);
     isNaN(y) && (y = 0);
@@ -60,7 +58,7 @@ export default function GraphMeter({ data, color = 'blue', width, height }: Grap
         fill='var(--theme-text-color)'
         fontSize={height * 0.08}
       >
-        {`${formatBytes(minDataValue, 0)}/s`}
+        {`0/s`}
       </text>
       <polyline
         fill={color + '33'}

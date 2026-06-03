@@ -1,15 +1,15 @@
-import React from 'react';
-import useTwitch from '../../../../../app/hooks/useTwitch';
-import { buildKey, buildTriggerKey } from '../../FormKeys';
-import { EventTriggerProps } from '../../../../Types';
 import {
-  Box,
-  FormBoolSwitch,
-  FormLoader,
-  FormSelectDropdown,
-  Stack,
-  useTheme,
+    Box,
+    FormBoolSwitch,
+    FormLoader,
+    FormSelectDropdown,
+    Stack,
+    useTheme,
 } from '@greysole/spooder-component-library';
+import React from 'react';
+import useTwitch from '../../../../../modules/installed/twitch/useTwitch';
+import { EventTriggerProps } from '../../../../Types';
+import { buildKey, buildTriggerKey } from '../../FormKeys';
 
 interface ChannelPointReward {
   id: string;

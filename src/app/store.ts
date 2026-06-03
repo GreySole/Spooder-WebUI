@@ -1,20 +1,23 @@
 import { configureStore } from '@reduxjs/toolkit';
-import navigationSlice from './slice/navigationSlice';
-import { eventApi } from './api/eventSlice';
+import { modules } from '../modules/registry';
 import { configApi } from './api/configSlice';
-import { discordApi } from './api/discordSlice';
+import { eventApi } from './api/eventSlice';
+import { moduleApi } from './api/moduleSlice';
+import { obsControlApi } from './api/obsControlSlice';
+import { obsFetchApi } from './api/obsFetchSlice';
 import { obsApi } from './api/obsSlice';
-import { twitchApi } from './api/twitchSlice';
 import { pluginApi } from './api/pluginSlice';
+import { recoveryApi } from './api/recoverySlice';
 import { serverApi } from './api/serverSlice';
 import { shareApi } from './api/shareSlice';
-import { userApi } from './api/userSlice';
-import { recoveryApi } from './api/recoverySlice';
-import footerSlice from './slice/footerSlice';
 import { themeApi } from './api/themeSlice';
-import { obsFetchApi } from './api/obsFetchSlice';
-import { obsControlApi } from './api/obsControlSlice';
-import { moduleApi } from './api/moduleSlice';
+import { userApi } from './api/userSlice';
+import footerSlice from './slice/footerSlice';
+import navigationSlice from './slice/navigationSlice';
+
+const moduleReducers = Object.fromEntries(
+  modules.map((m) => [m.api.reducerPath, m.api.reducer])
+);
 
 const store = configureStore({
   reducer: {
@@ -25,32 +28,34 @@ const store = configureStore({
     [eventApi.reducerPath]: eventApi.reducer,
     [configApi.reducerPath]: configApi.reducer,
     [moduleApi.reducerPath]: moduleApi.reducer,
-    [discordApi.reducerPath]: discordApi.reducer,
     [obsApi.reducerPath]: obsApi.reducer,
     [obsFetchApi.reducerPath]: obsFetchApi.reducer,
     [obsControlApi.reducerPath]: obsControlApi.reducer,
-    [twitchApi.reducerPath]: twitchApi.reducer,
     [pluginApi.reducerPath]: pluginApi.reducer,
     [serverApi.reducerPath]: serverApi.reducer,
     [shareApi.reducerPath]: shareApi.reducer,
     [userApi.reducerPath]: userApi.reducer,
+    ...moduleReducers,
   },
-  middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware()
+  middleware: (getDefaultMiddleware) => {
+    let mw: any = getDefaultMiddleware()
       .concat(themeApi.middleware)
       .concat(recoveryApi.middleware)
       .concat(eventApi.middleware)
       .concat(configApi.middleware)
       .concat(moduleApi.middleware)
-      .concat(discordApi.middleware)
       .concat(obsApi.middleware)
       .concat(obsFetchApi.middleware)
       .concat(obsControlApi.middleware)
-      .concat(twitchApi.middleware)
       .concat(pluginApi.middleware)
       .concat(serverApi.middleware)
       .concat(shareApi.middleware)
-      .concat(userApi.middleware),
+      .concat(userApi.middleware);
+    for (const m of modules) {
+      mw = mw.concat(m.api.middleware);
+    }
+    return mw;
+  },
 });
 export default store;
 export type IRootState = ReturnType<typeof store.getState>;

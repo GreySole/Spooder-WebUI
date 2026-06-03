@@ -1,8 +1,8 @@
+import { FormSelectDropdown } from '@greysole/spooder-component-library';
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
-import useDiscord from '../../../../app/hooks/useDiscord';
+import useDiscord from '../../../../modules/installed/discord/useDiscord';
 import { SelectOption } from '../../../Types';
-import { FormSelectDropdown } from '@greysole/spooder-component-library';
 
 interface FormDiscordChannelSelectProps {
   formKey: string;

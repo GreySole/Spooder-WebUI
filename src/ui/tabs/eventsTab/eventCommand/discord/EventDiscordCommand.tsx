@@ -1,18 +1,17 @@
-import { useFormContext } from 'react-hook-form';
-import useDiscord from '../../../../../app/hooks/useDiscord';
-import useEvents from '../../../../../app/hooks/useEvents';
-import { useState } from 'react';
-import { EventCommandProps } from '../../../../Types';
 import {
-  Stack,
-  Box,
-  FormNumberInput,
-  FormSelectDropdown,
-  FormBoolSwitch,
-  FormTextInput,
+    Box,
+    FormBoolSwitch,
+    FormNumberInput,
+    FormSelectDropdown,
+    FormTextInput,
+    Stack,
 } from '@greysole/spooder-component-library';
 import React from 'react';
+import { useFormContext } from 'react-hook-form';
+import useEvents from '../../../../../app/hooks/useEvents';
+import useDiscord from '../../../../../modules/installed/discord/useDiscord';
 import FormCodeInput from '../../../../common/input/form/FormCodeInput';
+import { EventCommandProps } from '../../../../Types';
 import { buildCommandKey, buildKey } from '../../FormKeys';
 import ResponseScriptTest from '../response/ResponseScriptTest';
 

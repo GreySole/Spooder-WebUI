@@ -52,6 +52,9 @@ jspm_packages/
 # Snowpack dependency directory (https://snowpack.dev/)
 web_modules/
 
+# Generated module registry (auto-built from present submodules)
+src/modules/registry.ts
+
 # TypeScript cache
 *.tsbuildinfo
 

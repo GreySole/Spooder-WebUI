@@ -1,0 +1,6 @@
+[submodule "src/modules/installed/twitch"]
+	path = src/modules/installed/twitch
+	url = https://github.com/GreySole/Spooder-WebUI-Twitch-Module.git
+[submodule "src/modules/installed/discord"]
+	path = src/modules/installed/discord
+	url = https://github.com/GreySole/Spooder-WebUI-Discord-Module.git

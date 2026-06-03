@@ -1,7 +1,6 @@
 import React from 'react';
-import TwitchTab from '../TwitchTab';
-import DiscordTab from '../DiscordTab';
-
+import DiscordTab from '../../../modules/installed/discord/discordTab/DiscordTab';
+import TwitchTab from '../../../modules/installed/twitch/twitchTab/TwitchTab';
 interface ModuleWrapperProps {
   module: string;
 }

@@ -1,19 +1,16 @@
-import React, { useEffect } from 'react';
 import {
-  Button,
-  Stack,
-  TooltipButton,
-  TypeFace,
-  useDialog,
-  useOSC,
-  Grid,
+  Box,
   CustomSpooder,
+  Grid,
+  useOSC,
+  useTheme
 } from '@greysole/spooder-component-library';
-import { useTheme } from '@greysole/spooder-component-library';
+import React, { useEffect } from 'react';
+import { useScrollContext } from '../../app/context/ScrollContext';
 import useNavigation from '../../app/hooks/useNavigation';
 import useServer from '../../app/hooks/useServer';
-import { useScrollContext } from '../../app/context/ScrollContext';
-import { Box } from '@greysole/spooder-component-library';
+import { modules } from '../../modules/registry';
+import PageCircleLoader from '../common/input/general/PageCircleLoader';
 import ModUI from '../deck/ModUI';
 import OBS from '../deck/OBS';
 import OSCMonitor from '../deck/OSCMonitor';
@@ -26,10 +23,8 @@ import ShareTab from '../tabs/ShareTab';
 import ThemeTab from '../tabs/ThemeTab';
 import UserTab from '../tabs/UserTab';
 import Header from './Header';
-import NavigationMenu from './navigation/NavigationMenu';
-import PageCircleLoader from '../common/input/general/PageCircleLoader';
-import TwitchTab from '../tabs/TwitchTab';
-import DiscordTab from '../tabs/DiscordTab';
+
+const moduleMap = Object.fromEntries(modules.map((m) => [m.key, m.Component]));
 
 export default function App() {
   const { currentTab, navigationOpen } = useNavigation();
@@ -83,12 +78,6 @@ export default function App() {
     case 'users':
       tabContent = <UserTab />;
       break;
-    case 'twitch':
-      tabContent = <TwitchTab />;
-      break;
-    case 'discord':
-      tabContent = <DiscordTab />;
-      break;
     case 'obs':
       tabContent = <OBS />;
       break;
@@ -101,6 +90,11 @@ export default function App() {
     case 'theme':
       tabContent = <ThemeTab />;
       break;
+    default: {
+      const ModuleComponent = moduleMap[currentTab];
+      if (ModuleComponent) tabContent = <ModuleComponent />;
+      break;
+    }
   }
 
   return (

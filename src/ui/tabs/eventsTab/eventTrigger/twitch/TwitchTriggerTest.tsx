@@ -1,8 +1,6 @@
-import { Box, TypeFace, TextInput, Button, FormLoader } from '@greysole/spooder-component-library';
+import { Box, Button, FormLoader, TextInput, TypeFace } from '@greysole/spooder-component-library';
 import React, { useState } from 'react';
-import { useFormContext } from 'react-hook-form';
-import useTwitch from '../../../../../app/hooks/useTwitch';
-import { buildKey, buildTriggerKey } from '../../FormKeys';
+import useTwitch from '../../../../../modules/installed/twitch/useTwitch';
 
 interface TwitchTriggerTestProps {
   twitchTriggerType: string;

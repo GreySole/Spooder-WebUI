@@ -1,22 +1,20 @@
-import { createSlice, current } from '@reduxjs/toolkit';
-import { themeSlice } from './themeSlice';
 import { IconProp } from '@fortawesome/fontawesome-svg-core';
 import {
-  faDashboard,
-  faClapperboard,
-  faPlug,
   faArrowsSplitUpAndLeft,
-  faPuzzlePiece,
-  faPerson,
-  faShareNodes,
-  faPaintRoller,
-  faGears,
+  faClapperboard,
+  faDashboard,
   faGamepad,
-  faTv,
+  faGears,
   faHammer,
-  faQuestion,
+  faPaintRoller,
+  faPerson,
+  faPlug,
+  faPuzzlePiece,
+  faShareNodes,
+  faTv
 } from '@fortawesome/free-solid-svg-icons';
-import { DiscordIcon, TwitchIcon } from '../../ui/common/icons/icons';
+import { createSlice } from '@reduxjs/toolkit';
+import { modules } from '../../modules/registry';
 
 interface TabOptions {
   [key: string]: Tab | FolderTab;
@@ -31,6 +29,13 @@ interface FolderTab {
   label: string;
   icon: IconProp;
   subTabs: TabOptions;
+}
+
+const moduleSubTabs: TabOptions = {};
+for (const m of modules) {
+  if (m.tabConfig.parentTab === 'module') {
+    moduleSubTabs[m.key] = { label: m.tabConfig.label, icon: m.tabConfig.icon };
+  }
 }
 
 export const navigationSlice = createSlice({
@@ -56,16 +61,7 @@ export const navigationSlice = createSlice({
       module: {
         label: 'Modules',
         icon: faPuzzlePiece,
-        subTabs: {
-          twitch: {
-            label: 'Twitch',
-            icon: TwitchIcon,
-          },
-          discord: {
-            label: 'Discord',
-            icon: DiscordIcon,
-          },
-        },
+        subTabs: moduleSubTabs,
       },
       users: {
         label: 'Users',

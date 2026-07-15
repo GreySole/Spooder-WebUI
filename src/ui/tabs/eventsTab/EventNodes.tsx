@@ -108,33 +108,75 @@ export default function EventNodes(props: EventNodesProps) {
   }
 
   return (
-    <div style={{ display: 'flex', width: '100%', height: '65vh', border: '1px solid var(--color-border, #444)' }}>
-      <div style={{ width: 220, overflowY: 'auto', borderRight: '1px solid var(--color-border, #444)' }}>
+    <div
+      style={{
+        position: 'relative',
+        width: '100%',
+        height: '65vh',
+        border: '1px solid var(--color-border, #444)',
+        overflow: 'hidden',
+      }}
+    >
+      <NodeGraphCanvas
+        key={eventName}
+        nodes={graph.nodes ?? []}
+        edges={graph.edges ?? []}
+        resolveDef={resolveDef}
+        selectedNodeId={selectedNodeId}
+        onSelectNode={setSelectedNodeId}
+        onNodeDragEnd={handleNodeDragEnd}
+        onNodeDelete={handleNodeDelete}
+        onEdgeDelete={handleEdgeDelete}
+        onConnect={onConnect}
+        isValidConnection={isValidConnection}
+      />
+      <div style={{ position: 'absolute', top: 8, left: 8, zIndex: 20 }}>
         <NodePalette eventName={eventName} />
       </div>
-      <div style={{ flex: 1 }}>
-        <NodeGraphCanvas
-          key={eventName}
-          nodes={graph.nodes ?? []}
-          edges={graph.edges ?? []}
-          resolveDef={resolveDef}
-          selectedNodeId={selectedNodeId}
-          onSelectNode={setSelectedNodeId}
-          onNodeDragEnd={handleNodeDragEnd}
-          onNodeDelete={handleNodeDelete}
-          onEdgeDelete={handleEdgeDelete}
-          onConnect={onConnect}
-          isValidConnection={isValidConnection}
-        />
-      </div>
-      <div style={{ width: 300, overflowY: 'auto', borderLeft: '1px solid var(--color-border, #444)' }}>
-        <NodeInspector
-          eventName={eventName}
-          selectedNodeId={selectedNodeId}
-          onDeselect={() => setSelectedNodeId('')}
-          onDeleteNode={handleNodeDelete}
-        />
-      </div>
+      {selectedNodeId ? (
+        <div
+          style={{
+            position: 'absolute',
+            top: 8,
+            right: 8,
+            bottom: 8,
+            width: 320,
+            zIndex: 20,
+            overflowY: 'auto',
+            background: 'var(--color-background-near, #242424)',
+            border: '1px solid var(--color-border, #444)',
+            borderRadius: 6,
+            boxShadow: '0 4px 16px rgba(0,0,0,0.4)',
+          }}
+        >
+          <div
+            onClick={() => setSelectedNodeId('')}
+            title='Close'
+            style={{
+              position: 'absolute',
+              top: 6,
+              right: 6,
+              width: 22,
+              height: 22,
+              lineHeight: '20px',
+              textAlign: 'center',
+              borderRadius: 4,
+              border: '1px solid var(--color-border, #444)',
+              cursor: 'pointer',
+              userSelect: 'none',
+              fontSize: '0.9rem',
+            }}
+          >
+            ×
+          </div>
+          <NodeInspector
+            eventName={eventName}
+            selectedNodeId={selectedNodeId}
+            onDeselect={() => setSelectedNodeId('')}
+            onDeleteNode={handleNodeDelete}
+          />
+        </div>
+      ) : null}
     </div>
   );
 }

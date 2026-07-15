@@ -4,6 +4,7 @@ import { Box, Button, useTheme } from '@greysole/spooder-component-library';
 import { useFormContext } from 'react-hook-form';
 import { useEventTableModal } from '../../context/EventTableModalContext';
 import useEvents from '../../../../../app/hooks/useEvents';
+import { DISABLED_GROUP_KEY, GRAPH_KEY, GROUP_KEY } from '../../FormKeys';
 
 export default function ImportGroupButton() {
   const { setValue, getValues, reset } = useFormContext();
@@ -30,21 +31,23 @@ export default function ImportGroupButton() {
             const reader = new FileReader();
             reader.onload = (event: any) => {
               const jsonContent = JSON.parse(event.target.result);
-              const groups = getValues('groups');
-              const events = getValues('events');
+              const groups = getValues(GROUP_KEY);
+              const graphs = getValues(GRAPH_KEY);
+              const disabledGroups = getValues(DISABLED_GROUP_KEY);
               const newGroupName = jsonContent._meta.groupName;
               if (!groups.includes(newGroupName)) {
                 groups.push(newGroupName);
-                setValue('groups', groups);
+                setValue(GROUP_KEY, groups);
               }
-              for (let ev in jsonContent.events) {
-                const newEventName = `_${newGroupName.replace(/[^a-zA-Z0-9]/g, '_')}_${jsonContent.events[ev].name}`;
-                jsonContent.events[ev].group = newGroupName;
-                events[newEventName] = jsonContent.events[ev];
+              for (let ev in jsonContent.graphs) {
+                const newEventName = `_${newGroupName.replace(/[^a-zA-Z0-9]/g, '_')}_${jsonContent.graphs[ev].name}`;
+                jsonContent.graphs[ev].group = newGroupName;
+                graphs[newEventName] = jsonContent.graphs[ev];
               }
               reset({
                 groups,
-                events,
+                graphs,
+                disabledGroups,
               });
               resetFormRef.current?.();
 
@@ -55,7 +58,6 @@ export default function ImportGroupButton() {
               ).then((response) => {
                 refetch();
               });
-              console.log('Imported group:', jsonContent._meta.groupName, events);
             };
             reader.readAsText(file);
           };

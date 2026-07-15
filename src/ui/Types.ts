@@ -14,76 +14,6 @@ export enum OSCConditionType {
   searchAndMatch = 'search_and_match',
 }
 
-export enum OSCHandleType {
-  trigger = 'trigger',
-  toggle = 'toggle',
-  search = 'search',
-}
-
-export interface ResponseCommand {
-  type: 'response';
-  etype: 'oneshot' | 'recurring';
-  delay: number;
-  message: string;
-  interval: number;
-}
-
-export interface PluginCommand {
-  type: 'plugin';
-  etype: 'oneshot' | 'timed';
-  pluginname: string;
-  eventname: string;
-  eventData?: KeyedObject;
-  stop_eventname: string;
-  stop_eventData?: KeyedObject;
-  duration: number;
-  delay: number;
-}
-
-export interface SoftwareCommand {
-  type: 'software';
-  etype: 'oneshot' | 'timed';
-  dest_udp: string;
-  address: string;
-  valueOn: string;
-  valueOff: string;
-  duration: number;
-  delay: number;
-  priority: number;
-}
-
-export interface OBSCommand {
-  type: 'obs';
-  function: string;
-  etype: 'oneshot' | 'timed';
-  scene: string;
-  item: string;
-  valueOn: string;
-  valueOff: string;
-  itemOn: string;
-  itemOff: string;
-  duration: number;
-  delay: number;
-}
-
-export interface ModCommand {
-  type: 'mod';
-  function: string;
-  etype: 'oneshot' | 'timed';
-  targettype: string;
-  target: string;
-  duration: number;
-  delay: number;
-}
-
-export interface DiscordCommand {
-  type: 'discord';
-  function: string;
-  guild: string;
-  channel: string;
-  message: string;
-}
-
 export interface PluginsObject {
   [key: string]: any;
 }
@@ -97,43 +27,9 @@ export interface PluginComponentProps {
   setRef?: (pluginName: string, ref: any) => void;
 }
 
-export interface EventCommandProps {
-  eventName: string;
-  commandIndex: number;
-}
-
-export interface EventTriggerProps {
-  eventName: string;
-}
-
 export interface SelectOption {
   label: string;
   value: string | number;
-}
-
-export interface SpooderEvent {
-  name: string;
-  description: string;
-  group: string;
-  cooldown: number;
-  chatnotification: boolean;
-  cooldownnotification: boolean;
-  triggers: { [key: string]: any };
-  commands: any[];
-}
-
-export interface ChatTriggerObject {
-  enabled: boolean;
-  condition: ChatTriggerConditionObject;
-  search: boolean;
-  command: string;
-}
-
-export interface ChatTriggerConditionObject {
-  broadcaster: boolean;
-  mod: boolean;
-  sub: boolean;
-  vip: boolean;
 }
 
 export interface ThemeColors {
@@ -188,4 +84,103 @@ export interface PluginPages {
 
 export interface SharedElement {
   [key: string]: boolean;
+}
+
+export type NodePortDataType = 'string' | 'number' | 'boolean' | 'any';
+
+export interface NodePortDef {
+  id: string;
+  label: string;
+  dataType: NodePortDataType;
+}
+
+export interface NodeFieldDef {
+  label: string;
+  description?: string;
+  type: 'asset' | 'boolean' | 'color' | 'code' | 'select' | 'text' | 'number';
+  options?: KeyedObject;
+  showif?: { variable: string; condition: string; value: any };
+  // When set, this field is also a connectable input port of the given data type: the
+  // frontend renders it as an inline editable value when unwired, or as a socket fed by
+  // another node's output when a data edge targets it.
+  portType?: NodePortDataType;
+}
+
+export interface NodeForm {
+  [fieldName: string]: NodeFieldDef;
+}
+
+export interface TriggerNodeDef {
+  id: string;
+  label: string;
+  description?: string;
+  form: NodeForm;
+  defaults: KeyedObject;
+  outputs: NodePortDef[];
+}
+
+export interface ActionNodeDef {
+  id: string;
+  label: string;
+  description?: string;
+  form: NodeForm;
+  defaults: KeyedObject;
+  outputs?: NodePortDef[];
+  supportsTimed?: boolean;
+}
+
+export interface OperationNodeDef {
+  id: string;
+  label: string;
+  description?: string;
+  category: 'math' | 'string';
+  form: NodeForm;
+  defaults: KeyedObject;
+  outputs: NodePortDef[];
+}
+
+export interface NodeManifest {
+  moduleName: string;
+  triggers: TriggerNodeDef[];
+  actions: ActionNodeDef[];
+}
+
+export type EventGraphNodeKind = 'callback' | 'action' | 'operation';
+
+export interface EventGraphNode {
+  id: string;
+  kind: EventGraphNodeKind;
+  moduleName: string;
+  nodeTypeId: string;
+  // Manual/literal values for fields not fed by an incoming data edge.
+  values: KeyedObject;
+  delay?: number;
+  position: { x: number; y: number };
+}
+
+export interface EventGraphEdge {
+  id: string;
+  fromNode: string;
+  // 'exec' for execution-flow edges (this node runs next); an output port id for data edges.
+  fromPort: string;
+  toNode: string;
+  // 'exec' for execution-flow edges; an input field/port id for data edges.
+  toPort: string;
+}
+
+export interface EventGraph {
+  name: string;
+  description: string;
+  group: string;
+  cooldown: number;
+  chatnotification: boolean;
+  cooldownnotification: boolean;
+  nodes: EventGraphNode[];
+  edges: EventGraphEdge[];
+}
+
+export interface EventGraphFile {
+  graphs: { [eventId: string]: EventGraph };
+  groups: string[];
+  disabledGroups: string[];
 }

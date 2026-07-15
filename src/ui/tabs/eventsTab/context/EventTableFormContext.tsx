@@ -4,18 +4,20 @@ import { useEventTableModal } from './EventTableModalContext';
 
 interface EventTableFormContextProviderProps {
   children: ReactNode;
-  defaultEvents: any;
+  defaultGraphs: any;
   defaultGroups: any;
+  defaultDisabledGroups: any;
 }
 
 export default function EventTableFormContextProvider(props: EventTableFormContextProviderProps) {
-  const { children, defaultEvents, defaultGroups } = props;
+  const { children, defaultGraphs, defaultGroups, defaultDisabledGroups } = props;
   const { resetFormRef } = useEventTableModal();
 
   const EventTableForm = useForm({
     defaultValues: {
-      events: defaultEvents,
+      graphs: defaultGraphs,
       groups: defaultGroups,
+      disabledGroups: defaultDisabledGroups,
     },
   });
 
@@ -24,13 +26,14 @@ export default function EventTableFormContextProvider(props: EventTableFormConte
     resetFormRef.current = EventTableForm.reset;
   }, [EventTableForm.reset, resetFormRef]);
 
-  // Update form values when defaultEvents or defaultGroups change (after refetch)
+  // Update form values when defaults change (after refetch)
   useEffect(() => {
     EventTableForm.reset({
-      events: defaultEvents,
+      graphs: defaultGraphs,
       groups: defaultGroups,
+      disabledGroups: defaultDisabledGroups,
     });
-  }, [defaultEvents, defaultGroups, EventTableForm]);
+  }, [defaultGraphs, defaultGroups, defaultDisabledGroups, EventTableForm]);
 
   return <FormProvider {...EventTableForm}>{children}</FormProvider>;
 }

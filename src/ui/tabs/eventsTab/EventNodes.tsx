@@ -1,75 +1,140 @@
-import {
-    Connection,
-    Edge,
-    Handle,
-    Node,
-    NodeProps,
-    Position,
-    ReactFlow,
-    addEdge,
-    useEdgesState,
-    useNodesState,
-} from '@xyflow/react';
-import '@xyflow/react/dist/style.css';
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
+import { useFormContext } from 'react-hook-form';
+import { v4 as uuidv4 } from 'uuid';
+import useEvents from '../../../app/hooks/useEvents';
+import { EventGraph, EventGraphEdge, EventGraphNode } from '../../Types';
+import { buildGraphKey } from './FormKeys';
+import NodeGraphCanvas from './eventNodes/canvas/NodeGraphCanvas';
+import { PendingConnection, Point } from './eventNodes/canvas/types';
+import NodeInspector from './eventNodes/NodeInspector';
+import NodePalette from './eventNodes/NodePalette';
+import { resolveNodeDef } from './eventNodes/nodeDefLookup';
 
 interface EventNodesProps {
   eventName: string;
 }
 
-const initialEdges: Edge[] = [
-  { id: 'e1-2', source: '1', target: '2' },
-];
-
-function MyNode({ data }: NodeProps) {
-  return (
-    <div style={{ padding: 10, width: 150, border: '1px solid #555', borderRadius: 4 }}>
-      {/* Input handle on the left */}
-      <Handle type="target" position={Position.Left} id="input" />
-
-      <span>{data.label as string}</span>
-
-      {/* Output handle on the right */}
-      <Handle type="source" position={Position.Right} id="output" />
-    </div>
-  );
-}
-
-const nodeTypes = { myNode: MyNode };
-
-const initialNodes: Node[] = [
-  { id: '1', type: 'myNode', position: { x: 0, y: 0 }, data: { label: 'Event Source' } },
-  { id: '2', type: 'myNode', position: { x: 200, y: 100 }, data: { label: 'Event Handler' } },
-];
-
 export default function EventNodes(props: EventNodesProps) {
   const { eventName } = props;
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+  const { watch, setValue, getValues } = useFormContext();
+  const { getNodeManifest, getOperationNodes } = useEvents();
+  const { manifests } = getNodeManifest();
+  const { operationNodes } = getOperationNodes();
 
-  
+  const [selectedNodeId, setSelectedNodeId] = useState<string>('');
 
-  
+  const graphKey = buildGraphKey(eventName);
+  const graph: EventGraph = watch(graphKey);
 
-  const onConnect = useCallback(
-    (connection: Connection) => setEdges((eds) => addEdge(connection, eds)),
-    [setEdges]
+  const resolveDef = useCallback(
+    (node: Pick<EventGraphNode, 'kind' | 'moduleName' | 'nodeTypeId'>) => resolveNodeDef(node, manifests, operationNodes),
+    [manifests, operationNodes],
   );
 
+  const handleNodeDragEnd = useCallback(
+    (nodeId: string, position: Point) => {
+      const currentGraph: EventGraph = getValues(graphKey);
+      const nextNodes = currentGraph.nodes.map((n) => (n.id === nodeId ? { ...n, position } : n));
+      setValue(`${graphKey}.nodes`, nextNodes, { shouldDirty: true });
+    },
+    [getValues, graphKey, setValue],
+  );
+
+  const handleNodeDelete = useCallback(
+    (nodeId: string) => {
+      const currentGraph: EventGraph = getValues(graphKey);
+      const remainingNodes = currentGraph.nodes.filter((n) => n.id !== nodeId);
+      const remainingEdges = currentGraph.edges.filter((e) => e.fromNode !== nodeId && e.toNode !== nodeId);
+      setValue(`${graphKey}.nodes`, remainingNodes, { shouldDirty: true });
+      setValue(`${graphKey}.edges`, remainingEdges, { shouldDirty: true });
+      setSelectedNodeId((current) => (current === nodeId ? '' : current));
+    },
+    [getValues, graphKey, setValue],
+  );
+
+  const handleEdgeDelete = useCallback(
+    (edgeId: string) => {
+      const currentGraph: EventGraph = getValues(graphKey);
+      const nextEdges = currentGraph.edges.filter((e) => e.id !== edgeId);
+      setValue(`${graphKey}.edges`, nextEdges, { shouldDirty: true });
+    },
+    [getValues, graphKey, setValue],
+  );
+
+  const onConnect = useCallback(
+    (connection: PendingConnection) => {
+      const newEdge: EventGraphEdge = {
+        id: uuidv4(),
+        fromNode: connection.source,
+        fromPort: connection.sourceHandle,
+        toNode: connection.target,
+        toPort: connection.targetHandle,
+      };
+      const currentGraph: EventGraph = getValues(graphKey);
+      setValue(`${graphKey}.edges`, [...currentGraph.edges, newEdge], { shouldDirty: true });
+    },
+    [getValues, graphKey, setValue],
+  );
+
+  const isValidConnection = useCallback(
+    (connection: PendingConnection) => {
+      const currentGraph: EventGraph = getValues(graphKey);
+      if (!currentGraph || connection.source === connection.target) {
+        return false;
+      }
+      const sourceNode = currentGraph.nodes.find((n) => n.id === connection.source);
+      const targetNode = currentGraph.nodes.find((n) => n.id === connection.target);
+      if (!sourceNode || !targetNode) {
+        return false;
+      }
+      const sourceHandle = connection.sourceHandle ?? 'exec';
+      const targetHandle = connection.targetHandle ?? 'exec';
+      if (sourceHandle === 'exec' || targetHandle === 'exec') {
+        return (
+          sourceHandle === 'exec' &&
+          targetHandle === 'exec' &&
+          (sourceNode.kind === 'callback' || sourceNode.kind === 'action') &&
+          targetNode.kind === 'action'
+        );
+      }
+      // Data edges: the executor only ever resolves operation-node sources today.
+      return sourceNode.kind === 'operation';
+    },
+    [getValues, graphKey],
+  );
+
+  if (!graph) {
+    return null;
+  }
+
   return (
-    <div style={{ width: '100%', height: '500px', border: '1px solid #ccc' }}>
-      <ReactFlow
-        nodeTypes={nodeTypes}
-        nodes={nodes}
-        edges={edges}
-        onNodesChange={onNodesChange}
-        onEdgesChange={onEdgesChange}
-        onConnect={onConnect}
-        isValidConnection={(connection) =>
-            connection.source !== connection.target // prevent self-loops
-        }
-        fitView
-      />
+    <div style={{ display: 'flex', width: '100%', height: '65vh', border: '1px solid var(--color-border, #444)' }}>
+      <div style={{ width: 220, overflowY: 'auto', borderRight: '1px solid var(--color-border, #444)' }}>
+        <NodePalette eventName={eventName} />
+      </div>
+      <div style={{ flex: 1 }}>
+        <NodeGraphCanvas
+          key={eventName}
+          nodes={graph.nodes ?? []}
+          edges={graph.edges ?? []}
+          resolveDef={resolveDef}
+          selectedNodeId={selectedNodeId}
+          onSelectNode={setSelectedNodeId}
+          onNodeDragEnd={handleNodeDragEnd}
+          onNodeDelete={handleNodeDelete}
+          onEdgeDelete={handleEdgeDelete}
+          onConnect={onConnect}
+          isValidConnection={isValidConnection}
+        />
+      </div>
+      <div style={{ width: 300, overflowY: 'auto', borderLeft: '1px solid var(--color-border, #444)' }}>
+        <NodeInspector
+          eventName={eventName}
+          selectedNodeId={selectedNodeId}
+          onDeselect={() => setSelectedNodeId('')}
+          onDeleteNode={handleNodeDelete}
+        />
+      </div>
     </div>
   );
 }

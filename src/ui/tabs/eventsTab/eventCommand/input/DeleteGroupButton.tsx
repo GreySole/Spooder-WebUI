@@ -1,6 +1,6 @@
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
-import { EVENT_KEY, GROUP_KEY } from '../../FormKeys';
+import { DISABLED_GROUP_KEY, GRAPH_KEY, GROUP_KEY } from '../../FormKeys';
 import { Box, Button, TypeFace, useDialog } from '@greysole/spooder-component-library';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import useEvents from '../../../../../app/hooks/useEvents';
@@ -16,20 +16,21 @@ export default function DeleteGroupButton(props: DeleteGroupButtonProps) {
   const { openDialog, closeDialog } = useDialog();
   const { groupName } = props;
   const deleteClick = () => {
-    const events = getValues(EVENT_KEY);
+    const graphs = getValues(GRAPH_KEY);
     const groups = getValues(GROUP_KEY);
-    let newEvents = Object.assign(events);
+    const disabledGroups = getValues(DISABLED_GROUP_KEY);
+    let newGraphs = Object.assign(graphs);
     let newGroups = Object.assign(groups);
-    for (let ev in newEvents) {
-      if (newEvents[ev].group == groupName) {
-        delete newEvents[ev];
+    for (let ev in newGraphs) {
+      if (newGraphs[ev].group == groupName) {
+        delete newGraphs[ev];
       }
     }
     newGroups.splice(newGroups.indexOf(groupName), 1);
-    setValue(EVENT_KEY, newEvents);
+    setValue(GRAPH_KEY, newGraphs);
     setValue(GROUP_KEY, newGroups);
     saveEvents(
-      { events: newEvents, groups: newGroups },
+      { graphs: newGraphs, groups: newGroups, disabledGroups },
       'Group deleted successfully!',
       'An error occurred while deleting the group.',
     ).then(() => {

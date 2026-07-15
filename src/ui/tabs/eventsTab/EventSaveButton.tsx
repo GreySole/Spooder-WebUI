@@ -12,6 +12,7 @@ export default function EventSaveButton() {
   const { refetch } = getEvents();
 
   const saveEventsClick = () => {
+    // Form root already mirrors the /save_event_graphs body: { graphs, groups, disabledGroups }.
     saveEvents(
       getValues(),
       'Events saved successfully!',

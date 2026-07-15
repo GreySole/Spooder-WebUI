@@ -7,7 +7,7 @@ import PageCircleLoader from '../common/input/general/PageCircleLoader';
 
 export default function EventTab() {
   const { getEvents } = useEvents();
-  const { events, groups, isLoading } = getEvents();
+  const { isLoading } = getEvents();
 
   if (isLoading) {
     return <PageCircleLoader />;

@@ -1,9 +1,9 @@
 import React, { useEffect } from 'react';
 import { useFormContext } from 'react-hook-form';
-import { EVENT_KEY } from '../../FormKeys';
+import { GRAPH_KEY, buildGraphKey } from '../../FormKeys';
 import { useState } from 'react';
 import { HotkeysProvider } from '../../../../../app/hooks/useHotkeys';
-import { SpooderEvent } from '../../../../Types';
+import { EventGraph } from '../../../../Types';
 import {
   Border,
   Box,
@@ -31,7 +31,7 @@ export default function AddEventInput(props: AddEventButtonProps) {
   const [isEventTaken, setIsEventTaken] = useState<boolean>(false);
   const { open, setEventName } = useEventTableModal();
   const { themeColors } = useTheme();
-  const events = watch('events');
+  const graphs = watch(GRAPH_KEY);
   const { showSuccess, showError } = useToast();
 
   useEffect(() => {
@@ -41,7 +41,7 @@ export default function AddEventInput(props: AddEventButtonProps) {
   }, [isEventTaken]);
 
   function checkEventTaken(eventName: string) {
-    if (Object.keys(events).includes(eventName)) {
+    if (Object.keys(graphs).includes(eventName)) {
       return true;
     } else {
       return false;
@@ -49,23 +49,22 @@ export default function AddEventInput(props: AddEventButtonProps) {
   }
 
   function addEvent(newKey: string, eventGroup: string) {
-    console.log('NEW EVENT', newKey);
-    if (events[newKey] != null) {
+    if (graphs[newKey] != null) {
       return;
     }
 
-    const newEvent = {
+    const newGraph: EventGraph = {
       name: newKey,
       description: '',
       group: eventGroup,
       cooldown: 0,
       chatnotification: false,
       cooldownnotification: false,
-      triggers: {},
-      commands: [],
-    } as SpooderEvent;
+      nodes: [],
+      edges: [],
+    };
 
-    setValue(`${EVENT_KEY}.${newKey}`, newEvent);
+    setValue(buildGraphKey(newKey), newGraph);
     setEventName(newKey);
     open();
   }

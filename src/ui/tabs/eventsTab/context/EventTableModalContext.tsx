@@ -20,7 +20,7 @@ export function EventTableModalProvider() {
   const [isOpen, setIsOpen] = useState(false);
   const [eventName, setEventName] = useState('');
   const { getEvents } = useEvents();
-  const { events, groups, isLoading } = getEvents();
+  const { graphs, groups, disabledGroups, isLoading } = getEvents();
   const resetFormRef = useRef<(() => void) | null>(null);
 
   const openModal = () => {
@@ -51,7 +51,11 @@ export function EventTableModalProvider() {
         resetFormRef,
       }}
     >
-      <EventTableFormContextProvider defaultEvents={events} defaultGroups={groups}>
+      <EventTableFormContextProvider
+        defaultGraphs={graphs}
+        defaultGroups={groups}
+        defaultDisabledGroups={disabledGroups}
+      >
         <>
           <EventTableModal />
           <EventTable />

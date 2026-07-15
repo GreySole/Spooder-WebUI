@@ -20,20 +20,22 @@ import EventElement from './EventElement';
 import { TwitchIcon } from '../../common/icons/icons';
 import ExportGroupButton from './eventCommand/input/ExportGroupButton';
 import ImportGroupButton from './eventCommand/input/ImportGroupButton';
+import { GRAPH_KEY, GROUP_KEY } from './FormKeys';
+import { getGraphTriggerKinds } from './eventNodes/graphUtil';
 
 export default function EventTable() {
   const [searchText, setSearchText] = useState<string>('');
   const [filter, setFilter] = useState<string[]>([]);
 
   const { watch } = useFormContext();
-  const events = watch('events');
-  const groups = watch('groups');
+  const graphs = watch(GRAPH_KEY);
+  const groups = watch(GROUP_KEY);
 
   const searchEnabled = searchText !== '';
   const filterEnabled = filter.length > 0;
 
-  const propKeys = Object.keys(events).sort((a, b) => {
-    return events[a].name.toUpperCase() > events[b].name.toUpperCase() ? 1 : -1;
+  const propKeys = Object.keys(graphs).sort((a, b) => {
+    return graphs[a].name.toUpperCase() > graphs[b].name.toUpperCase() ? 1 : -1;
   });
 
   const groupObjects = groups.reduce((obj: any, key: string) => ({ ...obj, [key]: [] }), {
@@ -43,17 +45,12 @@ export default function EventTable() {
   for (let p in propKeys) {
     const s = propKeys[p];
 
-    const thisEvent = events[s];
+    const thisGraph = graphs[s];
 
-    const eventName = thisEvent.name;
-    const groupName = thisEvent.group;
+    const eventName = thisGraph.name;
+    const groupName = thisGraph.group;
 
-    if (
-      filterEnabled &&
-      Object.keys(thisEvent.triggers).some((key) => {
-        return filter.includes(key) && !thisEvent.triggers[key].enabled;
-      })
-    ) {
+    if (filterEnabled && !getGraphTriggerKinds(thisGraph).some((kind) => filter.includes(kind))) {
       continue;
     }
 

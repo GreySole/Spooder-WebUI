@@ -11,16 +11,16 @@ interface EventSelectProps {
 export default function EventSelect(props: EventSelectProps) {
   const { label, value, onChange } = props;
   const { getEvents } = useEvents();
-  const { events, isLoading, error } = getEvents();
+  const { graphs, isLoading, error } = getEvents();
   const eventOptions = [{ label: 'None', value: '' }];
 
   if (isLoading || error) {
     return null;
   }
 
-  for (let e in events) {
+  for (let e in graphs) {
     eventOptions.push({
-      label: events[e],
+      label: graphs[e].name,
       value: e,
     });
   }

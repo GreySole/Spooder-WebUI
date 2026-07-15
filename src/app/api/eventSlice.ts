@@ -4,21 +4,27 @@ export const eventApi = createApi({
   reducerPath: 'eventApi',
   baseQuery: fetchBaseQuery({ baseUrl: window.location.origin + '/events' }),
   endpoints: (builder) => ({
-    getEvents: builder.query({
-      query: () => '/event_table',
+    getEventGraphs: builder.query({
+      query: () => '/event_graphs',
     }),
     getChatCommands: builder.query({
       query: () => '/chat_commands',
     }),
-    saveEvents: builder.mutation({
+    saveEventGraphs: builder.mutation({
       query: (form) => ({
-        url: '/save_events',
+        url: '/save_event_graphs',
         method: 'post',
         body: form,
         headers: {
           'Content-type': 'application/json; charset=UTF-8',
         },
       }),
+    }),
+    getNodeManifest: builder.query({
+      query: () => '/node_manifest',
+    }),
+    getOperationNodes: builder.query({
+      query: () => '/operation_nodes',
     }),
     verifyResponseScript: builder.mutation({
       query: (body) => ({
@@ -34,8 +40,10 @@ export const eventApi = createApi({
 });
 
 export const {
-  useGetEventsQuery,
+  useGetEventGraphsQuery,
   useGetChatCommandsQuery,
-  useSaveEventsMutation,
+  useSaveEventGraphsMutation,
+  useGetNodeManifestQuery,
+  useGetOperationNodesQuery,
   useVerifyResponseScriptMutation,
 } = eventApi;

@@ -1,18 +1,19 @@
-export const EVENT_KEY = 'events';
+export const GRAPH_KEY = 'graphs';
 export const GROUP_KEY = 'groups';
+export const DISABLED_GROUP_KEY = 'disabledGroups';
 
 export function buildKey(...keys: string[]) {
   return keys.join('.');
 }
 
-export function buildEventKey(eventName: string) {
-  return `${EVENT_KEY}.${eventName}`;
+export function buildGraphKey(eventName: string) {
+  return `${GRAPH_KEY}.${eventName}`;
 }
 
-export function buildTriggerKey(eventName: string, triggerName: string) {
-  return `${EVENT_KEY}.${eventName}.triggers.${triggerName}`;
+export function buildNodeKey(eventName: string, nodeIndex: number) {
+  return buildKey(buildGraphKey(eventName), 'nodes', `${nodeIndex}`);
 }
 
-export function buildCommandKey(eventName: string, commandIndex: number) {
-  return `${EVENT_KEY}.${eventName}.commands.${commandIndex}`;
+export function buildNodeValueKey(eventName: string, nodeIndex: number, ...fields: string[]) {
+  return buildKey(buildNodeKey(eventName, nodeIndex), 'values', ...fields);
 }

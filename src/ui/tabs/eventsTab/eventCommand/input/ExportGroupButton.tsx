@@ -2,6 +2,7 @@ import React from 'react';
 import { faFileExport } from '@fortawesome/free-solid-svg-icons';
 import { Box, Button, useTheme } from '@greysole/spooder-component-library';
 import { useFormContext } from 'react-hook-form';
+import { GRAPH_KEY } from '../../FormKeys';
 
 interface ExportGroupButtonProps {
   groupName: string;
@@ -19,16 +20,16 @@ export default function ExportGroupButton(props: ExportGroupButtonProps) {
         icon={faFileExport}
         iconSize='large'
         onClick={() => {
-          const events = getValues('events');
-          const groupEvents = Object.values(events).filter(
-            (event: any) => event.group === groupName,
+          const graphs = getValues(GRAPH_KEY);
+          const groupGraphs = Object.values(graphs).filter(
+            (graph: any) => graph.group === groupName,
           );
           const groupFileContent = JSON.stringify(
             {
               _meta: {
                 groupName: groupName,
               },
-              events: groupEvents,
+              graphs: groupGraphs,
             },
             null,
           );

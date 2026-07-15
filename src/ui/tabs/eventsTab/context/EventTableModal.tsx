@@ -1,6 +1,5 @@
 import { MultiPageModal } from '@greysole/spooder-component-library';
 import React, { useMemo } from 'react';
-import EventCommands from '../EventCommands';
 import EventGeneral from '../EventGeneral';
 import EventSaveButton from '../EventSaveButton';
 import { useEventTableModal } from './EventTableModalContext';
@@ -15,11 +14,7 @@ function EventTableModal() {
         title: 'General',
         content: <EventGeneral eventName={eventName} />,
       },
-      { title: 'Triggers', content: <EventNodes eventName={eventName} /> },
-      {
-        title: 'Commands',
-        content: <EventCommands eventName={eventName} />,
-      },
+      { title: 'Nodes', content: <EventNodes eventName={eventName} /> },
     ],
     [eventName],
   );

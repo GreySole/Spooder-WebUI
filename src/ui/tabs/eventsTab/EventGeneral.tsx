@@ -1,5 +1,5 @@
 import { useFormContext } from 'react-hook-form';
-import { buildEventKey, buildKey, EVENT_KEY, GROUP_KEY } from './FormKeys';
+import { buildGraphKey, buildKey, GROUP_KEY } from './FormKeys';
 import React from 'react';
 import {
   Stack,
@@ -20,13 +20,11 @@ export default function EventGeneral(props: EventGeneralProps) {
   const groups = watch(GROUP_KEY);
   const groupOptions = groups.map((groupName: string) => ({ label: groupName, value: groupName }));
 
-  const eventKey = buildEventKey(eventName);
-  const nameKey = buildKey(eventKey, 'name');
-  const descriptionKey = buildKey(eventKey, 'description');
-  const groupKey = buildKey(eventKey, 'group');
-  const cooldownKey = buildKey(eventKey, 'cooldown');
-
-  console.log(descriptionKey);
+  const graphKey = buildGraphKey(eventName);
+  const nameKey = buildKey(graphKey, 'name');
+  const descriptionKey = buildKey(graphKey, 'description');
+  const groupKey = buildKey(graphKey, 'group');
+  const cooldownKey = buildKey(graphKey, 'cooldown');
 
   return (
     <Stack spacing='medium' paddingTop='medium'>

@@ -19,9 +19,10 @@ import {
 import { useFormContext } from 'react-hook-form';
 import { StyleSize } from '../../Types';
 import { useEventTableModal } from './context/EventTableModalContext';
-import { EVENT_KEY, buildEventKey, buildKey } from './FormKeys';
+import { GRAPH_KEY, buildGraphKey, buildKey } from './FormKeys';
 import { TwitchIcon } from '../../common/icons/icons';
 import useEvents from '../../../app/hooks/useEvents';
+import { getGraphTriggerKinds } from './eventNodes/graphUtil';
 
 interface EventElementProps {
   eventName: string;
@@ -36,7 +37,7 @@ export default function EventElement(props: EventElementProps) {
   const { openDialog, closeDialog } = useDialog();
   const { open, setEventName } = useEventTableModal();
   const { isMobileDevice } = useTheme();
-  const event = watch(`${EVENT_KEY}.${eventName}`);
+  const graph = watch(`${GRAPH_KEY}.${eventName}`);
 
   function deleteEvent() {
     openDialog(
@@ -53,7 +54,7 @@ export default function EventElement(props: EventElementProps) {
           label='Delete'
           className='delete-button'
           onClick={() => {
-            unregister(buildKey(EVENT_KEY, eventName));
+            unregister(buildKey(GRAPH_KEY, eventName));
             saveEvents(
               getValues(),
               'Event deleted successfully!',
@@ -67,30 +68,30 @@ export default function EventElement(props: EventElementProps) {
     );
   }
 
-  if (!event) {
+  if (!graph) {
     return null;
   }
-  const eventTriggers = event.triggers;
 
   function editEvent() {
     setEventName(eventName);
     open();
   }
 
+  const triggerKinds = getGraphTriggerKinds(graph);
   let triggerIcons = [];
-  if (eventTriggers.chat?.enabled) {
+  if (triggerKinds.includes('chat')) {
     triggerIcons.push(<Icon key={'chaticon'} icon={faCommentDots} iconSize='xlarge' />);
   }
 
-  if (eventTriggers.twitch?.enabled) {
+  if (triggerKinds.includes('twitch')) {
     triggerIcons.push(<Icon key={'twitchicon'} icon={TwitchIcon} iconSize='xlarge' />);
   }
 
-  if (eventTriggers.osc?.enabled) {
+  if (triggerKinds.includes('osc')) {
     triggerIcons.push(<Icon key={'oscicon'} icon={faNetworkWired} iconSize='xlarge' />);
   }
-  const eventKey = buildEventKey(eventName);
-  const nameKey = buildKey(eventKey, 'name');
+  const graphKey = buildGraphKey(eventName);
+  const nameKey = buildKey(graphKey, 'name');
   const name = watch(nameKey);
 
   return (

@@ -48,7 +48,7 @@ export default function ThemeColor() {
             gradient={'#FF0000, #FFFF00, #00FF00, #00FFFF, #0000FF, #FF00FF, #FF0000'}
             value={themeVariables.hue}
             step={1 / 360}
-            onChange={(value) => {
+            onChange={(value: number) => {
               setThemeHue(value);
             }}
           />
@@ -70,7 +70,7 @@ export default function ThemeColor() {
             gradient={parseHueSliderColors(themeVariables.hue)}
             value={themeVariables.saturation}
             step={1 / 100}
-            onChange={(value) => {
+            onChange={(value: number) => {
               setThemeSaturation(value);
             }}
           />

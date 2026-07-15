@@ -107,7 +107,7 @@ export default function EditCustomSpooder() {
             value={themeVariables.fontWeight}
             step={1 / 800}
             minMax={[100, 900]}
-            onChange={(value) => {
+            onChange={(value: number) => {
               setThemeFontWeight(value);
             }}
           />
@@ -128,7 +128,7 @@ export default function EditCustomSpooder() {
             value={themeVariables.letterSpacing}
             step={1 / 100}
             minMax={[-1, 1]}
-            onChange={(value) => {
+            onChange={(value: number) => {
               setThemeLetterSpacing(value);
             }}
           />

@@ -126,6 +126,9 @@ export interface ActionNodeDef {
   form: NodeForm;
   defaults: KeyedObject;
   outputs?: NodePortDef[];
+  // Named execution-flow output ports for branching actions (e.g. an 'if' node's
+  // 'then'/'else'). Omitted/empty => the node has the usual single unlabeled 'exec' output.
+  execOutputs?: { id: string; label: string }[];
   supportsTimed?: boolean;
 }
 
@@ -133,7 +136,7 @@ export interface OperationNodeDef {
   id: string;
   label: string;
   description?: string;
-  category: 'math' | 'string';
+  category: 'math' | 'string' | 'logic' | 'random' | 'storage';
   form: NodeForm;
   defaults: KeyedObject;
   outputs: NodePortDef[];

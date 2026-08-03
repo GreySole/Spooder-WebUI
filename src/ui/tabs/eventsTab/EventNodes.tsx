@@ -89,9 +89,17 @@ export default function EventNodes(props: EventNodesProps) {
       }
       const sourceHandle = connection.sourceHandle ?? 'exec';
       const targetHandle = connection.targetHandle ?? 'exec';
-      if (sourceHandle === 'exec' || targetHandle === 'exec') {
+
+      // A source port is exec-flow if it's the default 'exec' output or one of the source
+      // node's own declared branch ports (e.g. an 'if' node's 'then'/'else') - not just a
+      // literal 'exec' string match, so branching action nodes work with zero special-casing.
+      const sourceDef = resolveDef(sourceNode);
+      const execPortIds = sourceDef?.execOutputs?.length ? sourceDef.execOutputs.map((p) => p.id) : ['exec'];
+      const sourceIsExecPort = execPortIds.includes(sourceHandle);
+
+      if (sourceIsExecPort || targetHandle === 'exec') {
         return (
-          sourceHandle === 'exec' &&
+          sourceIsExecPort &&
           targetHandle === 'exec' &&
           (sourceNode.kind === 'callback' || sourceNode.kind === 'action') &&
           targetNode.kind === 'action'
@@ -100,7 +108,7 @@ export default function EventNodes(props: EventNodesProps) {
       // Data edges: the executor only ever resolves operation-node sources today.
       return sourceNode.kind === 'operation';
     },
-    [getValues, graphKey],
+    [getValues, graphKey, resolveDef],
   );
 
   if (!graph) {

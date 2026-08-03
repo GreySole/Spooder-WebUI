@@ -41,68 +41,79 @@ export default function NodePalette(props: NodePaletteProps) {
 
   const graphKey = buildGraphKey(eventName);
 
-  const triggerCategories: PaletteCategory[] = [];
-  const actionCategories: PaletteCategory[] = [];
+  // Keyed by category key so nodes that share a key (e.g. the backend's own 'core'
+  // manifest and the hardcoded CORE_*_DEFS below, both moduleName 'core') merge into
+  // a single menu entry instead of showing up as two separate 'core' rows.
+  const triggerCategories = new Map<string, PaletteCategory>();
+  const actionCategories = new Map<string, PaletteCategory>();
 
-  for (const manifest of manifests ?? []) {
-    if (manifest.triggers.length) {
-      triggerCategories.push({
-        key: manifest.moduleName,
-        label: manifest.moduleName,
-        options: manifest.triggers.map((trigger: TriggerNodeDef) => ({
-          value: `callback::${manifest.moduleName}::${trigger.id}`,
-          label: trigger.label,
-          kind: 'callback',
-          moduleName: manifest.moduleName,
-          nodeTypeId: trigger.id,
-          defaults: trigger.defaults,
-        })),
-      });
+  function addOptions(map: Map<string, PaletteCategory>, key: string, label: string, options: PaletteOption[]) {
+    if (!options.length) {
+      return;
     }
-    if (manifest.actions.length) {
-      actionCategories.push({
-        key: manifest.moduleName,
-        label: manifest.moduleName,
-        options: manifest.actions.map((action: ActionNodeDef) => ({
-          value: `action::${manifest.moduleName}::${action.id}`,
-          label: action.label,
-          kind: 'action',
-          moduleName: manifest.moduleName,
-          nodeTypeId: action.id,
-          defaults: action.defaults,
-        })),
-      });
+    const existing = map.get(key);
+    if (existing) {
+      existing.options.push(...options);
+    } else {
+      map.set(key, { key, label, options });
     }
   }
 
-  if (CORE_TRIGGER_DEFS.length) {
-    triggerCategories.push({
-      key: 'core',
-      label: 'core',
-      options: CORE_TRIGGER_DEFS.map((trigger) => ({
-        value: `callback::core::${trigger.id}`,
+  for (const manifest of manifests ?? []) {
+    addOptions(
+      triggerCategories,
+      manifest.moduleName,
+      manifest.moduleName,
+      manifest.triggers.map((trigger: TriggerNodeDef) => ({
+        value: `callback::${manifest.moduleName}::${trigger.id}`,
         label: trigger.label,
         kind: 'callback',
-        moduleName: 'core',
+        moduleName: manifest.moduleName,
         nodeTypeId: trigger.id,
         defaults: trigger.defaults,
       })),
-    });
-  }
-  if (CORE_ACTION_DEFS.length) {
-    actionCategories.push({
-      key: 'core',
-      label: 'core',
-      options: CORE_ACTION_DEFS.map((action) => ({
-        value: `action::core::${action.id}`,
+    );
+    addOptions(
+      actionCategories,
+      manifest.moduleName,
+      manifest.moduleName,
+      manifest.actions.map((action: ActionNodeDef) => ({
+        value: `action::${manifest.moduleName}::${action.id}`,
         label: action.label,
         kind: 'action',
-        moduleName: 'core',
+        moduleName: manifest.moduleName,
         nodeTypeId: action.id,
         defaults: action.defaults,
       })),
-    });
+    );
   }
+
+  addOptions(
+    triggerCategories,
+    'core',
+    'core',
+    CORE_TRIGGER_DEFS.map((trigger) => ({
+      value: `callback::core::${trigger.id}`,
+      label: trigger.label,
+      kind: 'callback',
+      moduleName: 'core',
+      nodeTypeId: trigger.id,
+      defaults: trigger.defaults,
+    })),
+  );
+  addOptions(
+    actionCategories,
+    'core',
+    'core',
+    CORE_ACTION_DEFS.map((action) => ({
+      value: `action::core::${action.id}`,
+      label: action.label,
+      kind: 'action',
+      moduleName: 'core',
+      nodeTypeId: action.id,
+      defaults: action.defaults,
+    })),
+  );
 
   const operationsByCategory = new Map<string, OperationNodeDef[]>();
   for (const op of operationNodes ?? []) {
@@ -111,10 +122,11 @@ export default function NodePalette(props: NodePaletteProps) {
     operationsByCategory.set(op.category, list);
   }
   for (const [category, ops] of operationsByCategory) {
-    actionCategories.push({
-      key: `operation:${category}`,
-      label: `${category} operations`,
-      options: ops.map((op) => ({
+    addOptions(
+      actionCategories,
+      `operation:${category}`,
+      `${category} operations`,
+      ops.map((op) => ({
         value: `operation::${op.category}::${op.id}`,
         label: op.label,
         kind: 'operation',
@@ -122,7 +134,7 @@ export default function NodePalette(props: NodePaletteProps) {
         nodeTypeId: op.id,
         defaults: op.defaults,
       })),
-    });
+    );
   }
 
   function addNode(option: PaletteOption) {
@@ -145,8 +157,8 @@ export default function NodePalette(props: NodePaletteProps) {
 
   return (
     <div style={{ display: 'flex', gap: 8 }}>
-      <CascadeMenuButton label='Triggers' categories={triggerCategories} onSelect={addNode} />
-      <CascadeMenuButton label='Actions' categories={actionCategories} onSelect={addNode} />
+      <CascadeMenuButton label='Triggers' categories={[...triggerCategories.values()]} onSelect={addNode} />
+      <CascadeMenuButton label='Actions' categories={[...actionCategories.values()]} onSelect={addNode} />
     </div>
   );
 }

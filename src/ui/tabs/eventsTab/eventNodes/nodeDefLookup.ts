@@ -14,6 +14,9 @@ export interface ResolvedNodeDef {
   form: { [fieldName: string]: any };
   defaults: { [key: string]: any };
   outputs: NodePortDef[];
+  // Named exec output ports for branching actions (e.g. 'then'/'else'). Undefined/empty
+  // means the node has the usual single unlabeled 'exec' output.
+  execOutputs?: { id: string; label: string }[];
 }
 
 export function findTriggerDef(
@@ -21,11 +24,15 @@ export function findTriggerDef(
   moduleName: string,
   nodeTypeId: string,
 ): TriggerNodeDef | undefined {
-  if (moduleName === 'core') {
-    return CORE_TRIGGER_DEFS.find((d) => d.id === nodeTypeId);
-  }
+  // The backend's own 'core' manifest wins when it declares the node type; CORE_TRIGGER_DEFS
+  // is only a fallback for the handful of legacy core triggers the backend doesn't register
+  // (they have bespoke inspector editors instead of the generic NodeForm renderer).
   const manifest = manifests?.find((m) => m.moduleName === moduleName);
-  return manifest?.triggers.find((t) => t.id === nodeTypeId);
+  const fromManifest = manifest?.triggers.find((t) => t.id === nodeTypeId);
+  if (fromManifest) {
+    return fromManifest;
+  }
+  return moduleName === 'core' ? CORE_TRIGGER_DEFS.find((d) => d.id === nodeTypeId) : undefined;
 }
 
 export function findActionDef(
@@ -33,11 +40,14 @@ export function findActionDef(
   moduleName: string,
   nodeTypeId: string,
 ): ActionNodeDef | undefined {
-  if (moduleName === 'core') {
-    return CORE_ACTION_DEFS.find((d) => d.id === nodeTypeId);
-  }
+  // Same precedence as findTriggerDef: backend manifest first, CORE_ACTION_DEFS only as a
+  // fallback for the legacy bespoke-editor core actions the backend doesn't declare.
   const manifest = manifests?.find((m) => m.moduleName === moduleName);
-  return manifest?.actions.find((a) => a.id === nodeTypeId);
+  const fromManifest = manifest?.actions.find((a) => a.id === nodeTypeId);
+  if (fromManifest) {
+    return fromManifest;
+  }
+  return moduleName === 'core' ? CORE_ACTION_DEFS.find((d) => d.id === nodeTypeId) : undefined;
 }
 
 export function findOperationDef(
@@ -65,6 +75,7 @@ export function resolveNodeDef(
         form: def.form,
         defaults: def.defaults,
         outputs: def.outputs ?? [],
+        execOutputs: def.execOutputs,
       }
     );
   }

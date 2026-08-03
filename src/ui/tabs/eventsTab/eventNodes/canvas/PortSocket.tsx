@@ -8,6 +8,7 @@ export interface PortSocketProps {
   side: 'in' | 'out';
   top: number;
   dataType?: NodePortDataType;
+  label?: string;
   onStartConnection?: (
     e: React.PointerEvent,
     nodeId: string,
@@ -17,14 +18,14 @@ export interface PortSocketProps {
 }
 
 export default function PortSocket(props: PortSocketProps) {
-  const { nodeId, portId, side, top, dataType, onStartConnection } = props;
+  const { nodeId, portId, side, top, dataType, label, onStartConnection } = props;
   const color = dataType ? colorForPort(dataType) : EXEC_COLOR;
 
   return (
     <div
       data-socket-id={`${nodeId}:${portId}`}
       data-socket-side={side}
-      title={dataType ?? 'exec'}
+      title={label ?? dataType ?? 'exec'}
       onPointerDown={(e) => {
         if (side !== 'out' || !onStartConnection) {
           return;

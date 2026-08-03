@@ -13,6 +13,7 @@ export interface PortLayoutEntry {
   portId: string; // 'exec' for execution-flow ports, otherwise a form field id or output port id
   top: number;
   dataType?: NodePortDataType; // undefined => exec port
+  label?: string; // set for named/branching exec ports so the card can show which is which
 }
 
 export interface NodePortLayout {
@@ -30,8 +31,17 @@ export function computeNodePortLayout(
   if (kind === 'action') {
     inputs.push({ portId: 'exec', top: EXEC_TOP });
   }
-  if (kind === 'callback' || kind === 'action') {
+  if (kind === 'callback') {
     outputs.push({ portId: 'exec', top: EXEC_TOP });
+  }
+  if (kind === 'action') {
+    if (def?.execOutputs?.length) {
+      def.execOutputs.forEach((port, i) => {
+        outputs.push({ portId: port.id, top: EXEC_TOP + i * HANDLE_SPACING, label: port.label });
+      });
+    } else {
+      outputs.push({ portId: 'exec', top: EXEC_TOP });
+    }
   }
 
   const portFields = Object.entries(def?.form ?? {}).filter(([, field]) => field.portType);

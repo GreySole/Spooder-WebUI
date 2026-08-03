@@ -33,6 +33,7 @@ export default function GraphNodeCard(props: GraphNodeCardProps) {
 
   const { inputs, outputs } = computeNodePortLayout(kind, def);
   const readOnlyOutputs = kind !== 'operation' ? (def?.outputs ?? []) : [];
+  const execBranches = outputs.filter((p) => p.label);
 
   return (
     <div
@@ -74,7 +75,7 @@ export default function GraphNodeCard(props: GraphNodeCardProps) {
         {label}
       </div>
 
-      {(inputs.some((p) => p.dataType) || readOnlyOutputs.length > 0) && (
+      {(inputs.some((p) => p.dataType) || readOnlyOutputs.length > 0 || execBranches.length > 0) && (
         <div style={{ padding: '0 8px 8px', fontSize: '0.75rem', opacity: 0.8 }}>
           {inputs
             .filter((p) => p.dataType)
@@ -84,6 +85,9 @@ export default function GraphNodeCard(props: GraphNodeCardProps) {
             })}
           {readOnlyOutputs.map((output) => (
             <div key={output.id}>out: {output.label} (not wireable)</div>
+          ))}
+          {execBranches.map((p) => (
+            <div key={p.portId}>out: {p.label}</div>
           ))}
         </div>
       )}
@@ -99,6 +103,7 @@ export default function GraphNodeCard(props: GraphNodeCardProps) {
           side='out'
           top={p.top}
           dataType={p.dataType}
+          label={p.label}
           onStartConnection={onStartConnection}
         />
       ))}

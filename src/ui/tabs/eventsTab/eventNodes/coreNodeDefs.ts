@@ -1,11 +1,11 @@
 import { ActionNodeDef, TriggerNodeDef } from '../../../Types';
 
-// The backend never registers a 'core' module (see NodeRegistryService), so
-// /node_manifest has no entries for these node types even though the executor
-// special-cases moduleName === 'core' for all of them. Their forms are edited by
-// bespoke inspector panels rather than the generic NodeForm renderer, so the `form`
-// here only needs to be non-empty for typing purposes - `defaults`/`label` are what
-// the palette and new-node creation actually use.
+// The backend's 'core' manifest (see NodeRegistryService/CoreNodeManifest) covers most core
+// node types generically now. These are just the exceptions it doesn't declare: nodes whose
+// forms are edited by bespoke inspector panels rather than the generic NodeForm renderer, so
+// the `form` here only needs to be non-empty for typing purposes - `defaults`/`label` are what
+// the palette and new-node creation actually use. findTriggerDef/findActionDef in
+// nodeDefLookup.ts only fall back to these when the backend manifest doesn't have the node.
 
 export const CORE_ACTION_DEFS: ActionNodeDef[] = [
   {

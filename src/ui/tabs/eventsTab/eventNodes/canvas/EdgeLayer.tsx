@@ -68,10 +68,12 @@ export default function EdgeLayer(props: EdgeLayerProps) {
         if (!from || !to) {
           return null;
         }
-        const isExec = edge.fromPort === 'exec' && edge.toPort === 'exec';
         const sourceLayout = nodeLayouts.get(edge.fromNode);
         const sourcePort = sourceLayout?.outputs.find((p) => p.portId === edge.fromPort);
-        const color = isExec ? EXEC_COLOR : colorForPort(sourcePort?.dataType);
+        // Undefined dataType means an exec-flow port (the single default 'exec' output, or
+        // one of a branching node's named ports like 'then'/'else') - same convention PortSocket
+        // itself uses, rather than comparing portId against the literal string 'exec'.
+        const color = sourcePort?.dataType ? colorForPort(sourcePort.dataType) : EXEC_COLOR;
         const selected = edge.id === selectedEdgeId;
         const d = bezierPath(from, to);
         return (

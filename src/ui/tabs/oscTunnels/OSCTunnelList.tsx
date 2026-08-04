@@ -12,7 +12,7 @@ import {
   FormTextInput,
   Box,
   useTheme,
-} from '@greysole/spooder-component-library';
+} from '@spooder/webui-component-library';
 import AddTunnelForm from './AddTunnelForm';
 import DeleteOSCTunnelButton from './DeleteOSCTunnelButton';
 

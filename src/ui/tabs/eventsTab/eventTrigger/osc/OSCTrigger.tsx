@@ -13,7 +13,7 @@ import {
   FormSelectDropdown,
   FormTextInput,
   Stack,
-} from '@greysole/spooder-component-library';
+} from '@spooder/webui-component-library';
 import OSCTriggerCondition from './OSCTriggerConditionsValue';
 import ResponseSearchAndMatchCheatSheet from '../../eventCommand/response/ResponseSearchAndMatchCheatSheet';
 import { faQuestion } from '@fortawesome/free-solid-svg-icons';

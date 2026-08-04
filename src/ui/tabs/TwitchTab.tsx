@@ -3,7 +3,7 @@ import useTwitch from '../../app/hooks/useTwitch';
 import TwitchTabFormContextProvider from './twitchTab/context/TwitchFormContext';
 import TwitchCredentials from './twitchTab/TwitchCredentials';
 import TwitchAuthManager from './twitchTab/TwitchAuthManager';
-import { CircleLoader, Button, TypeFace, Stack } from '@greysole/spooder-component-library';
+import { CircleLoader, Button, TypeFace, Stack } from '@spooder/webui-component-library';
 import PageCircleLoader from '../common/input/general/PageCircleLoader';
 import TwitchEventSub from './twitchTab/eventsub/TwitchEventSub';
 

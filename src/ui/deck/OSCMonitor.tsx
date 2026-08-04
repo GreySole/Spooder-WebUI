@@ -22,7 +22,7 @@ import {
   TypeFace,
   useOSC,
   useTheme,
-} from '@greysole/spooder-component-library';
+} from '@spooder/webui-component-library';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import useServer from '../../app/hooks/useServer';
 import { icon } from '@fortawesome/fontawesome-svg-core';

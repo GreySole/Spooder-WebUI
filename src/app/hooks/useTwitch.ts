@@ -23,7 +23,7 @@ import {
   useSetUseWebhookTransportMutation,
   useTestEventsubMutation,
 } from '../api/twitchSlice';
-import { convertReactFormToFormData } from '@greysole/spooder-component-library';
+import { convertReactFormToFormData } from '@spooder/webui-component-library';
 
 export default function useTwitch() {
   function getTwitchConfig() {

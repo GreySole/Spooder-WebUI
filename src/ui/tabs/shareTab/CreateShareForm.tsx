@@ -5,7 +5,7 @@ import { useFormContext } from 'react-hook-form';
 import { v4 as uuidv4 } from 'uuid';
 import useShare from '../../../app/hooks/useShare';
 import { KeyedObject } from '../../Types';
-import { Button, TextInput } from '@greysole/spooder-component-library';
+import { Button, TextInput } from '@spooder/webui-component-library';
 
 export default function CreateShareForm() {
   const [isOpen, setIsOpen] = useState(false);

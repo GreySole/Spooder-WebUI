@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, FileDropZone } from '@greysole/spooder-component-library';
+import { Box, FileDropZone } from '@spooder/webui-component-library';
 import usePlugins from '../../../../app/hooks/usePlugins';
 import { usePluginContext } from '../context/PluginTabFormContext';
 

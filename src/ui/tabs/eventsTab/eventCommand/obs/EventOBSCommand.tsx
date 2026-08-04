@@ -9,7 +9,7 @@ import {
   FormNumberInput,
   FormSelectDropdown,
   Stack,
-} from '@greysole/spooder-component-library';
+} from '@spooder/webui-component-library';
 import ObsEnableSceneItemInput from './ObsEnabledSceneItemInput';
 import ObsSetInputMuteInput from './ObsSetInputMuteInput';
 import ObsSwitchScenesInput from './ObsSwitchScenesInput';

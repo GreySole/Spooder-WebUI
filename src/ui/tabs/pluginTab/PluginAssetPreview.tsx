@@ -1,5 +1,5 @@
-import React, { useRef, useEffect } from 'react';
-import { getMediaType, getMediaHTML, Box, ImageFile } from '@greysole/spooder-component-library';
+import { Box, getMediaHTML, getMediaType, ImageFile } from '@spooder/webui-component-library';
+import { useEffect, useRef } from 'react';
 
 interface PluginAssetPreviewProps {
   assetFilePreview: string;
@@ -18,6 +18,8 @@ export default function PluginAssetPreview({
 
   let previewHTML = null;
   let previewAudio = null;
+
+  console.log("ASSET PATH", pathJoin(assetPath, assetFilePreview));
 
   if (assetFilePreview != null) {
     const previewMediaType = getMediaType(assetFilePreview);

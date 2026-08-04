@@ -1,4 +1,4 @@
-import { Stack, TypeFace, TextInput } from '@greysole/spooder-component-library';
+import { Stack, TypeFace, TextInput } from '@spooder/webui-component-library';
 import React, { useState, useEffect } from 'react';
 
 export default function CreateShareButtonDialogContent({

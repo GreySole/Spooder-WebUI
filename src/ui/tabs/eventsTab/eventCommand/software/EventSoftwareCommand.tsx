@@ -6,7 +6,7 @@ import {
   FormSelectDropdown,
   FormNumberInput,
   Stack,
-} from '@greysole/spooder-component-library';
+} from '@spooder/webui-component-library';
 import FormUdpSelectDropdown from '../../../../common/input/form/FormUdpSelectDropdown';
 import EventSoftwareConflictCheck from './EventSoftwareContflictCheck';
 

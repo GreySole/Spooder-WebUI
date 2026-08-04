@@ -6,7 +6,7 @@ import {
   Stack,
   TextInput,
   TypeFace,
-} from '@greysole/spooder-component-library';
+} from '@spooder/webui-component-library';
 import { useState } from 'react';
 import useTwitch from '../../../../app/hooks/useTwitch';
 

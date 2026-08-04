@@ -11,7 +11,7 @@ import {
   Stack,
   TextInput,
   TypeFace,
-} from '@greysole/spooder-component-library';
+} from '@spooder/webui-component-library';
 import useTwitch from '../../../../../app/hooks/useTwitch';
 import TwitchTriggerTest from './TwitchTriggerTest';
 

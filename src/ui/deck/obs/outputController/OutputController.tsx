@@ -9,7 +9,7 @@ import {
   TypeFace,
   useOSC,
   useTheme,
-} from '@greysole/spooder-component-library';
+} from '@spooder/webui-component-library';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import useOBS from '../../../../app/hooks/useOBS';
 import { get } from 'react-hook-form';

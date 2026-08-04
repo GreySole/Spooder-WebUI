@@ -1,7 +1,7 @@
 import { useFormContext } from 'react-hook-form';
 import useTwitch from '../../../../app/hooks/useTwitch';
 import React from 'react';
-import { BoolSwitch, Button, TypeFace, useDialog } from '@greysole/spooder-component-library';
+import { BoolSwitch, Button, TypeFace, useDialog } from '@spooder/webui-component-library';
 import useShare from '../../../../app/hooks/useShare';
 
 interface AutoShareSwitchProps {

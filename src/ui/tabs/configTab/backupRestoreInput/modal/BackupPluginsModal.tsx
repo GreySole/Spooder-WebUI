@@ -1,4 +1,4 @@
-import { Modal } from '@greysole/spooder-component-library';
+import { Modal } from '@spooder/webui-component-library';
 import React from 'react';
 import BackupPluginsInput from '../input/BackupPluginsInput';
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Stack, TypeFace, FormTextInput } from '@greysole/spooder-component-library';
+import { Stack, TypeFace, FormTextInput } from '@spooder/webui-component-library';
 
 export default function MotherwolfHandle() {
   return (

@@ -4,7 +4,7 @@ import {
   Stack,
   TypeFace,
   useDialog,
-} from '@greysole/spooder-component-library';
+} from '@spooder/webui-component-library';
 import React from 'react';
 import useTwitch from '../../../../app/hooks/useTwitch';
 import useServer from '../../../../app/hooks/useServer';

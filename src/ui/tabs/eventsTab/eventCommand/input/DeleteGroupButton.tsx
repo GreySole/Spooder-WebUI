@@ -1,7 +1,7 @@
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
 import { EVENT_KEY, GROUP_KEY } from '../../FormKeys';
-import { Box, Button, TypeFace, useDialog } from '@greysole/spooder-component-library';
+import { Box, Button, TypeFace, useDialog } from '@spooder/webui-component-library';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import useEvents from '../../../../../app/hooks/useEvents';
 
@@ -18,8 +18,8 @@ export default function DeleteGroupButton(props: DeleteGroupButtonProps) {
   const deleteClick = () => {
     const events = getValues(EVENT_KEY);
     const groups = getValues(GROUP_KEY);
-    let newEvents = Object.assign(events);
-    let newGroups = Object.assign(groups);
+    let newEvents = { ...events };
+    let newGroups = [...groups];
     for (let ev in newEvents) {
       if (newEvents[ev].group == groupName) {
         delete newEvents[ev];

@@ -11,7 +11,7 @@ import {
   useOSC,
   CircleLoader,
   FileDropZone,
-} from '@greysole/spooder-component-library';
+} from '@spooder/webui-component-library';
 import React, { useEffect, useState } from 'react';
 import useRecovery from '../../../../../app/hooks/useRecovery';
 import RestorePluginSelection from '../selection/RestorePluginsSelection';
@@ -45,7 +45,7 @@ export default function RestorePluginsInput() {
 
   useEffect(() => {
     console.log('PLUGIN INPUT EFFECT RENDER');
-    addListener('/spooder/restore/plugin', (data) => {
+    addListener('/spooder/restore/plugin', (data: any) => {
       const jsonData = JSON.parse(data.args[0]);
       setCurrentProgressObj(jsonData);
     });

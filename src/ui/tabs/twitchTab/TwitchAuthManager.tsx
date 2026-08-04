@@ -10,7 +10,7 @@ import {
   Icon,
   Box,
   Border,
-} from '@greysole/spooder-component-library';
+} from '@spooder/webui-component-library';
 import useConfig from '../../../app/hooks/useConfig';
 import { faUser } from '@fortawesome/free-solid-svg-icons';
 import BotAuthButton from './authManager/BotAuthButton';

@@ -24,7 +24,7 @@ import {
   Columns,
   Slider,
   TextInput,
-} from '@greysole/spooder-component-library';
+} from '@spooder/webui-component-library';
 import EditCustomSpooderInputPair from './EditCustomSpooderInputPair';
 import SortableItem from '../../../common/dragAndDrop/SortableItem';
 import { set } from 'react-hook-form';
@@ -55,7 +55,7 @@ export default function EditCustomSpooder() {
   );
 
   useEffect(() => {
-    setSpooderParts(customSpooder.map((_, i) => `part-${i + 1}`));
+    setSpooderParts(customSpooder.map((_: any, i: number) => `part-${i + 1}`));
   }, [customSpooder]);
 
   const handleDragEnd = (event: any) => {
@@ -107,7 +107,7 @@ export default function EditCustomSpooder() {
             value={themeVariables.fontWeight}
             step={1 / 800}
             minMax={[100, 900]}
-            onChange={(value) => {
+            onChange={(value: number) => {
               setThemeFontWeight(value);
             }}
           />
@@ -128,7 +128,7 @@ export default function EditCustomSpooder() {
             value={themeVariables.letterSpacing}
             step={1 / 100}
             minMax={[-1, 1]}
-            onChange={(value) => {
+            onChange={(value: number) => {
               setThemeLetterSpacing(value);
             }}
           />

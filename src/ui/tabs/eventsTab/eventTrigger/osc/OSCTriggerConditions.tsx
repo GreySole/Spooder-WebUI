@@ -2,7 +2,7 @@ import React from 'react';
 import { useFormContext } from 'react-hook-form';
 import { EventTriggerProps, OSCConditionType, OSCHandleType } from '../../../../Types';
 import { buildKey, buildTriggerKey } from '../../FormKeys';
-import { Box, Button, Expandable, Stack } from '@greysole/spooder-component-library';
+import { Box, Button, Expandable, Stack } from '@spooder/webui-component-library';
 import { faPlus, faTrash } from '@fortawesome/free-solid-svg-icons';
 import OSCTriggerConditionGroup from './OSCTriggerConditionGroup';
 
@@ -22,26 +22,28 @@ export default function OSCTriggerConditions(props: OSCTriggerConditionProps) {
   const conditionGroups = watch(conditionKey, []);
 
   const addConditionGroup = () => {
-    setValue(conditionKey, [
-      ...conditionGroups,
-      { mode: 'OR', conditions: [{ arg: 0, type: OSCConditionType.equal, value: '0' }] },
-    ]);
-    console.log('CONDITIONS GROUPS', conditionGroups);
+    setValue(
+      conditionKey,
+      [
+        ...conditionGroups,
+        { mode: 'OR', conditions: [{ arg: 0, type: OSCConditionType.equal, value: '0' }] },
+      ],
+      { shouldDirty: true },
+    );
   };
 
   const deleteConditionGroup = (groupIndex: number) => {
     const newConditionGroups = [...conditionGroups];
     newConditionGroups.splice(groupIndex, 1);
-    setValue(conditionKey, newConditionGroups);
+    setValue(conditionKey, newConditionGroups, { shouldDirty: true });
   };
-
-  console.log('CONDITION RENDER', conditionGroups);
 
   return (
     <Expandable label={label} forceOpen>
       <Stack width='100%' spacing='medium'>
         {conditionGroups.map((condition: any, index: number) => (
           <OSCTriggerConditionGroup
+            key={index}
             formKey={conditionKey}
             groupIndex={index}
             deleteConditionGroup={deleteConditionGroup}

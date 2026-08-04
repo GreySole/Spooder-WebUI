@@ -1,4 +1,4 @@
-import { Box, Button, Stack, TypeFace, useDialog } from '@greysole/spooder-component-library';
+import { Box, Button, Stack, TypeFace, useDialog } from '@spooder/webui-component-library';
 import React from 'react';
 import AutoShareSwitch from '../input/AutoShareSwitch';
 import ShareDiscordForm from '../input/ShareDiscordForm';

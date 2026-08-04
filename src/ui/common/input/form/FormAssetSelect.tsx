@@ -9,7 +9,7 @@ import {
   FormSelectDropdown,
   TypeFace,
   useDialog,
-} from '@greysole/spooder-component-library';
+} from '@spooder/webui-component-library';
 import { useFormContext } from 'react-hook-form';
 import PluginAssetPreview from '../../../tabs/pluginTab/PluginAssetPreview';
 

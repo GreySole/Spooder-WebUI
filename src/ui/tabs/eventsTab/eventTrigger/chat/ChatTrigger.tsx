@@ -9,7 +9,7 @@ import {
   FormBoolSwitch,
   FormTextInput,
   Stack,
-} from '@greysole/spooder-component-library';
+} from '@spooder/webui-component-library';
 import { faQuestionCircle } from '@fortawesome/free-solid-svg-icons';
 import ResponseSearchAndMatchCheatSheet from '../../eventCommand/response/ResponseSearchAndMatchCheatSheet';
 

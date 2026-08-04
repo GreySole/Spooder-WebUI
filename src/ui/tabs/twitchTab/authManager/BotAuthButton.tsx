@@ -1,4 +1,4 @@
-import { LinkButton, TypeFace } from '@greysole/spooder-component-library';
+import { LinkButton, TypeFace } from '@spooder/webui-component-library';
 import React from 'react';
 import useTwitch from '../../../../app/hooks/useTwitch';
 import useConfig from '../../../../app/hooks/useConfig';

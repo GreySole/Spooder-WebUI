@@ -2,7 +2,7 @@ import React, { MutableRefObject, useRef } from 'react';
 import { usePluginContext } from './context/PluginTabFormContext';
 import AlertToasterLink from './AlertToasterLink';
 import PluginEntry from './PluginEntry';
-import { FormLoader, KeyedObject, Modal, Stack } from '@greysole/spooder-component-library';
+import { FormLoader, KeyedObject, Modal, Stack } from '@spooder/webui-component-library';
 import PluginSettings from './input/PluginSettings';
 import PluginAssetManager from './PluginAssetManager';
 import PluginInfoView from './PluginInfoView';

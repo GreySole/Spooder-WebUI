@@ -9,7 +9,7 @@ import {
   FormSelectDropdown,
   Stack,
   useTheme,
-} from '@greysole/spooder-component-library';
+} from '@spooder/webui-component-library';
 
 interface ChannelPointReward {
   id: string;

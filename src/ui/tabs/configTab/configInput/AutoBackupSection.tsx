@@ -4,7 +4,7 @@ import {
   FormSelectDropdown,
   SelectDropdown,
   Stack,
-} from '@greysole/spooder-component-library';
+} from '@spooder/webui-component-library';
 import React, { useState, useEffect } from 'react';
 import { useFormContext } from 'react-hook-form';
 import AutoBackupScheduleSet from './autoBackup/AutoBackupScheduleSet';

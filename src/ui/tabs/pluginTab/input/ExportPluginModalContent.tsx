@@ -1,4 +1,4 @@
-import { Stack, BoolSwitch } from '@greysole/spooder-component-library';
+import { Stack, BoolSwitch } from '@spooder/webui-component-library';
 import React from 'react';
 
 interface ExportPluginModalContentProps {

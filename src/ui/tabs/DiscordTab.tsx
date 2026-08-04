@@ -9,7 +9,7 @@ import {
   SaveButton,
   Stack,
   TypeFace,
-} from '@greysole/spooder-component-library';
+} from '@spooder/webui-component-library';
 import PageCircleLoader from '../common/input/general/PageCircleLoader';
 import DiscordAuthTutorial from './discordTab/DiscordAuthTutorial';
 

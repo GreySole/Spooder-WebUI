@@ -8,12 +8,12 @@ import {
   useOSC,
   Grid,
   CustomSpooder,
-} from '@greysole/spooder-component-library';
-import { useTheme } from '@greysole/spooder-component-library';
+} from '@spooder/webui-component-library';
+import { useTheme } from '@spooder/webui-component-library';
 import useNavigation from '../../app/hooks/useNavigation';
 import useServer from '../../app/hooks/useServer';
 import { useScrollContext } from '../../app/context/ScrollContext';
-import { Box } from '@greysole/spooder-component-library';
+import { Box } from '@spooder/webui-component-library';
 import ModUI from '../deck/ModUI';
 import OBS from '../deck/OBS';
 import OSCMonitor from '../deck/OSCMonitor';

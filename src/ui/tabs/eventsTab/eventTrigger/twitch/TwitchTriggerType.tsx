@@ -3,7 +3,7 @@ import { useFormContext } from 'react-hook-form';
 import useTwitch from '../../../../../app/hooks/useTwitch';
 import { EventTriggerProps } from '../../../../Types';
 import { buildTriggerKey, buildKey } from '../../FormKeys';
-import { FormSelectDropdown, useTheme } from '@greysole/spooder-component-library';
+import { FormSelectDropdown, useTheme } from '@spooder/webui-component-library';
 
 export default function TwitchTriggerType(props: EventTriggerProps) {
   const { eventName } = props;

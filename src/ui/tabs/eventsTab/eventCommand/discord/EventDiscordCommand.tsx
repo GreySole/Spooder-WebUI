@@ -10,7 +10,7 @@ import {
   FormSelectDropdown,
   FormBoolSwitch,
   FormTextInput,
-} from '@greysole/spooder-component-library';
+} from '@spooder/webui-component-library';
 import React from 'react';
 import FormCodeInput from '../../../../common/input/form/FormCodeInput';
 import { buildCommandKey, buildKey } from '../../FormKeys';

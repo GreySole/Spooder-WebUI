@@ -6,7 +6,7 @@ import {
   Columns,
   ResetButton,
   Stack,
-} from '@greysole/spooder-component-library';
+} from '@spooder/webui-component-library';
 import OSCTunnelTabContextProvider from './oscTunnels/context/OSCTunnelTabContext';
 import OSCTunnelList from './oscTunnels/OSCTunnelList';
 import SaveTunnelFormButton from './oscTunnels/SaveTunnelFormButton';

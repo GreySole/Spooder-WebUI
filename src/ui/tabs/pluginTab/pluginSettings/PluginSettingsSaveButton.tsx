@@ -1,4 +1,4 @@
-import { SaveButton } from '@greysole/spooder-component-library';
+import { SaveButton } from '@spooder/webui-component-library';
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
 import { usePluginContext } from '../context/PluginTabFormContext';

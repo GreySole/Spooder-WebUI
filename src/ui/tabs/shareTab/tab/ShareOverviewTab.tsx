@@ -1,4 +1,4 @@
-import { Box, Stack, FormTextInput } from '@greysole/spooder-component-library';
+import { Box, Stack, FormTextInput } from '@spooder/webui-component-library';
 import React from 'react';
 
 export default function ShareOverviewTab() {

@@ -12,7 +12,7 @@ import {
   useTheme,
   StyleSize,
   useToast,
-} from '@greysole/spooder-component-library';
+} from '@spooder/webui-component-library';
 import {
   SortableContext,
   sortableKeyboardCoordinates,

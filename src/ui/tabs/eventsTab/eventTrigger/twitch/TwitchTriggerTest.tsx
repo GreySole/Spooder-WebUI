@@ -1,4 +1,4 @@
-import { Box, TypeFace, TextInput, Button, FormLoader } from '@greysole/spooder-component-library';
+import { Box, TypeFace, TextInput, Button, FormLoader } from '@spooder/webui-component-library';
 import React, { useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import useTwitch from '../../../../../app/hooks/useTwitch';

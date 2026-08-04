@@ -5,7 +5,7 @@ import {
   Expandable,
   Stack,
   TypeFace,
-} from '@greysole/spooder-component-library';
+} from '@spooder/webui-component-library';
 import React from 'react';
 import useTwitch from '../../../../app/hooks/useTwitch';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';

@@ -1,4 +1,4 @@
-import { SpooderPetPair } from '@greysole/spooder-component-library';
+import { SpooderPetPair } from '@spooder/webui-component-library';
 import {
   useGetCustomSpooderQuery,
   useGetMainThemeQuery,

@@ -1,4 +1,4 @@
-import { Box, Button, useToast } from '@greysole/spooder-component-library';
+import { Box, Button, useToast } from '@spooder/webui-component-library';
 import { useEffect } from 'react';
 import React from 'react';
 import { useGetSystemStatusQuery } from '../../app/api/serverSlice';

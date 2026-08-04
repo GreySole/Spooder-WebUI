@@ -10,7 +10,7 @@ import {
   Stack,
   TypeFace,
   useTheme,
-} from '@greysole/spooder-component-library';
+} from '@spooder/webui-component-library';
 import EventCommandTimeline from './eventCommand/EventCommandTimeline';
 import EventCommand from './EventCommand';
 import {
@@ -173,12 +173,11 @@ export default function EventCommands(props: EventCommandsProps) {
               }}
             >
               {eventCommands.map((command: any, index: number) => {
-                // Create a stable key that includes command content to make it unique
-                const stableKey = `${eventName}-${index}-${command.type}-${JSON.stringify(command).substring(0, 20)}`;
+                const id = `${eventName}-${index}`;
                 return (
                   <SortableEventCommand
-                    key={stableKey}
-                    id={`${eventName}-${index}`}
+                    key={id}
+                    id={id}
                     eventName={eventName}
                     command={command}
                     index={index}

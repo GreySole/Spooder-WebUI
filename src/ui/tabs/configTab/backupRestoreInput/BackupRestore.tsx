@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import BackupPluginsInput from './input/BackupPluginsInput';
 import RestorePluginsInput from './input/RestorePluginsInput';
-import { Box, Button, Columns, Stack, TypeFace } from '@greysole/spooder-component-library';
+import { Box, Button, Columns, Stack, TypeFace } from '@spooder/webui-component-library';
 import BackupSettingsModal from './modal/BackupSettingsModal';
 import RestoreSettingsModal from './modal/RestoreSettingsModal';
 import BackupPluginsModal from './modal/BackupPluginsModal';

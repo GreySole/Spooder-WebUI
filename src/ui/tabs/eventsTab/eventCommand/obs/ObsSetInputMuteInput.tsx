@@ -7,7 +7,7 @@ import {
   FormBoolSwitch,
   FormNumberInput,
   Stack,
-} from '@greysole/spooder-component-library';
+} from '@spooder/webui-component-library';
 import useOBS from '../../../../../app/hooks/useOBS';
 
 interface ObsSetInputMuteInputProps {

@@ -21,7 +21,7 @@ import {
   TypeFace,
   useTheme,
   FileDropZone,
-} from '@greysole/spooder-component-library';
+} from '@spooder/webui-component-library';
 import usePlugins from '../../../app/hooks/usePlugins';
 import { PluginComponentProps } from '../../Types';
 import { usePluginContext } from './context/PluginTabFormContext';

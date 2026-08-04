@@ -11,7 +11,7 @@ import {
   FormLoader,
   LinkButton,
   ButtonRow,
-} from '@greysole/spooder-component-library';
+} from '@spooder/webui-component-library';
 import { faDownload, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { StyleSize } from '../../../../Types';
 

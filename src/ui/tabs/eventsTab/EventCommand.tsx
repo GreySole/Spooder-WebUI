@@ -1,5 +1,5 @@
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
-import { Box, TypeFace, Button } from '@greysole/spooder-component-library';
+import { Box, TypeFace, Button } from '@spooder/webui-component-library';
 import React from 'react';
 import EventModCommand from './eventCommand/mod/EventModCommand';
 import EventOBSCommand from './eventCommand/obs/EventOBSCommand';
@@ -21,9 +21,9 @@ export default function EventCommand(props: EventCommandProps) {
   const { getValues, setValue } = useFormContext();
 
   const deleteCommand = (commandIndex: number) => {
-    const newCommands = getValues(`${EVENT_KEY}.${eventName}.commands`);
+    const newCommands = [...getValues(`${EVENT_KEY}.${eventName}.commands`)];
     newCommands.splice(commandIndex, 1);
-    setValue(`${EVENT_KEY}.${eventName}.commands`, newCommands);
+    setValue(`${EVENT_KEY}.${eventName}.commands`, newCommands, { shouldDirty: true });
   };
   let element = null;
   let commandTypeName = '';

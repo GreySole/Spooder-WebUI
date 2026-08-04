@@ -1,4 +1,4 @@
-import { Stack, TypeFace } from '@greysole/spooder-component-library';
+import { Stack, TypeFace } from '@spooder/webui-component-library';
 import React from 'react';
 
 export default function DiscordAuthTutorial() {

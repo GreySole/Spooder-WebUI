@@ -1,4 +1,4 @@
-import { Box, LinkButton } from '@greysole/spooder-component-library';
+import { Box, LinkButton } from '@spooder/webui-component-library';
 import React from 'react';
 
 export default function AlertToasterLink() {

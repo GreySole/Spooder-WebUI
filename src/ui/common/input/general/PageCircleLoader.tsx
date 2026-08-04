@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, CircleLoader } from '@greysole/spooder-component-library';
+import { Box, CircleLoader } from '@spooder/webui-component-library';
 
 export default function PageCircleLoader() {
   return (

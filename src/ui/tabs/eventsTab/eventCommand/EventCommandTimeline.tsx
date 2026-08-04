@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { buildKey, buildCommandKey, EVENT_KEY } from '../FormKeys';
 import { DiscordIcon, ObsIcon } from '../../../common/icons/icons';
-import { Box, Icon, Slider, TypeFace } from '@greysole/spooder-component-library';
+import { Box, Icon, Slider, TypeFace } from '@spooder/webui-component-library';
 
 interface EventCommandTimelineProps {
   eventName: string;
@@ -88,8 +88,8 @@ export default function EventCommandTimeline(props: EventCommandTimelineProps) {
       const delayFormKey = buildKey(buildCommandKey(eventName, commandIndex), 'delay');
       const durationFormKey = buildKey(buildCommandKey(eventName, commandIndex), 'duration');
 
-      setValue(delayFormKey, newDelayValue);
-      setValue(durationFormKey, newDurationValue);
+      setValue(delayFormKey, newDelayValue, { shouldDirty: true });
+      setValue(durationFormKey, newDurationValue, { shouldDirty: true });
     }
   }
 

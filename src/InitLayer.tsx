@@ -10,7 +10,7 @@ import {
   TooltipProvider,
   ToastProvider,
   DialogProvider,
-} from '@greysole/spooder-component-library';
+} from '@spooder/webui-component-library';
 import './ui/common/css/core/index.scss';
 
 export default function InitLayer() {

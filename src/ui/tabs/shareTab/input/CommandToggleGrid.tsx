@@ -2,7 +2,7 @@ import React from 'react';
 import { faCommentDots } from '@fortawesome/free-solid-svg-icons';
 import { useFormContext } from 'react-hook-form';
 import useEvents from '../../../../app/hooks/useEvents';
-import { Box, Button, CircleLoader, useTheme } from '@greysole/spooder-component-library';
+import { Box, Button, CircleLoader, useTheme } from '@spooder/webui-component-library';
 import PageCircleLoader from '../../../common/input/general/PageCircleLoader';
 import { SharedElement } from '../../../Types';
 

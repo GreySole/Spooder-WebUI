@@ -9,7 +9,7 @@ import {
   TypeFace,
   CircleLoader,
   useTheme,
-} from '@greysole/spooder-component-library';
+} from '@spooder/webui-component-library';
 import React, { useRef, useEffect } from 'react';
 import { PluginComponentProps } from '../../Types';
 import PluginButtonRow from './input/PluginButtonRow';

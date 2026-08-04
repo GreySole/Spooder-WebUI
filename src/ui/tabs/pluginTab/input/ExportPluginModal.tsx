@@ -1,4 +1,4 @@
-import { Box, LinkButton, Modal } from '@greysole/spooder-component-library';
+import { Box, LinkButton, Modal } from '@spooder/webui-component-library';
 import React, { useState } from 'react';
 import ExportPluginModalContent from './ExportPluginModalContent';
 import { usePluginContext } from '../context/PluginTabFormContext';

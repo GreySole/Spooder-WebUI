@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { Footer } from '../app/Footer';
-import { Box, Button, useTheme, Stack, useToast } from '@greysole/spooder-component-library';
+import { Box, Button, useTheme, Stack, useToast } from '@spooder/webui-component-library';
 import ThemeColor from './configTab/themeColor/ThemeColor';
 import useThemeApi from '../../app/hooks/useThemeApi';
 import EditCustomSpooder from './configTab/customSpooderInput/EditCustomSpooder';

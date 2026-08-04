@@ -1,4 +1,4 @@
-import { Button, TextInput } from '@greysole/spooder-component-library';
+import { Button, TextInput } from '@spooder/webui-component-library';
 import React, { useState } from 'react';
 
 interface AddressFilterProps {

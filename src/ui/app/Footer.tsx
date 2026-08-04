@@ -1,5 +1,5 @@
 // filepath: /c:/Users/zasur/Documents/GitHub/Spooder-WebUI/src/context/FooterContext.tsx
-import { Box, useTheme } from '@greysole/spooder-component-library';
+import { Box, useTheme } from '@spooder/webui-component-library';
 import React, { ReactNode, useRef } from 'react';
 import { CSSTransition } from 'react-transition-group';
 import useNavigation from '../../app/hooks/useNavigation';

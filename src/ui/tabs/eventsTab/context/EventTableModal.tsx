@@ -1,4 +1,4 @@
-import { MultiPageModal, Box, Button, Columns } from '@greysole/spooder-component-library';
+import { MultiPageModal, Box, Button, Columns } from '@spooder/webui-component-library';
 import React, { useMemo } from 'react';
 import EventCommands from '../EventCommands';
 import EventGeneral from '../EventGeneral';

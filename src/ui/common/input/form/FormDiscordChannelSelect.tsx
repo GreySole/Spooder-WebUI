@@ -2,7 +2,7 @@ import React from 'react';
 import { useFormContext } from 'react-hook-form';
 import useDiscord from '../../../../app/hooks/useDiscord';
 import { SelectOption } from '../../../Types';
-import { FormSelectDropdown } from '@greysole/spooder-component-library';
+import { FormSelectDropdown } from '@spooder/webui-component-library';
 
 interface FormDiscordChannelSelectProps {
   formKey: string;

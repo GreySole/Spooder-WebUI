@@ -1,6 +1,6 @@
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
-import { FormBoolSwitch } from '@greysole/spooder-component-library';
+import { FormBoolSwitch } from '@spooder/webui-component-library';
 import DiscordAutoSendNgrok from './DiscordAutoSendNgrok';
 
 export default function DiscordConfig() {

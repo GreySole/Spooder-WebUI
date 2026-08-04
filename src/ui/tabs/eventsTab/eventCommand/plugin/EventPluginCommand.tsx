@@ -8,7 +8,7 @@ import {
   FormSelectDropdown,
   FormTextInput,
   Stack,
-} from '@greysole/spooder-component-library';
+} from '@spooder/webui-component-library';
 import CustomEventPluginCommand from './CustomEventPluginCommand';
 
 export default function EventPluginCommand(props: EventCommandProps) {

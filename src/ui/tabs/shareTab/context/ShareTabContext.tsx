@@ -1,4 +1,4 @@
-import { KeyedObject } from '@greysole/spooder-component-library';
+import { KeyedObject } from '@spooder/webui-component-library';
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 import useShare from '../../../../app/hooks/useShare';
 import PageCircleLoader from '../../../common/input/general/PageCircleLoader';

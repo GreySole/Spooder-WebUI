@@ -6,7 +6,7 @@ import {
   Stack,
   useToast,
   ToastType,
-} from '@greysole/spooder-component-library';
+} from '@spooder/webui-component-library';
 import React, { useEffect } from 'react';
 import useTwitch from '../../../app/hooks/useTwitch';
 import { FieldValues } from 'react-hook-form';

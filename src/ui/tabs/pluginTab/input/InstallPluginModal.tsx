@@ -1,5 +1,5 @@
 import React from 'react';
-import { Modal } from '@greysole/spooder-component-library';
+import { Modal } from '@spooder/webui-component-library';
 import InstallPluginModalContent from './InstallPluginModalContent';
 
 interface InstallPluginModalProps {

@@ -1,5 +1,5 @@
 import React from 'react';
-import { FormTextInput, Stack, TypeFace } from '@greysole/spooder-component-library';
+import { FormTextInput, Stack, TypeFace } from '@spooder/webui-component-library';
 
 export default function NgrokHandle() {
   return (

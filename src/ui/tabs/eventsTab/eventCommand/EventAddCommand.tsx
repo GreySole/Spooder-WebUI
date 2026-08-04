@@ -1,4 +1,4 @@
-import { Button, Columns, SelectDropdown } from '@greysole/spooder-component-library';
+import { Button, Columns, SelectDropdown } from '@spooder/webui-component-library';
 import React, { useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import {
@@ -91,7 +91,9 @@ export default function EventAddCommand(props: EventAddCommandProps) {
         } as DiscordCommand;
     }
     const eventCommands = getValues(`events.${eventName}.commands`);
-    setValue(`events.${eventName}.commands`, [...eventCommands, newCommand]);
+    setValue(`events.${eventName}.commands`, [...eventCommands, newCommand], {
+      shouldDirty: true,
+    });
   };
 
   return (

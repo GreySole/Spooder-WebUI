@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, LinkButton, Stack, TypeFace } from '@greysole/spooder-component-library';
+import { Box, LinkButton, Stack, TypeFace } from '@spooder/webui-component-library';
 import useConfig from '../../../app/hooks/useConfig';
 import useServer from '../../../app/hooks/useServer';
 

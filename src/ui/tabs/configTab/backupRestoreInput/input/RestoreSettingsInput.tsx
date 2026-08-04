@@ -9,7 +9,7 @@ import {
   Stack,
   Box,
   FileDropZone,
-} from '@greysole/spooder-component-library';
+} from '@spooder/webui-component-library';
 import React, { useState } from 'react';
 import useRecovery from '../../../../../app/hooks/useRecovery';
 import RestoreSettingsSelection from '../selection/RestoreSettingsSelection';

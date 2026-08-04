@@ -1,4 +1,4 @@
-import { ToastType, useToast } from '@greysole/spooder-component-library';
+import { ToastType, useToast } from '@spooder/webui-component-library';
 import {
   useGetConfigQuery,
   useGetOSCTunnelsQuery,

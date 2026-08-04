@@ -1,3 +1,6 @@
+# temporary until core-modularity is merged
+modules/
+
 # Logs
 logs
 *.log

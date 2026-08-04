@@ -1,5 +1,5 @@
 import React from 'react';
-import { formatBytes, useTheme } from '@greysole/spooder-component-library';
+import { formatBytes, useTheme } from '@spooder/webui-component-library';
 
 interface GraphMeterProps {
   data: number[];

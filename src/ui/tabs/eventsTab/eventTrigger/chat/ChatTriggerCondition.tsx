@@ -8,7 +8,7 @@ import {
   FormBoolSwitch,
   Stack,
   TypeFace,
-} from '@greysole/spooder-component-library';
+} from '@spooder/webui-component-library';
 
 interface ChatTriggerConditionProps {
   eventName: string;

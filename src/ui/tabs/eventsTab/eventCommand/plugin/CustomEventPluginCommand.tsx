@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { KeyedObject } from '../../../../Types';
 import { useFormContext } from 'react-hook-form';
-import { Box, FormSelectDropdown, Stack } from '@greysole/spooder-component-library';
+import { Box, FormSelectDropdown, Stack } from '@spooder/webui-component-library';
 import PluginSettingsContextProvider from '../../../pluginTab/pluginSettings/context/PluginSettingsContext';
 import PluginInputsList from '../../../pluginTab/pluginSettings/pluginInput/PluginInputsList';
 

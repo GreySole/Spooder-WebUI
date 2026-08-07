@@ -1,4 +1,4 @@
-import { Modal, Box, SaveButton } from '@greysole/spooder-component-library';
+import { Modal, Box, SaveButton } from '@spooder/webui-component-library';
 import React, { useEffect } from 'react';
 import { FieldValues, FormProvider, useForm } from 'react-hook-form';
 import useUsers from '../../../../app/hooks/useUsers';

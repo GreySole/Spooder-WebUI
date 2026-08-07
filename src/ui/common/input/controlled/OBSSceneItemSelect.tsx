@@ -3,7 +3,7 @@ import { useFormContext } from 'react-hook-form';
 import useOBS from '../../../../app/hooks/useOBS';
 import { KeyedObject } from '../../../Types';
 import { useState } from 'react';
-import { SelectDropdown } from '@greysole/spooder-component-library';
+import { SelectDropdown } from '@spooder/webui-component-library';
 
 interface OBSChannelPair {
   scene: string;

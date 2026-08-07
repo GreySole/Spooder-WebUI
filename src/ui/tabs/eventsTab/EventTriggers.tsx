@@ -5,7 +5,7 @@ import ChatTrigger from './eventTrigger/chat/ChatTrigger';
 import OSCTrigger from './eventTrigger/osc/OSCTrigger';
 import { EVENT_KEY } from './FormKeys';
 import TwitchTrigger from './eventTrigger/twitch/TwitchTrigger';
-import { Box, Button, SelectDropdown, Stack } from '@greysole/spooder-component-library';
+import { Box, Button, SelectDropdown, Stack } from '@spooder/webui-component-library';
 
 interface EventTriggersProps {
   eventName: string;
@@ -43,7 +43,9 @@ export default function EventTriggers(props: EventTriggersProps) {
     const newTrigger = {
       enabled: true,
     };
-    setValue(`${EVENT_KEY}.${eventName}.triggers.${addTriggerType}`, newTrigger);
+    setValue(`${EVENT_KEY}.${eventName}.triggers.${addTriggerType}`, newTrigger, {
+      shouldDirty: true,
+    });
   };
 
   return (

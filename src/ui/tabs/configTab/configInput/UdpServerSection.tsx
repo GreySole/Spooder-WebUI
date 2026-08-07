@@ -1,4 +1,4 @@
-import { Expandable, Box, Stack } from '@greysole/spooder-component-library';
+import { Expandable, Box, Stack } from '@spooder/webui-component-library';
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
 import EditUdpServer from './udpServer/EditUdpServer';

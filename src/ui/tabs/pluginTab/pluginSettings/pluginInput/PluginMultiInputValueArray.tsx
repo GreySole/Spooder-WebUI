@@ -1,5 +1,5 @@
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
-import { Button, Box, TypeFace } from '@greysole/spooder-component-library';
+import { Button, Box, TypeFace } from '@spooder/webui-component-library';
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
 

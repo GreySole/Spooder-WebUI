@@ -1,4 +1,4 @@
-import { Box, Button, Columns } from '@greysole/spooder-component-library';
+import { Box, Button, Columns } from '@spooder/webui-component-library';
 import React, { useState } from 'react';
 import { PluginProvider } from './pluginTab/context/PluginTabFormContext';
 import RefreshAllPluginsButton from './pluginTab/input/RefreshAllPluginsButton';

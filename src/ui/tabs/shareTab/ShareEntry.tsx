@@ -10,7 +10,7 @@ import {
   useDialog,
   Button,
   SaveButton,
-} from '@greysole/spooder-component-library';
+} from '@spooder/webui-component-library';
 import React, { useEffect, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import ShareCategoryButtonRow from './input/ShareCategoryButtonRow';

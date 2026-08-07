@@ -3,7 +3,7 @@ import { useFormContext } from 'react-hook-form';
 import { buildCommandKey, buildKey } from '../../FormKeys';
 import usePlugins from '../../../../../app/hooks/usePlugins';
 import { EventCommandProps } from '../../../../Types';
-import { FormNumberInput, FormSelectDropdown, Stack } from '@greysole/spooder-component-library';
+import { FormNumberInput, FormSelectDropdown, Stack } from '@spooder/webui-component-library';
 import ModTargetType from './ModTargetType';
 import ModTarget from './ModTarget';
 

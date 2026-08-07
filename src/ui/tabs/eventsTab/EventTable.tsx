@@ -10,7 +10,7 @@ import {
   FilterButton,
   ResetButton,
   SaveButton,
-} from '@greysole/spooder-component-library';
+} from '@spooder/webui-component-library';
 import useEvents from '../../../app/hooks/useEvents';
 import { Footer } from '../../app/Footer';
 import AddEventInput from './eventCommand/input/AddEventInput';

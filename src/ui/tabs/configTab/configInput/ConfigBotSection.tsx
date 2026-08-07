@@ -1,4 +1,4 @@
-import { Expandable, Stack, FormTextInput } from '@greysole/spooder-component-library';
+import { Expandable, Stack, FormTextInput } from '@spooder/webui-component-library';
 import React from 'react';
 
 export default function ConfigBotSection() {

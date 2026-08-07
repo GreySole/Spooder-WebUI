@@ -2,7 +2,7 @@ import React from 'react';
 import { useFormContext } from 'react-hook-form';
 import { buildKey } from '../../FormKeys';
 import usePlugins from '../../../../../app/hooks/usePlugins';
-import { FormSelectDropdown } from '@greysole/spooder-component-library';
+import { FormSelectDropdown } from '@spooder/webui-component-library';
 
 interface ModTargetProps {
   formKey: string;

@@ -6,7 +6,7 @@ import {
   Stack,
   Expandable,
   BoolSwitch,
-} from '@greysole/spooder-component-library';
+} from '@spooder/webui-component-library';
 import BackupRestore from './configTab/backupRestoreInput/BackupRestore';
 import ConfigForm from './configTab/configInput/ConfigForm';
 import ConfigTabFormContextProvider from './configTab/context/ConfigTabFormContext';

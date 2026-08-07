@@ -3,7 +3,7 @@ import useUsers from '../../app/hooks/useUsers';
 import UserTabFormContextProvider from './userTab/context/UserTabFormContext';
 import UserList from './userTab/UserList';
 import CreateUserButton from './userTab/CreateUserButton';
-import { Box, SaveButton } from '@greysole/spooder-component-library';
+import { Box, SaveButton } from '@spooder/webui-component-library';
 import { Footer } from '../app/Footer';
 import { CreateModalProvider } from './userTab/context/CreateModalContext';
 import { EditModalProvider } from './userTab/context/EditModalContext';

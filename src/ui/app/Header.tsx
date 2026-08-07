@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React from 'react';
 import useNavigation from '../../app/hooks/useNavigation';
 import NavigationTabs from './navigation/NavigationTabs';
-import { Box, useTheme, CustomSpooder, Icon } from '@greysole/spooder-component-library';
+import { Box, useTheme, CustomSpooder, Icon } from '@spooder/webui-component-library';
 
 export default function Header() {
   const { navigationOpen, toggleNavigation } = useNavigation();

@@ -1,4 +1,4 @@
-import { Expandable, BoolSwitch } from '@greysole/spooder-component-library';
+import { Expandable, BoolSwitch } from '@spooder/webui-component-library';
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
 

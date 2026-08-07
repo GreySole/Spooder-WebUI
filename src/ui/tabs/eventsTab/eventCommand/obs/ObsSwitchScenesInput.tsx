@@ -2,7 +2,7 @@ import React from 'react';
 import { useFormContext } from 'react-hook-form';
 import { buildKey } from '../../FormKeys';
 import { SelectOption } from '../../../../Types';
-import { FormSelectDropdown, FormNumberInput, Stack } from '@greysole/spooder-component-library';
+import { FormSelectDropdown, FormNumberInput, Stack } from '@spooder/webui-component-library';
 import useOBS from '../../../../../app/hooks/useOBS';
 
 interface ObsSwitchScenesInputProps {

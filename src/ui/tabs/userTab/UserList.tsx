@@ -1,7 +1,7 @@
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
 import UserEntry from './UserEntry';
-import { FormLoader, Stack, TypeFace } from '@greysole/spooder-component-library';
+import { FormLoader, Stack, TypeFace } from '@spooder/webui-component-library';
 import PendingUserEntry from './PendingUserEntry';
 import useUsers from '../../../app/hooks/useUsers';
 import PageCircleLoader from '../../common/input/general/PageCircleLoader';

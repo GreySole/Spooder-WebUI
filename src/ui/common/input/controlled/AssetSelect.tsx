@@ -2,7 +2,7 @@ import { faExpandArrowsAlt, faFileImport } from '@fortawesome/free-solid-svg-ico
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import usePlugins from '../../../../app/hooks/usePlugins';
 import React, { useRef } from 'react';
-import { Box, Button, SelectDropdown, useDialog } from '@greysole/spooder-component-library';
+import { Box, Button, SelectDropdown, useDialog } from '@spooder/webui-component-library';
 import PluginAssetPreview from '../../../tabs/pluginTab/PluginAssetPreview';
 
 interface AssetSelectProps {

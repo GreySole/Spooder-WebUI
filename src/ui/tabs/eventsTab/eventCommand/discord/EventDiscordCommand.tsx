@@ -1,11 +1,11 @@
 import {
-    Box,
-    FormBoolSwitch,
-    FormNumberInput,
-    FormSelectDropdown,
-    FormTextInput,
-    Stack,
-} from '@greysole/spooder-component-library';
+  Box,
+  FormBoolSwitch,
+  FormNumberInput,
+  FormSelectDropdown,
+  FormTextInput,
+  Stack,
+} from '@spooder/webui-component-library';
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
 import useEvents from '../../../../../app/hooks/useEvents';

@@ -8,7 +8,7 @@ import {
   FormTextInput,
   Button,
   FormNumberInput,
-} from '@greysole/spooder-component-library';
+} from '@spooder/webui-component-library';
 import { OSCConditionType } from '../../../../Types';
 import { buildKey } from '../../FormKeys';
 

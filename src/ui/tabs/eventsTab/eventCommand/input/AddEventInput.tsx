@@ -14,7 +14,7 @@ import {
   TypeFace,
   useTheme,
   useToast,
-} from '@greysole/spooder-component-library';
+} from '@spooder/webui-component-library';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
 import { useEventTableModal } from '../../context/EventTableModalContext';
@@ -65,7 +65,7 @@ export default function AddEventInput(props: AddEventButtonProps) {
       commands: [],
     } as SpooderEvent;
 
-    setValue(`${EVENT_KEY}.${newKey}`, newEvent);
+    setValue(`${EVENT_KEY}.${newKey}`, newEvent, { shouldDirty: true });
     setEventName(newKey);
     open();
   }

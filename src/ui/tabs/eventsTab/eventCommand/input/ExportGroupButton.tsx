@@ -1,6 +1,6 @@
 import React from 'react';
 import { faFileExport } from '@fortawesome/free-solid-svg-icons';
-import { Box, Button, useTheme } from '@greysole/spooder-component-library';
+import { Box, Button, useTheme } from '@spooder/webui-component-library';
 import { useFormContext } from 'react-hook-form';
 
 interface ExportGroupButtonProps {

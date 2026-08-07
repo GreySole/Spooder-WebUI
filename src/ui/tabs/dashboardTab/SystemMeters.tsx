@@ -1,6 +1,6 @@
 import React from 'react';
 import { KeyedObject } from '../../Types';
-import { Box } from '@greysole/spooder-component-library';
+import { Box } from '@spooder/webui-component-library';
 import CircleMeter from './meter/CircleMeter';
 
 interface SystemMetersProps {

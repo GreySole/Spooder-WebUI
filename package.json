@@ -1,13 +1,15 @@
 {
   "name": "spooder-webui",
-  "version": "0.5.9",
+  "version": "0.5.11",
   "description": "Web interface for Spooder",
   "main": "spooder.js",
   "scripts": {
     "prestart": "node scripts/generate-registry.js",
     "prebuild": "node scripts/generate-registry.js",
-    "start": "react-scripts start",
-    "build": "react-scripts build"
+    "start": "vite --host",
+    "build": "tsc --noEmit && vite build",
+    "build-front": "npm run build && node scripts/replace-build.js",
+    "preview": "vite preview --port 3001"
   },
   "author": "Grey Sole",
   "license": "GPL-3.0",
@@ -18,8 +20,8 @@
     "@fortawesome/fontawesome-svg-core": "^6.1.1",
     "@fortawesome/free-solid-svg-icons": "^6.1.1",
     "@fortawesome/react-fontawesome": "^0.1.18",
-    "@greysole/spooder-component-library": "^0.1.442",
     "@reduxjs/toolkit": "^2.2.5",
+    "@spooder/webui-component-library": "^0.2.0",
     "@typescript-eslint/parser": "^5.62.0",
     "@uiw/react-textarea-code-editor": "^2.0.6",
     "@xzdarcy/react-timeline-editor": "^0.1.9",
@@ -48,11 +50,9 @@
     "@types/react-transition-group": "^4.4.12",
     "@types/tinycolor2": "^1.4.6",
     "@types/uuid": "^10.0.0",
-    "react-scripts": "^5.0.1",
-    "typescript": "^5.6.2"
-  },
-  "browser": {
-    "crypto": true
+    "@vitejs/plugin-react": "^6.0.3",
+    "typescript": "^5.6.2",
+    "vite": "^8.1.4"
   },
   "resolutions": {
     "react": "^18.3.1",
@@ -61,7 +61,6 @@
   "overrides": {
     "typescript": "^5.6.2"
   },
-  "proxy": "http://localhost:3000",
   "browserslist": {
     "production": [
       ">0.2%",

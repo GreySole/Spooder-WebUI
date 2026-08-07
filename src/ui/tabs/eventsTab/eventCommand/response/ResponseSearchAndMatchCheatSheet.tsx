@@ -1,4 +1,4 @@
-import { Box } from "@greysole/spooder-component-library";
+import { Box } from "@spooder/webui-component-library";
 import React, { useState } from "react";
 
 interface ResponseSearchAndMatchCheatSheetProps {

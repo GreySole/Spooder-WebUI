@@ -1,5 +1,5 @@
 import React from 'react';
-import { KeyedObject } from '@greysole/spooder-component-library';
+import { KeyedObject } from '@spooder/webui-component-library';
 import { createContext, ReactNode, useContext } from 'react';
 
 interface SettingsFormContextProps {

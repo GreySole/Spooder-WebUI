@@ -1,5 +1,5 @@
 import React from 'react';
-import { Expandable, Stack } from '@greysole/spooder-component-library';
+import { Expandable, Stack } from '@spooder/webui-component-library';
 import { usePluginSettingsContext } from './context/PluginSettingsContext';
 import PluginInputProcessor from './pluginInput/PluginInputProcessor';
 

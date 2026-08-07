@@ -8,7 +8,7 @@ import {
   MouseArea,
   Stack,
   TypeFace,
-} from '@greysole/spooder-component-library';
+} from '@spooder/webui-component-library';
 import useRecovery from '../../../../../app/hooks/useRecovery';
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 

@@ -11,7 +11,7 @@ import {
   TypeFace,
   Stack,
   BoolSwitch,
-} from '@greysole/spooder-component-library';
+} from '@spooder/webui-component-library';
 import React, { useEffect } from 'react';
 import { useFormContext } from 'react-hook-form';
 import FormOBSSceneItemSelect from '../../../../common/input/form/FormOBSSceneItemSelect';

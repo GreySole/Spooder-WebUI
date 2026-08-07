@@ -10,7 +10,7 @@ import {
   Stack,
   useTheme,
   useToast,
-} from '@greysole/spooder-component-library';
+} from '@spooder/webui-component-library';
 import { faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import useEvents from '../../../../../app/hooks/useEvents';

@@ -14,7 +14,7 @@ import {
   Button,
   Box,
   TypeFace,
-} from '@greysole/spooder-component-library';
+} from '@spooder/webui-component-library';
 import AssetSelect from '../../../../common/input/controlled/AssetSelect';
 import UdpSelectDropdown from '../../../../common/input/controlled/UdpSelectDropdown';
 import EventSelect from '../../../../common/input/controlled/EventSelect';

@@ -1,4 +1,4 @@
-import { TooltipButton } from '@greysole/spooder-component-library';
+import { TooltipButton } from '@spooder/webui-component-library';
 import React from 'react';
 
 interface TutorialButtonProps {

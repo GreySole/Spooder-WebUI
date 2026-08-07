@@ -10,7 +10,7 @@ import {
   Stack,
   StyleSizeButton,
   useOSC,
-} from '@greysole/spooder-component-library';
+} from '@spooder/webui-component-library';
 import useOBS from '../../../../app/hooks/useOBS';
 
 export default function SceneController() {

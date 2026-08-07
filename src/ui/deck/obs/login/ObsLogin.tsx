@@ -7,7 +7,7 @@ import {
   Stack,
   Box,
   TypeFace,
-} from '@greysole/spooder-component-library';
+} from '@spooder/webui-component-library';
 import ObsConnectButton from './ObsConnectButton';
 
 interface ObsLoginProps {

@@ -5,7 +5,7 @@ import {
   useSaveEventsMutation,
   useVerifyResponseScriptMutation,
 } from '../api/eventSlice';
-import { useToast, ToastType } from '@greysole/spooder-component-library';
+import { useToast, ToastType } from '@spooder/webui-component-library';
 
 interface Event {
   name: string;

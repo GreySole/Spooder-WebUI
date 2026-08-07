@@ -1,6 +1,6 @@
 import React from 'react';
 import useEvents from '../../../../app/hooks/useEvents';
-import { SelectDropdown } from '@greysole/spooder-component-library';
+import { SelectDropdown } from '@spooder/webui-component-library';
 
 interface EventSelectProps {
   label?: string;

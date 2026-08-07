@@ -6,7 +6,7 @@ import useOBS from '../../app/hooks/useOBS';
 import OutputController from './obs/outputController/OutputController';
 import SourceControl from './obs/sourceControl/SourceControl';
 import ObsLogin from './obs/login/ObsLogin';
-import { Box, CircleLoader, useOSC } from '@greysole/spooder-component-library';
+import { Box, CircleLoader, useOSC } from '@spooder/webui-component-library';
 import PageCircleLoader from '../common/input/general/PageCircleLoader';
 
 export default function OBS() {

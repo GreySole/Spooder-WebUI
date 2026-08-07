@@ -3,7 +3,7 @@ import { KeyedObject } from '../../../Types';
 import VolumeControl from './VolumeControl';
 import VolumeGroupControl from './VolumeGroupControl';
 import { useObsWebsocketContext } from './VolumeContext';
-import { Border, Box, Columns } from '@greysole/spooder-component-library';
+import { Border, Box, Columns } from '@spooder/webui-component-library';
 
 export default function VolumeDeck() {
   const { groups, meters, meterNames, inputs, isReady } = useObsWebsocketContext();

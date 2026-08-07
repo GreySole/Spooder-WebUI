@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlug, faSpider } from '@fortawesome/free-solid-svg-icons';
 import { useFormContext } from 'react-hook-form';
 import usePlugins from '../../../../app/hooks/usePlugins';
-import { Box, Button, CircleLoader, useTheme } from '@greysole/spooder-component-library';
+import { Box, Button, CircleLoader, useTheme } from '@spooder/webui-component-library';
 import PageCircleLoader from '../../../common/input/general/PageCircleLoader';
 import { SharedElement } from '../../../Types';
 

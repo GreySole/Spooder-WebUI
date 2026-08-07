@@ -1,5 +1,5 @@
 import React, { ReactNode } from 'react';
-import { Box, TypeFace } from '@greysole/spooder-component-library';
+import { Box, TypeFace } from '@spooder/webui-component-library';
 import useModule from '../../../../../app/hooks/useModule';
 
 interface ResponseCommandCheatSheetProps {

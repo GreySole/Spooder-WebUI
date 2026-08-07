@@ -1,11 +1,11 @@
 import {
-    Box,
-    FormBoolSwitch,
-    FormLoader,
-    FormSelectDropdown,
-    Stack,
-    useTheme,
-} from '@greysole/spooder-component-library';
+  Box,
+  FormBoolSwitch,
+  FormLoader,
+  FormSelectDropdown,
+  Stack,
+  useTheme,
+} from '@spooder/webui-component-library';
 import React from 'react';
 import useTwitch from '../../../../../modules/installed/twitch/useTwitch';
 import { EventTriggerProps } from '../../../../Types';

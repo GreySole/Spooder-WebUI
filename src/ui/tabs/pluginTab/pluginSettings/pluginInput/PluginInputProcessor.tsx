@@ -1,4 +1,4 @@
-import { Columns, TooltipButton, translateCondition } from '@greysole/spooder-component-library';
+import { Columns, TooltipButton, translateCondition } from '@spooder/webui-component-library';
 import { useFormContext } from 'react-hook-form';
 import React from 'react';
 import PluginInput from './PluginInput';

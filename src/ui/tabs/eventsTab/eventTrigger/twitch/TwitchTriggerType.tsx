@@ -1,4 +1,4 @@
-import { FormSelectDropdown, useTheme } from '@greysole/spooder-component-library';
+import { FormSelectDropdown, useTheme } from '@spooder/webui-component-library';
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
 import useTwitch from '../../../../../modules/installed/twitch/useTwitch';

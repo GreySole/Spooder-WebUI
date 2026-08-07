@@ -1,9 +1,9 @@
 import {
-    Border,
-    Box,
-    FormBoolSwitch,
-    Stack
-} from '@greysole/spooder-component-library';
+  Border,
+  Box,
+  FormBoolSwitch,
+  Stack,
+} from '@spooder/webui-component-library';
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
 import { buildKey, buildTriggerKey } from '../../FormKeys';

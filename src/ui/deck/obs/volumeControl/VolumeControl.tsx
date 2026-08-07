@@ -16,7 +16,7 @@ import {
   useTheme,
   StyleSizeButton,
   Slider,
-} from '@greysole/spooder-component-library';
+} from '@spooder/webui-component-library';
 import VolumeMeter from './VolumeMeter';
 
 interface VolumeControlProps {
@@ -86,7 +86,7 @@ export default function VolumeControl(props: VolumeControlProps) {
             gradient={`${themeColors.buttonBackgroundColor},${themeColors.backgroundColorFar}`}
             value={Math.sqrt(volume)}
             step={0.01}
-            onChange={(value) => setVolume(value)}
+            onChange={(value: number) => setVolume(value)}
           />
         </Box>
         <Box flexFlow='column' justifyContent='flex-end' marginLeft='medium'>

@@ -1,7 +1,7 @@
 import React from 'react';
 import TabButton from './TabButton';
 import useNavigation from '../../../app/hooks/useNavigation';
-import { Box } from '@greysole/spooder-component-library';
+import { Box } from '@spooder/webui-component-library';
 import FolderTabButton from './FolderTabButton';
 
 export default function NavigationTabs() {

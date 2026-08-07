@@ -1,7 +1,7 @@
 import React from 'react';
 import { PluginComponentProps } from '../../../Types';
 import usePlugins from '../../../../app/hooks/usePlugins';
-import { FormLoader } from '@greysole/spooder-component-library';
+import { FormLoader } from '@spooder/webui-component-library';
 import PluginSettingsContextProvider from './context/PluginSettingsContext';
 import SettingsFormContextProvider from './context/SettingsFormContext';
 import SettingsFormModal from './SettingsFormModal';

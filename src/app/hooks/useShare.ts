@@ -12,7 +12,7 @@ import {
   useSetShareMutation,
   useVerifyShareTargetMutation,
 } from '../api/shareSlice';
-import { convertReactFormToFormData, KeyedObject } from '@greysole/spooder-component-library';
+import { convertReactFormToFormData, KeyedObject } from '@spooder/webui-component-library';
 import { useCreateUserMutation, useDeleteUserMutation } from '../api/userSlice';
 
 export default function useShare() {

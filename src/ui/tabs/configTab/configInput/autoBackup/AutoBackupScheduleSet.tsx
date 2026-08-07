@@ -1,4 +1,4 @@
-import { NumberInput, SelectDropdown } from '@greysole/spooder-component-library';
+import { NumberInput, SelectDropdown } from '@spooder/webui-component-library';
 import React, { useEffect, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 

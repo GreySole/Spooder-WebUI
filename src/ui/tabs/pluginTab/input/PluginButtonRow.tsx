@@ -16,7 +16,7 @@ import {
   Stack,
   TypeFace,
   useDialog,
-} from '@greysole/spooder-component-library';
+} from '@spooder/webui-component-library';
 
 interface PluginButtonRowProps {
   pluginName: string;

@@ -7,7 +7,7 @@ import {
   Button,
   TypeFace,
   Columns,
-} from '@greysole/spooder-component-library';
+} from '@spooder/webui-component-library';
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
 import { OSCConditionType } from '../../../../Types';
@@ -30,16 +30,20 @@ export default function OscConditionGroup(props: OscConditionGroupProps) {
   const groupConditionValues = watch(groupConditionKey, []);
 
   const addCondition = () => {
-    setValue(groupConditionKey, [
-      ...groupConditionValues,
-      { arg: groupConditionValues.length, type: OSCConditionType.equal, value: '0' },
-    ]);
+    setValue(
+      groupConditionKey,
+      [
+        ...groupConditionValues,
+        { arg: groupConditionValues.length, type: OSCConditionType.equal, value: '0' },
+      ],
+      { shouldDirty: true },
+    );
   };
 
   const deleteCondition = (conditionIndex: number) => {
     const newConditions = [...groupConditionValues];
     newConditions.splice(conditionIndex, 1);
-    setValue(groupConditionKey, newConditions);
+    setValue(groupConditionKey, newConditions, { shouldDirty: true });
   };
 
   return (

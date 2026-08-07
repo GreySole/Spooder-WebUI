@@ -1,7 +1,7 @@
 import { useFormContext } from 'react-hook-form';
 import useOBS from '../../../../app/hooks/useOBS';
 import React from 'react';
-import { Button } from '@greysole/spooder-component-library';
+import { Button } from '@spooder/webui-component-library';
 
 export default function ObsConnectButton() {
   const { getValues } = useFormContext();

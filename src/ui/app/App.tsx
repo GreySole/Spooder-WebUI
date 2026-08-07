@@ -3,8 +3,8 @@ import {
   CustomSpooder,
   Grid,
   useOSC,
-  useTheme
-} from '@greysole/spooder-component-library';
+  useTheme,
+} from '@spooder/webui-component-library';
 import React, { useEffect } from 'react';
 import { useScrollContext } from '../../app/context/ScrollContext';
 import useNavigation from '../../app/hooks/useNavigation';

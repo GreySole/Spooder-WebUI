@@ -2,7 +2,7 @@ import React from 'react';
 import { useFormContext } from 'react-hook-form';
 import { OSCConditionType } from '../../../../Types';
 import { buildKey } from '../../FormKeys';
-import { Box, Button, Expandable, Stack } from '@greysole/spooder-component-library';
+import { Box, Button, Expandable, Stack } from '@spooder/webui-component-library';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import OscConditionGroup from './OscConditionGroup';
 
@@ -20,16 +20,20 @@ export default function OscConditions(props: OscConditionsProps) {
   const conditionGroups = watch(conditionKey, []);
 
   const addConditionGroup = () => {
-    setValue(conditionKey, [
-      ...conditionGroups,
-      { mode: 'OR', conditions: [{ arg: 0, type: OSCConditionType.equal, value: '0' }] },
-    ]);
+    setValue(
+      conditionKey,
+      [
+        ...conditionGroups,
+        { mode: 'OR', conditions: [{ arg: 0, type: OSCConditionType.equal, value: '0' }] },
+      ],
+      { shouldDirty: true },
+    );
   };
 
   const deleteConditionGroup = (groupIndex: number) => {
     const newConditionGroups = [...conditionGroups];
     newConditionGroups.splice(groupIndex, 1);
-    setValue(conditionKey, newConditionGroups);
+    setValue(conditionKey, newConditionGroups, { shouldDirty: true });
   };
 
   return (

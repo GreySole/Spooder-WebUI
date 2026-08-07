@@ -1,7 +1,7 @@
-import { SelectDropdown } from '@greysole/spooder-component-library';
 import React from 'react';
 import useDiscord from '../../../../modules/installed/discord/useDiscord';
 import { SelectOption } from '../../../Types';
+import { SelectDropdown } from '@spooder/webui-component-library';
 
 interface DiscordChannelPair {
   destGuild: string;

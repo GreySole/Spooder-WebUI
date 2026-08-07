@@ -30,6 +30,9 @@
   "exclude": [
     "node_modules",
     "dist",
-    "build"
+    "build",
+    // WIP module-registry submodules (src/modules/registry.ts, installed/*) -
+    // not wired up yet, missing src/modules/types.ts. Re-include once that lands.
+    "src/modules"
   ]
 }

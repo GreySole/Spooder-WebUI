@@ -1,13 +1,14 @@
 {
   "name": "spooder-webui",
-  "version": "0.5.9",
+  "version": "0.5.11",
   "description": "Web interface for Spooder",
   "main": "spooder.js",
   "scripts": {
     "prestart": "node scripts/generate-registry.js",
     "prebuild": "node scripts/generate-registry.js",
-    "start": "vite",
+    "start": "vite --host",
     "build": "tsc --noEmit && vite build",
+    "build-front": "npm run build && node scripts/replace-build.js",
     "preview": "vite preview --port 3001"
   },
   "author": "Grey Sole",
@@ -19,8 +20,8 @@
     "@fortawesome/fontawesome-svg-core": "^6.1.1",
     "@fortawesome/free-solid-svg-icons": "^6.1.1",
     "@fortawesome/react-fontawesome": "^0.1.18",
-    "@greysole/spooder-component-library": "file:../spooder-component-library",
     "@reduxjs/toolkit": "^2.2.5",
+    "@spooder/webui-component-library": "^0.2.0",
     "@typescript-eslint/parser": "^5.62.0",
     "@uiw/react-textarea-code-editor": "^2.0.6",
     "@xzdarcy/react-timeline-editor": "^0.1.9",

@@ -16,7 +16,7 @@ import {
   useTheme,
   StyleSizeButton,
   Slider,
-} from '@greysole/spooder-component-library';
+} from '@spooder/webui-component-library';
 import VolumeMeter from './VolumeMeter';
 
 interface VolumeControlProps {

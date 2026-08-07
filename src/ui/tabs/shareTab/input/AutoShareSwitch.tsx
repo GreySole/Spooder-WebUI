@@ -1,4 +1,4 @@
-import { BoolSwitch, Button, TypeFace, useDialog } from '@greysole/spooder-component-library';
+import { BoolSwitch, Button, TypeFace, useDialog } from '@spooder/webui-component-library';
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
 import useShare from '../../../../app/hooks/useShare';

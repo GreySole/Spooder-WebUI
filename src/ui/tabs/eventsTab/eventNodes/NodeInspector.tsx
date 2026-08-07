@@ -1,4 +1,4 @@
-import { Box, Button, FormNumberInput, Stack, TypeFace } from '@greysole/spooder-component-library';
+import { Box, Button, FormNumberInput, Stack, TypeFace } from '@spooder/webui-component-library';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import React from 'react';
 import { useFormContext } from 'react-hook-form';

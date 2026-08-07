@@ -10,7 +10,7 @@ import {
   Button,
   ToastType,
   useToast,
-} from '@greysole/spooder-component-library';
+} from '@spooder/webui-component-library';
 import useConfig from '../../../../app/hooks/useConfig';
 import ConfigBotSection from './ConfigBotSection';
 import ConfigNetworkSection from './ConfigNetworkSection';

@@ -15,7 +15,7 @@ import {
   Icon,
   Button,
   useDialog,
-} from '@greysole/spooder-component-library';
+} from '@spooder/webui-component-library';
 import { useFormContext } from 'react-hook-form';
 import { StyleSize } from '../../Types';
 import { useEventTableModal } from './context/EventTableModalContext';

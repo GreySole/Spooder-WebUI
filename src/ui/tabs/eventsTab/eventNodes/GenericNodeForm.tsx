@@ -4,7 +4,7 @@ import {
   FormNumberInput,
   FormSelectDropdown,
   FormTextInput,
-} from '@greysole/spooder-component-library';
+} from '@spooder/webui-component-library';
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
 import FormAssetSelect from '../../../common/input/form/FormAssetSelect';

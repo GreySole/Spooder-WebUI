@@ -1,7 +1,7 @@
 import React from 'react';
 import type { DragHandleProps } from './SortableItem';
 import { faGrip } from '@fortawesome/free-solid-svg-icons';
-import { Icon, useTooltip } from '@greysole/spooder-component-library';
+import { Icon, useTooltip } from '@spooder/webui-component-library';
 
 interface DragHandleButtonProps {
   dragHandleProps: DragHandleProps;

@@ -6,7 +6,7 @@ import {
   TextInput,
   Button,
   Columns,
-} from '@greysole/spooder-component-library';
+} from '@spooder/webui-component-library';
 import React, { useState } from 'react';
 import useEvents from '../../../../../app/hooks/useEvents';
 import { buildGraphKey, buildNodeValueKey } from '../../FormKeys';

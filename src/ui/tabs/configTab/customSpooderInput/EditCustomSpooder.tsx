@@ -24,7 +24,7 @@ import {
   Columns,
   Slider,
   TextInput,
-} from '@greysole/spooder-component-library';
+} from '@spooder/webui-component-library';
 import EditCustomSpooderInputPair from './EditCustomSpooderInputPair';
 import SortableItem from '../../../common/dragAndDrop/SortableItem';
 import { set } from 'react-hook-form';
@@ -55,7 +55,7 @@ export default function EditCustomSpooder() {
   );
 
   useEffect(() => {
-    setSpooderParts(customSpooder.map((_, i) => `part-${i + 1}`));
+    setSpooderParts(customSpooder.map((_: any, i: number) => `part-${i + 1}`));
   }, [customSpooder]);
 
   const handleDragEnd = (event: any) => {

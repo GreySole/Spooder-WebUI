@@ -10,7 +10,7 @@ import {
   LinkButton,
   TypeFace,
   useDialog,
-} from '@greysole/spooder-component-library';
+} from '@spooder/webui-component-library';
 import useServer from '../../../../app/hooks/useServer';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCopy, faExclamationTriangle, faKey } from '@fortawesome/free-solid-svg-icons';

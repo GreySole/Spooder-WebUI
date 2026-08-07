@@ -8,7 +8,7 @@ import {
   FormSelectDropdown,
   FormTextInput,
   TypeFace,
-} from '@greysole/spooder-component-library';
+} from '@spooder/webui-component-library';
 import FormCodeInput from '../../../../common/input/form/FormCodeInput';
 import ResponseScriptTest from './ResponseScriptTest';
 

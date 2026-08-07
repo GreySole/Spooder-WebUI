@@ -1,4 +1,4 @@
-import { Stack, Box, TypeFace } from '@greysole/spooder-component-library';
+import { Stack, Box, TypeFace } from '@spooder/webui-component-library';
 import React from 'react';
 import { useShareTab } from './context/ShareTabContext';
 import ShareEntry from './ShareEntry';

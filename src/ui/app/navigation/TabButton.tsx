@@ -1,6 +1,6 @@
 import React from 'react';
 import useNavigation from '../../../app/hooks/useNavigation';
-import { Button, useTheme } from '@greysole/spooder-component-library';
+import { Button, useTheme } from '@spooder/webui-component-library';
 import { icon, IconProp } from '@fortawesome/fontawesome-svg-core';
 
 interface TabButtonProps {

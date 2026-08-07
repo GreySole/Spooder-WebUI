@@ -1,6 +1,6 @@
 import { faHome, faComment, faPlug, faTrash, faMicrochip } from '@fortawesome/free-solid-svg-icons';
 import React from 'react';
-import { ButtonRow, useTheme } from '@greysole/spooder-component-library';
+import { ButtonRow, useTheme } from '@spooder/webui-component-library';
 
 interface ShareCategoryButtonRowProps {
   tab: string;

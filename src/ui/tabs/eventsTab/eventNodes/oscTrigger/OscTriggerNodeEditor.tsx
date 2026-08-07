@@ -8,7 +8,7 @@ import {
   FormSelectDropdown,
   FormTextInput,
   Stack,
-} from '@greysole/spooder-component-library';
+} from '@spooder/webui-component-library';
 import { faQuestion } from '@fortawesome/free-solid-svg-icons';
 import { buildKey, buildNodeValueKey } from '../../FormKeys';
 import OscConditions from './OscConditions';

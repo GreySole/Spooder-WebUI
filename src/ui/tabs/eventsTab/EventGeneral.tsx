@@ -8,7 +8,7 @@ import {
   FormSelectDropdown,
   FormNumberInput,
   FormBoolSwitch,
-} from '@greysole/spooder-component-library';
+} from '@spooder/webui-component-library';
 
 interface EventGeneralProps {
   eventName: string;

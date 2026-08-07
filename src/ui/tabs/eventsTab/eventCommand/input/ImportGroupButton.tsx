@@ -1,14 +1,12 @@
 import React from 'react';
 import { faFileImport } from '@fortawesome/free-solid-svg-icons';
-import { Box, Button, useTheme } from '@greysole/spooder-component-library';
+import { Box, Button, useTheme } from '@spooder/webui-component-library';
 import { useFormContext } from 'react-hook-form';
-import { useEventTableModal } from '../../context/EventTableModalContext';
 import useEvents from '../../../../../app/hooks/useEvents';
 import { DISABLED_GROUP_KEY, GRAPH_KEY, GROUP_KEY } from '../../FormKeys';
 
 export default function ImportGroupButton() {
-  const { setValue, getValues, reset } = useFormContext();
-  const { resetFormRef } = useEventTableModal();
+  const { getValues, reset } = useFormContext();
   const { isMobileDevice } = useTheme();
   const { getSaveEvents } = useEvents();
   const { saveEvents } = getSaveEvents();
@@ -31,13 +29,12 @@ export default function ImportGroupButton() {
             const reader = new FileReader();
             reader.onload = (event: any) => {
               const jsonContent = JSON.parse(event.target.result);
-              const groups = getValues(GROUP_KEY);
-              const graphs = getValues(GRAPH_KEY);
+              const groups = [...getValues(GROUP_KEY)];
+              const graphs = { ...getValues(GRAPH_KEY) };
               const disabledGroups = getValues(DISABLED_GROUP_KEY);
               const newGroupName = jsonContent._meta.groupName;
               if (!groups.includes(newGroupName)) {
                 groups.push(newGroupName);
-                setValue(GROUP_KEY, groups);
               }
               for (let ev in jsonContent.graphs) {
                 const newEventName = `_${newGroupName.replace(/[^a-zA-Z0-9]/g, '_')}_${jsonContent.graphs[ev].name}`;
@@ -49,7 +46,6 @@ export default function ImportGroupButton() {
                 graphs,
                 disabledGroups,
               });
-              resetFormRef.current?.();
 
               saveEvents(
                 getValues(),

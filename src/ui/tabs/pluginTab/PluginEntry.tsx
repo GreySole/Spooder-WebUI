@@ -17,7 +17,7 @@ import {
   useTheme,
   Modal,
   Icon,
-} from '@greysole/spooder-component-library';
+} from '@spooder/webui-component-library';
 import { PluginComponentProps } from '../../Types';
 import { usePluginContext } from './context/PluginTabFormContext';
 import PluginButtonRow from './input/PluginButtonRow';

@@ -1,7 +1,7 @@
 import React, { ReactNode, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faX } from '@fortawesome/free-solid-svg-icons';
-import { Box, TypeFace, Columns } from '@greysole/spooder-component-library';
+import { Box, TypeFace, Columns } from '@spooder/webui-component-library';
 
 interface ExpandableProps {
   label: string;

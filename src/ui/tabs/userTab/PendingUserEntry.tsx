@@ -5,7 +5,7 @@ import {
   TypeFace,
   useDialog,
   useToast,
-} from '@greysole/spooder-component-library';
+} from '@spooder/webui-component-library';
 import useUsers from '../../../app/hooks/useUsers';
 import { faEdit, faDeleteLeft, faTrash, faCopy } from '@fortawesome/free-solid-svg-icons';
 import React from 'react';

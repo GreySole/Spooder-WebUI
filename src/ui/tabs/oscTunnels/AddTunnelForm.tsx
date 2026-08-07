@@ -11,7 +11,7 @@ import {
   Button,
   Box,
   useTheme,
-} from '@greysole/spooder-component-library';
+} from '@spooder/webui-component-library';
 
 interface AddTunnelFormProps {
   onAddOSCTunnel: (newTunnel: KeyedObject) => void;

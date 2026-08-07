@@ -8,7 +8,7 @@ import {
   Box,
   Stack,
   BoolSwitch,
-} from '@greysole/spooder-component-library';
+} from '@spooder/webui-component-library';
 import useShare from '../../../app/hooks/useShare';
 import TabButton from './TabButton';
 

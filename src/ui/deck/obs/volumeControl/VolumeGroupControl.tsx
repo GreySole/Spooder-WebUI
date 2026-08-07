@@ -10,7 +10,7 @@ import {
   StyleSizeButton,
   TypeFace,
   useOSC,
-} from '@greysole/spooder-component-library';
+} from '@spooder/webui-component-library';
 import GroupVolumeMeter from './GroupVolumeMeter';
 
 interface VolumeGroupMeterProps {

@@ -8,7 +8,7 @@ import React, {
   useState,
 } from 'react';
 import { KeyedObject } from '../../../Types';
-import { useOSC } from '@greysole/spooder-component-library';
+import { useOSC } from '@spooder/webui-component-library';
 import useOBS from '../../../../app/hooks/useOBS';
 import { current } from '@reduxjs/toolkit';
 

@@ -4,7 +4,7 @@ import {
   Modal,
   Stack,
   translateCondition,
-} from '@greysole/spooder-component-library';
+} from '@spooder/webui-component-library';
 import React from 'react';
 import PluginInput from './pluginInput/PluginInput';
 import PluginSubform from './PluginSubform';

@@ -1,6 +1,6 @@
 import React from 'react';
 import useEvents from '../../../../app/hooks/useEvents';
-import { FormSelectDropdown } from '@greysole/spooder-component-library';
+import { FormSelectDropdown } from '@spooder/webui-component-library';
 
 interface FormEventSelectProps {
   formKey: string;

@@ -6,7 +6,7 @@ import {
   Stack,
   TypeFace,
   useTheme,
-} from '@greysole/spooder-component-library';
+} from '@spooder/webui-component-library';
 import React, { useState } from 'react';
 import { Log } from '../OSCMonitor';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';

@@ -1,4 +1,4 @@
-import { FormSelectDropdown } from '@greysole/spooder-component-library';
+import { FormSelectDropdown } from '@spooder/webui-component-library';
 import React from 'react';
 
 interface ModNodeTargetTypeProps {

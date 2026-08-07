@@ -10,7 +10,7 @@ import {
   NumberInput,
   TypeFace,
   hslToHex,
-} from '@greysole/spooder-component-library';
+} from '@spooder/webui-component-library';
 
 export default function ThemeColor() {
   const { themeColors, themeVariables, setThemeHue, setThemeMode, setThemeSaturation } = useTheme();

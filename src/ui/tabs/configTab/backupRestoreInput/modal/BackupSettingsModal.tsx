@@ -1,4 +1,4 @@
-import { Box, Modal } from '@greysole/spooder-component-library';
+import { Box, Modal } from '@spooder/webui-component-library';
 import React, { useState } from 'react';
 import BackupSettingsInput from '../input/BackupSettingsInput';
 import RestoreSettingsInput from '../input/RestoreSettingsInput';

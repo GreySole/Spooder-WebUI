@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { faPlusCircle } from '@fortawesome/free-solid-svg-icons';
-import { Box, Button, Modal } from '@greysole/spooder-component-library';
+import { Box, Button, Modal } from '@spooder/webui-component-library';
 import CreatePluginModalContent from './CreatePluginModalContent';
 import { useFormContext } from 'react-hook-form';
 import { usePluginContext } from '../context/PluginTabFormContext';

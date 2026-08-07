@@ -1,7 +1,7 @@
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
 import { buildKey, buildNodeValueKey } from '../../FormKeys';
-import { FormNumberInput, FormSelectDropdown, Stack } from '@greysole/spooder-component-library';
+import { FormNumberInput, FormSelectDropdown, Stack } from '@spooder/webui-component-library';
 import ModNodeTargetType from './ModNodeTargetType';
 import ModNodeTarget from './ModNodeTarget';
 

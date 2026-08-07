@@ -3,7 +3,7 @@ import {
   Stack,
   FormTextInput,
   FormNumberInput,
-} from '@greysole/spooder-component-library';
+} from '@spooder/webui-component-library';
 import React from 'react';
 
 export default function ConfigNetworkSection() {

@@ -7,7 +7,7 @@ import {
   FormSelectDropdown,
   FormTextInput,
   Stack,
-} from '@greysole/spooder-component-library';
+} from '@spooder/webui-component-library';
 import CustomEventPluginNodeCommand from './CustomEventPluginNodeCommand';
 import { KeyedObject } from '../../../../Types';
 

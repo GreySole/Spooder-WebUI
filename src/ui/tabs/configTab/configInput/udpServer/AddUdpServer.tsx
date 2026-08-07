@@ -8,7 +8,7 @@ import {
   Stack,
   TypeFace,
   Box,
-} from '@greysole/spooder-component-library';
+} from '@spooder/webui-component-library';
 import React, { useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 

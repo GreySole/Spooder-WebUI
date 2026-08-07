@@ -7,7 +7,7 @@ import {
   useSaveEventGraphsMutation,
   useVerifyResponseScriptMutation,
 } from '../api/eventSlice';
-import { useToast } from '@greysole/spooder-component-library';
+import { useToast } from '@spooder/webui-component-library';
 
 export default function useEvents() {
   const { showError, showSuccess } = useToast();

@@ -13,7 +13,7 @@ import {
   ToastType,
   Icon,
   FileDropZone,
-} from '@greysole/spooder-component-library';
+} from '@spooder/webui-component-library';
 import usePlugins from '../../../app/hooks/usePlugins';
 import { usePluginContext } from './context/PluginTabFormContext';
 

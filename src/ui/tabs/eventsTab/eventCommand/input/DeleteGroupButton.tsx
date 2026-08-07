@@ -1,7 +1,7 @@
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
 import { DISABLED_GROUP_KEY, GRAPH_KEY, GROUP_KEY } from '../../FormKeys';
-import { Box, Button, TypeFace, useDialog } from '@greysole/spooder-component-library';
+import { Box, Button, TypeFace, useDialog } from '@spooder/webui-component-library';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import useEvents from '../../../../../app/hooks/useEvents';
 
@@ -19,8 +19,8 @@ export default function DeleteGroupButton(props: DeleteGroupButtonProps) {
     const graphs = getValues(GRAPH_KEY);
     const groups = getValues(GROUP_KEY);
     const disabledGroups = getValues(DISABLED_GROUP_KEY);
-    let newGraphs = Object.assign(graphs);
-    let newGroups = Object.assign(groups);
+    let newGraphs = { ...graphs };
+    let newGroups = [...groups];
     for (let ev in newGraphs) {
       if (newGraphs[ev].group == groupName) {
         delete newGraphs[ev];

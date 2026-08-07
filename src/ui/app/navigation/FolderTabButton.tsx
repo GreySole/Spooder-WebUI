@@ -1,5 +1,5 @@
 import { IconProp } from '@fortawesome/fontawesome-svg-core';
-import { useTheme, Button, Box } from '@greysole/spooder-component-library';
+import { useTheme, Button, Box } from '@spooder/webui-component-library';
 import React, { useEffect, useState } from 'react';
 import useNavigation from '../../../app/hooks/useNavigation';
 import TabButton from './TabButton';

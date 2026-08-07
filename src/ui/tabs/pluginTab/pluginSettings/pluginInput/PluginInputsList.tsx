@@ -1,4 +1,4 @@
-import { Expandable, KeyedObject } from '@greysole/spooder-component-library';
+import { Expandable, KeyedObject } from '@spooder/webui-component-library';
 import React from 'react';
 import PluginInput from './PluginInput';
 import PluginMultiInput from './PluginMultiInput';

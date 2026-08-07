@@ -9,6 +9,7 @@ import {
   Stack,
 } from '@greysole/spooder-component-library';
 import CustomEventPluginNodeCommand from './CustomEventPluginNodeCommand';
+import { KeyedObject } from '../../../../Types';
 
 interface PluginNodeEditorProps {
   eventName: string;
@@ -72,11 +73,7 @@ export default function PluginNodeEditor(props: PluginNodeEditorProps) {
       )}
       {eType == 'timed' ? (
         pluginEventsForm != null ? (
-          <CustomEventPluginNodeCommand
-            formKey={stopEventFormKey}
-            pluginName={pluginName}
-            eventForm={pluginEventsForm}
-          />
+          <StopEventNameSelect formKey={stopEventFormKey} eventForm={pluginEventsForm} />
         ) : (
           <FormTextInput label='End Event Name:' formKey={stopEventFormKey} />
         )
@@ -86,4 +83,24 @@ export default function PluginNodeEditor(props: PluginNodeEditorProps) {
       ) : null}
     </Stack>
   );
+}
+
+interface StopEventNameSelectProps {
+  formKey: string;
+  eventForm: KeyedObject;
+}
+
+// The backend (EventPluginCommand) reads stop_eventname as a plain event-name string - it
+// has no support for the values/preprocessing payload CustomEventPluginNodeCommand writes
+// under `${formKey}.event.name`/`.event.values` for the start event. So the stop event
+// picker writes formKey itself directly rather than reusing that component.
+function StopEventNameSelect(props: StopEventNameSelectProps) {
+  const { formKey, eventForm } = props;
+
+  const eventOptions = [{ label: 'None', value: '' }];
+  for (let e in eventForm) {
+    eventOptions.push({ label: eventForm[e].label, value: e });
+  }
+
+  return <FormSelectDropdown formKey={formKey} label='End Event Name:' options={eventOptions} />;
 }

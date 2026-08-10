@@ -2,24 +2,39 @@ import { ActionNodeDef, TriggerNodeDef } from '../../../Types';
 
 // The backend's 'core' manifest (see NodeRegistryService/CoreNodeManifest) covers most core
 // node types generically now. These are just the exceptions it doesn't declare: nodes whose
-// forms are edited by bespoke inspector panels rather than the generic NodeForm renderer, so
-// the `form` here only needs to be non-empty for typing purposes - `defaults`/`label` are what
-// the palette and new-node creation actually use. findTriggerDef/findActionDef in
-// nodeDefLookup.ts only fall back to these when the backend manifest doesn't have the node.
+// forms are edited by bespoke inspector panels (ResponseNodeEditor, PluginNodeEditor, etc.)
+// rather than the generic NodeForm renderer - `defaults`/`label` are what the palette and
+// new-node creation actually use, and the bespoke editors read/write values directly rather
+// than iterating `form`. `form` still matters though: computeNodePortLayout reads it to
+// decide which fields get a wireable input socket on the node card (any field with a
+// `portType`), regardless of which editor draws the field itself. findTriggerDef/
+// findActionDef in nodeDefLookup.ts only fall back to these when the backend manifest
+// doesn't have the node.
 
 export const CORE_ACTION_DEFS: ActionNodeDef[] = [
   {
     id: 'response',
     label: 'Response',
     description: 'Runs a response script (chat message, recurring message, etc).',
-    form: {},
+    form: {
+      etype: { label: 'Type', type: 'select', portType: 'string' },
+      message: { label: 'Script', type: 'code', portType: 'string' },
+      interval_key: { label: 'Interval Key', type: 'text', portType: 'string' },
+      interval: { label: 'Interval (Minutes)', type: 'number', portType: 'number' },
+    },
     defaults: { etype: 'oneshot', message: '', delay: 0, interval_key: '', interval: 5 },
   },
   {
     id: 'plugin',
     label: 'Plugin Event',
     description: 'Sends a start/stop event to an installed plugin.',
-    form: {},
+    form: {
+      pluginname: { label: 'Plugin', type: 'text', portType: 'string' },
+      eventname: { label: 'Event Name', type: 'text', portType: 'string' },
+      stop_eventname: { label: 'End Event Name', type: 'text', portType: 'string' },
+      etype: { label: 'Event Type', type: 'select', portType: 'string' },
+      duration: { label: 'Duration (Seconds)', type: 'number', portType: 'number' },
+    },
     defaults: {
       pluginname: '',
       eventname: '',
@@ -33,7 +48,13 @@ export const CORE_ACTION_DEFS: ActionNodeDef[] = [
     id: 'mod',
     label: 'Mod Action',
     description: 'Locks/unlocks, spam-guards, or stops another event.',
-    form: {},
+    form: {
+      function: { label: 'Function', type: 'select', portType: 'string' },
+      targettype: { label: 'Target Type', type: 'select', portType: 'string' },
+      target: { label: 'Target', type: 'text', portType: 'string' },
+      etype: { label: 'Handle Type', type: 'select', portType: 'string' },
+      duration: { label: 'Duration (Seconds)', type: 'number', portType: 'number' },
+    },
     defaults: {
       function: 'lock',
       targettype: 'event',
@@ -47,7 +68,15 @@ export const CORE_ACTION_DEFS: ActionNodeDef[] = [
     id: 'software',
     label: 'Software (UDP)',
     description: 'Sends a value to a UDP-connected device/software.',
-    form: {},
+    form: {
+      dest_udp: { label: 'Destination', type: 'text', portType: 'string' },
+      address: { label: 'Address', type: 'text', portType: 'string' },
+      valueOn: { label: 'Value On', type: 'text', portType: 'string' },
+      valueOff: { label: 'Value Off', type: 'text', portType: 'string' },
+      etype: { label: 'Event Type', type: 'select', portType: 'string' },
+      duration: { label: 'Duration (Seconds)', type: 'number', portType: 'number' },
+      priority: { label: 'Priority', type: 'number', portType: 'number' },
+    },
     defaults: {
       dest_udp: '-1',
       address: '',

@@ -3,10 +3,15 @@ import { ResolvedNodeDef } from '../nodeDefLookup';
 
 // Node cards render at a fixed width rather than hugging content, so every socket's screen
 // offset can be computed analytically from graph data alone - no DOM measurement/ResizeObserver
-// needed to keep edges tracking nodes during drag/pan/zoom.
+// needed to keep edges tracking nodes during drag/pan/zoom. GraphNodeCard gives the header/
+// title a matching fixed height and renders port labels at these same `top` values (instead
+// of normal document flow) so a label row and its socket dot always land on the same pixel,
+// however many rows a node has.
 export const NODE_WIDTH = 190;
-const HANDLE_TOP_START = 36;
-const HANDLE_SPACING = 18;
+export const HEADER_HEIGHT = 22;
+export const TITLE_HEIGHT = 34;
+export const HANDLE_TOP_START = HEADER_HEIGHT + TITLE_HEIGHT + 10;
+export const HANDLE_SPACING = 18;
 const EXEC_TOP = 18;
 
 export interface PortLayoutEntry {
@@ -49,9 +54,11 @@ export function computeNodePortLayout(
     inputs.push({ portId: fieldName, top: HANDLE_TOP_START + i * HANDLE_SPACING, dataType: field.portType });
   });
 
-  // The executor only ever resolves operation-node outputs today, so only operation nodes get
-  // wireable output sockets; other node kinds' outputs are rendered as read-only text.
-  if (kind === 'operation') {
+  // The executor resolves both operation-node outputs (computed) and callback-node outputs
+  // (read live off the trigger payload/StreamMessage) as wireable data sources - see
+  // EventGraphExecutor's resolveNodeValues. Action-node outputs aren't wired up there yet,
+  // so those still render as read-only text (see GraphNodeCard's readOnlyOutputs).
+  if (kind === 'operation' || kind === 'callback') {
     (def?.outputs ?? []).forEach((output, i) => {
       outputs.push({ portId: output.id, top: HANDLE_TOP_START + i * HANDLE_SPACING, dataType: output.dataType });
     });

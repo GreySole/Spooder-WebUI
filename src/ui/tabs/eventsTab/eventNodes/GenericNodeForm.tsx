@@ -11,6 +11,15 @@ import FormAssetSelect from '../../../common/input/form/FormAssetSelect';
 import FormCodeInput from '../../../common/input/form/FormCodeInput';
 import { NodeForm } from '../../../Types';
 import { buildNodeValueKey } from '../FormKeys';
+import { modules } from '../../../../modules/registry';
+import { CustomFieldRendererProps } from './customFieldRenderer';
+
+const fieldRendererRegistry: { [key: string]: React.ComponentType<CustomFieldRendererProps> } = {};
+for (const m of modules) {
+  for (const [componentKey, Component] of Object.entries(m.fieldRenderers ?? {})) {
+    fieldRendererRegistry[`${m.key}.${componentKey}`] = Component;
+  }
+}
 
 interface GenericNodeFormProps {
   eventName: string;
@@ -73,6 +82,20 @@ export default function GenericNodeForm(props: GenericNodeFormProps) {
             );
           case 'number':
             return <FormNumberInput key={fieldName} formKey={formKey} label={field.label} />;
+          case 'custom': {
+            const rendererKey = `${moduleName}.${field.options?.component}`;
+            const CustomRenderer = fieldRendererRegistry[rendererKey];
+            if (!CustomRenderer) {
+              return (
+                <FormTextInput
+                  key={fieldName}
+                  formKey={formKey}
+                  label={`${field.label} (missing renderer '${rendererKey}')`}
+                />
+              );
+            }
+            return <CustomRenderer key={fieldName} formKey={formKey} label={field.label} field={field} />;
+          }
           case 'text':
           default:
             return <FormTextInput key={fieldName} formKey={formKey} label={field.label} />;

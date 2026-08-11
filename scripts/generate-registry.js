@@ -7,21 +7,24 @@ const fs = require('fs');
 const path = require('path');
 
 const modulesDir = path.join(__dirname, '..', 'src', 'modules');
+const installedDir = path.join(modulesDir, 'installed');
 const outputFile = path.join(modulesDir, 'registry.ts');
 
 // A valid module submodule directory must contain an index.ts
-const moduleDirs = fs.readdirSync(modulesDir).filter((name) => {
-  const fullPath = path.join(modulesDir, name);
-  return (
-    fs.statSync(fullPath).isDirectory() &&
-    fs.existsSync(path.join(fullPath, 'index.ts'))
-  );
-});
+const moduleDirs = fs.existsSync(installedDir)
+  ? fs.readdirSync(installedDir).filter((name) => {
+      const fullPath = path.join(installedDir, name);
+      return (
+        fs.statSync(fullPath).isDirectory() &&
+        fs.existsSync(path.join(fullPath, 'index.ts'))
+      );
+    })
+  : [];
 
 const capitalize = (s) => s.charAt(0).toUpperCase() + s.slice(1);
 
 const importLines = moduleDirs
-  .map((name) => `import ${capitalize(name)}Module from './${name}';`)
+  .map((name) => `import ${capitalize(name)}Module from './installed/${name}';`)
   .join('\n');
 
 const moduleList = moduleDirs

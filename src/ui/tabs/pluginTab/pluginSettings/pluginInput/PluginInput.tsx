@@ -17,7 +17,7 @@ import { useFormContext } from 'react-hook-form';
 import FormOBSSceneItemSelect from '../../../../common/input/form/FormOBSSceneItemSelect';
 import FormUdpSelectDropdown from '../../../../common/input/form/FormUdpSelectDropdown';
 import { KeyedObject } from '../../../../Types';
-import FormDiscordChannelSelect from '../../../../common/input/form/FormDiscordChannelSelect';
+import FormDiscordChannelSelect from '../../../../../modules/installed/discord/components/FormDiscordChannelSelect';
 import FormEventSelect from '../../../../common/input/form/FormEventSelect';
 import FormAssetSelect from '../../../../common/input/form/FormAssetSelect';
 import FormCodeInput from '../../../../common/input/form/FormCodeInput';

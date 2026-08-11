@@ -34,9 +34,14 @@ export default function EventTable() {
   const searchEnabled = searchText !== '';
   const filterEnabled = filter.length > 0;
 
-  const propKeys = Object.keys(graphs).sort((a, b) => {
-    return graphs[a].name.toUpperCase() > graphs[b].name.toUpperCase() ? 1 : -1;
-  });
+  // Filter out any stale/malformed entries (e.g. a key left behind mid-delete) before
+  // sorting, since graphs[key] or its .name being null/undefined would otherwise crash
+  // the whole tab here.
+  const propKeys = Object.keys(graphs)
+    .filter((key) => graphs[key]?.name != null)
+    .sort((a, b) => {
+      return graphs[a].name.toUpperCase() > graphs[b].name.toUpperCase() ? 1 : -1;
+    });
 
   const groupObjects = groups.reduce((obj: any, key: string) => ({ ...obj, [key]: [] }), {
     Default: [],

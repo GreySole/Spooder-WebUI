@@ -20,7 +20,7 @@ import UdpSelectDropdown from '../../../../common/input/controlled/UdpSelectDrop
 import EventSelect from '../../../../common/input/controlled/EventSelect';
 import { usePluginSettingsContext } from '../context/PluginSettingsContext';
 import PluginMultiInputValueArray from './PluginMultiInputValueArray';
-import DiscordChannelSelect from '../../../../common/input/controlled/DiscordChannelSelect';
+import DiscordChannelSelect from '../../../../../modules/installed/discord/components/DiscordChannelSelect';
 
 interface PluginMultiInputProps {
   formKey: string;

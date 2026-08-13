@@ -11,6 +11,13 @@ import { ActionNodeDef, TriggerNodeDef } from '../../../Types';
 // findActionDef in nodeDefLookup.ts only fall back to these when the backend manifest
 // doesn't have the node.
 
+// Core actions that stay fully supported (findActionDef still resolves them, and their
+// bespoke inspector editors still open) but are no longer offered when adding a new node.
+// 'plugin' is the legacy generic "pick a plugin + type an event name" node, superseded by
+// the dedicated per-event nodes under the palette's Plugins submenu; events saved with it
+// keep working and keep opening in PluginNodeEditor.
+export const PALETTE_HIDDEN_CORE_ACTIONS = ['plugin'];
+
 export const CORE_ACTION_DEFS: ActionNodeDef[] = [
   {
     id: 'response',

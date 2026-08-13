@@ -1,8 +1,16 @@
 import React from 'react';
 import { EventGraphNodeKind, NodePortDataType } from '../../../Types';
-import { HANDLE_SPACING, HEADER_HEIGHT, NODE_WIDTH, TITLE_HEIGHT, computeNodePortLayout } from './canvas/nodeLayout';
+import { buildNodeValueKey } from '../FormKeys';
+import {
+  HANDLE_SPACING,
+  HEADER_HEIGHT,
+  NODE_WIDTH,
+  NodePortLayout,
+  TITLE_HEIGHT
+} from './canvas/nodeLayout';
 import PortSocket from './canvas/PortSocket';
 import { ResolvedNodeDef } from './nodeDefLookup';
+import NodeFieldInput from './NodeFieldInput';
 
 export interface GraphNodeCardProps {
   id: string;
@@ -11,6 +19,13 @@ export interface GraphNodeCardProps {
   nodeTypeId: string;
   def?: ResolvedNodeDef;
   selected: boolean;
+  // Computed by NodeGraphCanvas and shared with EdgeLayer, so the sockets drawn here and the
+  // edge endpoints drawn there are guaranteed to be the same geometry.
+  layout: NodePortLayout;
+  // Identify this node's slot in the form so inline controls bind to the same keys the
+  // inspector pane uses - editing on the card and in the pane drive one value.
+  eventName: string;
+  nodeIndex: number;
   onSelect: (nodeId: string) => void;
   onHeaderPointerDown: (e: React.PointerEvent<HTMLDivElement>, nodeId: string) => void;
   onStartConnection: (
@@ -40,10 +55,23 @@ const rowLabelStyle: React.CSSProperties = {
 };
 
 export default function GraphNodeCard(props: GraphNodeCardProps) {
-  const { id, kind, moduleName, nodeTypeId, def, selected, onSelect, onHeaderPointerDown, onStartConnection } = props;
+  const {
+    id,
+    kind,
+    moduleName,
+    nodeTypeId,
+    def,
+    selected,
+    layout,
+    eventName,
+    nodeIndex,
+    onSelect,
+    onHeaderPointerDown,
+    onStartConnection,
+  } = props;
   const label = def?.label ?? nodeTypeId;
 
-  const { inputs, outputs } = computeNodePortLayout(kind, def);
+  const { inputs, outputs, fieldRows } = layout;
   // Operation/callback outputs render as wireable sockets below (via computeNodePortLayout);
   // only action-node outputs (not resolved by the executor yet, so no socket exists for them)
   // fall back to plain read-only text.
@@ -52,16 +80,20 @@ export default function GraphNodeCard(props: GraphNodeCardProps) {
   // same header/title band, by convention - so unlike data ports they can't be aligned to
   // their dot's `top` without overlapping the title. They keep the old normal-flow rendering.
   const execBranchRows = outputs.filter((p) => p.label);
-  // Wireable data ports always sit below HANDLE_TOP_START (past the header/title), so their
-  // label row is positioned at the exact same analytical `top` as their socket (rather than
-  // left to stack in normal document flow) - a row and its dot always land on the same pixel
-  // regardless of how many rows there are. Normal flow's per-row height depends on font
-  // metrics and drifts out of sync with the sockets' fixed HANDLE_SPACING step after a few rows.
-  const inputRows = inputs.filter((p) => p.dataType);
+  // Field rows and output labels are positioned at the exact analytical `top` the layout
+  // computed (rather than left to stack in normal document flow) so a row and its dot always
+  // land on the same pixel. Normal flow's per-row height depends on font metrics and control
+  // sizing, which would drift out of sync with the sockets and detach the edges.
   const outputRows = outputs.filter((p) => p.dataType);
   const outputLabelByPortId = new Map((def?.outputs ?? []).map((o) => [o.id, o.label]));
 
-  const maxPortTop = Math.max(HEADER_HEIGHT + TITLE_HEIGHT, ...inputs.map((p) => p.top), ...outputs.map((p) => p.top));
+  const lastFieldRowBottom = fieldRows.length ? Math.max(...fieldRows.map((r) => r.top + r.height)) : 0;
+  const maxPortTop = Math.max(
+    HEADER_HEIGHT + TITLE_HEIGHT,
+    lastFieldRowBottom,
+    ...inputs.map((p) => p.top),
+    ...outputs.map((p) => p.top),
+  );
 
   return (
     <div
@@ -119,14 +151,38 @@ export default function GraphNodeCard(props: GraphNodeCardProps) {
         </div>
       )}
 
-      {inputRows.map((p) => {
-        const fieldLabel = def?.form?.[p.portId]?.label ?? p.portId;
-        return (
-          <div key={p.portId} style={{ ...rowLabelStyle, top: p.top - HANDLE_SPACING / 2, left: 12 }}>
-            in: {fieldLabel}
-          </div>
-        );
-      })}
+      {fieldRows.map((row) => (
+        <div
+          key={row.fieldName}
+          style={{
+            position: 'absolute',
+            top: row.top,
+            left: 12,
+            width: NODE_WIDTH - 24,
+            height: row.height,
+            // Guarantees a control that renders taller than its declared CONTROL_HEIGHTS
+            // entry gets clipped rather than pushing the next row out of alignment.
+            overflow: 'hidden',
+            paddingLeft:'0.35rem',
+            paddingRight:'0.35rem'
+          }}
+        >
+          <div style={{ ...rowLabelStyle, position: 'static', maxWidth: '100%' }}>{row.field.label ?? row.fieldName}</div>
+          {row.showsControl ? (
+            // .node-inline-field (EventTab.scss) shrinks the shared Form* controls to the
+            // fixed row heights nodeLayout computes socket offsets from.
+            <div className='node-inline-field'>
+              <NodeFieldInput
+                formKey={buildNodeValueKey(eventName, nodeIndex, row.fieldName)}
+                field={row.field}
+                moduleName={moduleName}
+                label=''
+                compact
+              />
+            </div>
+          ) : null}
+        </div>
+      ))}
       {outputRows.map((p) => (
         <div
           key={p.portId}

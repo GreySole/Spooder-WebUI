@@ -130,6 +130,7 @@ export default function EventNodes(props: EventNodesProps) {
     >
       <NodeGraphCanvas
         key={eventName}
+        eventName={eventName}
         nodes={graph.nodes ?? []}
         edges={graph.edges ?? []}
         resolveDef={resolveDef}

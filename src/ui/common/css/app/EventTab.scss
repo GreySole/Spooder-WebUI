@@ -428,3 +428,42 @@ option {
 		width: 100%;
 	}
 }
+
+// Inline field controls rendered inside a node card on the event graph. The shared Form*
+// components are sized for the inspector pane (1.25rem inputs); inside a 280px node they must
+// shrink to fit the fixed row heights that nodeLayout.ts computes sockets from. Heights here
+// and CONTROL_HEIGHTS there are a matched pair - changing one means changing the other.
+.node-inline-field {
+	font-size: 0.75rem;
+
+	label {
+		display: block;
+		width: 100%;
+	}
+
+	select,
+	input[type='text'],
+	input[type='number'] {
+		width: 100%;
+		box-sizing: border-box;
+		font-size: 0.75rem;
+		padding: 2px 4px;
+		margin: 0;
+	}
+
+	input[type='color'] {
+		width: 100%;
+		padding: 0;
+		margin: 0;
+	}
+
+	// The asset picker stacks a dropdown over an upload/preview button row.
+	button {
+		font-size: 0.75rem;
+		padding: 0.5rem;
+	}
+
+	.response-code-editor {
+		font-size: 0.7rem !important;
+	}
+}

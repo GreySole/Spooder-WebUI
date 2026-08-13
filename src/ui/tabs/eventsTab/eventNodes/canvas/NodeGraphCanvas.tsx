@@ -12,6 +12,9 @@ import { useConnectionDraft } from './useConnectionDraft';
 import { useNodeDrag } from './useNodeDrag';
 
 export interface NodeGraphCanvasProps {
+  // Identifies the graph's slot in the form, so node cards can bind their inline controls to
+  // the same form keys the inspector pane uses.
+  eventName: string;
   nodes: EventGraphNode[];
   edges: EventGraphEdge[];
   resolveDef: (node: EventGraphNode) => ResolvedNodeDef | undefined;
@@ -57,6 +60,7 @@ interface InnerProps extends NodeGraphCanvasProps {
 
 function NodeGraphCanvasInner(props: InnerProps) {
   const {
+    eventName,
     nodes,
     edges,
     resolveDef,
@@ -93,11 +97,32 @@ function NodeGraphCanvasInner(props: InnerProps) {
     }
   });
 
+  // One layout per node, shared by the cards (socket dots + field rows) and EdgeLayer (edge
+  // endpoints). Both must read the same geometry or edges will detach from their sockets.
   const nodeLayouts = useMemo(() => {
+    const connectedByNode = new Map<string, Set<string>>();
+    edges.forEach((e) => {
+      if (e.toPort === 'exec') {
+        return;
+      }
+      if (!connectedByNode.has(e.toNode)) {
+        connectedByNode.set(e.toNode, new Set());
+      }
+      connectedByNode.get(e.toNode)!.add(e.toPort);
+    });
+
     const map = new Map<string, NodePortLayout>();
-    nodes.forEach((n) => map.set(n.id, computeNodePortLayout(n.kind, resolveDef(n))));
+    nodes.forEach((n) =>
+      map.set(
+        n.id,
+        computeNodePortLayout(n.kind, resolveDef(n), {
+          values: n.values,
+          connectedInputPorts: connectedByNode.get(n.id),
+        }),
+      ),
+    );
     return map;
-  }, [nodes, resolveDef]);
+  }, [nodes, edges, resolveDef]);
 
   const nodePositions = useMemo(() => {
     const map = new Map<string, Point>();
@@ -178,7 +203,7 @@ function NodeGraphCanvasInner(props: InnerProps) {
         onSelectEdge={handleSelectEdge}
         draft={connectionDraft.draft}
       />
-      {nodes.map((node) => {
+      {nodes.map((node, nodeIndex) => {
         const position = nodePositions.get(node.id)!;
         return (
           <div key={node.id} style={{ position: 'absolute', left: position.x, top: position.y }}>
@@ -189,6 +214,9 @@ function NodeGraphCanvasInner(props: InnerProps) {
               nodeTypeId={node.nodeTypeId}
               def={resolveDef(node)}
               selected={node.id === selectedNodeId}
+              layout={nodeLayouts.get(node.id)!}
+              eventName={eventName}
+              nodeIndex={nodeIndex}
               onSelect={handleSelectNode}
               onHeaderPointerDown={(e, nodeId) => nodeDrag.startDrag(e, nodeId, node.position, contentRef.current)}
               onStartConnection={(e, nodeId, portId, dataType) =>

@@ -1,0 +1,79 @@
+import {
+  FormBoolSwitch,
+  FormColorInput,
+  FormNumberInput,
+  FormSelectDropdown,
+  FormTextInput,
+} from '@spooder/webui-component-library';
+import React from 'react';
+import FormAssetSelect from '../../../common/input/form/FormAssetSelect';
+import FormCodeInput from '../../../common/input/form/FormCodeInput';
+import { NodeFieldDef } from '../../../Types';
+import { modules } from '../../../../modules/registry';
+import { CustomFieldRendererProps } from './customFieldRenderer';
+
+const fieldRendererRegistry: { [key: string]: React.ComponentType<CustomFieldRendererProps> } = {};
+for (const m of modules) {
+  for (const [componentKey, Component] of Object.entries(m.fieldRenderers ?? {})) {
+    fieldRendererRegistry[`${m.key}.${componentKey}`] = Component;
+  }
+}
+
+export interface NodeFieldInputProps {
+  formKey: string;
+  field: NodeFieldDef;
+  // The owning module/plugin - used to resolve plugin assets and namespaced custom renderers.
+  moduleName: string;
+  label?: string;
+  // Set when rendering inside a node card, where vertical space is fixed and the card draws
+  // its own label row: currently trims the code editor down to a scrollable box.
+  compact?: boolean;
+}
+
+// Maps one field definition to its control. The single place that decides which component a
+// NodeFieldDef.type renders as, so the inspector pane and the node card can never drift.
+export default function NodeFieldInput(props: NodeFieldInputProps) {
+  const { formKey, field, moduleName, label, compact } = props;
+  const fieldLabel = label ?? field.label;
+
+  switch (field.type) {
+    case 'boolean':
+      return <FormBoolSwitch formKey={formKey} label={fieldLabel} />;
+    case 'color':
+      return <FormColorInput formKey={formKey} label={fieldLabel} />;
+    case 'select': {
+      const options = [{ label: 'None', value: '' }];
+      for (const key in field.options?.selections ?? {}) {
+        options.push({ label: field.options!.selections[key], value: key });
+      }
+      return <FormSelectDropdown formKey={formKey} label={fieldLabel} options={options} />;
+    }
+    case 'code':
+      return <FormCodeInput formKey={formKey} label={fieldLabel} compact={compact} />;
+    case 'asset':
+      return (
+        <FormAssetSelect
+          formKey={formKey}
+          label={fieldLabel}
+          assetType={field.options?.assetType}
+          assetFolderPath={field.options?.folder}
+          pluginName={moduleName}
+        />
+      );
+    case 'number':
+      return <FormNumberInput formKey={formKey} label={fieldLabel} />;
+    case 'custom': {
+      const rendererKey = `${moduleName}.${field.options?.component}`;
+      const CustomRenderer = fieldRendererRegistry[rendererKey];
+      if (!CustomRenderer) {
+        return (
+          <FormTextInput formKey={formKey} label={`${fieldLabel} (missing renderer '${rendererKey}')`} />
+        );
+      }
+      return <CustomRenderer formKey={formKey} label={fieldLabel} field={field} />;
+    }
+    case 'text':
+    default:
+      return <FormTextInput formKey={formKey} label={fieldLabel} />;
+  }
+}

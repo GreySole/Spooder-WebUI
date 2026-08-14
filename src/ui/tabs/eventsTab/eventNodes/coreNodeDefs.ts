@@ -18,6 +18,15 @@ import { ActionNodeDef, TriggerNodeDef } from '../../../Types';
 // keep working and keep opening in PluginNodeEditor.
 export const PALETTE_HIDDEN_CORE_ACTIONS = ['plugin'];
 
+// Core nodes whose fields are drawn by a bespoke inspector panel (see NodeInspector's
+// switch). The node card must NOT also render inline controls for these: both bind the same
+// form key, and the shared Form* components emit `<label htmlFor={id}><input id={id}>` with an
+// id derived from that key - so rendering both puts duplicate ids in the document and the
+// inspector's label focuses the card's input instead of its own, making the field look dead.
+// 'osc_trigger' is deliberately absent: its address/argCount fields live on the card, and
+// OscTriggerNodeEditor no longer draws them.
+export const BESPOKE_EDITOR_CORE_NODES = ['response', 'plugin', 'mod', 'software'];
+
 export const CORE_ACTION_DEFS: ActionNodeDef[] = [
   {
     id: 'response',
@@ -72,9 +81,11 @@ export const CORE_ACTION_DEFS: ActionNodeDef[] = [
     },
   },
   {
+    // The id stays 'software' - it's what saved graphs and EventGraphExecutor dispatch on;
+    // only the display name changes.
     id: 'software',
-    label: 'Software (UDP)',
-    description: 'Sends a value to a UDP-connected device/software.',
+    label: 'OSC Send',
+    description: 'Sends an OSC message to a configured UDP destination.',
     form: {
       dest_udp: { label: 'Destination', type: 'text', portType: 'string' },
       address: { label: 'Address', type: 'text', portType: 'string' },
@@ -99,17 +110,31 @@ export const CORE_ACTION_DEFS: ActionNodeDef[] = [
 
 export const CORE_TRIGGER_DEFS: TriggerNodeDef[] = [
   {
+    // Likewise, the id stays 'osc_trigger' so existing events keep resolving.
     id: 'osc_trigger',
-    label: 'OSC',
-    description: 'Fires when an OSC address matches the configured condition(s).',
-    form: {},
+    label: 'OSC Receive',
+    description: 'Fires on an OSC address and exposes the message payload as wireable outputs.',
+    // Neither field declares a portType, so both render as inline controls on the node card
+    // with no input socket - the address is the node's one built-in condition, and everything
+    // else is expressed with logic nodes wired off the arg outputs.
+    form: {
+      address: { label: 'Address', type: 'text' },
+      argCount: { label: 'Arg Count', type: 'number' },
+    },
     defaults: {
       handletype: 'trigger',
       address: '/',
+      argCount: 0,
+      // Display-only, index-aligned to the arg outputs. Port ids stay arg0..argN-1 so
+      // renaming a label never invalidates an existing edge.
+      argLabels: [],
+      argTypes: [],
       condition_groups_on: [],
       condition_groups_off: [],
       search: { arg: 0, command: '' },
     },
+    // Real outputs are synthesized per node from argCount/argLabels/argTypes - see
+    // buildOscTriggerOutputs in nodeDefLookup.ts.
     outputs: [],
   },
 ];

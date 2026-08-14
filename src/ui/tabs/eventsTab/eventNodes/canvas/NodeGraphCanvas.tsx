@@ -1,6 +1,7 @@
 import React, { useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { EventGraphEdge, EventGraphNode } from '../../../../Types';
 import GraphNodeCard from '../GraphNodeCard';
+import { BESPOKE_EDITOR_CORE_NODES } from '../coreNodeDefs';
 import { ResolvedNodeDef } from '../nodeDefLookup';
 import EdgeLayer from './EdgeLayer';
 import GraphViewport from './GraphViewport';
@@ -97,6 +98,16 @@ function NodeGraphCanvasInner(props: InnerProps) {
     }
   });
 
+  // react-hook-form mutates its values object in place, so editing a field leaves `nodes` with
+  // the same array/object identity even though its contents changed. Reference-equal deps
+  // would keep the memo below stale until something replaced the array wholesale (e.g. a node
+  // drag calling setValue), so the layout is keyed on a structural signature instead - that's
+  // what makes arg outputs appear and recolor as soon as argCount/argTypes change.
+  const layoutSignature = JSON.stringify([
+    nodes.map((n) => [n.id, n.kind, n.moduleName, n.nodeTypeId, n.values]),
+    edges.map((e) => [e.toNode, e.toPort]),
+  ]);
+
   // One layout per node, shared by the cards (socket dots + field rows) and EdgeLayer (edge
   // endpoints). Both must read the same geometry or edges will detach from their sockets.
   const nodeLayouts = useMemo(() => {
@@ -118,11 +129,13 @@ function NodeGraphCanvasInner(props: InnerProps) {
         computeNodePortLayout(n.kind, resolveDef(n), {
           values: n.values,
           connectedInputPorts: connectedByNode.get(n.id),
+          inlineControlsDisabled:
+            n.moduleName === 'core' && BESPOKE_EDITOR_CORE_NODES.includes(n.nodeTypeId),
         }),
       ),
     );
     return map;
-  }, [nodes, edges, resolveDef]);
+  }, [layoutSignature, nodes, edges, resolveDef]);
 
   const nodePositions = useMemo(() => {
     const map = new Map<string, Point>();
@@ -217,6 +230,7 @@ function NodeGraphCanvasInner(props: InnerProps) {
               layout={nodeLayouts.get(node.id)!}
               eventName={eventName}
               nodeIndex={nodeIndex}
+              oscAddress={node.values?.address}
               onSelect={handleSelectNode}
               onHeaderPointerDown={(e, nodeId) => nodeDrag.startDrag(e, nodeId, node.position, contentRef.current)}
               onStartConnection={(e, nodeId, portId, dataType) =>

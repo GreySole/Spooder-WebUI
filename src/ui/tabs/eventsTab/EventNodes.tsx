@@ -8,6 +8,7 @@ import NodeGraphCanvas from './eventNodes/canvas/NodeGraphCanvas';
 import { PendingConnection, Point } from './eventNodes/canvas/types';
 import NodeInspector from './eventNodes/NodeInspector';
 import NodePalette from './eventNodes/NodePalette';
+import { OscLiveValuesProvider } from './eventNodes/OscLiveValues';
 import { resolveNodeDef } from './eventNodes/nodeDefLookup';
 
 interface EventNodesProps {
@@ -27,7 +28,8 @@ export default function EventNodes(props: EventNodesProps) {
   const graph: EventGraph = watch(graphKey);
 
   const resolveDef = useCallback(
-    (node: Pick<EventGraphNode, 'kind' | 'moduleName' | 'nodeTypeId'>) => resolveNodeDef(node, manifests, operationNodes),
+    (node: Pick<EventGraphNode, 'kind' | 'moduleName' | 'nodeTypeId' | 'values'>) =>
+      resolveNodeDef(node, manifests, operationNodes),
     [manifests, operationNodes],
   );
 
@@ -118,7 +120,12 @@ export default function EventNodes(props: EventNodesProps) {
     return null;
   }
 
+  const hasOscTrigger = (graph.nodes ?? []).some(
+    (n) => n.moduleName === 'core' && n.nodeTypeId === 'osc_trigger',
+  );
+
   return (
+    <OscLiveValuesProvider enabled={hasOscTrigger}>
     <div
       style={{
         position: 'relative',
@@ -190,5 +197,6 @@ export default function EventNodes(props: EventNodesProps) {
         </div>
       ) : null}
     </div>
+    </OscLiveValuesProvider>
   );
 }

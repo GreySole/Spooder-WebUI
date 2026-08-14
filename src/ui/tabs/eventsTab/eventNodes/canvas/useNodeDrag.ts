@@ -21,6 +21,12 @@ export function useNodeDrag(scale: number, onDragEnd: (nodeId: string, position:
   const startDrag = useCallback(
     (e: React.PointerEvent, nodeId: string, currentPosition: Point, captureTarget: Element | null) => {
       e.stopPropagation();
+      // Suppresses the browser's native text-selection gesture, which pointerdown would
+      // otherwise begin: as the drag sweeps the pointer across the card it would select the
+      // labels and the text inside the inline inputs. `user-select: none` on the labels can't
+      // prevent this on its own, because the selection is driven by the drag gesture itself
+      // and inputs carry their own selectable text.
+      e.preventDefault();
       // Pointer capture keeps drag tracking correct if the cursor briefly leaves the element
       // during a fast move, but isn't load-bearing for the drag itself (events still bubble to
       // this handler's owner normally) - a capture failure shouldn't abort the drag.

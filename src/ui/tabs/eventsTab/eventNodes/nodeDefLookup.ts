@@ -1,19 +1,28 @@
 import {
   ActionNodeDef,
   EventGraphNode,
+  KeyedObject,
   NodeManifest,
+  NodePortDataType,
   NodePortDef,
   OperationNodeDef,
   TriggerNodeDef,
 } from '../../../Types';
 import { CORE_ACTION_DEFS, CORE_TRIGGER_DEFS } from './coreNodeDefs';
 
+export interface ResolvedPortDef extends NodePortDef {
+  // When set, this output's data type is chosen by the user rather than fixed by the node
+  // definition. The path is relative to the node's `values` (e.g. ['argTypes', '0']) so the
+  // node card can build the form key itself - resolveNodeDef has the node but not its index.
+  typeValuePath?: string[];
+}
+
 export interface ResolvedNodeDef {
   label: string;
   description?: string;
   form: { [fieldName: string]: any };
   defaults: { [key: string]: any };
-  outputs: NodePortDef[];
+  outputs: ResolvedPortDef[];
   // Named exec output ports for branching actions (e.g. 'then'/'else'). Undefined/empty
   // means the node has the usual single unlabeled 'exec' output.
   execOutputs?: { id: string; label: string }[];
@@ -57,14 +66,46 @@ export function findOperationDef(
   return operationNodes?.find((o) => o.id === nodeTypeId);
 }
 
+// The OSC trigger's outputs depend on the node's own `argCount`, not on a static manifest
+// entry: an OSC message is just an address plus an arbitrary arg array, so the user declares
+// how many args this address sends and optionally names/types them.
+//
+// Port ids are always `arg0`..`argN-1` and never derived from the user's label - edges persist
+// `fromPort` by id, so a label-derived id would silently break every existing wire on rename.
+function buildOscTriggerOutputs(values: KeyedObject | undefined): ResolvedPortDef[] {
+  const outputs: ResolvedPortDef[] = [{ id: 'address', label: 'Address', dataType: 'string' }];
+  const argCount = Number(values?.argCount ?? 0);
+  const labels: string[] = values?.argLabels ?? [];
+  const types: NodePortDataType[] = values?.argTypes ?? [];
+
+  for (let i = 0; i < argCount; i++) {
+    outputs.push({
+      id: `arg${i}`,
+      label: labels[i] || `Arg ${i}`,
+      dataType: types[i] || 'any',
+      // An OSC message carries no type information, so the user declares each arg's type
+      // directly on the node - this points the card's type picker at the right value.
+      typeValuePath: ['argTypes', String(i)],
+    });
+  }
+  return outputs;
+}
+
 export function resolveNodeDef(
-  node: Pick<EventGraphNode, 'kind' | 'moduleName' | 'nodeTypeId'>,
+  node: Pick<EventGraphNode, 'kind' | 'moduleName' | 'nodeTypeId' | 'values'>,
   manifests: NodeManifest[] | undefined,
   operationNodes: OperationNodeDef[] | undefined,
 ): ResolvedNodeDef | undefined {
   if (node.kind === 'callback') {
     const def = findTriggerDef(manifests, node.moduleName, node.nodeTypeId);
-    return def && { label: def.label, description: def.description, form: def.form, defaults: def.defaults, outputs: def.outputs };
+    if (!def) {
+      return undefined;
+    }
+    const outputs =
+      node.moduleName === 'core' && node.nodeTypeId === 'osc_trigger'
+        ? buildOscTriggerOutputs(node.values)
+        : def.outputs;
+    return { label: def.label, description: def.description, form: def.form, defaults: def.defaults, outputs };
   }
   if (node.kind === 'action') {
     const def = findActionDef(manifests, node.moduleName, node.nodeTypeId);

@@ -436,6 +436,15 @@ option {
 .node-inline-field {
 	font-size: 0.75rem;
 
+	// The node card sets `user-select: none` so dragging it can't drag-select label text;
+	// the actual controls opt back in here so their values stay selectable and editable.
+	input,
+	textarea,
+	select,
+	.response-code-editor {
+		user-select: text;
+	}
+
 	label {
 		display: block;
 		width: 100%;

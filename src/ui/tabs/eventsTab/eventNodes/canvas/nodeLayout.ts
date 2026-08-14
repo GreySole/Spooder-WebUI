@@ -57,10 +57,22 @@ export interface PortLayoutEntry {
   label?: string; // set for named/branching exec ports so the card can show which is which
 }
 
+export interface OutputRowLayout {
+  portId: string;
+  label: string;
+  dataType?: NodePortDataType;
+  top: number; // row's top edge, relative to the card
+  height: number;
+  // Path under the node's values for a user-assignable type (see ResolvedPortDef); when set
+  // the card draws a type picker beneath the label, and the row is sized for it.
+  typeValuePath?: string[];
+}
+
 export interface NodePortLayout {
   inputs: PortLayoutEntry[];
   outputs: PortLayoutEntry[];
   fieldRows: FieldRowLayout[];
+  outputRows: OutputRowLayout[];
 }
 
 export interface NodeLayoutContext {
@@ -68,6 +80,10 @@ export interface NodeLayoutContext {
   values?: KeyedObject;
   // Field ids fed by an incoming data edge; their controls are hidden.
   connectedInputPorts?: Set<string>;
+  // Set for nodes whose fields are owned by a bespoke inspector panel: rows collapse to
+  // labels so the card doesn't render a second control bound to the same form key. See
+  // BESPOKE_EDITOR_CORE_NODES in coreNodeDefs.ts.
+  inlineControlsDisabled?: boolean;
 }
 
 export function computeNodePortLayout(
@@ -75,7 +91,7 @@ export function computeNodePortLayout(
   def: ResolvedNodeDef | undefined,
   context: NodeLayoutContext = {},
 ): NodePortLayout {
-  const { values = {}, connectedInputPorts } = context;
+  const { values = {}, connectedInputPorts, inlineControlsDisabled } = context;
   const inputs: PortLayoutEntry[] = [];
   const outputs: PortLayoutEntry[] = [];
 
@@ -106,7 +122,10 @@ export function computeNodePortLayout(
     if (!fieldSatisfiesShowif(field.showif, values)) {
       continue;
     }
-    const controlHeight = connectedInputPorts?.has(fieldName) ? undefined : inlineControlHeight(field);
+    const controlHeight =
+      inlineControlsDisabled || connectedInputPorts?.has(fieldName)
+        ? undefined
+        : inlineControlHeight(field);
     const height = FIELD_LABEL_HEIGHT + (controlHeight ?? 0);
 
     fieldRows.push({ fieldName, field, top: rowTop, height, showsControl: controlHeight !== undefined });
@@ -124,13 +143,37 @@ export function computeNodePortLayout(
   // (read live off the trigger payload/StreamMessage) as wireable data sources - see
   // EventGraphExecutor's resolveNodeValues. Action-node outputs aren't wired up there yet,
   // so those still render as read-only text (see GraphNodeCard's readOnlyOutputs).
+  //
+  // Outputs continue below the field rows rather than restarting at HANDLE_TOP_START: the OSC
+  // trigger has both (address/argCount fields plus its arg outputs), and sharing that band
+  // would overlap them.
+  const outputRows: OutputRowLayout[] = [];
   if (kind === 'operation' || kind === 'callback') {
-    (def?.outputs ?? []).forEach((output, i) => {
-      outputs.push({ portId: output.id, top: HANDLE_TOP_START + i * HANDLE_SPACING, dataType: output.dataType });
-    });
+    // Same accumulator style as the field rows: an output whose type the user assigns (the
+    // OSC trigger's args) needs room for its picker, so the stride can't be fixed.
+    let outputTop = fieldRows.length ? rowTop : HANDLE_TOP_START - FIELD_LABEL_HEIGHT / 2;
+    for (const output of def?.outputs ?? []) {
+      const controlHeight = output.typeValuePath ? CONTROL_HEIGHTS.select : 0;
+      const height = FIELD_LABEL_HEIGHT + controlHeight;
+
+      outputRows.push({
+        portId: output.id,
+        label: output.label,
+        dataType: output.dataType,
+        top: outputTop,
+        height,
+        typeValuePath: output.typeValuePath,
+      });
+      outputs.push({
+        portId: output.id,
+        top: outputTop + FIELD_LABEL_HEIGHT / 2,
+        dataType: output.dataType,
+      });
+      outputTop += height + (controlHeight ? FIELD_ROW_GAP : 0);
+    }
   }
 
-  return { inputs, outputs, fieldRows };
+  return { inputs, outputs, fieldRows, outputRows };
 }
 
 export function portGraphOffset(entry: PortLayoutEntry, side: 'in' | 'out'): { x: number; y: number } {

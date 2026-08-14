@@ -44,6 +44,9 @@ export function useConnectionDraft(
       dataType: NodePortDataType | undefined,
       captureTarget: Element | null,
     ) => {
+      // Same reason as useNodeDrag.startDrag: without this, dragging a wire out of a socket
+      // starts a native text selection that sweeps across the cards it passes over.
+      e.preventDefault();
       captureTarget?.setPointerCapture(e.pointerId);
       origin.current = { nodeId, portId, dataType };
       setDraft({ fromNodeId: nodeId, fromPortId: portId, dataType, cursor: toGraphPoint(e) });

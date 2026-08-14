@@ -9,6 +9,7 @@ import { PendingConnection, Point } from './eventNodes/canvas/types';
 import NodeInspector from './eventNodes/NodeInspector';
 import NodePalette from './eventNodes/NodePalette';
 import { OscLiveValuesProvider } from './eventNodes/OscLiveValues';
+import TimerManagerPanel from './eventNodes/TimerManagerPanel';
 import { resolveNodeDef } from './eventNodes/nodeDefLookup';
 
 interface EventNodesProps {
@@ -23,6 +24,7 @@ export default function EventNodes(props: EventNodesProps) {
   const { operationNodes } = getOperationNodes();
 
   const [selectedNodeId, setSelectedNodeId] = useState<string>('');
+  const [timerManagerOpen, setTimerManagerOpen] = useState(false);
 
   const graphKey = buildGraphKey(eventName);
   const graph: EventGraph = watch(graphKey);
@@ -150,9 +152,29 @@ export default function EventNodes(props: EventNodesProps) {
         isValidConnection={isValidConnection}
       />
       <div style={{ position: 'absolute', top: 8, left: 8, zIndex: 20 }}>
-        <NodePalette eventName={eventName} />
+        <NodePalette eventName={eventName} onManageTimers={() => setTimerManagerOpen(true)} />
       </div>
-      {selectedNodeId ? (
+      {timerManagerOpen ? (
+        <div
+          style={{
+            position: 'absolute',
+            top: 8,
+            right: 8,
+            bottom: 8,
+            width: 320,
+            zIndex: 21,
+            overflowY: 'auto',
+            background: 'var(--color-background-near, #242424)',
+            border: '1px solid var(--color-border, #444)',
+            borderRadius: 6,
+            boxShadow: '0 4px 16px rgba(0,0,0,0.4)',
+          }}
+        >
+          <TimerManagerPanel onClose={() => setTimerManagerOpen(false)} />
+        </div>
+      ) : null}
+
+      {selectedNodeId && !timerManagerOpen ? (
         <div
           style={{
             position: 'absolute',

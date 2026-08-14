@@ -66,7 +66,7 @@ export const CORE_ACTION_DEFS: ActionNodeDef[] = [
         showif: { variable: 'etype', condition: 'equals', value: 'recurring' },
       },
     },
-    defaults: { etype: 'oneshot', message: '', delay: 0, interval_key: '', interval: 5 },
+    defaults: { etype: 'oneshot', message: '', interval_key: '', interval: 5 },
   },
   {
     id: 'plugin',
@@ -85,7 +85,6 @@ export const CORE_ACTION_DEFS: ActionNodeDef[] = [
       stop_eventname: '',
       etype: 'oneshot',
       duration: 60,
-      delay: 0,
     },
   },
   {
@@ -105,7 +104,6 @@ export const CORE_ACTION_DEFS: ActionNodeDef[] = [
       target: '',
       etype: 'toggle',
       duration: 60,
-      delay: 0,
     },
   },
   {
@@ -145,7 +143,6 @@ export const CORE_ACTION_DEFS: ActionNodeDef[] = [
       valueOff: '0',
       etype: 'timed',
       duration: 60,
-      delay: 0,
       priority: 0,
     },
   },

@@ -1,10 +1,10 @@
-import { Box, Button, FormNumberInput, Stack, TypeFace } from '@spooder/webui-component-library';
+import { Box, Button, Stack, TypeFace } from '@spooder/webui-component-library';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
 import useEvents from '../../../../app/hooks/useEvents';
 import { EventGraph } from '../../../Types';
-import { buildGraphKey, buildKey, buildNodeKey } from '../FormKeys';
+import { buildGraphKey } from '../FormKeys';
 import { resolveNodeDef } from './nodeDefLookup';
 import OscTriggerNodeEditor from './oscTrigger/OscTriggerNodeEditor';
 import ResponseNodeEditor from './responseAction/ResponseNodeEditor';
@@ -80,12 +80,6 @@ export default function NodeInspector(props: NodeInspectorProps) {
 
       {editor}
 
-      {node.kind === 'action' ? (
-        <FormNumberInput
-          label='Delay (Milliseconds):'
-          formKey={buildKey(buildNodeKey(eventName, nodeIndex), 'delay')}
-        />
-      ) : null}
     </Stack>
   );
 }

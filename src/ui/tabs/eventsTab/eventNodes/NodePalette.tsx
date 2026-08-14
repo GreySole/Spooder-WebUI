@@ -7,14 +7,18 @@ import {
   EventGraph,
   EventGraphNode,
   EventGraphNodeKind,
+  NodeManifest,
   OperationNodeDef,
   TriggerNodeDef,
 } from '../../../Types';
 import { buildGraphKey } from '../FormKeys';
 import { CORE_ACTION_DEFS, CORE_TRIGGER_DEFS, PALETTE_HIDDEN_CORE_ACTIONS } from './coreNodeDefs';
+import { GRAPH_KEY } from '../FormKeys';
+import { collectTimerUsage, isTimerNode, TIMER_MENU_NODE_IDS, TIMER_NODE_IDS } from './timerUsage';
 
 interface NodePaletteProps {
   eventName: string;
+  onManageTimers: () => void;
 }
 
 interface PaletteOption {
@@ -24,6 +28,8 @@ interface PaletteOption {
   moduleName: string;
   nodeTypeId: string;
   defaults: { [key: string]: any };
+  // Entries that do something other than add a node (e.g. opening the timer manager).
+  onActivate?: () => void;
 }
 
 interface PaletteCategory {
@@ -36,7 +42,7 @@ interface PaletteCategory {
 }
 
 export default function NodePalette(props: NodePaletteProps) {
-  const { eventName } = props;
+  const { eventName, onManageTimers } = props;
   const { watch, setValue } = useFormContext();
   const { getNodeManifest, getOperationNodes } = useEvents();
   const { manifests } = getNodeManifest();
@@ -107,6 +113,20 @@ export default function NodePalette(props: NodePaletteProps) {
       defaults: trigger.defaults,
     })),
   );
+  // Timer nodes come from the backend core manifest but belong in their own menu, so they're
+  // filtered out of the core Triggers/Actions categories above and rebuilt below.
+  for (const map of [triggerCategories, actionCategories]) {
+    const core = map.get('core');
+    if (core) {
+      core.options = core.options.filter(
+        (o) => !(o.moduleName === 'core' && TIMER_MENU_NODE_IDS.includes(o.nodeTypeId)),
+      );
+      if (core.options.length === 0) {
+        map.delete('core');
+      }
+    }
+  }
+
   addOptions(
     actionCategories,
     'core',
@@ -143,6 +163,58 @@ export default function NodePalette(props: NodePaletteProps) {
     );
   }
 
+  // Timers menu: the four node types with a blank name, then one submenu per timer already
+  // used anywhere in the save file offering the same four pre-filled - so pointing a second
+  // event at an existing timer needs no typing.
+  const timerDefs = [
+    ...(manifests ?? [])
+      .filter((m: NodeManifest) => m.moduleName === 'core')
+      .flatMap((m: NodeManifest) => [
+        ...m.triggers.map((t: TriggerNodeDef) => ({ def: t, kind: 'callback' as const })),
+        ...m.actions.map((a: ActionNodeDef) => ({ def: a, kind: 'action' as const })),
+      ]),
+  ].filter((entry) => TIMER_MENU_NODE_IDS.includes(entry.def.id));
+
+  function timerOptions(timerName: string): PaletteOption[] {
+    // Per-timer submenus list only the nodes that actually take a timer name.
+    const defs = timerName ? timerDefs.filter((e) => TIMER_NODE_IDS.includes(e.def.id)) : timerDefs;
+    return defs.map(({ def, kind }) => ({
+      value: `timer::${timerName}::${def.id}`,
+      label: def.label,
+      kind,
+      moduleName: 'core',
+      nodeTypeId: def.id,
+      defaults: timerName ? { ...def.defaults, name: timerName } : def.defaults,
+    }));
+  }
+
+  const timerCategories: PaletteCategory[] = [];
+  if (timerDefs.length > 0) {
+    timerCategories.push({ key: 'timer-new', label: 'Timer Nodes', options: timerOptions('') });
+    for (const usage of collectTimerUsage(watch(GRAPH_KEY))) {
+      timerCategories.push({
+        key: `timer-${usage.name}`,
+        label: `${usage.name}  (${usage.references.length})`,
+        options: timerOptions(usage.name),
+      });
+    }
+    timerCategories.push({
+      key: 'timer-manage',
+      label: 'Manage Timers',
+      options: [
+        {
+          value: 'timer::manage',
+          label: 'Open Timer Manager',
+          kind: 'action',
+          moduleName: 'core',
+          nodeTypeId: '',
+          defaults: {},
+          onActivate: onManageTimers,
+        },
+      ],
+    });
+  }
+
   // Added last so 'Plugins' sits below core/module/operation entries. Skipped entirely when
   // no plugin contributed any actions, rather than showing an empty submenu.
   if (pluginActionCategories.size > 0) {
@@ -155,6 +227,10 @@ export default function NodePalette(props: NodePaletteProps) {
   }
 
   function addNode(option: PaletteOption) {
+    if (option.onActivate) {
+      option.onActivate();
+      return;
+    }
     const graph: EventGraph = watch(graphKey);
     const nodes = graph?.nodes ?? [];
     const newNode: EventGraphNode = {
@@ -163,7 +239,6 @@ export default function NodePalette(props: NodePaletteProps) {
       moduleName: option.moduleName,
       nodeTypeId: option.nodeTypeId,
       values: { ...option.defaults },
-      delay: option.kind === 'action' ? 0 : undefined,
       position: {
         x: option.kind === 'callback' ? 40 : 360,
         y: 40 + nodes.length * 110,
@@ -176,6 +251,9 @@ export default function NodePalette(props: NodePaletteProps) {
     <div style={{ display: 'flex', gap: 8 }}>
       <CascadeMenuButton label='Triggers' categories={[...triggerCategories.values()]} onSelect={addNode} />
       <CascadeMenuButton label='Actions' categories={[...actionCategories.values()]} onSelect={addNode} />
+      {timerCategories.length > 0 ? (
+        <CascadeMenuButton label='Timers' categories={timerCategories} onSelect={addNode} />
+      ) : null}
     </div>
   );
 }

@@ -23,9 +23,11 @@ export const PALETTE_HIDDEN_CORE_ACTIONS = ['plugin'];
 // form key, and the shared Form* components emit `<label htmlFor={id}><input id={id}>` with an
 // id derived from that key - so rendering both puts duplicate ids in the document and the
 // inspector's label focuses the card's input instead of its own, making the field look dead.
-// 'osc_trigger' is deliberately absent: its address/argCount fields live on the card, and
-// OscTriggerNodeEditor no longer draws them.
-export const BESPOKE_EDITOR_CORE_NODES = ['response', 'plugin', 'mod', 'software'];
+// Only 'plugin' and 'mod' remain: plugin's form is generated per plugin event (cascading
+// plugin -> event -> that event's own fields) and mod needs dynamic target pickers, so
+// neither can be described by a static form def. 'osc_trigger', 'software' and 'response'
+// all draw their fields on the card; their panels keep only the extras.
+export const BESPOKE_EDITOR_CORE_NODES = ['plugin', 'mod'];
 
 export const CORE_ACTION_DEFS: ActionNodeDef[] = [
   {
@@ -33,10 +35,36 @@ export const CORE_ACTION_DEFS: ActionNodeDef[] = [
     label: 'Response',
     description: 'Runs a response script (chat message, recurring message, etc).',
     form: {
-      etype: { label: 'Type', type: 'select', portType: 'string' },
-      message: { label: 'Script', type: 'code', portType: 'string' },
-      interval_key: { label: 'Interval Key', type: 'text', portType: 'string' },
-      interval: { label: 'Interval (Minutes)', type: 'number', portType: 'number' },
+      etype: {
+        label: 'Type',
+        type: 'select',
+        portType: 'string',
+        options: {
+          selections: {
+            oneshot: 'One Shot',
+            recurring: 'Recurring',
+            clear_recurring: 'Clear Recurring Message',
+          },
+        },
+      },
+      message: {
+        label: 'Script',
+        type: 'code',
+        portType: 'string',
+        showif: { variable: 'etype', condition: 'notEquals', value: 'clear_recurring' },
+      },
+      interval_key: {
+        label: 'Interval Key',
+        type: 'text',
+        portType: 'string',
+        showif: { variable: 'etype', condition: 'notEquals', value: 'oneshot' },
+      },
+      interval: {
+        label: 'Interval (Minutes)',
+        type: 'number',
+        portType: 'number',
+        showif: { variable: 'etype', condition: 'equals', value: 'recurring' },
+      },
     },
     defaults: { etype: 'oneshot', message: '', delay: 0, interval_key: '', interval: 5 },
   },
@@ -87,11 +115,26 @@ export const CORE_ACTION_DEFS: ActionNodeDef[] = [
     label: 'OSC Send',
     description: 'Sends an OSC message to a configured UDP destination.',
     form: {
-      dest_udp: { label: 'Destination', type: 'text', portType: 'string' },
+      // The destination list comes from the user's configured UDP servers at runtime, so a
+      // static `select` can't describe it - it resolves to FormUdpSelectDropdown through the
+      // custom renderer registry (fieldRenderers.ts).
+      dest_udp: {
+        label: 'Destination',
+        type: 'custom',
+        portType: 'string',
+        options: { component: 'udpSelect' },
+      },
       address: { label: 'Address', type: 'text', portType: 'string' },
       valueOn: { label: 'Value On', type: 'text', portType: 'string' },
       valueOff: { label: 'Value Off', type: 'text', portType: 'string' },
-      etype: { label: 'Event Type', type: 'select', portType: 'string' },
+      etype: {
+        label: 'Event Type',
+        type: 'select',
+        portType: 'string',
+        options: {
+          selections: { timed: 'Timed', 'button-press': 'Button Press', oneshot: 'One Shot' },
+        },
+      },
       duration: { label: 'Duration (Seconds)', type: 'number', portType: 'number' },
       priority: { label: 'Priority', type: 'number', portType: 'number' },
     },

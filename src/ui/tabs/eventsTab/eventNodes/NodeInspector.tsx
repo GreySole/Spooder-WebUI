@@ -5,7 +5,6 @@ import { useFormContext } from 'react-hook-form';
 import useEvents from '../../../../app/hooks/useEvents';
 import { EventGraph } from '../../../Types';
 import { buildGraphKey, buildKey, buildNodeKey } from '../FormKeys';
-import GenericNodeForm from './GenericNodeForm';
 import { resolveNodeDef } from './nodeDefLookup';
 import OscTriggerNodeEditor from './oscTrigger/OscTriggerNodeEditor';
 import ResponseNodeEditor from './responseAction/ResponseNodeEditor';
@@ -57,18 +56,14 @@ export default function NodeInspector(props: NodeInspectorProps) {
     editor = <ModNodeEditor eventName={eventName} nodeIndex={nodeIndex} />;
   } else if (node.moduleName === 'core' && node.nodeTypeId === 'software') {
     editor = <SoftwareNodeEditor eventName={eventName} nodeIndex={nodeIndex} />;
-  } else if (def) {
-    editor = (
-      <GenericNodeForm
-        eventName={eventName}
-        nodeIndex={nodeIndex}
-        moduleName={node.moduleName}
-        form={def.form}
-      />
-    );
-  } else {
+  } else if (!def) {
     editor = <TypeFace>Unknown node type '{node.moduleName}/{node.nodeTypeId}'.</TypeFace>;
   }
+  // No generic branch: form fields are edited inline on the node card. Rendering them here
+  // too would bind two controls to the same form key, and the shared Form* components derive
+  // their DOM id from that key - the duplicate ids break label/input association and make the
+  // field look unresponsive. The panels above are only for what a static form def can't
+  // express; everything else is identity, Delay and Delete below.
 
   return (
     <Stack spacing='medium' padding='medium'>

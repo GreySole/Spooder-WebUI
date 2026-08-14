@@ -1,6 +1,7 @@
 import { EventGraphNodeKind, KeyedObject, NodeFieldDef, NodePortDataType } from '../../../../Types';
 import { ResolvedNodeDef } from '../nodeDefLookup';
 import { fieldSatisfiesShowif } from '../nodeFieldVisibility';
+import { customFieldKey } from '../customFieldRenderer';
 
 // Node cards render at a fixed width rather than hugging content, so every socket's screen
 // offset can be computed analytically from graph data alone - no DOM measurement/ResizeObserver
@@ -33,10 +34,18 @@ const CONTROL_HEIGHTS: { [fieldType: string]: number } = {
   code: 56, // matches COMPACT_EDITOR_HEIGHT in FormCodeInput
 };
 
-// 'custom' is intentionally absent: those render a module-supplied component whose height
-// isn't knowable from the manifest (Discord's channelSelect is a two-dropdown pair), so the
-// card shows a label-only row and defers editing to the inspector pane.
-function inlineControlHeight(field: NodeFieldDef): number | undefined {
+// 'custom' isn't in CONTROL_HEIGHTS: a module-supplied component states its own height when
+// it registers (see fieldRenderers.ts), since nothing in the manifest describes how tall it
+// draws. An unregistered component key falls back to the text-input height, matching the
+// labelled text input NodeFieldInput renders in that case.
+function inlineControlHeight(
+  field: NodeFieldDef,
+  moduleName: string,
+  customFieldHeight?: (key: string) => number | undefined,
+): number | undefined {
+  if (field.type === 'custom') {
+    return customFieldHeight?.(customFieldKey(moduleName, field)) ?? CONTROL_HEIGHTS.text;
+  }
   return CONTROL_HEIGHTS[field.type];
 }
 
@@ -84,6 +93,12 @@ export interface NodeLayoutContext {
   // labels so the card doesn't render a second control bound to the same form key. See
   // BESPOKE_EDITOR_CORE_NODES in coreNodeDefs.ts.
   inlineControlsDisabled?: boolean;
+  // The node's module, needed to resolve a custom field's registered renderer height.
+  moduleName?: string;
+  // Injected rather than imported so this module stays free of React/component imports and
+  // remains a pure, testable function of graph data. NodeGraphCanvas supplies the registry's
+  // lookup (see fieldRenderers.ts).
+  customFieldHeight?: (key: string) => number | undefined;
 }
 
 export function computeNodePortLayout(
@@ -91,7 +106,13 @@ export function computeNodePortLayout(
   def: ResolvedNodeDef | undefined,
   context: NodeLayoutContext = {},
 ): NodePortLayout {
-  const { values = {}, connectedInputPorts, inlineControlsDisabled } = context;
+  const {
+    values = {},
+    connectedInputPorts,
+    inlineControlsDisabled,
+    moduleName = '',
+    customFieldHeight,
+  } = context;
   const inputs: PortLayoutEntry[] = [];
   const outputs: PortLayoutEntry[] = [];
 
@@ -125,7 +146,7 @@ export function computeNodePortLayout(
     const controlHeight =
       inlineControlsDisabled || connectedInputPorts?.has(fieldName)
         ? undefined
-        : inlineControlHeight(field);
+        : inlineControlHeight(field, moduleName, customFieldHeight);
     const height = FIELD_LABEL_HEIGHT + (controlHeight ?? 0);
 
     fieldRows.push({ fieldName, field, top: rowTop, height, showsControl: controlHeight !== undefined });

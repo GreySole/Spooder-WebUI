@@ -2,6 +2,7 @@ import React, { useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { EventGraphEdge, EventGraphNode } from '../../../../Types';
 import GraphNodeCard from '../GraphNodeCard';
 import { BESPOKE_EDITOR_CORE_NODES } from '../coreNodeDefs';
+import { getCustomFieldHeight } from '../fieldRenderers';
 import { ResolvedNodeDef } from '../nodeDefLookup';
 import EdgeLayer from './EdgeLayer';
 import GraphViewport from './GraphViewport';
@@ -128,6 +129,8 @@ function NodeGraphCanvasInner(props: InnerProps) {
         n.id,
         computeNodePortLayout(n.kind, resolveDef(n), {
           values: n.values,
+          moduleName: n.moduleName,
+          customFieldHeight: getCustomFieldHeight,
           connectedInputPorts: connectedByNode.get(n.id),
           inlineControlsDisabled:
             n.moduleName === 'core' && BESPOKE_EDITOR_CORE_NODES.includes(n.nodeTypeId),

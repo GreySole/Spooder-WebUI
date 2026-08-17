@@ -14,10 +14,9 @@ import {
 } from '@spooder/webui-component-library';
 import React, { useEffect } from 'react';
 import { useFormContext } from 'react-hook-form';
-import FormOBSSceneItemSelect from '../../../../common/input/form/FormOBSSceneItemSelect';
 import FormUdpSelectDropdown from '../../../../common/input/form/FormUdpSelectDropdown';
 import { KeyedObject } from '../../../../Types';
-import FormDiscordChannelSelect from '../../../../../modules/installed/discord/components/FormDiscordChannelSelect';
+import { getModulePluginInput } from './modulePluginInputs';
 import FormEventSelect from '../../../../common/input/form/FormEventSelect';
 import FormAssetSelect from '../../../../common/input/form/FormAssetSelect';
 import FormCodeInput from '../../../../common/input/form/FormCodeInput';
@@ -102,12 +101,16 @@ export default function PluginInput(props: PluginInputProps) {
         return <FormUdpSelectDropdown formKey={formKey} label={label} />;
       case 'event':
         return <FormEventSelect formKey={formKey} label={label} />;
-      case 'obs':
-        return <FormOBSSceneItemSelect formKey={formKey} label={label} />;
-      case 'discord':
-        return <FormDiscordChannelSelect formKey={formKey} label={label} />;
-      default:
+      default: {
+        // Field types owned by modules ('obs', 'discord'), resolved through the module
+        // registry so an uninstalled module costs this plugin one field, not the build.
+        const moduleInput = getModulePluginInput(type ?? '');
+        if (moduleInput) {
+          const ModuleFormInput = moduleInput.form;
+          return <ModuleFormInput formKey={formKey} label={label} />;
+        }
         return <TypeFace>Invalid type: {type}</TypeFace>;
+      }
     }
   }
 

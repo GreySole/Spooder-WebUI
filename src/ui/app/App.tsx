@@ -12,7 +12,6 @@ import useServer from '../../app/hooks/useServer';
 import { modules } from '../../modules/registry';
 import PageCircleLoader from '../common/input/general/PageCircleLoader';
 import ModUI from '../deck/ModUI';
-import OBS from '../deck/OBS';
 import OSCMonitor from '../deck/OSCMonitor';
 import ConfigTab from '../tabs/ConfigTab';
 import DashboardTab from '../tabs/DashboardTab';
@@ -77,9 +76,6 @@ export default function App() {
       break;
     case 'users':
       tabContent = <UserTab />;
-      break;
-    case 'obs':
-      tabContent = <OBS />;
       break;
     case 'osc':
       tabContent = <OSCMonitor />;

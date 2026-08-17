@@ -4,3 +4,6 @@
 [submodule "src/modules/installed/discord"]
 	path = src/modules/installed/discord
 	url = https://github.com/GreySole/Spooder-WebUI-Discord-Module.git
+[submodule "src/modules/installed/obs"]
+	path = src/modules/installed/obs
+	url = https://github.com/GreySole/Spooder-WebUI-OBS-Module.git

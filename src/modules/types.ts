@@ -4,18 +4,48 @@ import { CustomFieldRenderer } from '../ui/tabs/eventsTab/eventNodes/customField
 export interface ModuleTabConfig {
   label: string;
   icon: any;
-  parentTab?: string;
+  // Where the tab lands in the navigation menu. Modules default to the deck section
+  // below the divider, alongside OSC Monitor and Mod UI; 'main' opts into the top list
+  // with Dashboard/Events/etc. 'module' is legacy (the Modules folder is gone) and is
+  // treated as the default.
+  parentTab?: 'deck' | 'main' | 'module';
+}
+
+export interface PluginFormInputProps {
+  formKey: string;
+  label?: string;
+}
+
+export interface PluginControlledInputProps {
+  label: string;
+  value: any;
+  onChange: (value: any) => void;
+}
+
+// A plugin-settings field type a module contributes, keyed by the `type` string a plugin's
+// settings manifest asks for ('obs', 'discord'). `form` is used inside a react-hook-form
+// context; `controlled` is the value/onChange variant multi-inputs need.
+export interface ModulePluginInput {
+  form: React.ComponentType<PluginFormInputProps>;
+  controlled?: React.ComponentType<PluginControlledInputProps>;
+}
+
+export interface ModuleApi {
+  reducerPath: string;
+  reducer: any;
+  middleware: any;
 }
 
 export interface ModuleDefinition {
   key: string;
   tabConfig: ModuleTabConfig;
   Component: React.ComponentType;
-  api: {
-    reducerPath: string;
-    reducer: any;
-    middleware: any;
-  };
+  // One RTK Query api, or several when the module's backend spans multiple route prefixes.
+  api: ModuleApi | ModuleApi[];
+  // Field types this module contributes to plugin settings forms, keyed by manifest `type`.
+  // Looked up through the registry so a plugin asking for a type whose module isn't installed
+  // degrades to a message instead of breaking the build (see pluginInput/modulePluginInputs.ts).
+  pluginInputs?: { [type: string]: ModulePluginInput };
   // Named field-renderer components this module contributes to the node graph, for
   // NodeFieldDef.type === 'custom' fields whose options.component matches a key here.
   // Each declares its rendered height so the card can size the field's row.

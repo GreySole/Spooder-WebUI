@@ -4,7 +4,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useFormContext } from 'react-hook-form';
 import CodeEditor from '@uiw/react-textarea-code-editor';
 import { KeyedObject } from '../../../../Types';
-import OBSSceneItemSelect from '../../../../common/input/controlled/OBSSceneItemSelect';
 import { useState } from 'react';
 import {
   BoolSwitch,
@@ -20,7 +19,7 @@ import UdpSelectDropdown from '../../../../common/input/controlled/UdpSelectDrop
 import EventSelect from '../../../../common/input/controlled/EventSelect';
 import { usePluginSettingsContext } from '../context/PluginSettingsContext';
 import PluginMultiInputValueArray from './PluginMultiInputValueArray';
-import DiscordChannelSelect from '../../../../../modules/installed/discord/components/DiscordChannelSelect';
+import { getModulePluginInput } from './modulePluginInputs';
 
 interface PluginMultiInputProps {
   formKey: string;
@@ -111,12 +110,16 @@ export default function PluginMultiInput(props: PluginMultiInputProps) {
         return <UdpSelectDropdown label={label} value={value} onChange={onChanged} />;
       case 'event':
         return <EventSelect label={label} value={value} onChange={onChanged} />;
-      case 'obs':
-        return <OBSSceneItemSelect label={label} value={value} onChange={onChanged} />;
-      case 'discord':
-        return <DiscordChannelSelect label={label} value={value} onChange={onChanged} />;
-      default:
+      default: {
+        // Field types owned by modules ('obs', 'discord'), resolved through the module
+        // registry so an uninstalled module costs this plugin one field, not the build.
+        const moduleInput = getModulePluginInput(type ?? '');
+        const ModuleControlledInput = moduleInput?.controlled;
+        if (ModuleControlledInput) {
+          return <ModuleControlledInput label={label} value={value} onChange={onChanged} />;
+        }
         return <label>Invalid type: {type}</label>;
+      }
     }
   }
 

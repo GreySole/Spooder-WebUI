@@ -3,13 +3,11 @@ import {
   faArrowsSplitUpAndLeft,
   faClapperboard,
   faDashboard,
-  faGamepad,
   faGears,
   faHammer,
   faPaintRoller,
   faPerson,
   faPlug,
-  faPuzzlePiece,
   faShareNodes,
   faTv
 } from '@fortawesome/free-solid-svg-icons';
@@ -31,10 +29,17 @@ interface FolderTab {
   subTabs: TabOptions;
 }
 
-const moduleSubTabs: TabOptions = {};
+const moduleMainTabs: TabOptions = {};
+const moduleDeckTabs: TabOptions = {};
 for (const m of modules) {
-  if (m.tabConfig.parentTab === 'module') {
-    moduleSubTabs[m.key] = { label: m.tabConfig.label, icon: m.tabConfig.icon };
+  const tab = { label: m.tabConfig.label, icon: m.tabConfig.icon };
+  // Modules sit with the decks below the divider. 'main' is the only opt-out, putting a
+  // module up with Dashboard/Events/etc; the legacy 'module' value lands in the decks too,
+  // since the Modules folder it used to nest under is gone.
+  if (m.tabConfig.parentTab === 'main') {
+    moduleMainTabs[m.key] = tab;
+  } else {
+    moduleDeckTabs[m.key] = tab;
   }
 }
 
@@ -58,11 +63,7 @@ export const navigationSlice = createSlice({
         label: 'Tunnels',
         icon: faArrowsSplitUpAndLeft,
       },
-      module: {
-        label: 'Modules',
-        icon: faPuzzlePiece,
-        subTabs: moduleSubTabs,
-      },
+      ...moduleMainTabs,
       users: {
         label: 'Users',
         icon: faPerson,
@@ -81,10 +82,8 @@ export const navigationSlice = createSlice({
       },
     } as TabOptions,
     deckTabOptions: {
-      obs: {
-        label: 'OBS Remote',
-        icon: faGamepad,
-      },
+      // Module tabs (OBS, Twitch, Discord) come first, above the built-in decks.
+      ...moduleDeckTabs,
       osc: {
         label: 'OSC Monitor',
         icon: faTv,

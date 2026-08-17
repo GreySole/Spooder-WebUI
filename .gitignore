@@ -1,5 +1,9 @@
 # temporary until core-modularity is merged
 modules/
+# ...but src/modules holds the module system itself. Submodule folders (twitch,
+# discord) are tracked as gitlinks, in-tree modules awaiting extraction (obs) as
+# source, and registry.ts stays ignored via its own rule below.
+!src/modules/
 
 # Logs
 logs

@@ -5,12 +5,15 @@ import useEvents from '../../../app/hooks/useEvents';
 import { EventGraph, EventGraphEdge, EventGraphNode } from '../../Types';
 import { buildGraphKey } from './FormKeys';
 import NodeGraphCanvas from './eventNodes/canvas/NodeGraphCanvas';
-import { PendingConnection, Point } from './eventNodes/canvas/types';
+import { ContextMenuAnchor, PendingConnection, Point } from './eventNodes/canvas/types';
 import NodeInspector from './eventNodes/NodeInspector';
 import NodePalette from './eventNodes/NodePalette';
+import NodeContextMenu from './eventNodes/palette/NodeContextMenu';
+import useNodePalette from './eventNodes/palette/useNodePalette';
 import { OscLiveValuesProvider } from './eventNodes/OscLiveValues';
 import TimerManagerPanel from './eventNodes/TimerManagerPanel';
 import { resolveNodeDef } from './eventNodes/nodeDefLookup';
+import useInspectorHasContent from './eventNodes/useInspectorHasContent';
 
 interface EventNodesProps {
   eventName: string;
@@ -25,6 +28,12 @@ export default function EventNodes(props: EventNodesProps) {
 
   const [selectedNodeId, setSelectedNodeId] = useState<string>('');
   const [timerManagerOpen, setTimerManagerOpen] = useState(false);
+  const [contextMenu, setContextMenu] = useState<ContextMenuAnchor | null>(null);
+
+  // One palette tree, rendered by both the corner buttons and the canvas context menu.
+  const palette = useNodePalette({ eventName, onManageTimers: () => setTimerManagerOpen(true) });
+  // Most nodes are edited entirely on their card, so their panel would open with nothing in it.
+  const inspectorHasContent = useInspectorHasContent(eventName, selectedNodeId);
 
   const graphKey = buildGraphKey(eventName);
   const graph: EventGraph = watch(graphKey);
@@ -56,6 +65,31 @@ export default function EventNodes(props: EventNodesProps) {
     [getValues, graphKey, setValue],
   );
 
+  const handleNodeDuplicate = useCallback(
+    (nodeId: string) => {
+      const currentGraph: EventGraph = getValues(graphKey);
+      const source = currentGraph.nodes.find((n) => n.id === nodeId);
+      if (!source) {
+        return;
+      }
+      const copy: EventGraphNode = {
+        ...source,
+        id: uuidv4(),
+        // Deep copy so the two nodes don't share nested value objects (an OSC trigger's arg
+        // labels, a condition group) - react-hook-form edits those in place, which would
+        // otherwise edit both nodes at once.
+        values: JSON.parse(JSON.stringify(source.values ?? {})),
+        // Offset rather than dropped at the cursor: the copy lands beside the original instead
+        // of directly on top of it, wherever the right click happened to be on the card.
+        position: { x: source.position.x + 30, y: source.position.y + 30 },
+      };
+      setValue(`${graphKey}.nodes`, [...currentGraph.nodes, copy], { shouldDirty: true });
+      // Wires aren't copied, so the new node is selected as the thing to hook up next.
+      setSelectedNodeId(copy.id);
+    },
+    [getValues, graphKey, setValue],
+  );
+
   const handleEdgeDelete = useCallback(
     (edgeId: string) => {
       const currentGraph: EventGraph = getValues(graphKey);
@@ -75,7 +109,17 @@ export default function EventNodes(props: EventNodesProps) {
         toPort: connection.targetHandle,
       };
       const currentGraph: EventGraph = getValues(graphKey);
-      setValue(`${graphKey}.edges`, [...currentGraph.edges, newEdge], { shouldDirty: true });
+      // A data input takes exactly one wire - the executor resolves it as
+      // `resolved[toPort] = <source value>`, so a second edge into the same port would silently
+      // shadow the first. Re-hooking a wire onto an occupied input therefore replaces what was
+      // there. Exec inputs keep their fan-in (several nodes may run into one action); only an
+      // exact duplicate of an existing edge is dropped there.
+      const replaced = currentGraph.edges.filter((e) =>
+        newEdge.toPort === 'exec'
+          ? !(e.fromNode === newEdge.fromNode && e.fromPort === newEdge.fromPort && e.toNode === newEdge.toNode && e.toPort === 'exec')
+          : !(e.toNode === newEdge.toNode && e.toPort === newEdge.toPort),
+      );
+      setValue(`${graphKey}.edges`, [...replaced, newEdge], { shouldDirty: true });
     },
     [getValues, graphKey, setValue],
   );
@@ -150,10 +194,21 @@ export default function EventNodes(props: EventNodesProps) {
         onEdgeDelete={handleEdgeDelete}
         onConnect={onConnect}
         isValidConnection={isValidConnection}
+        onOpenContextMenu={setContextMenu}
       />
       <div style={{ position: 'absolute', top: 8, left: 8, zIndex: 20 }}>
-        <NodePalette eventName={eventName} onManageTimers={() => setTimerManagerOpen(true)} />
+        <NodePalette groups={palette.groups} onSelect={(option) => palette.addNode(option)} />
       </div>
+      {contextMenu ? (
+        <NodeContextMenu
+          anchor={contextMenu}
+          groups={palette.groups}
+          onSelect={palette.addNode}
+          onDuplicateNode={handleNodeDuplicate}
+          onDeleteNode={handleNodeDelete}
+          onClose={() => setContextMenu(null)}
+        />
+      ) : null}
       {timerManagerOpen ? (
         <div
           style={{
@@ -174,7 +229,7 @@ export default function EventNodes(props: EventNodesProps) {
         </div>
       ) : null}
 
-      {selectedNodeId && !timerManagerOpen ? (
+      {selectedNodeId && inspectorHasContent && !timerManagerOpen ? (
         <div
           style={{
             position: 'absolute',

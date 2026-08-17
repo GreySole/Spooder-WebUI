@@ -106,6 +106,10 @@ export interface NodeFieldDef {
   // frontend renders it as an inline editable value when unwired, or as a socket fed by
   // another node's output when a data edge targets it.
   portType?: NodePortDataType;
+  // One slot of a self-extending list (e.g. Concat's C..H inputs): hidden until every field
+  // before it is filled or wired, so the node offers exactly one empty slot at a time. See
+  // growableFieldVisible in nodeFieldVisibility.ts.
+  growable?: boolean;
 }
 
 export interface NodeForm {

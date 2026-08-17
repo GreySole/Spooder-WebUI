@@ -45,6 +45,9 @@ export default function NodeInspector(props: NodeInspectorProps) {
     onDeselect();
   }
 
+  // Whether this panel opens at all is decided before it renders, by useInspectorHasContent -
+  // a node type added to this switch needs an entry there too, or its editor will never be
+  // reached.
   let editor: React.ReactNode = null;
   if (node.moduleName === 'core' && node.nodeTypeId === 'osc_trigger') {
     editor = <OscTriggerNodeEditor eventName={eventName} nodeIndex={nodeIndex} />;

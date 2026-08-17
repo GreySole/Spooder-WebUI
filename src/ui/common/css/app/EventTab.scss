@@ -435,6 +435,9 @@ option {
 // and CONTROL_HEIGHTS there are a matched pair - changing one means changing the other.
 .node-inline-field {
 	font-size: 0.75rem;
+	// The card body is a drag handle and sets `cursor: grab`, which would otherwise be
+	// inherited by the controls sitting on it.
+	cursor: auto;
 
 	// The node card sets `user-select: none` so dragging it can't drag-select label text;
 	// the actual controls opt back in here so their values stay selectable and editable.

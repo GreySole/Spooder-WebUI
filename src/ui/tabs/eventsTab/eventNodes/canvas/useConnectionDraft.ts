@@ -44,6 +44,10 @@ export function useConnectionDraft(
       dataType: NodePortDataType | undefined,
       captureTarget: Element | null,
     ) => {
+      // Left button only, for the same reason as useNodeDrag.startDrag.
+      if (e.button !== 0) {
+        return;
+      }
       // Same reason as useNodeDrag.startDrag: without this, dragging a wire out of a socket
       // starts a native text selection that sweeps across the cards it passes over.
       e.preventDefault();
@@ -65,6 +69,17 @@ export function useConnectionDraft(
     [toGraphPoint],
   );
 
+  // Abandons an in-progress draft without resolving a drop target. Used when a grab on a
+  // connected input socket turns out to have been a plain click, so nothing should change.
+  const cancel = useCallback((e: React.PointerEvent) => {
+    if (!origin.current) {
+      return;
+    }
+    (e.target as Element).releasePointerCapture?.(e.pointerId);
+    origin.current = null;
+    setDraft(null);
+  }, []);
+
   const onPointerUp = useCallback(
     (e: React.PointerEvent) => {
       if (!origin.current) {
@@ -78,7 +93,10 @@ export function useConnectionDraft(
       const dropEl = document.elementFromPoint(e.clientX, e.clientY) as HTMLElement | null;
       const socketEl = dropEl?.closest('[data-socket-id]') as HTMLElement | null;
       const socketId = socketEl?.dataset.socketId;
-      if (!socketId) {
+      // Only input sockets are valid drop targets: a wire released over another *output* would
+      // otherwise be turned into an edge whose toPort names a port that has no input socket at
+      // all, leaving an edge nothing can draw or resolve.
+      if (!socketId || socketEl?.dataset.socketSide !== 'in') {
         return;
       }
       const sep = socketId.indexOf(':');
@@ -89,5 +107,5 @@ export function useConnectionDraft(
     [onComplete],
   );
 
-  return { draft, start, onPointerMove, onPointerUp };
+  return { draft, start, cancel, onPointerMove, onPointerUp };
 }

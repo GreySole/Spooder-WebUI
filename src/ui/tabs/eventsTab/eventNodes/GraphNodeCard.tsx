@@ -1,6 +1,6 @@
 import { FormSelectDropdown } from '@spooder/webui-component-library';
 import React from 'react';
-import { EventGraphNodeKind, NodePortDataType } from '../../../Types';
+import { EventGraphNodeKind, KeyedObject, NodePortDataType } from '../../../Types';
 import { buildNodeValueKey } from '../FormKeys';
 import { colorForPort } from './canvas/portColors';
 import {
@@ -29,16 +29,22 @@ export interface GraphNodeCardProps {
   // inspector pane uses - editing on the card and in the pane drive one value.
   eventName: string;
   nodeIndex: number;
-  // The OSC address this node listens to, for its live readout. Only set for osc_trigger.
-  oscAddress?: string;
+  // The node's current form values, for the readouts the card draws beside its outputs.
+  values?: KeyedObject;
+  // Input port ids that currently have an edge landing on them - those sockets can be grabbed
+  // to unhook the wire, so they advertise a grab cursor.
+  connectedInputPorts?: Set<string>;
   onSelect: (nodeId: string) => void;
-  onHeaderPointerDown: (e: React.PointerEvent<HTMLDivElement>, nodeId: string) => void;
+  onNodePointerDown: (e: React.PointerEvent<HTMLDivElement>, nodeId: string) => void;
   onStartConnection: (
     e: React.PointerEvent,
     nodeId: string,
     portId: string,
     dataType: NodePortDataType | undefined,
   ) => void;
+  // Returns true when a wire was actually detached, so the socket can swallow the event and
+  // keep the card's body-drag from starting underneath it.
+  onDetachConnection: (e: React.PointerEvent, nodeId: string, portId: string) => boolean;
 }
 
 const KIND_COLOR: { [key in EventGraphNodeKind]: string } = {
@@ -74,6 +80,27 @@ function formatLiveArg(live: OscLiveValue, portId: string): string {
   return typeof value === 'string' ? value : JSON.stringify(value);
 }
 
+// Concat's result, as far as it can be known while editing: literal slots read out as typed,
+// and a slot fed by a wire stands in as '{node_1}', '{node_2}', ... numbered in wire order,
+// since its real value only exists when the graph runs.
+function buildConcatPreview(
+  form: { [fieldName: string]: any } | undefined,
+  values: KeyedObject | undefined,
+  connectedInputPorts?: Set<string>,
+): string {
+  let wired = 0;
+  return Object.keys(form ?? {})
+    .map((slot) => {
+      if (connectedInputPorts?.has(slot)) {
+        wired += 1;
+        return `{node_${wired}}`;
+      }
+      const value = values?.[slot];
+      return value === undefined || value === null ? '' : String(value);
+    })
+    .join('');
+}
+
 const rowLabelStyle: React.CSSProperties = {
   position: 'absolute',
   height: HANDLE_SPACING,
@@ -90,6 +117,15 @@ const rowLabelStyle: React.CSSProperties = {
   userSelect: 'none',
 };
 
+// The whole card body drags the node, so a pointerdown that lands on something the user means
+// to operate (any inline control, which is always wrapped in `.node-inline-field`) must not
+// start a drag - startDrag preventDefault()s, which would otherwise stop the control from
+// focusing at all.
+function isInteractiveTarget(target: EventTarget | null): boolean {
+  const element = target as HTMLElement | null;
+  return Boolean(element?.closest?.('.node-inline-field, input, textarea, select, button, [contenteditable="true"]'));
+}
+
 export default function GraphNodeCard(props: GraphNodeCardProps) {
   const {
     id,
@@ -101,10 +137,12 @@ export default function GraphNodeCard(props: GraphNodeCardProps) {
     layout,
     eventName,
     nodeIndex,
-    oscAddress,
+    values,
+    connectedInputPorts,
     onSelect,
-    onHeaderPointerDown,
+    onNodePointerDown,
     onStartConnection,
+    onDetachConnection,
   } = props;
   const label = def?.label ?? nodeTypeId;
 
@@ -112,7 +150,13 @@ export default function GraphNodeCard(props: GraphNodeCardProps) {
   // Live readout for OSC triggers: keyed on the address this node listens to, so the
   // card shows what actually arrived. Undefined for every other node type.
   const isOscTrigger = moduleName === 'core' && nodeTypeId === 'osc_trigger';
-  const liveArgs = useOscLiveValue(isOscTrigger ? oscAddress : undefined);
+  const liveArgs = useOscLiveValue(isOscTrigger ? values?.address : undefined);
+  // Concat shows what it will produce right beside its Result socket, so a chain of wires and
+  // literals can be read off the card without running the event.
+  const concatPreview =
+    kind === 'operation' && nodeTypeId === 'concat'
+      ? buildConcatPreview(def?.form, values, connectedInputPorts)
+      : '';
   // Operation/callback outputs render as wireable sockets below (via computeNodePortLayout);
   // only action-node outputs (not resolved by the executor yet, so no socket exists for them)
   // fall back to plain read-only text.
@@ -135,9 +179,18 @@ export default function GraphNodeCard(props: GraphNodeCardProps) {
 
   return (
     <div
-      onPointerDown={() => onSelect(id)}
+      onPointerDown={(e) => {
+        onSelect(id);
+        // Sockets stop propagation themselves when they start/detach a wire, so anything that
+        // reaches here is either the header, the title, a label, or bare card background.
+        if (isInteractiveTarget(e.target)) {
+          return;
+        }
+        onNodePointerDown(e, id);
+      }}
       style={{
         position: 'relative',
+        cursor: 'grab',
         width: NODE_WIDTH,
         minHeight: maxPortTop + HANDLE_SPACING,
         borderRadius: 6,
@@ -152,7 +205,6 @@ export default function GraphNodeCard(props: GraphNodeCardProps) {
       }}
     >
       <div
-        onPointerDown={(e) => onHeaderPointerDown(e, id)}
         style={{
           height: HEADER_HEIGHT,
           boxSizing: 'border-box',
@@ -178,7 +230,9 @@ export default function GraphNodeCard(props: GraphNodeCardProps) {
           whiteSpace: 'nowrap',
           userSelect: 'none',
         }}
-        title={label}
+        // The inspector panel stays shut for node types with nothing to configure there, so a
+        // node's description would otherwise have nowhere left to appear.
+        title={def?.description ? `${label} - ${def.description}` : label}
       >
         {label}
       </div>
@@ -250,23 +304,34 @@ export default function GraphNodeCard(props: GraphNodeCardProps) {
               gap: 6,
             }}
           >
-            {/* Live readout sits on the label's own line so row heights - and therefore every
+            {/* Readout sits on the label's own line so row heights - and therefore every
                 socket offset - stay exactly as nodeLayout computed them. */}
-            {liveArgs ? (
-              <span
-                style={{
-                  flex: '0 1 auto',
-                  minWidth: 0,
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  fontFamily: 'monospace',
-                  opacity: 0.65,
-                }}
-                title='Last received value'
-              >
-                {formatLiveArg(liveArgs, row.portId)}
-              </span>
-            ) : null}
+            {(() => {
+              const readout = liveArgs
+                ? formatLiveArg(liveArgs, row.portId)
+                : row.portId === 'result'
+                  ? concatPreview
+                  : '';
+              if (!readout) {
+                return null;
+              }
+              return (
+                <span
+                  style={{
+                    flex: '0 1 auto',
+                    minWidth: 0,
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                    fontFamily: 'monospace',
+                    opacity: 0.65,
+                  }}
+                  title={liveArgs ? 'Last received value' : readout}
+                >
+                  {readout}
+                </span>
+              );
+            })()}
             <span
               style={{
                 flex: '0 0 auto',
@@ -289,7 +354,16 @@ export default function GraphNodeCard(props: GraphNodeCardProps) {
       ))}
 
       {inputs.map((p) => (
-        <PortSocket key={`in:${p.portId}`} nodeId={id} portId={p.portId} side='in' top={p.top} dataType={p.dataType} />
+        <PortSocket
+          key={`in:${p.portId}`}
+          nodeId={id}
+          portId={p.portId}
+          side='in'
+          top={p.top}
+          dataType={p.dataType}
+          connected={connectedInputPorts?.has(p.portId)}
+          onDetachConnection={onDetachConnection}
+        />
       ))}
       {outputs.map((p) => (
         <PortSocket

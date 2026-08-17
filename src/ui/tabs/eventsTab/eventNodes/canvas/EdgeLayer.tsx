@@ -10,6 +10,9 @@ interface EdgeLayerProps {
   nodePositions: Map<string, Point>;
   nodeLayouts: Map<string, NodePortLayout>;
   selectedEdgeId: string;
+  // An edge whose loose end the user is currently dragging: it still exists in the graph (the
+  // removal is only committed on drop) but the draft wire stands in for it on screen.
+  hiddenEdgeId: string;
   onSelectEdge: (edgeId: string) => void;
   draft: ConnectionDraftState | null;
 }
@@ -42,7 +45,7 @@ function endpoint(
 }
 
 export default function EdgeLayer(props: EdgeLayerProps) {
-  const { edges, nodePositions, nodeLayouts, selectedEdgeId, onSelectEdge, draft } = props;
+  const { edges, nodePositions, nodeLayouts, selectedEdgeId, hiddenEdgeId, onSelectEdge, draft } = props;
 
   return (
     // Explicit width/height (rather than 0, which this absolutely-positioned/no-viewBox SVG
@@ -63,6 +66,9 @@ export default function EdgeLayer(props: EdgeLayerProps) {
       }}
     >
       {edges.map((edge) => {
+        if (edge.id === hiddenEdgeId) {
+          return null;
+        }
         const from = endpoint(edge.fromNode, edge.fromPort, 'out', nodePositions, nodeLayouts);
         const to = endpoint(edge.toNode, edge.toPort, 'in', nodePositions, nodeLayouts);
         if (!from || !to) {

@@ -1,6 +1,6 @@
 import { EventGraphNodeKind, KeyedObject, NodeFieldDef, NodePortDataType } from '../../../../Types';
 import { ResolvedNodeDef } from '../nodeDefLookup';
-import { fieldSatisfiesShowif } from '../nodeFieldVisibility';
+import { fieldSatisfiesShowif, growableFieldVisible } from '../nodeFieldVisibility';
 import { customFieldKey } from '../customFieldRenderer';
 
 // Node cards render at a fixed width rather than hugging content, so every socket's screen
@@ -141,6 +141,11 @@ export function computeNodePortLayout(
   let rowTop = HANDLE_TOP_START - FIELD_LABEL_HEIGHT / 2;
   for (const [fieldName, field] of Object.entries(def?.form ?? {})) {
     if (!fieldSatisfiesShowif(field.showif, values)) {
+      continue;
+    }
+    // A growing node (Concat) only draws the slots it has grown into, so its card - and every
+    // socket offset below this point - stays as short as the node actually is.
+    if (!growableFieldVisible(fieldName, field, def?.form, values, connectedInputPorts)) {
       continue;
     }
     const controlHeight =

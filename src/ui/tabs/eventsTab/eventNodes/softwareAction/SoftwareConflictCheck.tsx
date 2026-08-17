@@ -8,7 +8,10 @@ interface SoftwareConflictCheckProps {
   nodeIndex: number;
 }
 
-function checkNodeConflicts(
+// Exported so the inspector can ask whether this node has a warning to show *before* opening
+// its panel: a conflict check is all an OSC Send node's panel contains, so with no conflict
+// there is nothing to open. See useInspectorHasContent.
+export function checkNodeConflicts(
   graphs: { [id: string]: EventGraph },
   eventName: string,
   nodeIndex: number,

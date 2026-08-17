@@ -34,7 +34,9 @@ export function useCanvasPanZoom(
   const onPointerDown = useCallback(
     (e: React.PointerEvent<HTMLDivElement>) => {
       const target = e.target as HTMLElement;
-      if (!target.dataset.canvasBackground) {
+      // Left button only: a right press on the background belongs to the node context menu,
+      // and panning from it would leave the canvas drifting under the open menu.
+      if (e.button !== 0 || !target.dataset.canvasBackground) {
         return;
       }
       (e.target as HTMLElement).setPointerCapture(e.pointerId);

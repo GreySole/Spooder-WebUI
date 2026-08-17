@@ -20,6 +20,10 @@ export function useNodeDrag(scale: number, onDragEnd: (nodeId: string, position:
 
   const startDrag = useCallback(
     (e: React.PointerEvent, nodeId: string, currentPosition: Point, captureTarget: Element | null) => {
+      // Left button only - a right press on a card opens the node context menu instead.
+      if (e.button !== 0) {
+        return;
+      }
       e.stopPropagation();
       // Suppresses the browser's native text-selection gesture, which pointerdown would
       // otherwise begin: as the drag sweeps the pointer across the card it would select the

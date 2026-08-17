@@ -1,6 +1,6 @@
-import { Box, Button, Stack, TextInput, TypeFace, useDialog } from '@spooder/webui-component-library';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
-import React, { useState } from 'react';
+import { Box, Button, Stack, TextInput, TypeFace, useDialog } from '@spooder/webui-component-library';
+import { useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { EventGraph } from '../../../Types';
 import { buildGraphKey, GRAPH_KEY } from '../FormKeys';
@@ -79,7 +79,7 @@ export default function TimerManagerPanel(props: TimerManagerPanelProps) {
       </Box>
 
       {usages.length === 0 ? (
-        <TypeFace fontSize='small'>
+        <TypeFace>
           No named timers yet. Add a Start Timer node and give it a name.
         </TypeFace>
       ) : null}

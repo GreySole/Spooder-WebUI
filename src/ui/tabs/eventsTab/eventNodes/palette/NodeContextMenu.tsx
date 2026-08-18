@@ -12,9 +12,11 @@ interface NodeContextMenuProps {
   anchor: ContextMenuAnchor;
   groups: PaletteGroup[];
   onSelect: (option: PaletteOption, position: Point) => void;
-  // Only reachable when the menu was opened on a node (anchor.nodeId).
-  onDuplicateNode: (nodeId: string) => void;
-  onDeleteNode: (nodeId: string) => void;
+  // The nodes the menu's actions apply to: the one it was opened on, or the whole selection
+  // when that node is part of it. Empty when the menu was opened on bare canvas.
+  nodeActionIds: string[];
+  onDuplicateNodes: (nodeIds: string[]) => void;
+  onDeleteNodes: (nodeIds: string[]) => void;
   onClose: () => void;
 }
 
@@ -42,7 +44,7 @@ function NodeActionRow(props: NodeActionRowProps) {
 // buttons - the groups come from the same useNodePalette call - with the three top-level menus
 // collapsed into one cascade, plus a search box that flattens the whole tree.
 export default function NodeContextMenu(props: NodeContextMenuProps) {
-  const { anchor, groups, onSelect, onDuplicateNode, onDeleteNode, onClose } = props;
+  const { anchor, groups, nodeActionIds, onSelect, onDuplicateNodes, onDeleteNodes, onClose } = props;
   const [query, setQuery] = useState('');
   const [highlight, setHighlight] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -81,6 +83,9 @@ export default function NodeContextMenu(props: NodeContextMenuProps) {
     return () => document.removeEventListener('keydown', onKeyDown);
   }, [onClose]);
 
+  // Right-clicking one node of a box selection acts on the whole group, so the rows say how
+  // many rather than silently doing more than 'Node' implies.
+  const nodeActionLabel = nodeActionIds.length > 1 ? `${nodeActionIds.length} Nodes` : 'Node';
   const results = searchPalette(groups, query);
   // A group is a cascade row like any other, so searching and browsing share one renderer.
   const rootCategories: PaletteCategory[] = groups.map((group) => ({
@@ -95,11 +100,11 @@ export default function NodeContextMenu(props: NodeContextMenuProps) {
     onClose();
   }
 
-  function runNodeAction(action: (nodeId: string) => void) {
-    if (!anchor.nodeId) {
+  function runNodeAction(action: (nodeIds: string[]) => void) {
+    if (nodeActionIds.length === 0) {
       return;
     }
-    action(anchor.nodeId);
+    action(nodeActionIds);
     onClose();
   }
 
@@ -150,10 +155,14 @@ export default function NodeContextMenu(props: NodeContextMenuProps) {
         {/* Actions on the node the menu was opened on, above the palette: they act on what was
             right-clicked, while everything below adds something new. The search box is left out
             of them deliberately - it filters nodes to add, not commands. */}
-        {anchor.nodeId ? (
+        {nodeActionIds.length > 0 ? (
           <>
-            <NodeActionRow label='Duplicate Node' onClick={() => runNodeAction(onDuplicateNode)} />
-            <NodeActionRow label='Delete Node' color='#e74c3c' onClick={() => runNodeAction(onDeleteNode)} />
+            <NodeActionRow label={`Duplicate ${nodeActionLabel}`} onClick={() => runNodeAction(onDuplicateNodes)} />
+            <NodeActionRow
+              label={`Delete ${nodeActionLabel}`}
+              color='#e74c3c'
+              onClick={() => runNodeAction(onDeleteNodes)}
+            />
             <div style={{ height: 1, margin: '4px 0', background: 'var(--color-border, #444)' }} />
           </>
         ) : null}

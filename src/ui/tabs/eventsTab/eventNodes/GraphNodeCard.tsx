@@ -6,6 +6,7 @@ import { colorForPort } from './canvas/portColors';
 import {
   HANDLE_SPACING,
   HEADER_HEIGHT,
+  nodeCardHeight,
   NODE_WIDTH,
   NodePortLayout,
   TITLE_HEIGHT
@@ -34,7 +35,9 @@ export interface GraphNodeCardProps {
   // Input port ids that currently have an edge landing on them - those sockets can be grabbed
   // to unhook the wire, so they advertise a grab cursor.
   connectedInputPorts?: Set<string>;
-  onSelect: (nodeId: string) => void;
+  // `additive` is a shift/ctrl-held click: the canvas toggles this node in the selection
+  // instead of replacing it.
+  onSelect: (nodeId: string, additive: boolean) => void;
   onNodePointerDown: (e: React.PointerEvent<HTMLDivElement>, nodeId: string) => void;
   onStartConnection: (
     e: React.PointerEvent,
@@ -46,6 +49,24 @@ export interface GraphNodeCardProps {
   // keep the card's body-drag from starting underneath it.
   onDetachConnection: (e: React.PointerEvent, nodeId: string, portId: string) => boolean;
 }
+
+// Selection accent: the theme's two analogous colors (hue ±30, set by the component library's
+// ThemeProvider), so a picked node reads in whatever hue the app is themed rather than a fixed
+// yellow. The fallbacks keep the old yellow for any context without those variables.
+const SELECTION_CW = 'var(--color-analogous-cw, #f1c40f)';
+const SELECTION_CCW = 'var(--color-analogous-ccw, #f1c40f)';
+// A border takes no gradient of its own, so the card paints two background layers: its normal
+// surface color clipped to the padding box, and the gradient clipped to the border box - which
+// leaves the gradient visible only in the 2px ring.
+const SELECTION_BORDER_LAYERS =
+  `linear-gradient(var(--color-background-near, #2a2a2a), var(--color-background-near, #2a2a2a)), ` +
+  `linear-gradient(135deg, ${SELECTION_CW}, ${SELECTION_CCW})`;
+// box-shadow takes no gradient either, so the halo is two offset glows - clockwise from the top
+// left, counter-clockwise from the bottom right - blending across the card into the same sweep
+// the border shows.
+const SELECTION_GLOW =
+  `-4px -4px 12px -3px color-mix(in srgb, ${SELECTION_CW} 70%, transparent), ` +
+  `4px 4px 12px -3px color-mix(in srgb, ${SELECTION_CCW} 70%, transparent)`;
 
 const KIND_COLOR: { [key in EventGraphNodeKind]: string } = {
   callback: '#8e44ad',
@@ -169,18 +190,18 @@ export default function GraphNodeCard(props: GraphNodeCardProps) {
   // computed (rather than left to stack in normal document flow) so a row and its dot always
   // land on the same pixel. Normal flow's per-row height depends on font metrics and control
   // sizing, which would drift out of sync with the sockets and detach the edges.
-  const rowBottoms = [...fieldRows, ...outputRows].map((r) => r.top + r.height);
-  const maxPortTop = Math.max(
-    HEADER_HEIGHT + TITLE_HEIGHT,
-    ...rowBottoms,
-    ...inputs.map((p) => p.top),
-    ...outputs.map((p) => p.top),
-  );
+  const cardHeight = nodeCardHeight(layout);
 
   return (
     <div
       onPointerDown={(e) => {
-        onSelect(id);
+        // Left button only: a middle press is a pan gesture that starts wherever the cursor
+        // happens to be (including on top of a card), and a right press opens the node menu -
+        // neither should reshuffle the selection on its way through.
+        if (e.button !== 0) {
+          return;
+        }
+        onSelect(id, e.shiftKey || e.ctrlKey);
         // Sockets stop propagation themselves when they start/detach a wire, so anything that
         // reaches here is either the header, the title, a label, or bare card background.
         if (isInteractiveTarget(e.target)) {
@@ -192,12 +213,18 @@ export default function GraphNodeCard(props: GraphNodeCardProps) {
         position: 'relative',
         cursor: 'grab',
         width: NODE_WIDTH,
-        minHeight: maxPortTop + HANDLE_SPACING,
+        minHeight: cardHeight,
         borderRadius: 6,
-        border: `2px solid ${selected ? '#f1c40f' : KIND_COLOR[kind]}`,
-        background: 'var(--color-background-near, #2a2a2a)',
+        // The ring keeps its width either way, so selecting a node never nudges its layout:
+        // when selected the border turns transparent and the gradient layers below show through
+        // it instead of a flat color.
+        border: `2px solid ${selected ? 'transparent' : KIND_COLOR[kind]}`,
+        backgroundColor: 'var(--color-background-near, #2a2a2a)',
+        backgroundImage: selected ? SELECTION_BORDER_LAYERS : undefined,
+        backgroundOrigin: 'border-box',
+        backgroundClip: selected ? 'padding-box, border-box' : undefined,
         color: 'var(--color-text, #eee)',
-        boxShadow: selected ? '0 0 8px rgba(241, 196, 15, 0.6)' : 'none',
+        boxShadow: selected ? SELECTION_GLOW : 'none',
         // Nothing on the card is selectable by default, so a pointer sweep that starts
         // anywhere on it can't drag-select label text. The inline controls opt back in via
         // `.node-inline-field` in EventTab.scss so their values stay editable.

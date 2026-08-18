@@ -36,6 +36,12 @@ export default function useInspectorHasContent(eventName: string, nodeId: string
     // reports it.
     return true;
   }
+  // Matched before the core check: neither of these is a core node (the trigger belongs to a
+  // stream module, the operation node to the 'string' category). Their panel is the pattern
+  // language reference.
+  if (node.nodeTypeId === 'chat_search' || node.nodeTypeId === 'search_match') {
+    return true;
+  }
   if (node.moduleName !== 'core') {
     return false;
   }

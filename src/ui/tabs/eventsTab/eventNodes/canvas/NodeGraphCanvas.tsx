@@ -7,9 +7,10 @@ import { ResolvedNodeDef } from '../nodeDefLookup';
 import EdgeLayer from './EdgeLayer';
 import GraphViewport from './GraphViewport';
 import { useGraphViewport } from './GraphViewportContext';
-import { computeNodePortLayout, NodePortLayout } from './nodeLayout';
+import { computeNodePortLayout, nodeCardHeight, NODE_WIDTH, NodePortLayout } from './nodeLayout';
 import { computeFitTransform, screenToGraph } from './transform';
 import { ContextMenuAnchor, PendingConnection, Point, Transform } from './types';
+import { BoxSelectRect, rectIntersectsNode } from './useBoxSelect';
 import { useConnectionDraft } from './useConnectionDraft';
 import { useNodeDrag } from './useNodeDrag';
 
@@ -24,10 +25,11 @@ export interface NodeGraphCanvasProps {
   nodes: EventGraphNode[];
   edges: EventGraphEdge[];
   resolveDef: (node: EventGraphNode) => ResolvedNodeDef | undefined;
-  selectedNodeId: string;
-  onSelectNode: (nodeId: string) => void;
-  onNodeDragEnd: (nodeId: string, position: Point) => void;
-  onNodeDelete: (nodeId: string) => void;
+  selectedNodeIds: string[];
+  onSelectNodes: (nodeIds: string[]) => void;
+  // Every node that moved in one drag, so a multi-node move is a single form update.
+  onNodesDragEnd: (positions: Map<string, Point>) => void;
+  onNodesDelete: (nodeIds: string[]) => void;
   onEdgeDelete: (edgeId: string) => void;
   onConnect: (connection: PendingConnection) => void;
   isValidConnection: (connection: PendingConnection) => boolean;
@@ -36,94 +38,28 @@ export interface NodeGraphCanvasProps {
   onOpenContextMenu: (anchor: ContextMenuAnchor) => void;
 }
 
-export default function NodeGraphCanvas(props: NodeGraphCanvasProps) {
-  const [transform, setTransform] = useState<Transform>({ x: 0, y: 0, scale: 1 });
-  const [selectedEdgeId, setSelectedEdgeId] = useState('');
-
-  return (
-    <GraphViewport
-      transform={transform}
-      onTransformChange={setTransform}
-      onBackgroundClick={() => {
-        props.onSelectNode('');
-        setSelectedEdgeId('');
-      }}
-    >
-      <NodeGraphCanvasInner
-        {...props}
-        transform={transform}
-        setTransform={setTransform}
-        selectedEdgeId={selectedEdgeId}
-        setSelectedEdgeId={setSelectedEdgeId}
-      />
-    </GraphViewport>
-  );
-}
-
-interface InnerProps extends NodeGraphCanvasProps {
-  transform: Transform;
-  setTransform: (t: Transform) => void;
-  selectedEdgeId: string;
-  setSelectedEdgeId: (id: string) => void;
-}
-
-function NodeGraphCanvasInner(props: InnerProps) {
-  const {
-    eventName,
-    nodes,
-    edges,
-    resolveDef,
-    selectedNodeId,
-    onSelectNode,
-    onNodeDragEnd,
-    onNodeDelete,
-    onEdgeDelete,
-    onConnect,
-    isValidConnection,
-    onOpenContextMenu,
-    transform,
-    setTransform,
-    selectedEdgeId,
-    setSelectedEdgeId,
-  } = props;
-
-  const { viewportRef } = useGraphViewport();
-  const contentRef = useRef<HTMLDivElement>(null);
-  const fitDone = useRef(false);
-  // The wire currently being pulled off an input socket: held in a ref for the pointerup
-  // bookkeeping, mirrored into state so EdgeLayer can stop drawing it while it's in hand.
-  const detach = useRef<{ edgeId: string; screen: Point } | null>(null);
-  const [detachedEdgeId, setDetachedEdgeId] = useState('');
-
-  const nodeDrag = useNodeDrag(transform.scale, (nodeId, position) => {
-    onNodeDragEnd(nodeId, position);
-  });
-
-  const connectionDraft = useConnectionDraft(transform, viewportRef, (from, to) => {
-    const connection: PendingConnection = {
-      source: from.nodeId,
-      sourceHandle: from.portId,
-      target: to.nodeId,
-      targetHandle: to.portId,
-    };
-    if (isValidConnection(connection)) {
-      onConnect(connection);
-    }
-  });
-
-  // react-hook-form mutates its values object in place, so editing a field leaves `nodes` with
-  // the same array/object identity even though its contents changed. Reference-equal deps
-  // would keep the memo below stale until something replaced the array wholesale (e.g. a node
-  // drag calling setValue), so the layout is keyed on a structural signature instead - that's
-  // what makes arg outputs appear and recolor as soon as argCount/argTypes change.
-  const layoutSignature = JSON.stringify([
+// react-hook-form mutates its values object in place, so editing a field leaves `nodes` with
+// the same array/object identity even though its contents changed. Reference-equal memo deps
+// would stay stale until something replaced the array wholesale (e.g. a node drag calling
+// setValue), so layout work is keyed on this structural signature instead - that's what makes
+// arg outputs appear and recolor as soon as argCount/argTypes change.
+function graphSignature(nodes: EventGraphNode[], edges: EventGraphEdge[]): string {
+  return JSON.stringify([
     nodes.map((n) => [n.id, n.kind, n.moduleName, n.nodeTypeId, n.values]),
     edges.map((e) => [e.toNode, e.toPort]),
   ]);
+}
 
-  // One layout per node, shared by the cards (socket dots + field rows) and EdgeLayer (edge
-  // endpoints). Both must read the same geometry or edges will detach from their sockets.
-  const nodeLayouts = useMemo(() => {
+// One layout per node, shared by the cards (socket dots + field rows), EdgeLayer (edge
+// endpoints) and box selection (card heights). They must all read the same geometry, or edges
+// detach from their sockets and the marquee catches the wrong nodes.
+function useNodeLayouts(
+  nodes: EventGraphNode[],
+  edges: EventGraphEdge[],
+  resolveDef: (node: EventGraphNode) => ResolvedNodeDef | undefined,
+): Map<string, NodePortLayout> {
+  const signature = graphSignature(nodes, edges);
+  return useMemo(() => {
     const connectedByNode = new Map<string, Set<string>>();
     edges.forEach((e) => {
       if (e.toPort === 'exec') {
@@ -150,7 +86,115 @@ function NodeGraphCanvasInner(props: InnerProps) {
       ),
     );
     return map;
-  }, [layoutSignature, nodes, edges, resolveDef]);
+  }, [signature, nodes, edges, resolveDef]);
+}
+
+export default function NodeGraphCanvas(props: NodeGraphCanvasProps) {
+  const { nodes, edges, resolveDef, selectedNodeIds, onSelectNodes } = props;
+  const [transform, setTransform] = useState<Transform>({ x: 0, y: 0, scale: 1 });
+  const [selectedEdgeId, setSelectedEdgeId] = useState('');
+
+  // Computed out here rather than in the inner canvas because the box-select hit test needs
+  // node heights, and that gesture belongs to the viewport (which wraps the inner canvas).
+  const nodeLayouts = useNodeLayouts(nodes, edges, resolveDef);
+
+  function handleBoxSelect(rect: BoxSelectRect, additive: boolean) {
+    const hits = nodes
+      .filter((node) => {
+        const layout = nodeLayouts.get(node.id);
+        return (
+          layout &&
+          rectIntersectsNode(rect, node.position, {
+            width: NODE_WIDTH,
+            height: nodeCardHeight(layout),
+          })
+        );
+      })
+      .map((node) => node.id);
+    // Holding the modifier adds to what's already picked, so several boxes can build one
+    // selection; without it the box replaces the selection outright, empty box included.
+    onSelectNodes(additive ? [...new Set([...selectedNodeIds, ...hits])] : hits);
+    if (hits.length > 0) {
+      setSelectedEdgeId('');
+    }
+  }
+
+  return (
+    <GraphViewport
+      transform={transform}
+      onTransformChange={setTransform}
+      onBackgroundClick={() => {
+        onSelectNodes([]);
+        setSelectedEdgeId('');
+      }}
+      onBoxSelect={handleBoxSelect}
+    >
+      <NodeGraphCanvasInner
+        {...props}
+        nodeLayouts={nodeLayouts}
+        transform={transform}
+        setTransform={setTransform}
+        selectedEdgeId={selectedEdgeId}
+        setSelectedEdgeId={setSelectedEdgeId}
+      />
+    </GraphViewport>
+  );
+}
+
+interface InnerProps extends NodeGraphCanvasProps {
+  nodeLayouts: Map<string, NodePortLayout>;
+  transform: Transform;
+  setTransform: (t: Transform) => void;
+  selectedEdgeId: string;
+  setSelectedEdgeId: (id: string) => void;
+}
+
+function NodeGraphCanvasInner(props: InnerProps) {
+  const {
+    eventName,
+    nodes,
+    edges,
+    resolveDef,
+    selectedNodeIds,
+    onSelectNodes,
+    onNodesDragEnd,
+    onNodesDelete,
+    onEdgeDelete,
+    nodeLayouts,
+    onConnect,
+    isValidConnection,
+    onOpenContextMenu,
+    transform,
+    setTransform,
+    selectedEdgeId,
+    setSelectedEdgeId,
+  } = props;
+
+  const { viewportRef } = useGraphViewport();
+  const contentRef = useRef<HTMLDivElement>(null);
+  const fitDone = useRef(false);
+  // The wire currently being pulled off an input socket: held in a ref for the pointerup
+  // bookkeeping, mirrored into state so EdgeLayer can stop drawing it while it's in hand.
+  const detach = useRef<{ edgeId: string; screen: Point } | null>(null);
+  const [detachedEdgeId, setDetachedEdgeId] = useState('');
+
+  const nodeDrag = useNodeDrag(transform.scale, onNodesDragEnd);
+
+  const connectionDraft = useConnectionDraft(transform, viewportRef, (from, to) => {
+    const connection: PendingConnection = {
+      source: from.nodeId,
+      sourceHandle: from.portId,
+      target: to.nodeId,
+      targetHandle: to.portId,
+    };
+    if (isValidConnection(connection)) {
+      onConnect(connection);
+    }
+  });
+
+  // See useNodeLayouts for why the memo below is keyed on a structural signature rather than
+  // on the arrays themselves.
+  const layoutSignature = graphSignature(nodes, edges);
 
   // Every edge indexed by the input socket it lands on, so grabbing a socket can find the wire
   // to unhook. Exec inputs accept several incoming edges (many nodes can run into one action),
@@ -174,9 +218,9 @@ function NodeGraphCanvasInner(props: InnerProps) {
 
   const nodePositions = useMemo(() => {
     const map = new Map<string, Point>();
-    const drag = nodeDrag.dragState;
+    const dragging = nodeDrag.dragState?.positions;
     nodes.forEach((n) => {
-      map.set(n.id, drag && drag.nodeId === n.id ? drag.position : n.position);
+      map.set(n.id, dragging?.get(n.id) ?? n.position);
     });
     return map;
   }, [nodes, nodeDrag.dragState]);
@@ -279,13 +323,13 @@ function NodeGraphCanvasInner(props: InnerProps) {
       if (selectedEdgeId) {
         onEdgeDelete(selectedEdgeId);
         setSelectedEdgeId('');
-      } else if (selectedNodeId) {
-        onNodeDelete(selectedNodeId);
+      } else if (selectedNodeIds.length > 0) {
+        onNodesDelete(selectedNodeIds);
       }
     }
     document.addEventListener('keydown', onKeyDown);
     return () => document.removeEventListener('keydown', onKeyDown);
-  }, [selectedEdgeId, selectedNodeId, onEdgeDelete, onNodeDelete]);
+  }, [selectedEdgeId, selectedNodeIds, onEdgeDelete, onNodesDelete]);
 
   function handlePointerMove(e: React.PointerEvent) {
     nodeDrag.onPointerMove(e);
@@ -344,14 +388,33 @@ function NodeGraphCanvasInner(props: InnerProps) {
     return true;
   }
 
-  function handleSelectNode(nodeId: string) {
+  function handleSelectNode(nodeId: string, additive: boolean) {
     setSelectedEdgeId('');
-    onSelectNode(nodeId);
+    if (additive) {
+      onSelectNodes(
+        selectedNodeIds.includes(nodeId)
+          ? selectedNodeIds.filter((id) => id !== nodeId)
+          : [...selectedNodeIds, nodeId],
+      );
+      return;
+    }
+    // Pressing a node that's already part of a multi-selection keeps that selection, so the
+    // drag it's about to start moves the whole group. Pressing an unselected one replaces it.
+    if (!selectedNodeIds.includes(nodeId)) {
+      onSelectNodes([nodeId]);
+    }
   }
 
   function handleSelectEdge(edgeId: string) {
-    onSelectNode('');
+    onSelectNodes([]);
     setSelectedEdgeId(edgeId);
+  }
+
+  // A drag started on a selected node moves everything selected; on an unselected node (which
+  // the pointerdown just made the selection) it moves only that one.
+  function draggedNodesFor(nodeId: string) {
+    const ids = selectedNodeIds.includes(nodeId) ? selectedNodeIds : [nodeId];
+    return nodes.filter((n) => ids.includes(n.id)).map((n) => ({ id: n.id, position: n.position }));
   }
 
   return (
@@ -384,7 +447,7 @@ function NodeGraphCanvasInner(props: InnerProps) {
               top: position.y,
               // Cards paint in graph order, so a node dragged across the canvas would otherwise
               // slide underneath its neighbours mid-move.
-              zIndex: nodeDrag.dragState?.nodeId === node.id ? 5 : undefined,
+              zIndex: nodeDrag.dragState?.positions.has(node.id) ? 5 : undefined,
             }}
           >
             <GraphNodeCard
@@ -393,14 +456,16 @@ function NodeGraphCanvasInner(props: InnerProps) {
               moduleName={node.moduleName}
               nodeTypeId={node.nodeTypeId}
               def={resolveDef(node)}
-              selected={node.id === selectedNodeId}
+              selected={selectedNodeIds.includes(node.id)}
               layout={nodeLayouts.get(node.id)!}
               eventName={eventName}
               nodeIndex={nodeIndex}
               values={node.values}
               connectedInputPorts={edgesByTargetPort.portsByNode.get(node.id)}
               onSelect={handleSelectNode}
-              onNodePointerDown={(e, nodeId) => nodeDrag.startDrag(e, nodeId, node.position, contentRef.current)}
+              onNodePointerDown={(e, nodeId) =>
+                nodeDrag.startDrag(e, draggedNodesFor(nodeId), contentRef.current)
+              }
               onStartConnection={(e, nodeId, portId, dataType) =>
                 connectionDraft.start(e, nodeId, portId, dataType, contentRef.current)
               }

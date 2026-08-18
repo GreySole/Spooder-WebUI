@@ -1,15 +1,16 @@
-import { Box, Button, Stack, TypeFace } from '@spooder/webui-component-library';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
+import { Box, Button, Stack, TypeFace } from '@spooder/webui-component-library';
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
 import useEvents from '../../../../app/hooks/useEvents';
 import { EventGraph } from '../../../Types';
 import { buildGraphKey } from '../FormKeys';
+import SearchMatchReference from './searchMatch/SearchMatchReference';
+import ModNodeEditor from './modAction/ModNodeEditor';
 import { resolveNodeDef } from './nodeDefLookup';
 import OscTriggerNodeEditor from './oscTrigger/OscTriggerNodeEditor';
-import ResponseNodeEditor from './responseAction/ResponseNodeEditor';
 import PluginNodeEditor from './pluginAction/PluginNodeEditor';
-import ModNodeEditor from './modAction/ModNodeEditor';
+import ResponseNodeEditor from './responseAction/ResponseNodeEditor';
 import SoftwareNodeEditor from './softwareAction/SoftwareNodeEditor';
 
 interface NodeInspectorProps {
@@ -49,7 +50,11 @@ export default function NodeInspector(props: NodeInspectorProps) {
   // a node type added to this switch needs an entry there too, or its editor will never be
   // reached.
   let editor: React.ReactNode = null;
-  if (node.moduleName === 'core' && node.nodeTypeId === 'osc_trigger') {
+  if (node.nodeTypeId === 'chat_search' || node.nodeTypeId === 'search_match') {
+    // Matched on nodeTypeId alone: the trigger belongs to whichever stream module contributes
+    // it, the operation node to the 'string' category, and neither is core.
+    editor = <SearchMatchReference />;
+  } else if (node.moduleName === 'core' && node.nodeTypeId === 'osc_trigger') {
     editor = <OscTriggerNodeEditor eventName={eventName} nodeIndex={nodeIndex} />;
   } else if (node.moduleName === 'core' && node.nodeTypeId === 'response') {
     editor = <ResponseNodeEditor eventName={eventName} nodeIndex={nodeIndex} />;
@@ -73,13 +78,13 @@ export default function NodeInspector(props: NodeInspectorProps) {
       <Box justifyContent='space-between' alignItems='center'>
         <Stack spacing='none'>
           <TypeFace fontSize='large'>{def?.label ?? node.nodeTypeId}</TypeFace>
-          <TypeFace fontSize='small'>
+          <TypeFace>
             {node.moduleName} / {node.kind}
           </TypeFace>
         </Stack>
         <Button icon={faTrash} label='Delete Node' className='delete-button' onClick={deleteNode} />
       </Box>
-      {def?.description ? <TypeFace fontSize='small'>{def.description}</TypeFace> : null}
+      {def?.description ? <TypeFace>{def.description}</TypeFace> : null}
 
       {editor}
 

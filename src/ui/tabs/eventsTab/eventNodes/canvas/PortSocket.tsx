@@ -33,6 +33,11 @@ export default function PortSocket(props: PortSocketProps) {
       data-socket-side={side}
       title={label ?? dataType ?? 'exec'}
       onPointerDown={(e) => {
+        // Left button only, and without swallowing the event otherwise: a middle press over a
+        // socket is a pan gesture that has to reach the viewport underneath.
+        if (e.button !== 0) {
+          return;
+        }
         if (side === 'in') {
           // Unhooking is a drag of the *existing* wire, so it reuses the same draft the
           // outputs start: the draft's origin becomes the wire's source port and the old edge

@@ -202,6 +202,20 @@ export function computeNodePortLayout(
   return { inputs, outputs, fieldRows, outputRows };
 }
 
+// A card's drawn height: the lowest thing on it plus one row of breathing room. GraphNodeCard
+// renders exactly this as its min-height, and box selection hit-tests against it, so the two
+// can't disagree about how tall a node is.
+export function nodeCardHeight(layout: NodePortLayout): number {
+  const rowBottoms = [...layout.fieldRows, ...layout.outputRows].map((r) => r.top + r.height);
+  const lowest = Math.max(
+    HEADER_HEIGHT + TITLE_HEIGHT,
+    ...rowBottoms,
+    ...layout.inputs.map((p) => p.top),
+    ...layout.outputs.map((p) => p.top),
+  );
+  return lowest + HANDLE_SPACING;
+}
+
 export function portGraphOffset(entry: PortLayoutEntry, side: 'in' | 'out'): { x: number; y: number } {
   return { x: side === 'in' ? 0 : NODE_WIDTH, y: entry.top };
 }

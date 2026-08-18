@@ -6,6 +6,7 @@ import { EventGraph, EventGraphEdge, EventGraphNode } from '../../Types';
 import { buildGraphKey } from './FormKeys';
 import NodeGraphCanvas from './eventNodes/canvas/NodeGraphCanvas';
 import { ContextMenuAnchor, PendingConnection, Point } from './eventNodes/canvas/types';
+import GraphSidePanel, { useGraphPanelWidth } from './eventNodes/GraphSidePanel';
 import NodeInspector from './eventNodes/NodeInspector';
 import NodePalette from './eventNodes/NodePalette';
 import NodeContextMenu from './eventNodes/palette/NodeContextMenu';
@@ -26,7 +27,10 @@ export default function EventNodes(props: EventNodesProps) {
   const { manifests } = getNodeManifest();
   const { operationNodes } = getOperationNodes();
 
-  const [selectedNodeId, setSelectedNodeId] = useState<string>('');
+  const [selectedNodeIds, setSelectedNodeIds] = useState<string[]>([]);
+  // The inspector edits one node, so it only opens on a single selection - a box-selected group
+  // has no one node to show.
+  const selectedNodeId = selectedNodeIds.length === 1 ? selectedNodeIds[0] : '';
   const [timerManagerOpen, setTimerManagerOpen] = useState(false);
   const [contextMenu, setContextMenu] = useState<ContextMenuAnchor | null>(null);
 
@@ -34,6 +38,15 @@ export default function EventNodes(props: EventNodesProps) {
   const palette = useNodePalette({ eventName, onManageTimers: () => setTimerManagerOpen(true) });
   // Most nodes are edited entirely on their card, so their panel would open with nothing in it.
   const inspectorHasContent = useInspectorHasContent(eventName, selectedNodeId);
+  const [panelWidth, setPanelWidth, persistPanelWidth] = useGraphPanelWidth();
+
+  // A right click on a node that's part of the current selection acts on the whole selection;
+  // on any other node, just that one.
+  const contextMenuNodeIds = !contextMenu?.nodeId
+    ? []
+    : selectedNodeIds.includes(contextMenu.nodeId)
+      ? selectedNodeIds
+      : [contextMenu.nodeId];
 
   const graphKey = buildGraphKey(eventName);
   const graph: EventGraph = watch(graphKey);
@@ -44,48 +57,57 @@ export default function EventNodes(props: EventNodesProps) {
     [manifests, operationNodes],
   );
 
-  const handleNodeDragEnd = useCallback(
-    (nodeId: string, position: Point) => {
+  // One form update for the whole drag, however many nodes moved in it.
+  const handleNodesDragEnd = useCallback(
+    (positions: Map<string, Point>) => {
       const currentGraph: EventGraph = getValues(graphKey);
-      const nextNodes = currentGraph.nodes.map((n) => (n.id === nodeId ? { ...n, position } : n));
+      const nextNodes = currentGraph.nodes.map((n) => {
+        const position = positions.get(n.id);
+        return position ? { ...n, position } : n;
+      });
       setValue(`${graphKey}.nodes`, nextNodes, { shouldDirty: true });
     },
     [getValues, graphKey, setValue],
   );
 
-  const handleNodeDelete = useCallback(
-    (nodeId: string) => {
+  const handleNodesDelete = useCallback(
+    (nodeIds: string[]) => {
+      const doomed = new Set(nodeIds);
       const currentGraph: EventGraph = getValues(graphKey);
-      const remainingNodes = currentGraph.nodes.filter((n) => n.id !== nodeId);
-      const remainingEdges = currentGraph.edges.filter((e) => e.fromNode !== nodeId && e.toNode !== nodeId);
+      const remainingNodes = currentGraph.nodes.filter((n) => !doomed.has(n.id));
+      const remainingEdges = currentGraph.edges.filter(
+        (e) => !doomed.has(e.fromNode) && !doomed.has(e.toNode),
+      );
       setValue(`${graphKey}.nodes`, remainingNodes, { shouldDirty: true });
       setValue(`${graphKey}.edges`, remainingEdges, { shouldDirty: true });
-      setSelectedNodeId((current) => (current === nodeId ? '' : current));
+      setSelectedNodeIds((current) => current.filter((id) => !doomed.has(id)));
     },
     [getValues, graphKey, setValue],
   );
 
-  const handleNodeDuplicate = useCallback(
-    (nodeId: string) => {
+  const handleNodesDuplicate = useCallback(
+    (nodeIds: string[]) => {
+      const wanted = new Set(nodeIds);
       const currentGraph: EventGraph = getValues(graphKey);
-      const source = currentGraph.nodes.find((n) => n.id === nodeId);
-      if (!source) {
+      const copies = currentGraph.nodes
+        .filter((n) => wanted.has(n.id))
+        .map((source) => ({
+          ...source,
+          id: uuidv4(),
+          // Deep copy so the two nodes don't share nested value objects (an OSC trigger's arg
+          // labels, a condition group) - react-hook-form edits those in place, which would
+          // otherwise edit both nodes at once.
+          values: JSON.parse(JSON.stringify(source.values ?? {})),
+          // Offset rather than dropped at the cursor: copies land beside their originals
+          // instead of directly on top of them, keeping the group's shape.
+          position: { x: source.position.x + 30, y: source.position.y + 30 },
+        })) as EventGraphNode[];
+      if (copies.length === 0) {
         return;
       }
-      const copy: EventGraphNode = {
-        ...source,
-        id: uuidv4(),
-        // Deep copy so the two nodes don't share nested value objects (an OSC trigger's arg
-        // labels, a condition group) - react-hook-form edits those in place, which would
-        // otherwise edit both nodes at once.
-        values: JSON.parse(JSON.stringify(source.values ?? {})),
-        // Offset rather than dropped at the cursor: the copy lands beside the original instead
-        // of directly on top of it, wherever the right click happened to be on the card.
-        position: { x: source.position.x + 30, y: source.position.y + 30 },
-      };
-      setValue(`${graphKey}.nodes`, [...currentGraph.nodes, copy], { shouldDirty: true });
-      // Wires aren't copied, so the new node is selected as the thing to hook up next.
-      setSelectedNodeId(copy.id);
+      setValue(`${graphKey}.nodes`, [...currentGraph.nodes, ...copies], { shouldDirty: true });
+      // Wires aren't copied, so the new nodes are selected as the thing to hook up next.
+      setSelectedNodeIds(copies.map((n) => n.id));
     },
     [getValues, graphKey, setValue],
   );
@@ -173,10 +195,16 @@ export default function EventNodes(props: EventNodesProps) {
   return (
     <OscLiveValuesProvider enabled={hasOscTrigger}>
     <div
+      className='node-graph-root'
       style={{
         position: 'relative',
         width: '100%',
-        height: '65vh',
+        // Fills the modal page instead of taking a fixed slice of the viewport - see the
+        // `.modal-body:has(.node-graph-root)` rule in EventTab.scss, which is what gives this
+        // flex item a height to grow into. The floor keeps the canvas usable on a short window,
+        // where the modal body scrolls instead.
+        flex: '1 1 auto',
+        minHeight: 300,
         border: '1px solid var(--color-border, #444)',
         overflow: 'hidden',
       }}
@@ -187,10 +215,10 @@ export default function EventNodes(props: EventNodesProps) {
         nodes={graph.nodes ?? []}
         edges={graph.edges ?? []}
         resolveDef={resolveDef}
-        selectedNodeId={selectedNodeId}
-        onSelectNode={setSelectedNodeId}
-        onNodeDragEnd={handleNodeDragEnd}
-        onNodeDelete={handleNodeDelete}
+        selectedNodeIds={selectedNodeIds}
+        onSelectNodes={setSelectedNodeIds}
+        onNodesDragEnd={handleNodesDragEnd}
+        onNodesDelete={handleNodesDelete}
         onEdgeDelete={handleEdgeDelete}
         onConnect={onConnect}
         isValidConnection={isValidConnection}
@@ -204,74 +232,38 @@ export default function EventNodes(props: EventNodesProps) {
           anchor={contextMenu}
           groups={palette.groups}
           onSelect={palette.addNode}
-          onDuplicateNode={handleNodeDuplicate}
-          onDeleteNode={handleNodeDelete}
+          nodeActionIds={contextMenuNodeIds}
+          onDuplicateNodes={handleNodesDuplicate}
+          onDeleteNodes={handleNodesDelete}
           onClose={() => setContextMenu(null)}
         />
       ) : null}
       {timerManagerOpen ? (
-        <div
-          style={{
-            position: 'absolute',
-            top: 8,
-            right: 8,
-            bottom: 8,
-            width: 320,
-            zIndex: 21,
-            overflowY: 'auto',
-            background: 'var(--color-background-near, #242424)',
-            border: '1px solid var(--color-border, #444)',
-            borderRadius: 6,
-            boxShadow: '0 4px 16px rgba(0,0,0,0.4)',
-          }}
+        <GraphSidePanel
+          width={panelWidth}
+          onResize={setPanelWidth}
+          onResizeEnd={persistPanelWidth}
+          zIndex={21}
         >
           <TimerManagerPanel onClose={() => setTimerManagerOpen(false)} />
-        </div>
+        </GraphSidePanel>
       ) : null}
 
       {selectedNodeId && inspectorHasContent && !timerManagerOpen ? (
-        <div
-          style={{
-            position: 'absolute',
-            top: 8,
-            right: 8,
-            bottom: 8,
-            width: 320,
-            zIndex: 20,
-            overflowY: 'auto',
-            background: 'var(--color-background-near, #242424)',
-            border: '1px solid var(--color-border, #444)',
-            borderRadius: 6,
-            boxShadow: '0 4px 16px rgba(0,0,0,0.4)',
-          }}
+        <GraphSidePanel
+          width={panelWidth}
+          onResize={setPanelWidth}
+          onResizeEnd={persistPanelWidth}
+          zIndex={20}
+          onClose={() => setSelectedNodeIds([])}
         >
-          <div
-            onClick={() => setSelectedNodeId('')}
-            title='Close'
-            style={{
-              position: 'absolute',
-              top: 6,
-              right: 6,
-              width: 22,
-              height: 22,
-              lineHeight: '20px',
-              textAlign: 'center',
-              borderRadius: 4,
-              border: '1px solid var(--color-border, #444)',
-              cursor: 'pointer',
-              userSelect: 'none',
-              fontSize: '0.9rem',
-            }}
-          >
-            ×
-          </div>
           <NodeInspector
             eventName={eventName}
             selectedNodeId={selectedNodeId}
-            onDeselect={() => setSelectedNodeId('')}
-            onDeleteNode={handleNodeDelete}
+            onDeselect={() => setSelectedNodeIds([])}
+            onDeleteNode={(nodeId) => handleNodesDelete([nodeId])}
           />
-        </div>
+        </GraphSidePanel>
       ) : null}
     </div>
     </OscLiveValuesProvider>

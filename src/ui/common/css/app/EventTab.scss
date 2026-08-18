@@ -429,6 +429,45 @@ option {
 	}
 }
 
+// Drag handle on the inner edge of the node graph's side panel. It straddles the panel border
+// (a few pixels of it hang outside) so the grab target is comfortable without eating into the
+// panel's content, and it only paints once the pointer is on it.
+.graph-side-panel-resizer {
+	position: absolute;
+	left: -4px;
+	top: 0;
+	bottom: 0;
+	width: 9px;
+	cursor: ew-resize;
+	// Above the panel's content so a wide control inside can't swallow the grab.
+	z-index: 2;
+	// The visible line is narrower than the grab strip - drawn as a gradient stop rather than a
+	// full fill so the handle stays easy to hit without painting a 9px bar over the border.
+	&:hover,
+	&:active {
+		background: linear-gradient(
+			to right,
+			transparent 3px,
+			var(--color-analogous-cw, #f1c40f) 3px,
+			var(--color-analogous-ccw, #f1c40f) 6px,
+			transparent 6px
+		);
+	}
+}
+
+// MultiPageModal wraps each page in a plain `.modal-body` div that hugs its content, so a page
+// that wants the modal's full height has nothing to grow into. This turns that wrapper into a
+// stretching flex column for the graph page only - scoped with :has() so the General page and
+// every other modal in the app keep hugging their content as before.
+.modal-body:has(.node-graph-root) {
+	display: flex;
+	flex-flow: column;
+	flex: 1 1 auto;
+	// Without this the wrapper refuses to shrink below its content, and a tall graph would push
+	// past the bottom of the modal rather than letting the canvas scroll inside itself.
+	min-height: 0;
+}
+
 // Inline field controls rendered inside a node card on the event graph. The shared Form*
 // components are sized for the inspector pane (1.25rem inputs); inside a 280px node they must
 // shrink to fit the fixed row heights that nodeLayout.ts computes sockets from. Heights here

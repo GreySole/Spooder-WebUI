@@ -17,6 +17,10 @@ interface EdgeLayerProps {
   draft: ConnectionDraftState | null;
 }
 
+// Only one edge is selected at a time, so a single id is enough - the def is emitted inside
+// that edge's own group and moves with it.
+const SELECTED_EDGE_GRADIENT_ID = 'graph-selected-edge';
+
 function bezierPath(from: Point, to: Point): string {
   const dx = Math.max(Math.abs(to.x - from.x) / 2, 40);
   const c1 = { x: from.x + dx, y: from.y };
@@ -84,10 +88,29 @@ export default function EdgeLayer(props: EdgeLayerProps) {
         const d = bezierPath(from, to);
         return (
           <g key={edge.id} style={{ pointerEvents: 'auto', cursor: 'pointer' }} onPointerDown={(e) => { e.stopPropagation(); onSelectEdge(edge.id); }}>
+            {/* Matches the selected node's gradient ring, in the theme's two analogous colors.
+                Laid out in user space along the wire's own endpoints rather than the default
+                bounding box, which collapses - and takes the stroke with it - whenever an edge
+                happens to run perfectly level. */}
+            {selected ? (
+              <defs>
+                <linearGradient
+                  id={SELECTED_EDGE_GRADIENT_ID}
+                  gradientUnits='userSpaceOnUse'
+                  x1={from.x}
+                  y1={from.y}
+                  x2={to.x}
+                  y2={to.y}
+                >
+                  <stop offset='0%' stopColor='var(--color-analogous-cw, #f1c40f)' />
+                  <stop offset='100%' stopColor='var(--color-analogous-ccw, #f1c40f)' />
+                </linearGradient>
+              </defs>
+            ) : null}
             <path d={d} stroke='transparent' strokeWidth={12} fill='none' />
             <path
               d={d}
-              stroke={selected ? '#f1c40f' : color}
+              stroke={selected ? `url(#${SELECTED_EDGE_GRADIENT_ID})` : color}
               strokeWidth={selected ? 3 : 2}
               fill='none'
             />

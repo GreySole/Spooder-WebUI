@@ -91,6 +91,34 @@ function buildOscTriggerOutputs(values: KeyedObject | undefined): ResolvedPortDe
   return outputs;
 }
 
+// A search-and-match trigger's pattern is a sequence of word slots ('hello * >w me|too'), and
+// firing it fills one slot per word - literal words included - into the match array the
+// executor exposes as this node's `match0`..`matchN-1` ports. The slots therefore come from the
+// pattern the user typed, the same way the OSC trigger's args come from its argCount.
+//
+// Ids stay positional rather than derived from the pattern word, so editing the pattern can't
+// silently break a wire (same rule as the OSC arg ports).
+function buildSearchMatchOutputs(
+  baseOutputs: NodePortDef[],
+  values: KeyedObject | undefined,
+  // The trigger keys its pattern as `command` (the slot the runtime reads a chat trigger's text
+  // from); the operation node, with no such history, calls it `pattern`.
+  patternKey: 'command' | 'pattern',
+): ResolvedPortDef[] {
+  const patternWords = String(values?.[patternKey] ?? '')
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean);
+  return [
+    ...baseOutputs,
+    ...patternWords.map((word, i) => ({
+      id: `match${i}`,
+      label: `Match ${i}: ${word}`,
+      dataType: 'string' as NodePortDataType,
+    })),
+  ];
+}
+
 export function resolveNodeDef(
   node: Pick<EventGraphNode, 'kind' | 'moduleName' | 'nodeTypeId' | 'values'>,
   manifests: NodeManifest[] | undefined,
@@ -101,10 +129,15 @@ export function resolveNodeDef(
     if (!def) {
       return undefined;
     }
+    // 'chat_search' is matched by nodeTypeId alone, not moduleName: any stream module can
+    // contribute one (see reconstructFlatEventFromGraph on the backend, which routes them the
+    // same way).
     const outputs =
       node.moduleName === 'core' && node.nodeTypeId === 'osc_trigger'
         ? buildOscTriggerOutputs(node.values)
-        : def.outputs;
+        : node.nodeTypeId === 'chat_search'
+          ? buildSearchMatchOutputs(def.outputs, node.values, 'command')
+          : def.outputs;
     return { label: def.label, description: def.description, form: def.form, defaults: def.defaults, outputs };
   }
   if (node.kind === 'action') {
@@ -121,5 +154,12 @@ export function resolveNodeDef(
     );
   }
   const def = findOperationDef(operationNodes, node.nodeTypeId);
-  return def && { label: def.label, description: def.description, form: def.form, defaults: def.defaults, outputs: def.outputs };
+  if (!def) {
+    return undefined;
+  }
+  // Search & Match grows a Match port per pattern word, exactly as the trigger does - here the
+  // ports resolve straight out of what evaluate() returns for the node.
+  const outputs =
+    def.id === 'search_match' ? buildSearchMatchOutputs(def.outputs, node.values, 'pattern') : def.outputs;
+  return { label: def.label, description: def.description, form: def.form, defaults: def.defaults, outputs };
 }

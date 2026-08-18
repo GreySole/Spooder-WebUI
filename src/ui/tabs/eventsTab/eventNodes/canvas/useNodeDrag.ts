@@ -2,26 +2,31 @@ import { useCallback, useRef, useState } from 'react';
 import { Point } from './types';
 
 export interface NodeDragState {
-  nodeId: string;
-  position: Point;
+  // Live positions of every node moving in this drag, keyed by node id.
+  positions: Map<string, Point>;
 }
 
 const MOVE_THRESHOLD = 2;
 
-// Single active node drag (no multi-select). Live position updates stay in local state only;
-// the form is only touched once, on pointerup, and only if the node actually moved - so a plain
-// click on a node header doesn't spuriously dirty the form.
-export function useNodeDrag(scale: number, onDragEnd: (nodeId: string, position: Point) => void) {
+// One drag gesture, moving one node or the whole selection together. Live positions stay in
+// local state only; the form is only touched once, on pointerup, and only if the nodes actually
+// moved - so a plain click on a node doesn't spuriously dirty the form.
+export function useNodeDrag(
+  scale: number,
+  onDragEnd: (positions: Map<string, Point>) => void,
+) {
   const [dragState, setDragState] = useState<NodeDragState | null>(null);
   const startScreen = useRef<Point>({ x: 0, y: 0 });
-  const startPosition = useRef<Point>({ x: 0, y: 0 });
-  const activeNodeId = useRef<string | null>(null);
+  // Where each dragged node sat when the gesture began; every move is applied as one shared
+  // delta against these, so the group keeps its shape however far the pointer travels.
+  const startPositions = useRef<Map<string, Point>>(new Map());
+  const dragging = useRef(false);
   const moved = useRef(false);
 
   const startDrag = useCallback(
-    (e: React.PointerEvent, nodeId: string, currentPosition: Point, captureTarget: Element | null) => {
-      // Left button only - a right press on a card opens the node context menu instead.
-      if (e.button !== 0) {
+    (e: React.PointerEvent, nodes: { id: string; position: Point }[], captureTarget: Element | null) => {
+      // Left button only: a middle press is a pan gesture that may well start on top of a card.
+      if (e.button !== 0 || nodes.length === 0) {
         return;
       }
       e.stopPropagation();
@@ -40,17 +45,17 @@ export function useNodeDrag(scale: number, onDragEnd: (nodeId: string, position:
         // ignore - see comment above
       }
       startScreen.current = { x: e.clientX, y: e.clientY };
-      startPosition.current = currentPosition;
-      activeNodeId.current = nodeId;
+      startPositions.current = new Map(nodes.map((n) => [n.id, n.position]));
+      dragging.current = true;
       moved.current = false;
-      setDragState({ nodeId, position: currentPosition });
+      setDragState({ positions: new Map(startPositions.current) });
     },
     [],
   );
 
   const onPointerMove = useCallback(
     (e: React.PointerEvent) => {
-      if (!activeNodeId.current) {
+      if (!dragging.current) {
         return;
       }
       const dxScreen = e.clientX - startScreen.current.x;
@@ -60,17 +65,18 @@ export function useNodeDrag(scale: number, onDragEnd: (nodeId: string, position:
       }
       const dx = dxScreen / scale;
       const dy = dyScreen / scale;
-      setDragState({
-        nodeId: activeNodeId.current,
-        position: { x: startPosition.current.x + dx, y: startPosition.current.y + dy },
+      const positions = new Map<string, Point>();
+      startPositions.current.forEach((position, nodeId) => {
+        positions.set(nodeId, { x: position.x + dx, y: position.y + dy });
       });
+      setDragState({ positions });
     },
     [scale],
   );
 
   const onPointerUp = useCallback(
     (e: React.PointerEvent) => {
-      if (!activeNodeId.current) {
+      if (!dragging.current) {
         return;
       }
       try {
@@ -78,15 +84,14 @@ export function useNodeDrag(scale: number, onDragEnd: (nodeId: string, position:
       } catch {
         // ignore - see startDrag
       }
-      const nodeId = activeNodeId.current;
       const wasMoved = moved.current;
+      dragging.current = false;
       setDragState((current) => {
         if (current && wasMoved) {
-          onDragEnd(nodeId, current.position);
+          onDragEnd(current.positions);
         }
         return null;
       });
-      activeNodeId.current = null;
     },
     [onDragEnd],
   );

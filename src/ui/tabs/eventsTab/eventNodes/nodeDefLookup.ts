@@ -98,14 +98,8 @@ function buildOscTriggerOutputs(values: KeyedObject | undefined): ResolvedPortDe
 //
 // Ids stay positional rather than derived from the pattern word, so editing the pattern can't
 // silently break a wire (same rule as the OSC arg ports).
-function buildSearchMatchOutputs(
-  baseOutputs: NodePortDef[],
-  values: KeyedObject | undefined,
-  // The trigger keys its pattern as `command` (the slot the runtime reads a chat trigger's text
-  // from); the operation node, with no such history, calls it `pattern`.
-  patternKey: 'command' | 'pattern',
-): ResolvedPortDef[] {
-  const patternWords = String(values?.[patternKey] ?? '')
+function buildSearchMatchOutputs(baseOutputs: NodePortDef[], values: KeyedObject | undefined): ResolvedPortDef[] {
+  const patternWords = String(values?.pattern ?? '')
     .trim()
     .split(/\s+/)
     .filter(Boolean);
@@ -114,6 +108,22 @@ function buildSearchMatchOutputs(
     ...patternWords.map((word, i) => ({
       id: `match${i}`,
       label: `Match ${i}: ${word}`,
+      dataType: 'string' as NodePortDataType,
+    })),
+  ];
+}
+
+// A chat command's arguments are whatever follows it, so nothing but the user can say how many
+// to expose - same situation as the OSC trigger's argCount, and the same answer. Ids are
+// positional, so raising or lowering the count can't disturb the wires below it.
+function buildCommandArgOutputs(baseOutputs: NodePortDef[], values: KeyedObject | undefined): ResolvedPortDef[] {
+  const argCount = Number(values?.argCount ?? 0);
+  const count = Number.isFinite(argCount) ? Math.max(0, Math.floor(argCount)) : 0;
+  return [
+    ...baseOutputs,
+    ...Array.from({ length: count }, (_unused, i) => ({
+      id: `arg${i}`,
+      label: `Arg ${i}`,
       dataType: 'string' as NodePortDataType,
     })),
   ];
@@ -129,14 +139,14 @@ export function resolveNodeDef(
     if (!def) {
       return undefined;
     }
-    // 'chat_search' is matched by nodeTypeId alone, not moduleName: any stream module can
-    // contribute one (see reconstructFlatEventFromGraph on the backend, which routes them the
-    // same way).
+    // Two triggers grow ports from their own values: the OSC trigger's args from argCount, and
+    // the Chat Command trigger's from the same field. The executor resolves both off whatever
+    // fired the event.
     const outputs =
       node.moduleName === 'core' && node.nodeTypeId === 'osc_trigger'
         ? buildOscTriggerOutputs(node.values)
-        : node.nodeTypeId === 'chat_search'
-          ? buildSearchMatchOutputs(def.outputs, node.values, 'command')
+        : node.nodeTypeId === 'chat_command'
+          ? buildCommandArgOutputs(def.outputs, node.values)
           : def.outputs;
     return { label: def.label, description: def.description, form: def.form, defaults: def.defaults, outputs };
   }
@@ -157,9 +167,14 @@ export function resolveNodeDef(
   if (!def) {
     return undefined;
   }
-  // Search & Match grows a Match port per pattern word, exactly as the trigger does - here the
-  // ports resolve straight out of what evaluate() returns for the node.
-  const outputs =
-    def.id === 'search_match' ? buildSearchMatchOutputs(def.outputs, node.values, 'pattern') : def.outputs;
+  // Two operation nodes grow ports from their own values, the way the OSC trigger grows args:
+  // Search & Match one per pattern word, Chat Command one per declared argument. Both resolve
+  // straight out of what evaluate() returns for the node.
+  let outputs = def.outputs;
+  if (def.id === 'search_match') {
+    outputs = buildSearchMatchOutputs(def.outputs, node.values);
+  } else if (def.id === 'command_match') {
+    outputs = buildCommandArgOutputs(def.outputs, node.values);
+  }
   return { label: def.label, description: def.description, form: def.form, defaults: def.defaults, outputs };
 }

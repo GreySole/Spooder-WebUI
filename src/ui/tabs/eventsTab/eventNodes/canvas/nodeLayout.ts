@@ -43,6 +43,10 @@ function inlineControlHeight(
   moduleName: string,
   customFieldHeight?: (key: string) => number | undefined,
 ): number | undefined {
+  if (field.type === 'port') {
+    // Wire-only: the row is its label and its socket, with nothing to draw between them.
+    return undefined;
+  }
   if (field.type === 'custom') {
     return customFieldHeight?.(customFieldKey(moduleName, field)) ?? CONTROL_HEIGHTS.text;
   }

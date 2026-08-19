@@ -65,6 +65,15 @@ export const CORE_ACTION_DEFS: ActionNodeDef[] = [
         portType: 'number',
         showif: { variable: 'etype', condition: 'equals', value: 'recurring' },
       },
+      // What the script reads as extra[]. Unwired it falls back to whatever the trigger
+      // supplied, which is how every existing event behaves; wiring it is the way graph data
+      // (a Search & Match result, say) reaches a script, since scripts take no other input.
+      extra: {
+        label: 'Extra',
+        type: 'port',
+        portType: 'any',
+        showif: { variable: 'etype', condition: 'notEquals', value: 'clear_recurring' },
+      },
     },
     defaults: { etype: 'oneshot', message: '', interval_key: '', interval: 5 },
   },

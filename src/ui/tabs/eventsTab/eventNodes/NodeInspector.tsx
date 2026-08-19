@@ -50,9 +50,8 @@ export default function NodeInspector(props: NodeInspectorProps) {
   // a node type added to this switch needs an entry there too, or its editor will never be
   // reached.
   let editor: React.ReactNode = null;
-  if (node.nodeTypeId === 'chat_search' || node.nodeTypeId === 'search_match') {
-    // Matched on nodeTypeId alone: the trigger belongs to whichever stream module contributes
-    // it, the operation node to the 'string' category, and neither is core.
+  if (node.nodeTypeId === 'search_match') {
+    // Matched on nodeTypeId alone: an operation node's moduleName is its category ('string').
     editor = <SearchMatchReference />;
   } else if (node.moduleName === 'core' && node.nodeTypeId === 'osc_trigger') {
     editor = <OscTriggerNodeEditor eventName={eventName} nodeIndex={nodeIndex} />;

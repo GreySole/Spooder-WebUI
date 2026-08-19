@@ -8,6 +8,9 @@ import { Point } from './types';
 interface EdgeLayerProps {
   edges: EventGraphEdge[];
   nodePositions: Map<string, Point>;
+  // Resolved card widths, keyed by node id: an output socket hangs off the card's right edge,
+  // so an edge leaving a resized node starts further out than one leaving a default-width node.
+  nodeWidths: Map<string, number>;
   nodeLayouts: Map<string, NodePortLayout>;
   selectedEdgeId: string;
   // An edge whose loose end the user is currently dragging: it still exists in the graph (the
@@ -33,6 +36,7 @@ function endpoint(
   portId: string,
   side: 'in' | 'out',
   nodePositions: Map<string, Point>,
+  nodeWidths: Map<string, number>,
   nodeLayouts: Map<string, NodePortLayout>,
 ): Point | undefined {
   const nodePosition = nodePositions.get(nodeId);
@@ -44,12 +48,12 @@ function endpoint(
   if (!entry) {
     return undefined;
   }
-  const offset = portGraphOffset(entry, side);
+  const offset = portGraphOffset(entry, side, nodeWidths.get(nodeId));
   return { x: nodePosition.x + offset.x, y: nodePosition.y + offset.y };
 }
 
 export default function EdgeLayer(props: EdgeLayerProps) {
-  const { edges, nodePositions, nodeLayouts, selectedEdgeId, hiddenEdgeId, onSelectEdge, draft } = props;
+  const { edges, nodePositions, nodeWidths, nodeLayouts, selectedEdgeId, hiddenEdgeId, onSelectEdge, draft } = props;
 
   return (
     // Explicit width/height (rather than 0, which this absolutely-positioned/no-viewBox SVG
@@ -73,8 +77,8 @@ export default function EdgeLayer(props: EdgeLayerProps) {
         if (edge.id === hiddenEdgeId) {
           return null;
         }
-        const from = endpoint(edge.fromNode, edge.fromPort, 'out', nodePositions, nodeLayouts);
-        const to = endpoint(edge.toNode, edge.toPort, 'in', nodePositions, nodeLayouts);
+        const from = endpoint(edge.fromNode, edge.fromPort, 'out', nodePositions, nodeWidths, nodeLayouts);
+        const to = endpoint(edge.toNode, edge.toPort, 'in', nodePositions, nodeWidths, nodeLayouts);
         if (!from || !to) {
           return null;
         }
@@ -118,7 +122,7 @@ export default function EdgeLayer(props: EdgeLayerProps) {
         );
       })}
       {draft && (() => {
-        const from = endpoint(draft.fromNodeId, draft.fromPortId, 'out', nodePositions, nodeLayouts);
+        const from = endpoint(draft.fromNodeId, draft.fromPortId, 'out', nodePositions, nodeWidths, nodeLayouts);
         if (!from) {
           return null;
         }

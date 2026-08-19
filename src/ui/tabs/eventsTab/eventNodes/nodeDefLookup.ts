@@ -23,6 +23,9 @@ export interface ResolvedNodeDef {
   form: { [fieldName: string]: any };
   defaults: { [key: string]: any };
   outputs: ResolvedPortDef[];
+  // The card width this node type asks for, before the user's own resize. Undefined means the
+  // standard NODE_WIDTH - see resolveNodeWidth.
+  nodeWidth?: number;
   // Named exec output ports for branching actions (e.g. 'then'/'else'). Undefined/empty
   // means the node has the usual single unlabeled 'exec' output.
   execOutputs?: { id: string; label: string }[];
@@ -148,7 +151,14 @@ export function resolveNodeDef(
         : node.nodeTypeId === 'chat_command'
           ? buildCommandArgOutputs(def.outputs, node.values)
           : def.outputs;
-    return { label: def.label, description: def.description, form: def.form, defaults: def.defaults, outputs };
+    return {
+      label: def.label,
+      description: def.description,
+      nodeWidth: def.nodeWidth,
+      form: def.form,
+      defaults: def.defaults,
+      outputs,
+    };
   }
   if (node.kind === 'action') {
     const def = findActionDef(manifests, node.moduleName, node.nodeTypeId);
@@ -156,6 +166,7 @@ export function resolveNodeDef(
       def && {
         label: def.label,
         description: def.description,
+        nodeWidth: def.nodeWidth,
         form: def.form,
         defaults: def.defaults,
         outputs: def.outputs ?? [],
@@ -176,5 +187,12 @@ export function resolveNodeDef(
   } else if (def.id === 'command_match') {
     outputs = buildCommandArgOutputs(def.outputs, node.values);
   }
-  return { label: def.label, description: def.description, form: def.form, defaults: def.defaults, outputs };
+  return {
+    label: def.label,
+    description: def.description,
+    nodeWidth: def.nodeWidth,
+    form: def.form,
+    defaults: def.defaults,
+    outputs,
+  };
 }

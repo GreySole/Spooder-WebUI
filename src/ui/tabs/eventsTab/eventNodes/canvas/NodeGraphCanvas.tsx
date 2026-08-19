@@ -7,12 +7,13 @@ import { ResolvedNodeDef } from '../nodeDefLookup';
 import EdgeLayer from './EdgeLayer';
 import GraphViewport from './GraphViewport';
 import { useGraphViewport } from './GraphViewportContext';
-import { computeNodePortLayout, nodeCardHeight, NODE_WIDTH, NodePortLayout } from './nodeLayout';
+import { computeNodePortLayout, nodeCardHeight, NodePortLayout, resolveNodeWidth } from './nodeLayout';
 import { computeFitTransform, screenToGraph } from './transform';
 import { ContextMenuAnchor, PendingConnection, Point, Transform } from './types';
 import { BoxSelectRect, rectIntersectsNode } from './useBoxSelect';
 import { useConnectionDraft } from './useConnectionDraft';
 import { useNodeDrag } from './useNodeDrag';
+import { useNodeResize } from './useNodeResize';
 
 // How far the pointer must travel before grabbing a connected input socket counts as pulling
 // the wire off rather than clicking the socket. Matches useNodeDrag's own click tolerance.
@@ -29,6 +30,10 @@ export interface NodeGraphCanvasProps {
   onSelectNodes: (nodeIds: string[]) => void;
   // Every node that moved in one drag, so a multi-node move is a single form update.
   onNodesDragEnd: (positions: Map<string, Point>) => void;
+  // A card the user dragged wider or narrower. `onNodeResetWidth` clears that override again, so
+  // the card goes back to whatever width its node type asks for.
+  onNodeResizeEnd: (nodeId: string, width: number) => void;
+  onNodeResetWidth: (nodeId: string) => void;
   onNodesDelete: (nodeIds: string[]) => void;
   onEdgeDelete: (edgeId: string) => void;
   onConnect: (connection: PendingConnection) => void;
@@ -45,9 +50,24 @@ export interface NodeGraphCanvasProps {
 // arg outputs appear and recolor as soon as argCount/argTypes change.
 function graphSignature(nodes: EventGraphNode[], edges: EventGraphEdge[]): string {
   return JSON.stringify([
-    nodes.map((n) => [n.id, n.kind, n.moduleName, n.nodeTypeId, n.values]),
+    nodes.map((n) => [n.id, n.kind, n.moduleName, n.nodeTypeId, n.values, n.width]),
     edges.map((e) => [e.toNode, e.toPort]),
   ]);
+}
+
+// Resolved card widths, keyed by node id. Read by the cards (what they draw at), EdgeLayer
+// (where an output socket sits) and box selection - all three have to agree, so it is computed
+// once here rather than three times from the same inputs.
+function useNodeWidths(
+  nodes: EventGraphNode[],
+  edges: EventGraphEdge[],
+  resolveDef: (node: EventGraphNode) => ResolvedNodeDef | undefined,
+): Map<string, number> {
+  const signature = graphSignature(nodes, edges);
+  return useMemo(
+    () => new Map(nodes.map((n) => [n.id, resolveNodeWidth(n.width, resolveDef(n)?.nodeWidth)])),
+    [signature, nodes, resolveDef],
+  );
 }
 
 // One layout per node, shared by the cards (socket dots + field rows), EdgeLayer (edge
@@ -95,8 +115,10 @@ export default function NodeGraphCanvas(props: NodeGraphCanvasProps) {
   const [selectedEdgeId, setSelectedEdgeId] = useState('');
 
   // Computed out here rather than in the inner canvas because the box-select hit test needs
-  // node heights, and that gesture belongs to the viewport (which wraps the inner canvas).
+  // node sizes, and that gesture belongs to the viewport (which wraps the inner canvas). These
+  // are the stored widths; the inner canvas overlays the one currently being dragged.
   const nodeLayouts = useNodeLayouts(nodes, edges, resolveDef);
+  const nodeWidths = useNodeWidths(nodes, edges, resolveDef);
 
   function handleBoxSelect(rect: BoxSelectRect, additive: boolean) {
     const hits = nodes
@@ -105,7 +127,7 @@ export default function NodeGraphCanvas(props: NodeGraphCanvasProps) {
         return (
           layout &&
           rectIntersectsNode(rect, node.position, {
-            width: NODE_WIDTH,
+            width: nodeWidths.get(node.id)!,
             height: nodeCardHeight(layout),
           })
         );
@@ -132,6 +154,7 @@ export default function NodeGraphCanvas(props: NodeGraphCanvasProps) {
       <NodeGraphCanvasInner
         {...props}
         nodeLayouts={nodeLayouts}
+        nodeWidths={nodeWidths}
         transform={transform}
         setTransform={setTransform}
         selectedEdgeId={selectedEdgeId}
@@ -143,6 +166,7 @@ export default function NodeGraphCanvas(props: NodeGraphCanvasProps) {
 
 interface InnerProps extends NodeGraphCanvasProps {
   nodeLayouts: Map<string, NodePortLayout>;
+  nodeWidths: Map<string, number>;
   transform: Transform;
   setTransform: (t: Transform) => void;
   selectedEdgeId: string;
@@ -160,7 +184,10 @@ function NodeGraphCanvasInner(props: InnerProps) {
     onNodesDragEnd,
     onNodesDelete,
     onEdgeDelete,
+    onNodeResizeEnd,
+    onNodeResetWidth,
     nodeLayouts,
+    nodeWidths,
     onConnect,
     isValidConnection,
     onOpenContextMenu,
@@ -179,6 +206,7 @@ function NodeGraphCanvasInner(props: InnerProps) {
   const [detachedEdgeId, setDetachedEdgeId] = useState('');
 
   const nodeDrag = useNodeDrag(transform.scale, onNodesDragEnd);
+  const nodeResize = useNodeResize(transform.scale, onNodeResizeEnd);
 
   const connectionDraft = useConnectionDraft(transform, viewportRef, (from, to) => {
     const connection: PendingConnection = {
@@ -224,6 +252,16 @@ function NodeGraphCanvasInner(props: InnerProps) {
     });
     return map;
   }, [nodes, nodeDrag.dragState]);
+
+  // The card currently being resized draws at the live width rather than its stored one, so the
+  // card and the edges leaving it follow the pointer together.
+  const liveNodeWidths = useMemo(() => {
+    const resizing = nodeResize.resizeState;
+    if (!resizing) {
+      return nodeWidths;
+    }
+    return new Map(nodeWidths).set(resizing.nodeId, resizing.width);
+  }, [nodeWidths, nodeResize.resizeState]);
 
   // One-shot fit-to-view: only runs until it succeeds once, so it never fights the user's
   // subsequent manual pan/zoom (mirrors the intent of ReactFlow's mount-time fitView).
@@ -333,11 +371,13 @@ function NodeGraphCanvasInner(props: InnerProps) {
 
   function handlePointerMove(e: React.PointerEvent) {
     nodeDrag.onPointerMove(e);
+    nodeResize.onPointerMove(e);
     connectionDraft.onPointerMove(e);
   }
 
   function handlePointerUp(e: React.PointerEvent) {
     nodeDrag.onPointerUp(e);
+    nodeResize.onPointerUp(e);
     const detached = detach.current;
     if (detached) {
       detach.current = null;
@@ -360,6 +400,7 @@ function NodeGraphCanvasInner(props: InnerProps) {
   // in hand goes back where it was rather than being deleted or reconnected.
   function handlePointerCancel(e: React.PointerEvent) {
     nodeDrag.onPointerUp(e);
+    nodeResize.onPointerUp(e);
     detach.current = null;
     setDetachedEdgeId('');
     connectionDraft.cancel(e);
@@ -430,6 +471,7 @@ function NodeGraphCanvasInner(props: InnerProps) {
         edges={edges}
         hiddenEdgeId={detachedEdgeId}
         nodePositions={nodePositions}
+        nodeWidths={liveNodeWidths}
         nodeLayouts={nodeLayouts}
         selectedEdgeId={selectedEdgeId}
         onSelectEdge={handleSelectEdge}
@@ -458,6 +500,7 @@ function NodeGraphCanvasInner(props: InnerProps) {
               def={resolveDef(node)}
               selected={selectedNodeIds.includes(node.id)}
               layout={nodeLayouts.get(node.id)!}
+              width={liveNodeWidths.get(node.id)!}
               eventName={eventName}
               nodeIndex={nodeIndex}
               values={node.values}
@@ -470,6 +513,8 @@ function NodeGraphCanvasInner(props: InnerProps) {
                 connectionDraft.start(e, nodeId, portId, dataType, contentRef.current)
               }
               onDetachConnection={handleDetachConnection}
+              onStartResize={nodeResize.startResize}
+              onResetWidth={onNodeResetWidth}
             />
           </div>
         );

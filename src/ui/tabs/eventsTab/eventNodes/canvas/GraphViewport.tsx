@@ -36,6 +36,27 @@ export default function GraphViewport(props: GraphViewportProps) {
   const clickStart = useRef<Point | null>(null);
   const moved = useRef(false);
 
+  // Every gesture in here preventDefault()s its own pointerdown - to stop Chrome's middle-click
+  // autoscroll, to stop a node drag sweeping a text selection across the card, and so on. That
+  // also suppresses the compatibility mousedown the browser uses to move focus, so a focused
+  // inline field on a node would keep focus (and its caret) however far away the next click
+  // landed. Blurring here puts the default behaviour back.
+  //
+  // Capture phase, so it can't be skipped: it runs before any child handler - the port sockets
+  // stopPropagation() theirs - and before anything has had the chance to preventDefault.
+  const onPointerDownCapture = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
+    const active = document.activeElement as HTMLElement | null;
+    if (!active || active === document.body) {
+      return;
+    }
+    // A press landing inside the focused control is the user working in it, not leaving it -
+    // `contains` counts the element itself, so clicking a focused select to open its list stays.
+    if (active.contains(e.target as Node)) {
+      return;
+    }
+    active.blur();
+  }, []);
+
   const onPointerDown = useCallback(
     (e: React.PointerEvent<HTMLDivElement>) => {
       if (onBoxSelect && isBoxSelectGesture(e)) {
@@ -95,6 +116,7 @@ export default function GraphViewport(props: GraphViewportProps) {
           e.preventDefault();
         }
       }}
+      onPointerDownCapture={onPointerDownCapture}
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
       onPointerUp={onPointerUp}

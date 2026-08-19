@@ -19,8 +19,6 @@ export default function PluginAssetPreview({
   let previewHTML = null;
   let previewAudio = null;
 
-  console.log("ASSET PATH", pathJoin(assetPath, assetFilePreview));
-
   if (assetFilePreview != null) {
     const previewMediaType = getMediaType(assetFilePreview);
     if (previewMediaType == 'sound') {
@@ -50,14 +48,18 @@ export default function PluginAssetPreview({
   return (
     <Box width='100%' height='100%' alignItems='center' padding='small'>
       {previewHTML}
-      <audio
-        id='audioPreview'
-        ref={audioPreviewRef}
-        controls
-        key={previewAudio || 'no-audio'} // Force re-render when audio source changes
-      >
-        {previewAudio ? <source src={previewAudio}></source> : null}
-      </audio>
+      {/* Only for sound: an <audio controls> with no source still draws a full-size dead player,
+          which for an image asset is a second control competing with the picture. */}
+      {previewAudio ? (
+        <audio
+          id='audioPreview'
+          ref={audioPreviewRef}
+          controls
+          key={previewAudio} // Force re-render when audio source changes
+        >
+          <source src={previewAudio}></source>
+        </audio>
+      ) : null}
     </Box>
   );
 }

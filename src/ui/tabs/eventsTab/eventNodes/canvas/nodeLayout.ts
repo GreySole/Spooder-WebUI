@@ -1,15 +1,26 @@
 import { EventGraphNodeKind, KeyedObject, NodeFieldDef, NodePortDataType } from '../../../../Types';
+import { customFieldKey } from '../customFieldRenderer';
 import { ResolvedNodeDef } from '../nodeDefLookup';
 import { fieldSatisfiesShowif, growableFieldVisible } from '../nodeFieldVisibility';
-import { customFieldKey } from '../customFieldRenderer';
 
-// Node cards render at a fixed width rather than hugging content, so every socket's screen
+// Node cards render at a declared width rather than hugging content, so every socket's screen
 // offset can be computed analytically from graph data alone - no DOM measurement/ResizeObserver
 // needed to keep edges tracking nodes during drag/pan/zoom. GraphNodeCard gives the header/
 // title a matching fixed height and renders field rows at these same `top`/`height` values
 // (instead of normal document flow) so a row and its socket dot always land on the same pixel,
 // however many rows a node has and whatever control each row draws.
+//
+// The width is per node rather than global: the user can drag a card wider (stored as the
+// node's own `width`), and a node type can ask for more room up front via its `nodeWidth` -
+// which is how a plugin whose event draws an asset preview gets a card it fits on. Only the
+// horizontal geometry varies; row heights and socket tops are unaffected by it.
 export const NODE_WIDTH = 280;
+// Narrow enough that a card of labels stays readable, wide enough that its controls don't
+// collapse; the ceiling only exists so a runaway drag can't produce a card the size of the graph.
+export const MIN_NODE_WIDTH = 180;
+export const MAX_NODE_WIDTH = 900;
+// The card's own horizontal padding, applied on both sides of every field/output row.
+export const CARD_PADDING_X = 12;
 export const HEADER_HEIGHT = 22;
 export const TITLE_HEIGHT = 34;
 export const HANDLE_TOP_START = HEADER_HEIGHT + TITLE_HEIGHT + 10;
@@ -26,13 +37,31 @@ const FIELD_ROW_GAP = 6;
 // controls to 26px: these values are that height plus a little breathing room.
 const CONTROL_HEIGHTS: { [fieldType: string]: number } = {
   boolean: 28,
-  color: 30,
+  color: 60,
   select: 40,
   text: 50,
   number: 50,
-  asset: 60, // dropdown + upload/preview button row
   code: 56, // matches COMPACT_EDITOR_HEIGHT in FormCodeInput
+  // FormAssetSelect, totalled: its ASSET_PREVIEW_HEIGHT (100) preview box, the 6px margin under
+  // it, a ~30px picker, and the 6px margin under that (both margins in assetInput.scss). Those
+  // margins are load-bearing rather than decorative - a row clips to exactly this height, so
+  // without them the picker's bottom border, and the focus ring the library draws 4px outside
+  // it, are cut off. The preview box is drawn whether or not an asset is picked (it doubles as
+  // the upload/drop target), so this is one number rather than depending on the field's value.
+  asset: 100 + 6 + 30 + 18,
 };
+
+// The width a node's card draws at: the user's own resize wins, then the node type's declared
+// default, then the standard width. Clamped so neither a stored value nor a plugin's
+// events-form.json can produce a card that can't be read or can't be dragged back.
+export function clampNodeWidth(width: number): number {
+  return Math.min(MAX_NODE_WIDTH, Math.max(MIN_NODE_WIDTH, Math.round(width)));
+}
+
+export function resolveNodeWidth(nodeWidth?: number, defWidth?: number): number {
+  const width = Number.isFinite(nodeWidth) ? nodeWidth! : Number.isFinite(defWidth) ? defWidth! : NODE_WIDTH;
+  return clampNodeWidth(width);
+}
 
 // 'custom' isn't in CONTROL_HEIGHTS: a module-supplied component states its own height when
 // it registers (see fieldRenderers.ts), since nothing in the manifest describes how tall it
@@ -220,6 +249,12 @@ export function nodeCardHeight(layout: NodePortLayout): number {
   return lowest + HANDLE_SPACING;
 }
 
-export function portGraphOffset(entry: PortLayoutEntry, side: 'in' | 'out'): { x: number; y: number } {
-  return { x: side === 'in' ? 0 : NODE_WIDTH, y: entry.top };
+// `width` is the card's resolved width (see resolveNodeWidth): output sockets hang off its right
+// edge, so an edge endpoint moves with a resize while input endpoints stay put.
+export function portGraphOffset(
+  entry: PortLayoutEntry,
+  side: 'in' | 'out',
+  width: number = NODE_WIDTH,
+): { x: number; y: number } {
+  return { x: side === 'in' ? 0 : width, y: entry.top };
 }

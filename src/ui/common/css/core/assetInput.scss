@@ -1,0 +1,89 @@
+// The picker under the preview box. The margin is for its focus ring, which the component
+// library draws at `outline-offset: 4px` - i.e. outside the border - and which a node card's
+// row would otherwise clip, the row being sized to exactly the height this control declares
+// (see CONTROL_HEIGHTS in nodeLayout.ts).
+.asset-select-row {
+	margin-bottom: 6px;
+}
+
+// The asset picker's preview box, which doubles as its upload control (see FormAssetSelect).
+// Always drawn, at one height whether or not an asset is chosen: dashed and captioned when
+// empty, filled with the preview when not. That constant height is what lets a node card
+// reserve the right room for the control up front - see CONTROL_HEIGHTS in nodeLayout.ts.
+.asset-drop-zone {
+	position: relative;
+	box-sizing: border-box;
+	width: 100%;
+	overflow: hidden;
+	cursor: pointer;
+	border: 2px solid var(--color-border, #444);
+	border-radius: var(--interactive-radius, 6px);
+	background-color: var(--input-background-color, #1a1a1a);
+	transition: border-color 0.15s ease, background-color 0.15s ease;
+	// Air between the box and the picker under it, so the two borders don't read as one and the
+	// picker isn't sitting flush against the preview.
+	margin-bottom: 6px;
+
+	&[data-empty='true'] {
+		// Dashed only while there's nothing in it, so an empty picker reads as a target to fill
+		// rather than as a control that failed to load something.
+		border-style: dashed;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	&:hover {
+		border-color: var(--color-primary, #2ecc71);
+	}
+
+	// While a file is over the box: a solid, tinted border, so it's clear the drop lands here
+	// and doesn't fall through to the browser (which would navigate to the file).
+	&[data-drop-active='true'] {
+		border-style: solid;
+		border-color: var(--color-primary, #2ecc71);
+		background-color: color-mix(in srgb, var(--color-primary, #2ecc71) 12%, transparent);
+	}
+
+	.asset-drop-zone-hint {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.4rem;
+		font-size: 0.8rem;
+		opacity: 0.55;
+		// The caption is not its own target - a click anywhere in the box, this text included,
+		// belongs to the box.
+		pointer-events: none;
+	}
+
+	// Pinned to the corner so it holds its place over any preview content. Doubly-scoped to beat
+	// the component library's bare `button` rule (padding/border/radius sized for a 1rem control)
+	// without reaching for !important.
+	.asset-drop-zone-upload {
+		position: absolute;
+		top: 4px;
+		right: 4px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 22px;
+		height: 22px;
+		padding: 0;
+		font-size: 0.7rem;
+		line-height: 1;
+		cursor: pointer;
+		opacity: 0.65;
+		color: var(--color-text, #eee);
+		border: 1px solid var(--color-border, #444);
+		border-radius: 4px;
+		// Semi-opaque rather than solid: over a preview it reads as sitting on top of the image
+		// instead of punching a hole in it.
+		background-color: color-mix(in srgb, var(--input-background-color, #1a1a1a) 80%, transparent);
+		transition: opacity 0.15s ease, border-color 0.15s ease;
+
+		&:hover {
+			opacity: 1;
+			border-color: var(--color-primary, #2ecc71);
+		}
+	}
+}

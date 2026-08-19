@@ -70,6 +70,37 @@ export default function EventNodes(props: EventNodesProps) {
     [getValues, graphKey, setValue],
   );
 
+  // A resize touches one node, but goes through the same whole-array setValue as a drag: the
+  // form holds `nodes` as one value, so there is no narrower key to write.
+  const handleNodeResizeEnd = useCallback(
+    (nodeId: string, width: number) => {
+      const currentGraph: EventGraph = getValues(graphKey);
+      const nextNodes = currentGraph.nodes.map((n) => (n.id === nodeId ? { ...n, width } : n));
+      setValue(`${graphKey}.nodes`, nextNodes, { shouldDirty: true });
+    },
+    [getValues, graphKey, setValue],
+  );
+
+  // Dropping the override entirely rather than writing the default back, so the card follows its
+  // node type's declared width from then on - including a later change to it.
+  const handleNodeResetWidth = useCallback(
+    (nodeId: string) => {
+      const currentGraph: EventGraph = getValues(graphKey);
+      if (!currentGraph.nodes.some((n) => n.id === nodeId && n.width !== undefined)) {
+        return;
+      }
+      const nextNodes = currentGraph.nodes.map((n) => {
+        if (n.id !== nodeId) {
+          return n;
+        }
+        const { width, ...rest } = n;
+        return rest as EventGraphNode;
+      });
+      setValue(`${graphKey}.nodes`, nextNodes, { shouldDirty: true });
+    },
+    [getValues, graphKey, setValue],
+  );
+
   const handleNodesDelete = useCallback(
     (nodeIds: string[]) => {
       const doomed = new Set(nodeIds);
@@ -218,6 +249,8 @@ export default function EventNodes(props: EventNodesProps) {
         selectedNodeIds={selectedNodeIds}
         onSelectNodes={setSelectedNodeIds}
         onNodesDragEnd={handleNodesDragEnd}
+        onNodeResizeEnd={handleNodeResizeEnd}
+        onNodeResetWidth={handleNodeResetWidth}
         onNodesDelete={handleNodesDelete}
         onEdgeDelete={handleEdgeDelete}
         onConnect={onConnect}

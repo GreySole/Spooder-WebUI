@@ -502,16 +502,34 @@ option {
 		margin: 0;
 	}
 
+	// The library reserves room for the dropdown caret at its own scale (2rem of right padding
+	// for a 1.5rem glyph, sized for a 1rem control). Left alone at 0.75rem that's a third of a
+	// node row spent on empty space before the arrow, which is what squeezes a long asset
+	// filename. Scaled down to match the rest of this block.
+	select {
+		padding-right: 1.1rem;
+		background-size: 1rem;
+		background-position: right 0.15rem center;
+	}
+
 	input[type='color'] {
 		width: 100%;
 		padding: 0;
 		margin: 0;
 	}
 
-	// The asset picker stacks a dropdown over an upload/preview button row.
-	button {
+	// Any button a control draws for itself (a custom field renderer's, say). The asset picker's
+	// own upload button is exempt - it's absolutely positioned inside the preview box and sizes
+	// itself (see assetInput.scss).
+	button:not(.asset-drop-zone-upload) {
 		font-size: 0.75rem;
 		padding: 0.5rem;
+	}
+
+	// The asset preview is the tallest thing a node row draws, and its caption competes with the
+	// row's own label at full size.
+	.asset-drop-zone-hint {
+		font-size: 0.7rem;
 	}
 
 	.response-code-editor {

@@ -4,10 +4,10 @@ import { EventGraphNodeKind, KeyedObject, NodePortDataType } from '../../../Type
 import { buildNodeValueKey } from '../FormKeys';
 import { colorForPort } from './canvas/portColors';
 import {
+  CARD_PADDING_X,
   HANDLE_SPACING,
   HEADER_HEIGHT,
   nodeCardHeight,
-  NODE_WIDTH,
   NodePortLayout,
   TITLE_HEIGHT
 } from './canvas/nodeLayout';
@@ -26,6 +26,9 @@ export interface GraphNodeCardProps {
   // Computed by NodeGraphCanvas and shared with EdgeLayer, so the sockets drawn here and the
   // edge endpoints drawn there are guaranteed to be the same geometry.
   layout: NodePortLayout;
+  // Resolved by NodeGraphCanvas (the user's own resize, this node type's declared nodeWidth, or
+  // the standard width) and shared with EdgeLayer for the same reason as `layout`.
+  width: number;
   // Identify this node's slot in the form so inline controls bind to the same keys the
   // inspector pane uses - editing on the card and in the pane drive one value.
   eventName: string;
@@ -48,6 +51,10 @@ export interface GraphNodeCardProps {
   // Returns true when a wire was actually detached, so the socket can swallow the event and
   // keep the card's body-drag from starting underneath it.
   onDetachConnection: (e: React.PointerEvent, nodeId: string, portId: string) => boolean;
+  // Grabbing the card's right edge. `onResetWidth` is the double-click on the same handle,
+  // dropping back to whatever width the node type asks for.
+  onStartResize: (e: React.PointerEvent, nodeId: string, width: number) => void;
+  onResetWidth: (nodeId: string) => void;
 }
 
 // Selection accent: the theme's two analogous colors (hue ±30, set by the component library's
@@ -131,7 +138,9 @@ const rowLabelStyle: React.CSSProperties = {
   whiteSpace: 'nowrap',
   overflow: 'hidden',
   textOverflow: 'ellipsis',
-  maxWidth: NODE_WIDTH - 24,
+  // Every row already clips to its own box, which is sized from the card's width - so the label
+  // just fills whatever it's given rather than carrying a width of its own.
+  maxWidth: '100%',
   // Dragging a node sweeps the pointer across these labels, which would otherwise
   // select their text. Applied per text element rather than to the card so the inline
   // inputs and code editor stay selectable and editable.
@@ -147,6 +156,11 @@ function isInteractiveTarget(target: EventTarget | null): boolean {
   return Boolean(element?.closest?.('.node-inline-field, input, textarea, select, button, [contenteditable="true"]'));
 }
 
+// Grab strip down the card's right edge - invisible, with the ew-resize cursor as its only
+// hint, but wide enough to catch without aiming. The output sockets sit on the same edge and
+// stay on top of it (see its z-index), so the finer target still wins where the two overlap.
+const RESIZE_HANDLE_WIDTH = 8;
+
 export default function GraphNodeCard(props: GraphNodeCardProps) {
   const {
     id,
@@ -156,6 +170,7 @@ export default function GraphNodeCard(props: GraphNodeCardProps) {
     def,
     selected,
     layout,
+    width,
     eventName,
     nodeIndex,
     values,
@@ -164,7 +179,10 @@ export default function GraphNodeCard(props: GraphNodeCardProps) {
     onNodePointerDown,
     onStartConnection,
     onDetachConnection,
+    onStartResize,
+    onResetWidth,
   } = props;
+  const rowWidth = width - CARD_PADDING_X * 2;
   const label = def?.label ?? nodeTypeId;
 
   const { inputs, outputs, fieldRows, outputRows } = layout;
@@ -212,7 +230,7 @@ export default function GraphNodeCard(props: GraphNodeCardProps) {
       style={{
         position: 'relative',
         cursor: 'grab',
-        width: NODE_WIDTH,
+        width,
         minHeight: cardHeight,
         borderRadius: 6,
         // The ring keeps its width either way, so selecting a node never nudges its layout:
@@ -281,8 +299,8 @@ export default function GraphNodeCard(props: GraphNodeCardProps) {
           style={{
             position: 'absolute',
             top: row.top,
-            left: 12,
-            width: NODE_WIDTH - 24,
+            left: CARD_PADDING_X,
+            width: rowWidth,
             height: row.height,
             // Guarantees a control that renders taller than its declared CONTROL_HEIGHTS
             // entry gets clipped rather than pushing the next row out of alignment.
@@ -291,7 +309,7 @@ export default function GraphNodeCard(props: GraphNodeCardProps) {
             paddingRight:'0.35rem'
           }}
         >
-          <div style={{ ...rowLabelStyle, position: 'static', maxWidth: '100%' }}>{row.field.label ?? row.fieldName}</div>
+          <div style={{ ...rowLabelStyle, position: 'static' }}>{row.field.label ?? row.fieldName}</div>
           {row.showsControl ? (
             // .node-inline-field (EventTab.scss) shrinks the shared Form* controls to the
             // fixed row heights nodeLayout computes socket offsets from.
@@ -313,8 +331,8 @@ export default function GraphNodeCard(props: GraphNodeCardProps) {
           style={{
             position: 'absolute',
             top: row.top,
-            right: 12,
-            width: NODE_WIDTH - 24,
+            right: CARD_PADDING_X,
+            width: rowWidth,
             height: row.height,
             overflow: 'hidden',
             textAlign: 'right',
@@ -324,7 +342,6 @@ export default function GraphNodeCard(props: GraphNodeCardProps) {
             style={{
               ...rowLabelStyle,
               position: 'static',
-              maxWidth: '100%',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'flex-end',
@@ -379,6 +396,25 @@ export default function GraphNodeCard(props: GraphNodeCardProps) {
           ) : null}
         </div>
       ))}
+
+      <div
+        title='Drag to resize - double click to reset'
+        onPointerDown={(e) => onStartResize(e, id, width)}
+        onDoubleClick={(e) => {
+          e.stopPropagation();
+          onResetWidth(id);
+        }}
+        style={{
+          position: 'absolute',
+          top: HEADER_HEIGHT,
+          right: 0,
+          bottom: 0,
+          width: RESIZE_HANDLE_WIDTH,
+          cursor: 'ew-resize',
+          // Below the sockets (z-index 2), which sit on this same edge and are the finer target.
+          zIndex: 1,
+        }}
+      />
 
       {inputs.map((p) => (
         <PortSocket

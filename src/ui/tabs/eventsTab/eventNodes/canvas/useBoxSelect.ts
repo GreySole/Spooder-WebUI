@@ -20,7 +20,7 @@ export function useBoxSelect(
   onComplete: (rect: BoxSelectRect, additive: boolean) => void,
 ) {
   const [rect, setRect] = useState<BoxSelectRect | null>(null);
-  const origin = useRef<{ point: Point; additive: boolean } | null>(null);
+  const origin = useRef<{ point: Point; additive: boolean; pointerId: number } | null>(null);
 
   const toGraphPoint = useCallback(
     (e: { clientX: number; clientY: number }): Point => {
@@ -44,7 +44,7 @@ export function useBoxSelect(
         // A capture failure shouldn't abort the gesture - events still bubble normally.
       }
       const point = toGraphPoint(e);
-      origin.current = { point, additive: e.shiftKey || e.ctrlKey };
+      origin.current = { point, additive: e.shiftKey || e.ctrlKey, pointerId: e.pointerId };
       setRect({ x: point.x, y: point.y, width: 0, height: 0 });
     },
     [toGraphPoint],
@@ -53,7 +53,7 @@ export function useBoxSelect(
   const onPointerMove = useCallback(
     (e: React.PointerEvent) => {
       const from = origin.current;
-      if (!from) {
+      if (!from || e.pointerId !== from.pointerId) {
         return;
       }
       const to = toGraphPoint(e);
@@ -70,7 +70,7 @@ export function useBoxSelect(
   const onPointerUp = useCallback(
     (e: React.PointerEvent) => {
       const from = origin.current;
-      if (!from) {
+      if (!from || e.pointerId !== from.pointerId) {
         return;
       }
       try {

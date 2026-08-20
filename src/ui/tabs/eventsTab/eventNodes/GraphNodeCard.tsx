@@ -35,6 +35,9 @@ export interface GraphNodeCardProps {
   nodeIndex: number;
   // The node's current form values, for the readouts the card draws beside its outputs.
   values?: KeyedObject;
+  // Set for a trigger whose exec output isn't wired to anything: the card flags it, since such
+  // a graph looks finished but can never run.
+  unlinked?: boolean;
   // Input port ids that currently have an edge landing on them - those sockets can be grabbed
   // to unhook the wire, so they advertise a grab cursor.
   connectedInputPorts?: Set<string>;
@@ -75,6 +78,10 @@ const SELECTION_GLOW =
   `-4px -4px 12px -3px color-mix(in srgb, ${SELECTION_CW} 70%, transparent), ` +
   `4px 4px 12px -3px color-mix(in srgb, ${SELECTION_CCW} 70%, transparent)`;
 
+// Reuses the theme's delete/danger red, so the warning reads as a problem in whatever hue the
+// app is themed.
+const UNLINKED_COLOR = 'var(--color-delete-border, #df1414)';
+
 const KIND_COLOR: { [key in EventGraphNodeKind]: string } = {
   callback: '#8e44ad',
   action: '#2980b9',
@@ -109,19 +116,20 @@ function formatLiveArg(live: OscLiveValue, portId: string): string {
 }
 
 // Concat's result, as far as it can be known while editing: literal slots read out as typed,
-// and a slot fed by a wire stands in as '{node_1}', '{node_2}', ... numbered in wire order,
-// since its real value only exists when the graph runs.
+// and a slot fed by a wire stands in as its own slot label - '{A}', '{B}' - since its real
+// value only exists when the graph runs. The placeholder names the slot rather than counting
+// the wires so it points straight at the socket the value lands on: a preview reading
+// 'hi {C}!' says which input to follow without counting rows.
 function buildConcatPreview(
   form: { [fieldName: string]: any } | undefined,
   values: KeyedObject | undefined,
   connectedInputPorts?: Set<string>,
 ): string {
-  let wired = 0;
-  return Object.keys(form ?? {})
-    .map((slot) => {
+  return Object.entries(form ?? {})
+    .map(([slot, field]) => {
       if (connectedInputPorts?.has(slot)) {
-        wired += 1;
-        return `{node_${wired}}`;
+        // Same label the slot's own row draws, so the two always read as the same input.
+        return `{${field?.label ?? slot.toUpperCase()}}`;
       }
       const value = values?.[slot];
       return value === undefined || value === null ? '' : String(value);
@@ -174,6 +182,7 @@ export default function GraphNodeCard(props: GraphNodeCardProps) {
     eventName,
     nodeIndex,
     values,
+    unlinked,
     connectedInputPorts,
     onSelect,
     onNodePointerDown,
@@ -196,6 +205,22 @@ export default function GraphNodeCard(props: GraphNodeCardProps) {
     kind === 'operation' && nodeTypeId === 'concat'
       ? buildConcatPreview(def?.form, values, connectedInputPorts)
       : '';
+  // The preview is the only readout on a card that routinely outruns the row it sits in - it's
+  // the entire string the node will produce. Clicking it opens the full text in a panel below
+  // the Result row instead of growing the row, because every socket offset on this card is
+  // computed from the row heights nodeLayout hands down: a row that sized itself to its content
+  // would drift out of sync with that math and detach this node's edges from their dots.
+  const [previewExpanded, setPreviewExpanded] = React.useState(false);
+  // The panel hangs past the card's bottom edge over the canvas, so left open it would sit on
+  // top of whatever the user moved on to - it belongs to the node being worked on. The render
+  // below gates on `selected` so it's gone the same frame the node is deselected; this resets
+  // the state behind it, so coming back to the node starts collapsed rather than having the
+  // panel spring open again on its own.
+  React.useEffect(() => {
+    if (!selected) {
+      setPreviewExpanded(false);
+    }
+  }, [selected]);
   // Operation/callback outputs render as wireable sockets below (via computeNodePortLayout);
   // only action-node outputs (not resolved by the executor yet, so no socket exists for them)
   // fall back to plain read-only text.
@@ -242,7 +267,15 @@ export default function GraphNodeCard(props: GraphNodeCardProps) {
         backgroundOrigin: 'border-box',
         backgroundClip: selected ? 'padding-box, border-box' : undefined,
         color: 'var(--color-text, #eee)',
-        boxShadow: selected ? SELECTION_GLOW : 'none',
+        // Drawn as an outline rather than a border so it sits outside the card and can't fight
+        // the selection ring for the same 2px, and both can show at once.
+        outline: unlinked ? `2px solid ${UNLINKED_COLOR}` : undefined,
+        outlineOffset: 2,
+        boxShadow: selected
+          ? SELECTION_GLOW
+          : unlinked
+            ? `0 0 10px -2px color-mix(in srgb, ${UNLINKED_COLOR} 70%, transparent)`
+            : 'none',
         // Nothing on the card is selectable by default, so a pointer sweep that starts
         // anywhere on it can't drag-select label text. The inline controls opt back in via
         // `.node-inline-field` in EventTab.scss so their values stay editable.
@@ -263,6 +296,14 @@ export default function GraphNodeCard(props: GraphNodeCardProps) {
         }}
       >
         {moduleName}
+        {unlinked ? (
+          <span
+            title="This trigger's exec output isn't connected, so nothing will run when it fires."
+            style={{ float: 'right', color: UNLINKED_COLOR, fontWeight: 'bold' }}
+          >
+            ⚠ not connected
+          </span>
+        ) : null}
       </div>
       <div
         style={{
@@ -359,21 +400,50 @@ export default function GraphNodeCard(props: GraphNodeCardProps) {
               if (!readout) {
                 return null;
               }
+              const readoutStyle: React.CSSProperties = {
+                flex: '0 1 auto',
+                minWidth: 0,
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+                fontFamily: 'monospace',
+                opacity: 0.65,
+              };
+              if (liveArgs || row.portId !== 'result') {
+                return (
+                  <span style={readoutStyle} title={liveArgs ? 'Last received value' : readout}>
+                    {readout}
+                  </span>
+                );
+              }
               return (
-                <span
-                  style={{
-                    flex: '0 1 auto',
-                    minWidth: 0,
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    whiteSpace: 'nowrap',
-                    fontFamily: 'monospace',
-                    opacity: 0.65,
+                <button
+                  type='button'
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setPreviewExpanded((open) => !open);
                   }}
-                  title={liveArgs ? 'Last received value' : readout}
+                  style={{
+                    ...readoutStyle,
+                    background: 'none',
+                    border: 'none',
+                    padding: 0,
+                    color: 'inherit',
+                    // A button opts out of inherited text metrics, and the row's are what keep
+                    // this sitting on the label's line.
+                    fontSize: 'inherit',
+                    lineHeight: 'inherit',
+                    textAlign: 'right',
+                    // The only thing saying there's more behind the ellipsis.
+                    textDecoration: 'underline dotted',
+                    cursor: 'pointer',
+                  }}
+                  // Keeps the hover readout the plain <span> gave, with the new gesture
+                  // appended - a short preview is still fastest to read without clicking.
+                  title={`${readout}\n\n${previewExpanded ? 'Click to hide' : 'Click to show in full'}`}
                 >
                   {readout}
-                </span>
+                </button>
               );
             })()}
             <span
@@ -396,6 +466,62 @@ export default function GraphNodeCard(props: GraphNodeCardProps) {
           ) : null}
         </div>
       ))}
+
+      {/* The expanded preview. A sibling of the output rows rather than a child of the Result
+          row, because that row clips to the exact height nodeLayout gave it - anything drawn
+          inside it is cut off at one line. Sized off the row instead of stacked after it for
+          the same reason: it hangs below the card, overlapping the canvas, so opening it moves
+          nothing on the card and no socket shifts under a live wire. */}
+      {selected && previewExpanded && concatPreview
+        ? (() => {
+            const resultRow = outputRows.find((row) => row.portId === 'result');
+            if (!resultRow) {
+              return null;
+            }
+            return (
+              <div
+                // Swallows the press so it neither reselects the node nor starts a body-drag,
+                // leaving the text free to be selected and copied.
+                onPointerDown={(e) => e.stopPropagation()}
+                style={{
+                  position: 'absolute',
+                  top: resultRow.top + resultRow.height + 2,
+                  left: CARD_PADDING_X,
+                  width: rowWidth,
+                  boxSizing: 'border-box',
+                  padding: '6px 8px',
+                  borderRadius: 4,
+                  border: '1px solid var(--color-border, #444)',
+                  // The card's own surface, not the canvas's: the panel hangs past the card's
+                  // bottom edge, so matching the card is what reads it as part of this node
+                  // rather than as something painted on the graph behind it.
+                  backgroundColor: 'var(--color-background-near, #2a2a2a)',
+                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.45)',
+                  fontFamily: 'monospace',
+                  fontSize: '0.7rem',
+                  opacity: 0.95,
+                  // Long literals wrap; a slot holding one unbroken token breaks mid-word rather
+                  // than pushing a scrollbar sideways.
+                  whiteSpace: 'pre-wrap',
+                  overflowWrap: 'anywhere',
+                  // Tall enough for a paragraph, past which it scrolls rather than covering the
+                  // graph below it.
+                  maxHeight: 180,
+                  overflowY: 'auto',
+                  // Over the card body and its resize strip; the sockets it could reach sit at
+                  // z-index 2 on an edge this panel is inset from.
+                  zIndex: 3,
+                  // The card sets userSelect: 'none' wholesale - the point of this panel is to
+                  // read the string, so it opts back in.
+                  userSelect: 'text',
+                  cursor: 'text',
+                }}
+              >
+                {concatPreview}
+              </div>
+            );
+          })()
+        : null}
 
       <div
         title='Drag to resize - double click to reset'

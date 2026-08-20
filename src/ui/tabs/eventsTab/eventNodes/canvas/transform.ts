@@ -25,6 +25,29 @@ export function zoomAtPoint(transform: Transform, screenPoint: Point, wheelDelta
   };
 }
 
+// One frame of a two-finger gesture: the pinch is measured against where it began, so the graph
+// point that was under the midpoint when the fingers went down stays under it however far they
+// spread or travel. That makes zoom and two-finger pan the same calculation rather than two that
+// have to be blended.
+export function pinchTransform(
+  startTransform: Transform,
+  startCenter: Point,
+  center: Point,
+  spreadRatio: number,
+): Transform {
+  const anchor = screenToGraph(startTransform, startCenter);
+  const scale = clampScale(startTransform.scale * spreadRatio);
+  return { scale, x: center.x - anchor.x * scale, y: center.y - anchor.y * scale };
+}
+
+export function distanceBetween(a: Point, b: Point): number {
+  return Math.hypot(a.x - b.x, a.y - b.y);
+}
+
+export function midpointOf(a: Point, b: Point): Point {
+  return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+}
+
 interface FitBounds {
   position: Point;
 }

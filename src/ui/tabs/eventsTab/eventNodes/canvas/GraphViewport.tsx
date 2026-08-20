@@ -1,4 +1,4 @@
-import React, { useCallback, useRef } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import { GraphViewportProvider } from './GraphViewportContext';
 import { Point, Transform } from './types';
 import { BoxSelectRect, useBoxSelect } from './useBoxSelect';
@@ -35,6 +35,15 @@ export default function GraphViewport(props: GraphViewportProps) {
 
   const clickStart = useRef<Point | null>(null);
   const moved = useRef(false);
+
+  // A second finger turns whatever was happening into a pinch, including a selection box the
+  // first finger had started dragging.
+  useEffect(() => {
+    if (panZoom.isPinching) {
+      boxSelect.cancel();
+      clickStart.current = null;
+    }
+  }, [panZoom.isPinching, boxSelect]);
 
   // Every gesture in here preventDefault()s its own pointerdown - to stop Chrome's middle-click
   // autoscroll, to stop a node drag sweeping a text selection across the card, and so on. That
@@ -141,7 +150,7 @@ export default function GraphViewport(props: GraphViewportProps) {
           transform: `translate(${transform.x}px, ${transform.y}px) scale(${transform.scale})`,
         }}
       >
-        <GraphViewportProvider value={{ transform, viewportRef }}>{children}</GraphViewportProvider>
+        <GraphViewportProvider value={{ transform, viewportRef, isPinching: panZoom.isPinching }}>{children}</GraphViewportProvider>
         {boxSelect.rect ? (
           <div
             style={{

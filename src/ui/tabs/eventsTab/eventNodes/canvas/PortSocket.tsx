@@ -2,6 +2,17 @@ import React from 'react';
 import { NodePortDataType } from '../../../../Types';
 import { colorForPort, EXEC_COLOR } from './portColors';
 
+// The dot as drawn, and the invisible square around it that takes the press. Splitting the two
+// is what makes these usable on a tablet: the target is finger-sized without the canvas filling
+// up with fat dots, and the dot stays small enough that adjacent branch ports (an 'if' node's
+// then/else, one HANDLE_SPACING = 18px apart) still read as two separate dots.
+//
+// The hit box is kept to 24 rather than a full touch-target 44 because it necessarily overhangs
+// the card - too large and pressing near a node's edge would grab a port instead of panning the
+// canvas or dragging the card.
+const DOT_SIZE = 14;
+const HIT_SIZE = 24;
+
 export interface PortSocketProps {
   nodeId: string;
   portId: string;
@@ -56,16 +67,32 @@ export default function PortSocket(props: PortSocketProps) {
       style={{
         position: 'absolute',
         top,
-        [side === 'in' ? 'left' : 'right']: -6,
-        width: 12,
-        height: 12,
-        borderRadius: '50%',
-        background: color,
-        border: '2px solid var(--color-background-near, #2a2a2a)',
+        // Centred on the card's edge whatever the sizes are, so the dot's middle lands exactly on
+        // the point portGraphOffset() reports and edges meet their sockets.
+        [side === 'in' ? 'left' : 'right']: -HIT_SIZE / 2,
+        width: HIT_SIZE,
+        height: HIT_SIZE,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
         cursor: side === 'out' ? 'crosshair' : connected ? 'grab' : 'default',
         transform: 'translateY(-50%)',
         zIndex: 2,
       }}
-    />
+    >
+      <div
+        style={{
+          width: DOT_SIZE,
+          height: DOT_SIZE,
+          borderRadius: '50%',
+          background: color,
+          border: '2px solid var(--color-background-near, #2a2a2a)',
+          // The box around it is the target, including for a wire released nearby - dropping a
+          // connection resolves through elementFromPoint, which has to land on the element
+          // carrying data-socket-id rather than on this dot.
+          pointerEvents: 'none',
+        }}
+      />
+    </div>
   );
 }

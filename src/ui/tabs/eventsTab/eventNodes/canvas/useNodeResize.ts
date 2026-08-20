@@ -23,6 +23,8 @@ export function useNodeResize(
   const startScreenX = useRef(0);
   const startWidth = useRef(0);
   const resizing = useRef(false);
+  // The pointer that grabbed the handle; another finger's moves are not this gesture.
+  const pointerId = useRef<number | null>(null);
   const moved = useRef(false);
 
   const startResize = useCallback(
@@ -39,6 +41,7 @@ export function useNodeResize(
       } catch {
         // Not load-bearing - the canvas handles pointermove/up either way.
       }
+      pointerId.current = e.pointerId;
       startScreenX.current = e.clientX;
       startWidth.current = width;
       resizing.current = true;
@@ -50,7 +53,7 @@ export function useNodeResize(
 
   const onPointerMove = useCallback(
     (e: React.PointerEvent) => {
-      if (!resizing.current) {
+      if (!resizing.current || e.pointerId !== pointerId.current) {
         return;
       }
       const dxScreen = e.clientX - startScreenX.current;
@@ -66,7 +69,7 @@ export function useNodeResize(
 
   const onPointerUp = useCallback(
     (e: React.PointerEvent) => {
-      if (!resizing.current) {
+      if (!resizing.current || e.pointerId !== pointerId.current) {
         return;
       }
       try {
@@ -86,5 +89,12 @@ export function useNodeResize(
     [onResizeEnd],
   );
 
-  return { resizeState, startResize, onPointerMove, onPointerUp };
+  // Drops the resize without committing the new width - see useNodeDrag.cancel.
+  const cancel = useCallback(() => {
+    resizing.current = false;
+    pointerId.current = null;
+    setResizeState(null);
+  }, []);
+
+  return { resizeState, startResize, cancel, onPointerMove, onPointerUp };
 }

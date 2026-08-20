@@ -4,6 +4,9 @@ import { Transform } from './types';
 export interface GraphViewportContextValue {
   transform: Transform;
   viewportRef: React.RefObject<HTMLDivElement>;
+  // True while two fingers are on the canvas. The viewport owns that gesture, so anything the
+  // first finger started elsewhere (a node drag, a wire) drops it while this is set.
+  isPinching: boolean;
 }
 
 const GraphViewportContext = createContext<GraphViewportContextValue | null>(null);

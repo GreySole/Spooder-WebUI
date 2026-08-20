@@ -197,7 +197,7 @@ function NodeGraphCanvasInner(props: InnerProps) {
     setSelectedEdgeId,
   } = props;
 
-  const { viewportRef } = useGraphViewport();
+  const { viewportRef, isPinching } = useGraphViewport();
   const contentRef = useRef<HTMLDivElement>(null);
   const fitDone = useRef(false);
   // The wire currently being pulled off an input socket: held in a ref for the pointerup
@@ -244,6 +244,15 @@ function NodeGraphCanvasInner(props: InnerProps) {
     return { byPort, portsByNode };
   }, [layoutSignature, edges]);
 
+  // A trigger whose exec output goes nowhere can never run anything - the commonest way to end
+  // up with a graph that silently does nothing, so the card says so.
+  const unlinkedTriggers = useMemo(() => {
+    const wired = new Set(edges.filter((e) => e.fromPort === 'exec').map((e) => e.fromNode));
+    return new Set(
+      nodes.filter((n) => n.kind === 'callback' && !wired.has(n.id)).map((n) => n.id),
+    );
+  }, [layoutSignature, nodes, edges]);
+
   const nodePositions = useMemo(() => {
     const map = new Map<string, Point>();
     const dragging = nodeDrag.dragState?.positions;
@@ -262,6 +271,20 @@ function NodeGraphCanvasInner(props: InnerProps) {
     }
     return new Map(nodeWidths).set(resizing.nodeId, resizing.width);
   }, [nodeWidths, nodeResize.resizeState]);
+
+  // Two fingers on the canvas is a pinch, and the viewport owns it. Whatever the first finger
+  // started here is abandoned rather than committed: it was a finger resting on a card, not an
+  // attempt to move it.
+  useLayoutEffect(() => {
+    if (!isPinching) {
+      return;
+    }
+    nodeDrag.cancel();
+    nodeResize.cancel();
+    connectionDraft.cancel();
+    detach.current = null;
+    setDetachedEdgeId('');
+  }, [isPinching, nodeDrag, nodeResize, connectionDraft]);
 
   // One-shot fit-to-view: only runs until it succeeds once, so it never fights the user's
   // subsequent manual pan/zoom (mirrors the intent of ReactFlow's mount-time fitView).
@@ -504,6 +527,7 @@ function NodeGraphCanvasInner(props: InnerProps) {
               eventName={eventName}
               nodeIndex={nodeIndex}
               values={node.values}
+              unlinked={unlinkedTriggers.has(node.id)}
               connectedInputPorts={edgesByTargetPort.portsByNode.get(node.id)}
               onSelect={handleSelectNode}
               onNodePointerDown={(e, nodeId) =>

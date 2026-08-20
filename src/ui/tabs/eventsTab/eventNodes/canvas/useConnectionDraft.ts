@@ -25,7 +25,13 @@ export function useConnectionDraft(
   onComplete: (from: ConnectionEndpoint, to: ConnectionEndpoint) => void,
 ) {
   const [draft, setDraft] = useState<ConnectionDraftState | null>(null);
-  const origin = useRef<{ nodeId: string; portId: string; dataType?: NodePortDataType } | null>(null);
+  // Includes the pointer that started the wire, so another finger's moves don't drag it.
+  const origin = useRef<{
+    nodeId: string;
+    portId: string;
+    dataType?: NodePortDataType;
+    pointerId: number;
+  } | null>(null);
 
   const toGraphPoint = useCallback(
     (e: { clientX: number; clientY: number }): Point => {
@@ -52,7 +58,7 @@ export function useConnectionDraft(
       // starts a native text selection that sweeps across the cards it passes over.
       e.preventDefault();
       captureTarget?.setPointerCapture(e.pointerId);
-      origin.current = { nodeId, portId, dataType };
+      origin.current = { nodeId, portId, dataType, pointerId: e.pointerId };
       setDraft({ fromNodeId: nodeId, fromPortId: portId, dataType, cursor: toGraphPoint(e) });
     },
     [toGraphPoint],
@@ -60,7 +66,7 @@ export function useConnectionDraft(
 
   const onPointerMove = useCallback(
     (e: React.PointerEvent) => {
-      if (!origin.current) {
+      if (!origin.current || e.pointerId !== origin.current.pointerId) {
         return;
       }
       const cursor = toGraphPoint(e);
@@ -71,18 +77,22 @@ export function useConnectionDraft(
 
   // Abandons an in-progress draft without resolving a drop target. Used when a grab on a
   // connected input socket turns out to have been a plain click, so nothing should change.
-  const cancel = useCallback((e: React.PointerEvent) => {
+  // The event is optional: a click that turned out not to be a drag has one to release capture
+  // with, a pinch taking the gesture over does not.
+  const cancel = useCallback((e?: React.PointerEvent) => {
     if (!origin.current) {
       return;
     }
-    (e.target as Element).releasePointerCapture?.(e.pointerId);
+    if (e) {
+      (e.target as Element).releasePointerCapture?.(e.pointerId);
+    }
     origin.current = null;
     setDraft(null);
   }, []);
 
   const onPointerUp = useCallback(
     (e: React.PointerEvent) => {
-      if (!origin.current) {
+      if (!origin.current || e.pointerId !== origin.current.pointerId) {
         return;
       }
       (e.target as Element).releasePointerCapture?.(e.pointerId);

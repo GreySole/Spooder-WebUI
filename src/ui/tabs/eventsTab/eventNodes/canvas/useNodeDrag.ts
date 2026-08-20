@@ -21,6 +21,9 @@ export function useNodeDrag(
   // delta against these, so the group keeps its shape however far the pointer travels.
   const startPositions = useRef<Map<string, Point>>(new Map());
   const dragging = useRef(false);
+  // The finger or button that started the drag. Everything else is ignored, so a second touch -
+  // the other half of a pinch, say - can't yank the node around.
+  const pointerId = useRef<number | null>(null);
   const moved = useRef(false);
 
   const startDrag = useCallback(
@@ -44,6 +47,7 @@ export function useNodeDrag(
       } catch {
         // ignore - see comment above
       }
+      pointerId.current = e.pointerId;
       startScreen.current = { x: e.clientX, y: e.clientY };
       startPositions.current = new Map(nodes.map((n) => [n.id, n.position]));
       dragging.current = true;
@@ -55,7 +59,7 @@ export function useNodeDrag(
 
   const onPointerMove = useCallback(
     (e: React.PointerEvent) => {
-      if (!dragging.current) {
+      if (!dragging.current || e.pointerId !== pointerId.current) {
         return;
       }
       const dxScreen = e.clientX - startScreen.current.x;
@@ -76,9 +80,10 @@ export function useNodeDrag(
 
   const onPointerUp = useCallback(
     (e: React.PointerEvent) => {
-      if (!dragging.current) {
+      if (!dragging.current || e.pointerId !== pointerId.current) {
         return;
       }
+      pointerId.current = null;
       try {
         (e.target as Element).releasePointerCapture?.(e.pointerId);
       } catch {
@@ -96,5 +101,14 @@ export function useNodeDrag(
     [onDragEnd],
   );
 
-  return { dragState, startDrag, onPointerMove, onPointerUp };
+  // Abandons the drag and puts the nodes back where they started - nothing is committed to the
+  // form. Used when a second finger turns the gesture into a pinch: the node was never meant to
+  // move, it just happened to be under the first finger.
+  const cancel = useCallback(() => {
+    dragging.current = false;
+    pointerId.current = null;
+    setDragState(null);
+  }, []);
+
+  return { dragState, startDrag, cancel, onPointerMove, onPointerUp };
 }

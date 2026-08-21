@@ -7,6 +7,7 @@ import { EventGraph } from '../../../Types';
 import { buildGraphKey } from '../FormKeys';
 import SearchMatchReference from './searchMatch/SearchMatchReference';
 import ModNodeEditor from './modAction/ModNodeEditor';
+import { getModuleNodeInspector } from './moduleNodeInspectors';
 import { resolveNodeDef } from './nodeDefLookup';
 import OscTriggerNodeEditor from './oscTrigger/OscTriggerNodeEditor';
 import PluginNodeEditor from './pluginAction/PluginNodeEditor';
@@ -48,9 +49,13 @@ export default function NodeInspector(props: NodeInspectorProps) {
 
   // Whether this panel opens at all is decided before it renders, by useInspectorHasContent -
   // a node type added to this switch needs an entry there too, or its editor will never be
-  // reached.
+  // reached. (A module-contributed panel is registered in one place and picked up by both.)
+  const ModuleEditor = getModuleNodeInspector(node.moduleName, node.nodeTypeId);
+
   let editor: React.ReactNode = null;
-  if (node.nodeTypeId === 'search_match') {
+  if (ModuleEditor) {
+    editor = <ModuleEditor eventName={eventName} nodeIndex={nodeIndex} />;
+  } else if (node.nodeTypeId === 'search_match') {
     // Matched on nodeTypeId alone: an operation node's moduleName is its category ('string').
     editor = <SearchMatchReference />;
   } else if (node.moduleName === 'core' && node.nodeTypeId === 'osc_trigger') {

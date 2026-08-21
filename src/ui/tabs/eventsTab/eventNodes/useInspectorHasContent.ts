@@ -2,6 +2,7 @@ import { useFormContext } from 'react-hook-form';
 import useEvents from '../../../../app/hooks/useEvents';
 import { EventGraph } from '../../../Types';
 import { GRAPH_KEY } from '../FormKeys';
+import { getModuleNodeInspector } from './moduleNodeInspectors';
 import { resolveNodeDef } from './nodeDefLookup';
 import { checkNodeConflicts } from './softwareAction/SoftwareConflictCheck';
 
@@ -39,6 +40,11 @@ export default function useInspectorHasContent(eventName: string, nodeId: string
   // Matched before the core check: an operation node's moduleName is its category ('string'),
   // not core. Its panel is the pattern language reference.
   if (node.nodeTypeId === 'search_match') {
+    return true;
+  }
+  // A module that registered a panel for this node type has something to show by definition -
+  // registering it is the declaration. See moduleNodeInspectors.ts.
+  if (getModuleNodeInspector(node.moduleName, node.nodeTypeId)) {
     return true;
   }
   if (node.moduleName !== 'core') {

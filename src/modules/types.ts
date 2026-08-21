@@ -50,4 +50,17 @@ export interface ModuleDefinition {
   // NodeFieldDef.type === 'custom' fields whose options.component matches a key here.
   // Each declares its rendered height so the card can size the field's row.
   fieldRenderers?: { [componentKey: string]: CustomFieldRenderer };
+  // Inspector panels this module contributes, keyed by the node type they belong to. The
+  // panel is for what a static form def can't express - live remote state a node points at,
+  // and the actions that change it. Core's own panels stay hardwired in NodeInspector; this
+  // is the same idea opened up to modules, so a Twitch/OBS node type doesn't need an edit
+  // there. Selecting a node with an entry here opens the panel (see useInspectorHasContent).
+  nodeInspectors?: { [nodeTypeId: string]: React.ComponentType<ModuleNodeInspectorProps> };
+}
+
+// Same props the core inspector editors take: the node's slot in the event form, so a panel
+// can watch and write the node's own values.
+export interface ModuleNodeInspectorProps {
+  eventName: string;
+  nodeIndex: number;
 }

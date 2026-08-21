@@ -2,14 +2,14 @@ import { FormSelectDropdown } from '@spooder/webui-component-library';
 import React from 'react';
 import { EventGraphNodeKind, KeyedObject, NodePortDataType } from '../../../Types';
 import { buildNodeValueKey } from '../FormKeys';
-import { colorForPort } from './canvas/portColors';
+import { colorForPort, EXEC_COLOR } from './canvas/portColors';
 import {
   CARD_PADDING_X,
   HANDLE_SPACING,
   HEADER_HEIGHT,
   nodeCardHeight,
   NodePortLayout,
-  TITLE_HEIGHT
+  TITLE_HEIGHT,
 } from './canvas/nodeLayout';
 import PortSocket from './canvas/PortSocket';
 import { ResolvedNodeDef } from './nodeDefLookup';
@@ -161,7 +161,11 @@ const rowLabelStyle: React.CSSProperties = {
 // focusing at all.
 function isInteractiveTarget(target: EventTarget | null): boolean {
   const element = target as HTMLElement | null;
-  return Boolean(element?.closest?.('.node-inline-field, input, textarea, select, button, [contenteditable="true"]'));
+  return Boolean(
+    element?.closest?.(
+      '.node-inline-field, input, textarea, select, button, [contenteditable="true"]',
+    ),
+  );
 }
 
 // Grab strip down the card's right edge - invisible, with the ew-resize cursor as its only
@@ -221,14 +225,11 @@ export default function GraphNodeCard(props: GraphNodeCardProps) {
       setPreviewExpanded(false);
     }
   }, [selected]);
-  // Operation/callback outputs render as wireable sockets below (via computeNodePortLayout);
-  // only action-node outputs (not resolved by the executor yet, so no socket exists for them)
-  // fall back to plain read-only text.
-  const readOnlyOutputs = kind === 'action' ? (def?.outputs ?? []) : [];
-  // Named exec branches (an 'if' node's then/else) sit right at the top of the card, in the
-  // same header/title band, by convention - so unlike data ports they can't be aligned to
-  // their dot's `top` without overlapping the title. They keep the old normal-flow rendering.
-  const execBranchRows = outputs.filter((p) => p.label);
+  // Every output - wireable data port, named exec branch, or an action's read-only output -
+  // is an absolutely positioned row from the layout. Exec branches used to render in normal
+  // document flow under the title instead, which put them straight on top of the first field
+  // row's label (the If node drew 'out: Then' over 'Condition').
+  //
   // Field rows and output rows are positioned at the exact analytical `top` the layout
   // computed (rather than left to stack in normal document flow) so a row and its dot always
   // land on the same pixel. Normal flow's per-row height depends on font metrics and control
@@ -323,17 +324,6 @@ export default function GraphNodeCard(props: GraphNodeCardProps) {
         {label}
       </div>
 
-      {(readOnlyOutputs.length > 0 || execBranchRows.length > 0) && (
-        <div style={{ padding: '0 8px 8px', fontSize: '0.75rem', opacity: 0.8, userSelect: 'none' }}>
-          {readOnlyOutputs.map((output) => (
-            <div key={output.id}>out: {output.label} (not wireable)</div>
-          ))}
-          {execBranchRows.map((p) => (
-            <div key={p.portId}>out: {p.label}</div>
-          ))}
-        </div>
-      )}
-
       {fieldRows.map((row) => (
         <div
           key={row.fieldName}
@@ -346,11 +336,13 @@ export default function GraphNodeCard(props: GraphNodeCardProps) {
             // Guarantees a control that renders taller than its declared CONTROL_HEIGHTS
             // entry gets clipped rather than pushing the next row out of alignment.
             overflow: 'hidden',
-            paddingLeft:'0.35rem',
-            paddingRight:'0.35rem'
+            paddingLeft: '0.35rem',
+            paddingRight: '0.35rem',
           }}
         >
-          <div style={{ ...rowLabelStyle, position: 'static' }}>{row.field.label ?? row.fieldName}</div>
+          <div style={{ ...rowLabelStyle, position: 'static' }}>
+            {row.field.label ?? row.fieldName}
+          </div>
           {row.showsControl ? (
             // .node-inline-field (EventTab.scss) shrinks the shared Form* controls to the
             // fixed row heights nodeLayout computes socket offsets from.
@@ -450,10 +442,15 @@ export default function GraphNodeCard(props: GraphNodeCardProps) {
               style={{
                 flex: '0 0 auto',
                 // Type-coded to match this port's socket, so an arg's type reads at a glance.
-                color: colorForPort(row.dataType),
+                // An exec branch has no data type, and takes the exec socket's own colour.
+                color: row.isExec ? EXEC_COLOR : colorForPort(row.dataType),
+                // Nothing can wire to a read-only output, so it reads as an aside rather than
+                // as a port someone is meant to reach for.
+                opacity: row.readOnly ? 0.6 : 1,
               }}
             >
               {row.label}
+              {row.readOnly ? ' (not wireable)' : ''}
             </span>
           </div>
           {row.typeValuePath ? (

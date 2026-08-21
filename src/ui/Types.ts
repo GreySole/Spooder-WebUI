@@ -129,6 +129,25 @@ export interface TriggerNodeDef {
   form: NodeForm;
   defaults: KeyedObject;
   outputs: NodePortDef[];
+  // Set by the owning module when it can fire this trigger on demand. Its presence is what
+  // puts a test panel in the inspector; the panel itself comes from the module (see
+  // ModuleDefinition.nodeTestPanel), since only the module knows how to run the test.
+  test?: TriggerTestDef;
+}
+
+export interface TriggerTestDef {
+  params: TriggerTestParam[];
+  // Shown above the controls: what firing this test actually does, where that isn't obvious.
+  note?: string;
+}
+
+export interface TriggerTestParam {
+  id: string;
+  label: string;
+  type: 'text' | 'number' | 'boolean' | 'select';
+  selections?: { [value: string]: string };
+  default?: string | number | boolean;
+  description?: string;
 }
 
 export interface ActionNodeDef {

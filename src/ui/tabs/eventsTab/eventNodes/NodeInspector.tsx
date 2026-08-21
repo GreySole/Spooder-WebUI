@@ -8,6 +8,7 @@ import { buildGraphKey } from '../FormKeys';
 import SearchMatchReference from './searchMatch/SearchMatchReference';
 import ModNodeEditor from './modAction/ModNodeEditor';
 import { getModuleNodeInspector } from './moduleNodeInspectors';
+import { getModuleNodeTestPanel } from './moduleNodeTestPanels';
 import { resolveNodeDef } from './nodeDefLookup';
 import OscTriggerNodeEditor from './oscTrigger/OscTriggerNodeEditor';
 import PluginNodeEditor from './pluginAction/PluginNodeEditor';
@@ -51,6 +52,9 @@ export default function NodeInspector(props: NodeInspectorProps) {
   // a node type added to this switch needs an entry there too, or its editor will never be
   // reached. (A module-contributed panel is registered in one place and picked up by both.)
   const ModuleEditor = getModuleNodeInspector(node.moduleName, node.nodeTypeId);
+  // Independent of the editor above: a node can have both (the redeem node edits its reward
+  // and fires a test redemption), either, or neither.
+  const TestPanel = def?.test ? getModuleNodeTestPanel(node.moduleName) : undefined;
 
   let editor: React.ReactNode = null;
   if (ModuleEditor) {
@@ -69,7 +73,11 @@ export default function NodeInspector(props: NodeInspectorProps) {
   } else if (node.moduleName === 'core' && node.nodeTypeId === 'software') {
     editor = <SoftwareNodeEditor eventName={eventName} nodeIndex={nodeIndex} />;
   } else if (!def) {
-    editor = <TypeFace>Unknown node type '{node.moduleName}/{node.nodeTypeId}'.</TypeFace>;
+    editor = (
+      <TypeFace>
+        Unknown node type '{node.moduleName}/{node.nodeTypeId}'.
+      </TypeFace>
+    );
   }
   // No generic branch: form fields are edited inline on the node card. Rendering them here
   // too would bind two controls to the same form key, and the shared Form* components derive
@@ -92,6 +100,18 @@ export default function NodeInspector(props: NodeInspectorProps) {
 
       {editor}
 
+      {TestPanel && def?.test ? (
+        <TestPanel
+          // Keyed by node: the inspector reuses one instance as the selection moves between
+          // nodes of the same type, and a panel holds unsent test values in local state that
+          // belong to the node they were typed for.
+          key={selectedNodeId}
+          eventName={eventName}
+          nodeIndex={nodeIndex}
+          nodeTypeId={node.nodeTypeId}
+          test={def.test}
+        />
+      ) : null}
     </Stack>
   );
 }

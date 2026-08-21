@@ -7,6 +7,7 @@ import {
   NodePortDef,
   OperationNodeDef,
   TriggerNodeDef,
+  TriggerTestDef,
 } from '../../../Types';
 import { CORE_ACTION_DEFS, CORE_TRIGGER_DEFS } from './coreNodeDefs';
 
@@ -29,6 +30,8 @@ export interface ResolvedNodeDef {
   // Named exec output ports for branching actions (e.g. 'then'/'else'). Undefined/empty
   // means the node has the usual single unlabeled 'exec' output.
   execOutputs?: { id: string; label: string }[];
+  // Carried through from a trigger def so the inspector can offer this node's test panel.
+  test?: TriggerTestDef;
 }
 
 export function findTriggerDef(
@@ -101,7 +104,10 @@ function buildOscTriggerOutputs(values: KeyedObject | undefined): ResolvedPortDe
 //
 // Ids stay positional rather than derived from the pattern word, so editing the pattern can't
 // silently break a wire (same rule as the OSC arg ports).
-function buildSearchMatchOutputs(baseOutputs: NodePortDef[], values: KeyedObject | undefined): ResolvedPortDef[] {
+function buildSearchMatchOutputs(
+  baseOutputs: NodePortDef[],
+  values: KeyedObject | undefined,
+): ResolvedPortDef[] {
   const patternWords = String(values?.pattern ?? '')
     .trim()
     .split(/\s+/)
@@ -119,7 +125,10 @@ function buildSearchMatchOutputs(baseOutputs: NodePortDef[], values: KeyedObject
 // A chat command's arguments are whatever follows it, so nothing but the user can say how many
 // to expose - same situation as the OSC trigger's argCount, and the same answer. Ids are
 // positional, so raising or lowering the count can't disturb the wires below it.
-function buildCommandArgOutputs(baseOutputs: NodePortDef[], values: KeyedObject | undefined): ResolvedPortDef[] {
+function buildCommandArgOutputs(
+  baseOutputs: NodePortDef[],
+  values: KeyedObject | undefined,
+): ResolvedPortDef[] {
   const argCount = Number(values?.argCount ?? 0);
   const count = Number.isFinite(argCount) ? Math.max(0, Math.floor(argCount)) : 0;
   return [
@@ -158,6 +167,7 @@ export function resolveNodeDef(
       form: def.form,
       defaults: def.defaults,
       outputs,
+      test: def.test,
     };
   }
   if (node.kind === 'action') {

@@ -3,6 +3,7 @@ import useEvents from '../../../../app/hooks/useEvents';
 import { EventGraph } from '../../../Types';
 import { GRAPH_KEY } from '../FormKeys';
 import { getModuleNodeInspector } from './moduleNodeInspectors';
+import { getModuleNodeTestPanel } from './moduleNodeTestPanels';
 import { resolveNodeDef } from './nodeDefLookup';
 import { checkNodeConflicts } from './softwareAction/SoftwareConflictCheck';
 
@@ -32,9 +33,14 @@ export default function useInspectorHasContent(eventName: string, nodeId: string
   if (!node) {
     return false;
   }
-  if (!resolveNodeDef(node, manifests, operationNodes)) {
+  const def = resolveNodeDef(node, manifests, operationNodes);
+  if (!def) {
     // An unresolvable node type has no card controls either; the panel is the only place that
     // reports it.
+    return true;
+  }
+  // A testable trigger's panel is its test controls, whatever else the node type offers.
+  if (def.test && getModuleNodeTestPanel(node.moduleName)) {
     return true;
   }
   // Matched before the core check: an operation node's moduleName is its category ('string'),

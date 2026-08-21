@@ -1,5 +1,6 @@
 import React from 'react';
 import { CustomFieldRenderer } from '../ui/tabs/eventsTab/eventNodes/customFieldRenderer';
+import { TriggerTestDef } from '../ui/Types';
 
 export interface ModuleTabConfig {
   label: string;
@@ -56,6 +57,11 @@ export interface ModuleDefinition {
   // is the same idea opened up to modules, so a Twitch/OBS node type doesn't need an edit
   // there. Selecting a node with an entry here opens the panel (see useInspectorHasContent).
   nodeInspectors?: { [nodeTypeId: string]: React.ComponentType<ModuleNodeInspectorProps> };
+  // One panel for every trigger node of this module whose def carries `test`. Which nodes are
+  // testable is declared by the backend alongside the node itself, so a module that adds a
+  // trigger gets its test UI without touching the WebUI - the panel reads the def's params
+  // and posts back to the module's own route.
+  nodeTestPanel?: React.ComponentType<ModuleNodeTestPanelProps>;
 }
 
 // Same props the core inspector editors take: the node's slot in the event form, so a panel
@@ -63,4 +69,11 @@ export interface ModuleDefinition {
 export interface ModuleNodeInspectorProps {
   eventName: string;
   nodeIndex: number;
+}
+
+export interface ModuleNodeTestPanelProps extends ModuleNodeInspectorProps {
+  // The node being tested, and what its test accepts. `nodeTypeId` is what the panel sends
+  // back - the module's route maps it to a real event, so the client never names one.
+  nodeTypeId: string;
+  test: TriggerTestDef;
 }

@@ -59,7 +59,11 @@ export function clampNodeWidth(width: number): number {
 }
 
 export function resolveNodeWidth(nodeWidth?: number, defWidth?: number): number {
-  const width = Number.isFinite(nodeWidth) ? nodeWidth! : Number.isFinite(defWidth) ? defWidth! : NODE_WIDTH;
+  const width = Number.isFinite(nodeWidth)
+    ? nodeWidth!
+    : Number.isFinite(defWidth)
+      ? defWidth!
+      : NODE_WIDTH;
   return clampNodeWidth(width);
 }
 
@@ -108,6 +112,11 @@ export interface OutputRowLayout {
   // Path under the node's values for a user-assignable type (see ResolvedPortDef); when set
   // the card draws a type picker beneath the label, and the row is sized for it.
   typeValuePath?: string[];
+  // A named execution branch rather than a data output: its socket is an exec socket, and it
+  // carries no value to read out beside the label.
+  isExec?: boolean;
+  // Informational only - the row has no socket, because nothing can wire to it yet.
+  readOnly?: boolean;
 }
 
 export interface NodePortLayout {
@@ -155,14 +164,13 @@ export function computeNodePortLayout(
   if (kind === 'callback') {
     outputs.push({ portId: 'exec', top: EXEC_TOP });
   }
-  if (kind === 'action') {
-    if (def?.execOutputs?.length) {
-      def.execOutputs.forEach((port, i) => {
-        outputs.push({ portId: port.id, top: EXEC_TOP + i * HANDLE_SPACING, label: port.label });
-      });
-    } else {
-      outputs.push({ portId: 'exec', top: EXEC_TOP });
-    }
+  // EXEC_TOP puts a socket in the header/title band, where there is no room for a label beside
+  // it - fine for the single unnamed exec output every other action has, which is a bare dot.
+  // Named branches ('then'/'else') each need their label drawn, so they're laid out as rows in
+  // the output band below instead; see the outputRows block.
+  const namedExecOutputs = kind === 'action' ? (def?.execOutputs ?? []) : [];
+  if (kind === 'action' && namedExecOutputs.length === 0) {
+    outputs.push({ portId: 'exec', top: EXEC_TOP });
   }
 
   // Walk every visible field in declaration order, accumulating variable row heights. A row
@@ -187,7 +195,13 @@ export function computeNodePortLayout(
         : inlineControlHeight(field, moduleName, customFieldHeight);
     const height = FIELD_LABEL_HEIGHT + (controlHeight ?? 0);
 
-    fieldRows.push({ fieldName, field, top: rowTop, height, showsControl: controlHeight !== undefined });
+    fieldRows.push({
+      fieldName,
+      field,
+      top: rowTop,
+      height,
+      showsControl: controlHeight !== undefined,
+    });
     if (field.portType) {
       inputs.push({
         portId: fieldName,
@@ -200,17 +214,33 @@ export function computeNodePortLayout(
 
   // The executor resolves both operation-node outputs (computed) and callback-node outputs
   // (read live off the trigger payload/StreamMessage) as wireable data sources - see
-  // EventGraphExecutor's resolveNodeValues. Action-node outputs aren't wired up there yet,
-  // so those still render as read-only text (see GraphNodeCard's readOnlyOutputs).
+  // EventGraphExecutor's resolveNodeValues. Action-node outputs aren't wired up there yet, so
+  // those get a row but no socket (`readOnly` below).
   //
   // Outputs continue below the field rows rather than restarting at HANDLE_TOP_START: the OSC
   // trigger has both (address/argCount fields plus its arg outputs), and sharing that band
-  // would overlap them.
+  // would overlap them - which is the same collision named exec branches used to cause by
+  // being drawn in document flow instead of from this layout.
   const outputRows: OutputRowLayout[] = [];
+  // Same accumulator style as the field rows: an output whose type the user assigns (the
+  // OSC trigger's args) needs room for its picker, so the stride can't be fixed.
+  let outputTop = fieldRows.length ? rowTop : HANDLE_TOP_START - FIELD_LABEL_HEIGHT / 2;
+
+  // Branch labels first, so they read as the continuation of the field that decides them
+  // ('Condition' -> 'Then' -> 'Else') rather than sitting above their own input.
+  for (const port of namedExecOutputs) {
+    outputRows.push({
+      portId: port.id,
+      label: port.label,
+      top: outputTop,
+      height: FIELD_LABEL_HEIGHT,
+      isExec: true,
+    });
+    outputs.push({ portId: port.id, top: outputTop + FIELD_LABEL_HEIGHT / 2, label: port.label });
+    outputTop += FIELD_LABEL_HEIGHT;
+  }
+
   if (kind === 'operation' || kind === 'callback') {
-    // Same accumulator style as the field rows: an output whose type the user assigns (the
-    // OSC trigger's args) needs room for its picker, so the stride can't be fixed.
-    let outputTop = fieldRows.length ? rowTop : HANDLE_TOP_START - FIELD_LABEL_HEIGHT / 2;
     for (const output of def?.outputs ?? []) {
       const controlHeight = output.typeValuePath ? CONTROL_HEIGHTS.select : 0;
       const height = FIELD_LABEL_HEIGHT + controlHeight;
@@ -229,6 +259,20 @@ export function computeNodePortLayout(
         dataType: output.dataType,
       });
       outputTop += height + (controlHeight ? FIELD_ROW_GAP : 0);
+    }
+  } else if (kind === 'action') {
+    // An action node's data outputs aren't resolved by the executor yet, so they get a row to
+    // sit on but no socket - the card labels them as not wireable.
+    for (const output of def?.outputs ?? []) {
+      outputRows.push({
+        portId: output.id,
+        label: output.label,
+        dataType: output.dataType,
+        top: outputTop,
+        height: FIELD_LABEL_HEIGHT,
+        readOnly: true,
+      });
+      outputTop += FIELD_LABEL_HEIGHT;
     }
   }
 

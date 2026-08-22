@@ -6,6 +6,7 @@ import useEvents from '../../../../app/hooks/useEvents';
 import { EventGraph } from '../../../Types';
 import { buildGraphKey } from '../FormKeys';
 import SearchMatchReference from './searchMatch/SearchMatchReference';
+import InspectorTextFields from './InspectorTextFields';
 import ModNodeEditor from './modAction/ModNodeEditor';
 import { getModuleNodeInspector } from './moduleNodeInspectors';
 import { getModuleNodeTestPanel } from './moduleNodeTestPanels';
@@ -42,6 +43,12 @@ export default function NodeInspector(props: NodeInspectorProps) {
   }
 
   const def = resolveNodeDef(node, manifests, operationNodes);
+
+  // Which of this node's inputs are fed by a wire. A wired field takes its value from the edge,
+  // so the panel hides its editor for the same reason the card hides its control.
+  const connectedInputPorts = new Set(
+    (graph?.edges ?? []).filter((e) => e.toNode === selectedNodeId).map((e) => e.toPort),
+  );
 
   function deleteNode() {
     onDeleteNode(selectedNodeId);
@@ -87,18 +94,26 @@ export default function NodeInspector(props: NodeInspectorProps) {
 
   return (
     <Stack spacing='medium' padding='medium'>
-      <Box justifyContent='space-between' alignItems='center'>
-        <Stack spacing='none'>
-          <TypeFace fontSize='large'>{def?.label ?? node.nodeTypeId}</TypeFace>
-          <TypeFace>
-            {node.moduleName} / {node.kind}
-          </TypeFace>
-        </Stack>
-        <Button icon={faTrash} label='Delete Node' className='delete-button' onClick={deleteNode} />
-      </Box>
+      <Stack spacing='none'>
+        <TypeFace fontSize='large'>{def?.label ?? node.nodeTypeId}</TypeFace>
+        <TypeFace>
+          {node.moduleName} / {node.kind}
+        </TypeFace>
+      </Stack>
       {def?.description ? <TypeFace>{def.description}</TypeFace> : null}
 
       {editor}
+
+      {def ? (
+        <InspectorTextFields
+          eventName={eventName}
+          nodeIndex={nodeIndex}
+          moduleName={node.moduleName}
+          def={def}
+          values={node.values}
+          connectedInputPorts={connectedInputPorts}
+        />
+      ) : null}
 
       {TestPanel && def?.test ? (
         <TestPanel
@@ -112,6 +127,12 @@ export default function NodeInspector(props: NodeInspectorProps) {
           test={def.test}
         />
       ) : null}
+
+      {/* Last thing in the panel: it destroys the node the rest of these controls edit, so it
+          sits past them rather than beside the title where a mis-aimed click lands on it. */}
+      <Box justifyContent='flex-end'>
+        <Button icon={faTrash} label='Delete Node' className='delete-button' onClick={deleteNode} />
+      </Box>
     </Stack>
   );
 }

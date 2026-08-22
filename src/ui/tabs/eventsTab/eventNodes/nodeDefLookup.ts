@@ -2,6 +2,7 @@ import {
   ActionNodeDef,
   EventGraphNode,
   KeyedObject,
+  NodeForm,
   NodeManifest,
   NodePortDataType,
   NodePortDef,
@@ -32,6 +33,10 @@ export interface ResolvedNodeDef {
   execOutputs?: { id: string; label: string }[];
   // Carried through from a trigger def so the inspector can offer this node's test panel.
   test?: TriggerTestDef;
+  // True for a node built from a plugin's events-form.json. Plugin nodes have no bespoke
+  // inspector of their own, so their `code` fields are edited there at full height instead of
+  // in the card's 56px scroll box - see fieldEditedInInspector in canvas/nodeLayout.ts.
+  isPluginNode?: boolean;
 }
 
 export function findTriggerDef(
@@ -141,6 +146,33 @@ function buildCommandArgOutputs(
   ];
 }
 
+// `${name}` placeholders in a Template node's text become that node's input ports, one per
+// distinct name in first-appearance order.
+//
+// The pattern is duplicated from the backend's TemplateUtil rather than shared, because the
+// WebUI can't import backend code and this has to re-derive the ports as the user types - the
+// same arrangement search_match's slots already use. Keep the two in step.
+const TEMPLATE_SLOT_PATTERN = /\$\{([A-Za-z0-9_]+)\}/g;
+
+// Unlike the OSC/Chat arg ports, these ids are the placeholder names, not positions - here the
+// name is the identity. Positional ids would mean swapping `${a} ${b}` to `${b} ${a}` silently
+// swapped which wire feeds which slot, which is far worse than renaming a placeholder dropping
+// the wire that fed its old name.
+function buildTemplateForm(baseForm: NodeForm, values: KeyedObject | undefined): NodeForm {
+  const form: NodeForm = { ...baseForm };
+  const template = String(values?.template ?? '');
+  for (const match of template.matchAll(TEMPLATE_SLOT_PATTERN)) {
+    const slot = match[1];
+    // A placeholder named after the template field itself would bind a slot control to the
+    // template's own form key and edit the text it came from.
+    if (form[slot]) {
+      continue;
+    }
+    form[slot] = { label: slot, type: 'text', portType: 'string' };
+  }
+  return form;
+}
+
 export function resolveNodeDef(
   node: Pick<EventGraphNode, 'kind' | 'moduleName' | 'nodeTypeId' | 'values'>,
   manifests: NodeManifest[] | undefined,
@@ -181,6 +213,7 @@ export function resolveNodeDef(
         defaults: def.defaults,
         outputs: def.outputs ?? [],
         execOutputs: def.execOutputs,
+        isPluginNode: manifests?.find((m) => m.moduleName === node.moduleName)?.isPlugin === true,
       }
     );
   }
@@ -197,11 +230,14 @@ export function resolveNodeDef(
   } else if (def.id === 'command_match') {
     outputs = buildCommandArgOutputs(def.outputs, node.values);
   }
+  // Template grows the other way round: its inputs come from the text written in it, so the
+  // form gains a field - and therefore a socket - per placeholder.
+  const form = def.id === 'template' ? buildTemplateForm(def.form, node.values) : def.form;
   return {
     label: def.label,
     description: def.description,
     nodeWidth: def.nodeWidth,
-    form: def.form,
+    form,
     defaults: def.defaults,
     outputs,
   };

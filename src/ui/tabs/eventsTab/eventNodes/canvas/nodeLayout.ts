@@ -51,6 +51,27 @@ const CONTROL_HEIGHTS: { [fieldType: string]: number } = {
   asset: 100 + 6 + 30 + 18,
 };
 
+// A code field the inspector owns still gets a row on the card, but only a single dimmed line
+// of its current value - enough to tell two plugin nodes apart without opening either.
+export const CODE_PREVIEW_HEIGHT = 20;
+
+// Whether this field's editor lives in the inspector rather than on the card.
+//
+// Two kinds of field qualify. A `textarea` always does: it holds a paragraph - a prompt, a
+// template - and no card row is tall enough to write one in. A `code` field does when it
+// belongs to a plugin node: a plugin's events-form.json can declare one (an alert's message, an
+// AI prompt), those are written rather than glanced at, and the card's 56px scroll box is too
+// small to work in. Plugin nodes are also the only ones with no bespoke inspector of their own,
+// so moving the editor there conflicts with nothing. Core and module code fields (the Response
+// node's script, Discord's message) keep their inline editors, since their inspectors already
+// carry other controls for the same node.
+//
+// The editor is moved rather than duplicated: two controls bound to one form key would derive
+// the same DOM id from it, which breaks label/input association - see NodeInspector.
+export function fieldEditedInInspector(field: NodeFieldDef, isPluginNode?: boolean): boolean {
+  return field.type === 'textarea' || (field.type === 'code' && isPluginNode === true);
+}
+
 // The width a node's card draws at: the user's own resize wins, then the node type's declared
 // default, then the standard width. Clamped so neither a stored value nor a plugin's
 // events-form.json can produce a card that can't be read or can't be dragged back.
@@ -94,6 +115,9 @@ export interface FieldRowLayout {
   // False when the value comes from a wire, the field is showif-hidden, or the type has no
   // inline control - the row collapses to just its label.
   showsControl: boolean;
+  // The card draws a read-only preview here instead of a control, because the real editor is
+  // in the inspector. See fieldEditedInInspector.
+  previewOnly?: boolean;
 }
 
 export interface PortLayoutEntry {
@@ -189,10 +213,13 @@ export function computeNodePortLayout(
     if (!growableFieldVisible(fieldName, field, def?.form, values, connectedInputPorts)) {
       continue;
     }
+    const editedInInspector = fieldEditedInInspector(field, def?.isPluginNode);
     const controlHeight =
       inlineControlsDisabled || connectedInputPorts?.has(fieldName)
         ? undefined
-        : inlineControlHeight(field, moduleName, customFieldHeight);
+        : editedInInspector
+          ? CODE_PREVIEW_HEIGHT
+          : inlineControlHeight(field, moduleName, customFieldHeight);
     const height = FIELD_LABEL_HEIGHT + (controlHeight ?? 0);
 
     fieldRows.push({
@@ -201,6 +228,7 @@ export function computeNodePortLayout(
       top: rowTop,
       height,
       showsControl: controlHeight !== undefined,
+      previewOnly: editedInInspector,
     });
     if (field.portType) {
       inputs.push({

@@ -3,6 +3,7 @@ import {
   FormColorInput,
   FormNumberInput,
   FormSelectDropdown,
+  FormTextAreaInput,
   FormTextInput,
 } from '@spooder/webui-component-library';
 import React from 'react';
@@ -42,6 +43,10 @@ export default function NodeFieldInput(props: NodeFieldInputProps) {
     }
     case 'code':
       return <FormCodeInput formKey={formKey} label={fieldLabel} compact={compact} />;
+    // Always reached from the inspector - fieldEditedInInspector keeps a paragraph of text off
+    // the card, which has no row tall enough to write one in.
+    case 'textarea':
+      return <FormTextAreaInput formKey={formKey} label={fieldLabel} />;
     case 'asset':
       return (
         <FormAssetSelect
@@ -59,7 +64,10 @@ export default function NodeFieldInput(props: NodeFieldInputProps) {
       const renderer = getCustomFieldRenderer(rendererKey);
       if (!renderer) {
         return (
-          <FormTextInput formKey={formKey} label={`${fieldLabel} (missing renderer '${rendererKey}')`} />
+          <FormTextInput
+            formKey={formKey}
+            label={`${fieldLabel} (missing renderer '${rendererKey}')`}
+          />
         );
       }
       const CustomRenderer = renderer.component;

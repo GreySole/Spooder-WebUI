@@ -2,6 +2,7 @@ import { useFormContext } from 'react-hook-form';
 import useEvents from '../../../../app/hooks/useEvents';
 import { EventGraph } from '../../../Types';
 import { GRAPH_KEY } from '../FormKeys';
+import { fieldEditedInInspector } from './canvas/nodeLayout';
 import { getModuleNodeInspector } from './moduleNodeInspectors';
 import { getModuleNodeTestPanel } from './moduleNodeTestPanels';
 import { resolveNodeDef } from './nodeDefLookup';
@@ -41,6 +42,15 @@ export default function useInspectorHasContent(eventName: string, nodeId: string
   }
   // A testable trigger's panel is its test controls, whatever else the node type offers.
   if (def.test && getModuleNodeTestPanel(node.moduleName)) {
+    return true;
+  }
+  // A plugin node's `code` inputs are edited in the panel rather than on the card, so for
+  // those nodes the panel is the only place the field exists at all.
+  if (
+    Object.values(def.form ?? {}).some((field: any) =>
+      fieldEditedInInspector(field, def.isPluginNode),
+    )
+  ) {
     return true;
   }
   // Matched before the core check: an operation node's moduleName is its category ('string'),

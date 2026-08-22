@@ -16,6 +16,16 @@ import { ResolvedNodeDef } from './nodeDefLookup';
 import NodeFieldInput from './NodeFieldInput';
 import { OscLiveValue, useOscLiveValue } from './OscLiveValues';
 
+// One line of a code field's value for the card's preview row, which clips to a single line -
+// a multi-line script would otherwise show only its blank first line, or overflow the clip.
+function firstLine(value: unknown): string {
+  if (typeof value !== 'string') {
+    return '';
+  }
+  const line = value.split('\n').find((l) => l.trim().length > 0);
+  return line?.trim() ?? '';
+}
+
 export interface GraphNodeCardProps {
   id: string;
   kind: EventGraphNodeKind;
@@ -343,7 +353,23 @@ export default function GraphNodeCard(props: GraphNodeCardProps) {
           <div style={{ ...rowLabelStyle, position: 'static' }}>
             {row.field.label ?? row.fieldName}
           </div>
-          {row.showsControl ? (
+          {row.showsControl && row.previewOnly ? (
+            // The editor for this field is in the inspector; the card shows the first line of
+            // what's there so the node is still identifiable at a glance.
+            <div
+              style={{
+                fontFamily: 'monospace',
+                fontSize: '0.7rem',
+                opacity: 0.6,
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+              }}
+              title='Select this node to edit in the inspector'
+            >
+              {firstLine(values?.[row.fieldName]) || 'Select the node to edit'}
+            </div>
+          ) : row.showsControl ? (
             // .node-inline-field (EventTab.scss) shrinks the shared Form* controls to the
             // fixed row heights nodeLayout computes socket offsets from.
             <div className='node-inline-field'>

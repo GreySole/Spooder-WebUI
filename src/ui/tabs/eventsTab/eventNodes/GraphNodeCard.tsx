@@ -235,8 +235,8 @@ export default function GraphNodeCard(props: GraphNodeCardProps) {
       setPreviewExpanded(false);
     }
   }, [selected]);
-  // Every output - wireable data port, named exec branch, or an action's read-only output -
-  // is an absolutely positioned row from the layout. Exec branches used to render in normal
+  // Every output - wireable data port or named exec branch - is an absolutely positioned row
+  // from the layout. Exec branches used to render in normal
   // document flow under the title instead, which put them straight on top of the first field
   // row's label (the If node drew 'out: Then' over 'Condition').
   //

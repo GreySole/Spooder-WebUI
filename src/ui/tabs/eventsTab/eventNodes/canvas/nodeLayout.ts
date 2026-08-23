@@ -240,10 +240,9 @@ export function computeNodePortLayout(
     rowTop += height + FIELD_ROW_GAP;
   }
 
-  // The executor resolves both operation-node outputs (computed) and callback-node outputs
-  // (read live off the trigger payload/StreamMessage) as wireable data sources - see
-  // EventGraphExecutor's resolveNodeValues. Action-node outputs aren't wired up there yet, so
-  // those get a row but no socket (`readOnly` below).
+  // The executor resolves operation-node outputs (computed), callback-node outputs (read live
+  // off the trigger payload/StreamMessage), and completed action-node outputs as wireable data
+  // sources - see EventGraphExecutor's resolveNodeValues.
   //
   // Outputs continue below the field rows rather than restarting at HANDLE_TOP_START: the OSC
   // trigger has both (address/argCount fields plus its arg outputs), and sharing that band
@@ -289,8 +288,6 @@ export function computeNodePortLayout(
       outputTop += height + (controlHeight ? FIELD_ROW_GAP : 0);
     }
   } else if (kind === 'action') {
-    // An action node's data outputs aren't resolved by the executor yet, so they get a row to
-    // sit on but no socket - the card labels them as not wireable.
     for (const output of def?.outputs ?? []) {
       outputRows.push({
         portId: output.id,
@@ -298,7 +295,11 @@ export function computeNodePortLayout(
         dataType: output.dataType,
         top: outputTop,
         height: FIELD_LABEL_HEIGHT,
-        readOnly: true,
+      });
+      outputs.push({
+        portId: output.id,
+        top: outputTop + FIELD_LABEL_HEIGHT / 2,
+        dataType: output.dataType,
       });
       outputTop += FIELD_LABEL_HEIGHT;
     }

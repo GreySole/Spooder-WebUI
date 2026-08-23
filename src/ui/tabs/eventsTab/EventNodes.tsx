@@ -206,11 +206,14 @@ export default function EventNodes(props: EventNodesProps) {
           targetNode.kind === 'action'
         );
       }
-      // Data edges: the executor resolves operation-node outputs (computed) and callback-node
-      // outputs (read live off the trigger payload/StreamMessage) - see EventGraphExecutor's
-      // resolveNodeValues. Action-node outputs aren't wired up there yet, so those stay
-      // unwireable.
-      return sourceNode.kind === 'operation' || sourceNode.kind === 'callback';
+      // Data edges: the executor resolves operation-node outputs (computed), callback-node
+      // outputs (read live off the trigger payload/StreamMessage), and completed action-node
+      // outputs - see EventGraphExecutor's resolveNodeValues.
+      return (
+        sourceNode.kind === 'operation' ||
+        sourceNode.kind === 'callback' ||
+        sourceNode.kind === 'action'
+      );
     },
     [getValues, graphKey, resolveDef],
   );

@@ -3,11 +3,11 @@ import {
   FormColorInput,
   FormNumberInput,
   FormSelectDropdown,
-  FormTextAreaInput,
   FormTextInput,
 } from '@spooder/webui-component-library';
 import React from 'react';
 import FormAssetSelect from '../../../common/input/form/FormAssetSelect';
+import FormAutoTextArea from '../../../common/input/form/FormAutoTextArea';
 import FormCodeInput from '../../../common/input/form/FormCodeInput';
 import { NodeFieldDef } from '../../../Types';
 import { customFieldKey, getCustomFieldRenderer } from './fieldRenderers';
@@ -44,9 +44,10 @@ export default function NodeFieldInput(props: NodeFieldInputProps) {
     case 'code':
       return <FormCodeInput formKey={formKey} label={fieldLabel} compact={compact} />;
     // Always reached from the inspector - fieldEditedInInspector keeps a paragraph of text off
-    // the card, which has no row tall enough to write one in.
+    // the card, which has no row tall enough to write one in. Local rather than the library's
+    // FormTextAreaInput so the caption sits above a pane-width, self-sizing box.
     case 'textarea':
-      return <FormTextAreaInput formKey={formKey} label={fieldLabel} />;
+      return <FormAutoTextArea formKey={formKey} label={fieldLabel} />;
     case 'asset':
       return (
         <FormAssetSelect

@@ -69,7 +69,15 @@ export const CODE_PREVIEW_HEIGHT = 20;
 // The editor is moved rather than duplicated: two controls bound to one form key would derive
 // the same DOM id from it, which breaks label/input association - see NodeInspector.
 export function fieldEditedInInspector(field: NodeFieldDef, isPluginNode?: boolean): boolean {
-  return field.type === 'textarea' || (field.type === 'code' && isPluginNode === true);
+  // The third kind is any field that asks for it outright: Discord's interaction nodes grow a
+  // label and a style per button, and a card carrying twenty-five of each is unreadable long
+  // before it is unusable. Unlike the two below it that's a property of how many there are
+  // rather than of the type, so the field says so itself.
+  return (
+    field.editInInspector === true ||
+    field.type === 'textarea' ||
+    (field.type === 'code' && isPluginNode === true)
+  );
 }
 
 // The width a node's card draws at: the user's own resize wins, then the node type's declared

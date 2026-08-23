@@ -120,6 +120,11 @@ export interface NodeFieldDef {
   // frontend renders it as an inline editable value when unwired, or as a socket fed by
   // another node's output when a data edge targets it.
   portType?: NodePortDataType;
+  // Edited in the inspector rather than on the node card, which draws a one-line preview of the
+  // value in its place. For a field that would cost more card height than it earns there - a
+  // grown list of them, especially - where the row still has to exist for its socket. See
+  // fieldEditedInInspector in canvas/nodeLayout.ts.
+  editInInspector?: boolean;
   // One slot of a self-extending list (e.g. Concat's C..H inputs): hidden until every field
   // before it is filled or wired, so the node offers exactly one empty slot at a time. See
   // growableFieldVisible in nodeFieldVisibility.ts.

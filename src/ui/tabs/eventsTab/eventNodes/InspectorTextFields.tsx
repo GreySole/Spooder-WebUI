@@ -15,9 +15,10 @@ interface InspectorTextFieldsProps {
   connectedInputPorts?: Set<string>;
 }
 
-// Full-height editors for the fields a node card can't host usefully: a Template's text, a
-// Text block, a plugin node's `code` input. All of them are written rather than glanced at, and
-// a card row is at most a 56px scroll box.
+// Editors for the fields a node card can't host usefully. Two reasons a field lands here: it
+// holds more than a row can show - a Template's text, a Text block, a plugin node's `code`
+// input, all written rather than glanced at against a 56px scroll box - or there are simply too
+// many of them, which is how an interaction node's per-button label and style arrive.
 //
 // The card draws a one-line preview in their place, so exactly one control stays bound to each
 // form key - see fieldEditedInInspector for why they move rather than being duplicated.

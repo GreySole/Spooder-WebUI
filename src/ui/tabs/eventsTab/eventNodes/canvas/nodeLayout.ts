@@ -58,13 +58,13 @@ export const CODE_PREVIEW_HEIGHT = 20;
 // Whether this field's editor lives in the inspector rather than on the card.
 //
 // Two kinds of field qualify. A `textarea` always does: it holds a paragraph - a prompt, a
-// template - and no card row is tall enough to write one in. A `code` field does when it
-// belongs to a plugin node: a plugin's events-form.json can declare one (an alert's message, an
-// AI prompt), those are written rather than glanced at, and the card's 56px scroll box is too
-// small to work in. Plugin nodes are also the only ones with no bespoke inspector of their own,
-// so moving the editor there conflicts with nothing. Core and module code fields (the Response
-// node's script, Discord's message) keep their inline editors, since their inspectors already
-// carry other controls for the same node.
+// template, a Discord message - and no card row is tall enough to write one in. A `code` field
+// does when it belongs to a plugin node: a plugin's events-form.json can declare one (an
+// alert's message, an AI prompt), those are written rather than glanced at, and the card's 56px
+// scroll box is too small to work in. Plugin nodes are also the only ones with no bespoke
+// inspector of their own, so moving the editor there conflicts with nothing. The legacy
+// Response node's script stays inline, since its inspector already carries the cheat sheet and
+// the tester for the same node.
 //
 // The editor is moved rather than duplicated: two controls bound to one form key would derive
 // the same DOM id from it, which breaks label/input association - see NodeInspector.

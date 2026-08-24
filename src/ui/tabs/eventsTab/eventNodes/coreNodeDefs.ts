@@ -49,6 +49,8 @@ export const CORE_ACTION_DEFS: ActionNodeDef[] = [
       },
       message: {
         label: 'Script',
+        // Still a code editor while this node is: Response is the legacy path, and its value is
+        // a response script rather than the plain text the graph's own string nodes produce.
         type: 'code',
         portType: 'string',
         showif: { variable: 'etype', condition: 'notEquals', value: 'clear_recurring' },

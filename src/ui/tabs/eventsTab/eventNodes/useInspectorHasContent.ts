@@ -5,6 +5,7 @@ import { GRAPH_KEY } from '../FormKeys';
 import { fieldEditedInInspector } from './canvas/nodeLayout';
 import { getModuleNodeInspector } from './moduleNodeInspectors';
 import { getModuleNodeTestPanel } from './moduleNodeTestPanels';
+import { fieldSatisfiesShowif } from './nodeFieldVisibility';
 import { resolveNodeDef } from './nodeDefLookup';
 import { checkNodeConflicts } from './softwareAction/SoftwareConflictCheck';
 
@@ -44,11 +45,21 @@ export default function useInspectorHasContent(eventName: string, nodeId: string
   if (def.test && getModuleNodeTestPanel(node.moduleName)) {
     return true;
   }
-  // A plugin node's `code` inputs are edited in the panel rather than on the card, so for
-  // those nodes the panel is the only place the field exists at all.
+  // Textarea fields - a Discord message, a Text block, a Template - and a plugin node's `code`
+  // inputs are edited in the panel rather than on the card, so for those nodes the panel is the
+  // only place the field exists at all.
+  //
+  // Filtered exactly the way InspectorTextFields filters them, or the panel would open empty
+  // for a field it then declines to render: one hidden by its showif, or fed by a wire.
+  const connectedInputPorts = new Set(
+    (graphs?.[eventName]?.edges ?? []).filter((e) => e.toNode === nodeId).map((e) => e.toPort),
+  );
   if (
-    Object.values(def.form ?? {}).some((field: any) =>
-      fieldEditedInInspector(field, def.isPluginNode),
+    Object.entries(def.form ?? {}).some(
+      ([fieldName, field]: [string, any]) =>
+        fieldEditedInInspector(field, def.isPluginNode) &&
+        fieldSatisfiesShowif(field.showif, node.values ?? {}) &&
+        !connectedInputPorts.has(fieldName),
     )
   ) {
     return true;

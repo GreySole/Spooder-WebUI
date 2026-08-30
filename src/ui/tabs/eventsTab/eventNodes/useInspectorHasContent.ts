@@ -7,7 +7,6 @@ import { getModuleNodeInspector } from './moduleNodeInspectors';
 import { getModuleNodeTestPanel } from './moduleNodeTestPanels';
 import { fieldSatisfiesShowif } from './nodeFieldVisibility';
 import { resolveNodeDef } from './nodeDefLookup';
-import { checkNodeConflicts } from './softwareAction/SoftwareConflictCheck';
 
 // Whether selecting this node should open the inspector at all.
 //
@@ -17,9 +16,8 @@ import { checkNodeConflicts } from './softwareAction/SoftwareConflictCheck';
 // the panel is kept shut rather than opened empty.
 //
 // Mirrors NodeInspector's editor switch: a node type gets an entry here exactly when it gets an
-// editor there, and the two conditional editors are asked the same question their own render
-// asks (Response draws nothing for a 'clear_recurring' script, OSC Send nothing without a
-// conflicting address).
+// editor there, and a conditional editor is asked the same question its own render asks
+// (Response draws nothing for a 'clear_recurring' script).
 export default function useInspectorHasContent(eventName: string, nodeId: string): boolean {
   const { watch } = useFormContext();
   const { getNodeManifest, getOperationNodes } = useEvents();
@@ -84,8 +82,10 @@ export default function useInspectorHasContent(eventName: string, nodeId: string
       return true;
     case 'response':
       return node.values?.etype !== 'clear_recurring';
+    // Unconditional now: the OSC Send panel always carries the UDP server manager, whether or
+    // not the node's address conflicts with another event's.
     case 'software':
-      return checkNodeConflicts(graphs, eventName, nodeIndex).length > 0;
+      return true;
     default:
       return false;
   }

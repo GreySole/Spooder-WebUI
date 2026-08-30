@@ -122,7 +122,8 @@ export const CORE_ACTION_DEFS: ActionNodeDef[] = [
     // only the display name changes.
     id: 'software',
     label: 'OSC Send',
-    description: 'Sends an OSC message to a configured UDP destination.',
+    description:
+      'Sends one OSC message to a configured UDP destination. To turn something on and off again, follow it with a Delay node and a second OSC Send - or use OSC Claim/OSC Release, which also settles what happens when two events drive the same address.',
     form: {
       // The destination list comes from the user's configured UDP servers at runtime, so a
       // static `select` can't describe it - it resolves to FormUdpSelectDropdown through the
@@ -134,27 +135,17 @@ export const CORE_ACTION_DEFS: ActionNodeDef[] = [
         options: { component: 'udpSelect' },
       },
       address: { label: 'Address', type: 'text', portType: 'string' },
-      valueOn: { label: 'Value On', type: 'text', portType: 'string' },
-      valueOff: { label: 'Value Off', type: 'text', portType: 'string' },
-      etype: {
-        label: 'Event Type',
-        type: 'select',
-        portType: 'string',
-        options: {
-          selections: { timed: 'Timed', 'button-press': 'Button Press', oneshot: 'One Shot' },
-        },
-      },
-      duration: { label: 'Duration (Seconds)', type: 'number', portType: 'number' },
-      priority: { label: 'Priority', type: 'number', portType: 'number' },
+      // The key stays 'valueOn' - it's what every saved node stores - but there is no 'off'
+      // value to contrast it with any more, so the label is just 'Value'. What the node used
+      // to do on top of this one send is now spelled out in the graph: Event Type and Duration
+      // became a Delay node and a second send, and Priority became OSC Claim/OSC Release. See
+      // upgradeOscSendNodes in EventGraphMigration.ts, which rewrote the saved ones.
+      valueOn: { label: 'Value', type: 'text', portType: 'string' },
     },
     defaults: {
       dest_udp: '-1',
       address: '',
       valueOn: '1',
-      valueOff: '0',
-      etype: 'timed',
-      duration: 60,
-      priority: 0,
     },
   },
 ];

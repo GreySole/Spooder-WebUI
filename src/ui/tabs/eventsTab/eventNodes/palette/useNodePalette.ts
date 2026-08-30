@@ -12,6 +12,11 @@ import {
 import { buildGraphKey, GRAPH_KEY } from '../../FormKeys';
 import { Point } from '../canvas/types';
 import { CORE_ACTION_DEFS, CORE_TRIGGER_DEFS, PALETTE_HIDDEN_CORE_ACTIONS } from '../coreNodeDefs';
+import {
+  STORAGE_ACTION_NODE_IDS,
+  STORAGE_CATEGORY_KEY,
+  STORAGE_CATEGORY_LABEL,
+} from '../storageNodes';
 import { collectTimerUsage, TIMER_MENU_NODE_IDS, TIMER_NODE_IDS } from '../timerUsage';
 import { PaletteCategory, PaletteGroup, PaletteOption } from './paletteTypes';
 
@@ -151,6 +156,26 @@ export default function useNodePalette(options: UseNodePaletteOptions): NodePale
         defaults: op.defaults,
       })),
     );
+  }
+
+  // The Set * Value actions join the Get * Value operations they pair with: same store, same
+  // keys, and nothing behind the split but how each node happens to be declared. Done after the
+  // loop above so they land at the end of a Storage Operations menu that already exists, rather
+  // than creating it ahead of the other operation categories.
+  const coreActionCategory = actionCategories.get('core');
+  if (coreActionCategory) {
+    const isStorageSetter = (option: PaletteOption) =>
+      option.moduleName === 'core' && STORAGE_ACTION_NODE_IDS.includes(option.nodeTypeId);
+    const storageSetters = coreActionCategory.options.filter(isStorageSetter);
+    if (storageSetters.length > 0) {
+      coreActionCategory.options = coreActionCategory.options.filter(
+        (option) => !isStorageSetter(option),
+      );
+      if (coreActionCategory.options.length === 0) {
+        actionCategories.delete('core');
+      }
+      addOptions(actionCategories, STORAGE_CATEGORY_KEY, STORAGE_CATEGORY_LABEL, storageSetters);
+    }
   }
 
   // Timers menu: the four node types with a blank name, then one submenu per timer already

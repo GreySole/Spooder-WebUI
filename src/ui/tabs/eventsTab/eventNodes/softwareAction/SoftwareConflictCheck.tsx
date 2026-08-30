@@ -8,9 +8,9 @@ interface SoftwareConflictCheckProps {
   nodeIndex: number;
 }
 
-// Exported so the inspector can ask whether this node has a warning to show *before* opening
-// its panel: a conflict check is all an OSC Send node's panel contains, so with no conflict
-// there is nothing to open. See useInspectorHasContent.
+// Split from the component so the check can be run without rendering it - the panel itself is
+// always worth opening now (it holds the UDP server manager too), so this is only asked to
+// decide whether the warning below has anything to say.
 export function checkNodeConflicts(
   graphs: { [id: string]: EventGraph },
   eventName: string,
@@ -65,7 +65,8 @@ export default function SoftwareConflictCheck(props: SoftwareConflictCheckProps)
         {conflicts.length +
           ' event' +
           (conflicts.length == 1 ? '' : 's') +
-          " share this address. Use 'priority' to handle the overlap"}
+          ' send to this address. Whichever runs last wins - use OSC Claim/OSC Release instead' +
+          ' to decide the overlap by priority'}
       </label>
       <label>Conflicts: {conflicts.join(', ')}</label>
     </div>

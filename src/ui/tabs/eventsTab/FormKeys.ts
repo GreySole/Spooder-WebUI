@@ -1,19 +1,11 @@
-export const GRAPH_KEY = 'graphs';
-export const GROUP_KEY = 'groups';
-export const DISABLED_GROUP_KEY = 'disabledGroups';
-
-export function buildKey(...keys: string[]) {
-  return keys.join('.');
-}
-
-export function buildGraphKey(eventName: string) {
-  return `${GRAPH_KEY}.${eventName}`;
-}
-
-export function buildNodeKey(eventName: string, nodeIndex: number) {
-  return buildKey(buildGraphKey(eventName), 'nodes', `${nodeIndex}`);
-}
-
-export function buildNodeValueKey(eventName: string, nodeIndex: number, ...fields: string[]) {
-  return buildKey(buildNodeKey(eventName, nodeIndex), 'values', ...fields);
-}
+// Defined in the module SDK - a module writing into the event form has to build the same keys
+// the host does, or its values land somewhere the form never reads.
+export {
+  buildGraphKey,
+  buildKey,
+  buildNodeKey,
+  buildNodeValueKey,
+  DISABLED_GROUP_KEY,
+  GRAPH_KEY,
+  GROUP_KEY,
+} from '@spooder/webui-module-sdk';

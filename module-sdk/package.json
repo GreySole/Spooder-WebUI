@@ -1,0 +1,27 @@
+{
+  "name": "@spooder/webui-module-sdk",
+  "version": "0.6.0",
+  "description": "The contract a Spooder WebUI module is written against - the ModuleDefinition it exports, the host state it reads, and the shared pieces it renders with",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "files": [
+    "src"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/GreySole/Spooder-WebUI.git",
+    "directory": "module-sdk"
+  },
+  "peerDependencies": {
+    "@reduxjs/toolkit": "^2.2.5",
+    "@spooder/webui-component-library": "^0.2.0",
+    "react": "^18.0.0",
+    "react-hook-form": "^7.52.0",
+    "react-redux": "^9.1.2"
+  },
+  "author": "Grey Sole",
+  "license": "GPL-3.0",
+  "publishConfig": {
+    "access": "public"
+  }
+}

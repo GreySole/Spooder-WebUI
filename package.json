@@ -23,6 +23,7 @@
     "@fortawesome/react-fontawesome": "^0.1.18",
     "@reduxjs/toolkit": "^2.2.5",
     "@spooder/webui-component-library": "^0.2.0",
+    "@spooder/webui-module-sdk": "^0.6.0",
     "@typescript-eslint/parser": "^5.62.0",
     "@uiw/react-textarea-code-editor": "^2.0.6",
     "@xzdarcy/react-timeline-editor": "^0.1.9",
@@ -73,5 +74,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  }
+  },
+  "workspaces": [
+    "module-sdk"
+  ]
 }

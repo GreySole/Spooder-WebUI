@@ -1,14 +1,9 @@
+import { panelStyle } from '@spooder/webui-module-sdk';
 import React, { useState } from 'react';
 import { PaletteCategory, PaletteOption } from './paletteTypes';
 
-export const panelStyle: React.CSSProperties = {
-  minWidth: 180,
-  background: 'var(--color-background-near, #2a2a2a)',
-  border: '1px solid var(--color-border, #444)',
-  borderRadius: 4,
-  boxShadow: '0 4px 12px rgba(0,0,0,0.4)',
-  padding: 4,
-};
+// Defined in the module SDK so a module's panels can match this one.
+export { panelStyle };
 
 const rowStyle: React.CSSProperties = {
   position: 'relative',

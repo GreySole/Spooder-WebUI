@@ -1,27 +1,8 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-
-export const serverApi = createApi({
-  reducerPath: 'serverApi',
-  baseQuery: fetchBaseQuery({ baseUrl: window.location.origin + '/server' }),
-  endpoints: (builder) => ({
-    getServerState: builder.query({
-      query: () => '/server_state',
-    }),
-    getMonitorLogs: builder.query({
-      query: () => '/log',
-    }),
-    getSystemStatus: builder.query({
-      query: () => '/status',
-    }),
-    getPublicUrl: builder.query({
-      query: () => '/public_url',
-    }),
-  }),
-});
-
-export const {
-  useGetServerStateQuery,
+// See configSlice - defined in the module SDK, re-exported for the host's existing imports.
+export {
+  serverApi,
   useGetMonitorLogsQuery,
-  useGetSystemStatusQuery,
   useGetPublicUrlQuery,
-} = serverApi;
+  useGetServerStateQuery,
+  useGetSystemStatusQuery,
+} from '@spooder/webui-module-sdk';

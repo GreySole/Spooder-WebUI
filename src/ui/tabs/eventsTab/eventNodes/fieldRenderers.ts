@@ -1,5 +1,5 @@
 import FormUdpSelectDropdown from '../../../common/input/form/FormUdpSelectDropdown';
-import { modules } from '../../../../modules/registry';
+import memoByModules from '../../../../modules/moduleMemo';
 import { CustomFieldRenderer, customFieldKey } from './customFieldRenderer';
 
 export { customFieldKey };
@@ -15,23 +15,25 @@ const CORE_FIELD_RENDERERS: { [componentKey: string]: CustomFieldRenderer } = {
   udpSelect: { component: FormUdpSelectDropdown, height: 40 },
 };
 
-const registry: { [key: string]: CustomFieldRenderer } = {};
-
-for (const [componentKey, renderer] of Object.entries(CORE_FIELD_RENDERERS)) {
-  registry[`core.${componentKey}`] = renderer;
-}
-for (const m of modules) {
-  for (const [componentKey, renderer] of Object.entries(m.fieldRenderers ?? {})) {
-    registry[`${m.key}.${componentKey}`] = renderer;
+const registry = memoByModules((modules) => {
+  const map: { [key: string]: CustomFieldRenderer } = {};
+  for (const [componentKey, renderer] of Object.entries(CORE_FIELD_RENDERERS)) {
+    map[`core.${componentKey}`] = renderer;
   }
-}
+  for (const m of modules) {
+    for (const [componentKey, renderer] of Object.entries(m.fieldRenderers ?? {})) {
+      map[`${m.key}.${componentKey}`] = renderer;
+    }
+  }
+  return map;
+});
 
 export function getCustomFieldRenderer(key: string): CustomFieldRenderer | undefined {
-  return registry[key];
+  return registry()[key];
 }
 
 // Used by the layout math to size a custom field's row. Undefined means the key resolves to
 // no renderer, in which case the card falls back to a labelled text input.
 export function getCustomFieldHeight(key: string): number | undefined {
-  return registry[key]?.height;
+  return registry()[key]?.height;
 }

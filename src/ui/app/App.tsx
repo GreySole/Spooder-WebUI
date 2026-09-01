@@ -9,7 +9,7 @@ import React, { useEffect } from 'react';
 import { useScrollContext } from '../../app/context/ScrollContext';
 import useNavigation from '../../app/hooks/useNavigation';
 import useServer from '../../app/hooks/useServer';
-import { modules } from '../../modules/registry';
+import useModules from '../../modules/useModules';
 import PageCircleLoader from '../common/input/general/PageCircleLoader';
 import ModUI from '../deck/ModUI';
 import OSCMonitor from '../deck/OSCMonitor';
@@ -23,9 +23,15 @@ import ThemeTab from '../tabs/ThemeTab';
 import UserTab from '../tabs/UserTab';
 import Header from './Header';
 
-const moduleMap = Object.fromEntries(modules.map((m) => [m.key, m.Component]));
-
 export default function App() {
+  // Subscribing rather than reading once: in production modules are federated remotes that
+  // finish loading after this has already rendered, and the tab for one has to appear then.
+  const modules = useModules();
+  const moduleMap = React.useMemo(
+    () => Object.fromEntries(modules.map((m) => [m.key, m.Component])),
+    [modules],
+  );
+
   const { currentTab, navigationOpen } = useNavigation();
   const { refreshThemeColors, isMobileDevice } = useTheme();
   const { scrollContainerRef } = useScrollContext();

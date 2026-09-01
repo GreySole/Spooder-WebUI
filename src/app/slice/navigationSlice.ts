@@ -12,7 +12,6 @@ import {
   faTv
 } from '@fortawesome/free-solid-svg-icons';
 import { createSlice } from '@reduxjs/toolkit';
-import { modules } from '../../modules/registry';
 
 interface TabOptions {
   [key: string]: Tab | FolderTab;
@@ -29,70 +28,38 @@ interface FolderTab {
   subTabs: TabOptions;
 }
 
-const moduleMainTabs: TabOptions = {};
-const moduleDeckTabs: TabOptions = {};
-for (const m of modules) {
-  const tab = { label: m.tabConfig.label, icon: m.tabConfig.icon };
-  // Modules sit with the decks below the divider. 'main' is the only opt-out, putting a
-  // module up with Dashboard/Events/etc; the legacy 'module' value lands in the decks too,
-  // since the Modules folder it used to nest under is gone.
-  if (m.tabConfig.parentTab === 'main') {
-    moduleMainTabs[m.key] = tab;
-  } else {
-    moduleDeckTabs[m.key] = tab;
-  }
-}
+// Module tabs are not known when this file loads - in production the modules are federated
+// remotes that arrive later - so the core tabs are split around the slot module tabs occupy,
+// and _setModuleTabs rebuilds the lists once modules register. Rebuilding rather than
+// appending is what keeps a module tab in its place rather than after Users/Config or below
+// the built-in decks.
+const CORE_MAIN_TABS_BEFORE_MODULES: TabOptions = {
+  dashboard: { label: 'Dashboard', icon: faDashboard },
+  commands: { label: 'Events', icon: faClapperboard },
+  plugins: { label: 'Plugins', icon: faPlug },
+  osctunnels: { label: 'Tunnels', icon: faArrowsSplitUpAndLeft },
+};
+
+const CORE_MAIN_TABS_AFTER_MODULES: TabOptions = {
+  users: { label: 'Users', icon: faPerson },
+  sharing: { label: 'Share', icon: faShareNodes },
+  theme: { label: 'Theme', icon: faPaintRoller },
+  config: { label: 'Config', icon: faGears },
+};
+
+const CORE_DECK_TABS: TabOptions = {
+  osc: { label: 'OSC Monitor', icon: faTv },
+  mod: { label: 'Mod UI', icon: faHammer },
+};
 
 export const navigationSlice = createSlice({
   name: 'navigation',
   initialState: {
     tabOptions: {
-      dashboard: {
-        label: 'Dashboard',
-        icon: faDashboard,
-      },
-      commands: {
-        label: 'Events',
-        icon: faClapperboard,
-      },
-      plugins: {
-        label: 'Plugins',
-        icon: faPlug,
-      },
-      osctunnels: {
-        label: 'Tunnels',
-        icon: faArrowsSplitUpAndLeft,
-      },
-      ...moduleMainTabs,
-      users: {
-        label: 'Users',
-        icon: faPerson,
-      },
-      sharing: {
-        label: 'Share',
-        icon: faShareNodes,
-      },
-      theme: {
-        label: 'Theme',
-        icon: faPaintRoller,
-      },
-      config: {
-        label: 'Config',
-        icon: faGears,
-      },
+      ...CORE_MAIN_TABS_BEFORE_MODULES,
+      ...CORE_MAIN_TABS_AFTER_MODULES,
     } as TabOptions,
-    deckTabOptions: {
-      // Module tabs (OBS, Twitch, Discord) come first, above the built-in decks.
-      ...moduleDeckTabs,
-      osc: {
-        label: 'OSC Monitor',
-        icon: faTv,
-      },
-      mod: {
-        label: 'Mod UI',
-        icon: faHammer,
-      },
-    } as TabOptions,
+    deckTabOptions: { ...CORE_DECK_TABS } as TabOptions,
     currentTab:
       new URLSearchParams(window.location.search).get('tab') ??
       localStorage.getItem('lastTab') ??
@@ -115,10 +82,26 @@ export const navigationSlice = createSlice({
     _setRememberLastTab: (state, action) => {
       state.rememberLastTab = action.payload.isRemembering;
     },
+    // Payload is the module tabs split by where they belong: `main` sits with Dashboard and
+    // Events, `deck` below the divider with OSC Monitor and Mod UI. Both lists are rebuilt
+    // from scratch so registration order never reorders the menu.
+    _setModuleTabs: (state, action) => {
+      state.tabOptions = {
+        ...CORE_MAIN_TABS_BEFORE_MODULES,
+        ...action.payload.main,
+        ...CORE_MAIN_TABS_AFTER_MODULES,
+      };
+      state.deckTabOptions = { ...action.payload.deck, ...CORE_DECK_TABS };
+    },
   },
 });
 
-export const { _setTab, _toggleNavigation, _setNavigation, _setRememberLastTab } =
-  navigationSlice.actions;
+export const {
+  _setTab,
+  _toggleNavigation,
+  _setNavigation,
+  _setRememberLastTab,
+  _setModuleTabs,
+} = navigationSlice.actions;
 
 export default navigationSlice.reducer;

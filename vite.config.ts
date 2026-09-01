@@ -1,3 +1,4 @@
+import { federation } from '@module-federation/vite';
 import react from '@vitejs/plugin-react';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -12,6 +13,9 @@ const corePrefixes = [
   '/users',
   '/plugin',
   '/module',
+  // Installed module UIs, served by the backend out of user/modules. Listed explicitly rather
+  // than leaning on '/module' happening to be a string prefix of it.
+  '/modules',
   '/config',
   '/recovery',
   '/shares',
@@ -35,7 +39,26 @@ const modulePrefixes = fs.existsSync(installedModulesDir)
 const apiPrefixes = [...new Set([...corePrefixes, ...modulePrefixes])];
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react(),
+    // The host half of the module federation setup. It exposes nothing - modules never import
+    // from the host - but it has to declare the same shared libraries the modules do, because
+    // those are built with `import: false` and carry no fallback copy of their own. A library
+    // shared by a module but not named here cannot resolve, and that module fails to load.
+    ...federation({
+      name: 'spooder_webui',
+      remotes: {},
+      shared: {
+        react: { singleton: true, requiredVersion: '^18.0.0' },
+        'react-dom': { singleton: true, requiredVersion: '^18.0.0' },
+        'react-redux': { singleton: true },
+        '@reduxjs/toolkit': { singleton: true },
+        'react-hook-form': { singleton: true },
+        '@spooder/webui-component-library': { singleton: true },
+        '@spooder/webui-module-sdk': { singleton: true, requiredVersion: '^0.6.0' },
+      },
+    }),
+  ],
   server: {
     port: 3001,
     proxy: Object.fromEntries(
@@ -45,5 +68,7 @@ export default defineConfig({
   build: {
     // The backend expects a folder literally named `build`, not Vite's default `dist`.
     outDir: 'build',
+    // Federation's runtime uses top-level await, same as the module builds.
+    target: 'esnext',
   },
 });

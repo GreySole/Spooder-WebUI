@@ -1,0 +1,62 @@
+import type { ModuleDefinition } from '@spooder/webui-module-sdk';
+import { loadRemote, registerRemotes } from '@module-federation/runtime';
+import { registerModule } from './registry';
+
+// What the backend reports for each module UI it has installed and is serving.
+interface RemoteModuleInfo {
+  key: string;
+  // URL of the remote's mf-manifest.json, under the path the backend static-serves it from.
+  url: string;
+  version?: string;
+}
+
+// Remotes are registered at runtime rather than listed in the build config, because the host
+// cannot know which modules are installed until it asks. This is the whole reason the loader
+// exists: a module is installed by dropping its built output on the server, with no rebuild of
+// the WebUI.
+export default async function loadRemoteModules(): Promise<void> {
+  let installed: RemoteModuleInfo[];
+  try {
+    const response = await fetch('/module/ui');
+    if (!response.ok) {
+      throw new Error(`${response.status} ${response.statusText}`);
+    }
+    installed = await response.json();
+  } catch (e) {
+    // An older backend has no /module/ui, and a WebUI built with its modules bundled does not
+    // need one. Neither is worth failing the app over - it just means no remotes.
+    console.warn('Could not list module UIs; loading none.', e);
+    return;
+  }
+
+  if (!Array.isArray(installed) || installed.length === 0) {
+    return;
+  }
+
+  registerRemotes(
+    installed.map((m) => ({ name: m.key, entry: m.url })),
+    // Re-registering the same name is a no-op rather than a throw, which matters if this ever
+    // runs twice (a reconnect, a hot reload).
+    { force: false },
+  );
+
+  // Settled, not all: one module failing to load must not cost the others their tabs.
+  const results = await Promise.allSettled(
+    installed.map(async (m) => {
+      const loaded = await loadRemote<{ default: ModuleDefinition }>(`${m.key}/module`);
+      if (!loaded?.default) {
+        throw new Error(`${m.key} exposed no module definition`);
+      }
+      registerModule(loaded.default);
+    }),
+  );
+
+  results.forEach((result, i) => {
+    if (result.status === 'rejected') {
+      // Usually a shared-dependency mismatch: the module was built against an SDK range this
+      // host no longer satisfies. Reported rather than swallowed, since the fix is to update
+      // one side or the other.
+      console.error(`Module '${installed[i].key}' failed to load:`, result.reason);
+    }
+  });
+}

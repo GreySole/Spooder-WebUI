@@ -1,8 +1,8 @@
 # temporary until core-modularity is merged
 modules/
-# ...but src/modules holds the module system itself. Submodule folders (twitch,
-# discord) are tracked as gitlinks, in-tree modules awaiting extraction (obs) as
-# source, and registry.ts stays ignored via its own rule below.
+# ...but src/modules holds the module system itself. The module folders are tracked as
+# gitlinks to their own repos; the registry and its loader are tracked as source. Only the
+# generated devModules.ts is ignored, via its own rule below.
 !src/modules/
 
 # Logs
@@ -59,8 +59,9 @@ jspm_packages/
 # Snowpack dependency directory (https://snowpack.dev/)
 web_modules/
 
-# Generated module registry (auto-built from present submodules)
-src/modules/registry.ts
+# Generated list of source-linked modules (built from whichever submodules are present).
+# registry.ts next to it is hand-written and must be committed - it is the registry itself.
+src/modules/devModules.ts
 
 # TypeScript cache
 *.tsbuildinfo

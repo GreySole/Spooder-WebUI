@@ -31,8 +31,8 @@
     "node_modules",
     "dist",
     "build",
-    // WIP module-registry submodules (src/modules/registry.ts, installed/*) -
-    // not wired up yet, missing src/modules/types.ts. Re-include once that lands.
-    "src/modules"
+    // Each module also builds standalone as a federation remote, and its vite config pulls in
+    // plugins only that build has. The host consumes module source, not their build setup.
+    "src/modules/installed/*/vite.config.ts"
   ]
 }

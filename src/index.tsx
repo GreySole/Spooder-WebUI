@@ -5,7 +5,7 @@ import store from './app/store';
 import InitLayer from './InitLayer';
 import startModuleBootstrap from './modules/bootstrap';
 import registerSourceModules from './modules/devModules';
-import loadRemoteModules from './modules/loadRemoteModules';
+import loadRemoteModules, { syncActiveModules } from './modules/loadRemoteModules';
 import ThemeLayer from './ThemeLayer';
 
 // Mirror the registry into the store before anything renders, then register whatever was
@@ -13,6 +13,9 @@ import ThemeLayer from './ThemeLayer';
 // the network to draw its own tabs, and a module appears as it arrives.
 startModuleBootstrap();
 registerSourceModules();
+// Which of those the backend actually has, then whatever it serves as remotes. Both run
+// after first paint; a module appears or disappears as the answers arrive.
+syncActiveModules();
 loadRemoteModules();
 
 const rootElement = document.getElementById('app');

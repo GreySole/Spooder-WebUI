@@ -12,6 +12,31 @@ const listeners = new Set<() => void>();
 // returns a fresh array each call, so the snapshot is rebuilt only when the registry changes.
 let snapshot: readonly ModuleDefinition[] = [];
 
+// Which modules the backend actually has loaded, or null while that is unknown.
+//
+// A module's frontend can be compiled into this bundle while its backend is not installed -
+// that is exactly what happens after uninstalling one, since the tab comes from the WebUI's
+// own checkout rather than from anything the backend serves. Registering it is still correct;
+// showing it is not, because every call it makes would 404.
+//
+// Null means "not known yet", and everything shows. Hiding tabs on a failed lookup would be a
+// worse failure than showing one that does not work.
+let activeKeys: Set<string> | null = null;
+
+function rebuildSnapshot() {
+  snapshot = activeKeys ? registered.filter((m) => activeKeys!.has(m.key)) : [...registered];
+}
+
+/**
+ * Records which modules the backend reports as loaded. Pass null to go back to showing
+ * everything, which is what happens if the backend cannot be asked.
+ */
+export function setActiveModules(keys: string[] | null) {
+  activeKeys = keys ? new Set(keys) : null;
+  rebuildSnapshot();
+  listeners.forEach((listener) => listener());
+}
+
 export function getModules(): readonly ModuleDefinition[] {
   return snapshot;
 }
@@ -68,7 +93,7 @@ export function unregisterModule(key: string): boolean {
     return false;
   }
   registered.splice(index, 1);
-  snapshot = [...registered];
+  rebuildSnapshot();
   listeners.forEach((listener) => listener());
   return true;
 }
@@ -78,7 +103,7 @@ export function registerModule(definition: ModuleDefinition): boolean {
     return false;
   }
   registered.push(definition);
-  snapshot = [...registered];
+  rebuildSnapshot();
   listeners.forEach((listener) => listener());
   return true;
 }

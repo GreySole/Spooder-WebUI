@@ -1,6 +1,6 @@
 import type { ModuleDefinition } from '@spooder/webui-module-sdk';
 import { loadRemote, registerRemotes } from '@module-federation/runtime';
-import { recordModuleFailure, registerModule } from './registry';
+import { recordModuleFailure, registerModule, setActiveModules } from './registry';
 
 // What the backend reports for each module UI it has installed and is serving.
 interface RemoteModuleInfo {
@@ -14,6 +14,26 @@ interface RemoteModuleInfo {
 // cannot know which modules are installed until it asks. This is the whole reason the loader
 // exists: a module is installed by dropping its built output on the server, with no rebuild of
 // the WebUI.
+/**
+ * Asks the backend which modules it has loaded, so a module compiled into this bundle but no
+ * longer installed stops showing a tab. Left unknown if the backend cannot answer - an older
+ * Spooder has no such route, and hiding every tab would be worse than showing a stale one.
+ */
+export async function syncActiveModules(): Promise<void> {
+  try {
+    const response = await fetch('/module/loaded');
+    if (!response.ok) {
+      return;
+    }
+    const loaded = await response.json();
+    if (Array.isArray(loaded)) {
+      setActiveModules(loaded);
+    }
+  } catch (e) {
+    console.warn('Could not ask which modules are loaded; showing all of them.', e);
+  }
+}
+
 export default async function loadRemoteModules(): Promise<void> {
   let installed: RemoteModuleInfo[];
   try {

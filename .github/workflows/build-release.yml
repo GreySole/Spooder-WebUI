@@ -19,9 +19,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          # The module UIs are submodules under src/modules/installed, and prebuild's
-          # generate-registry.js only registers what is on disk. Without this the build
-          # succeeds with an empty registry and ships a WebUI with no module tabs at all.
+          # Branch builds check the modules out so their source is typechecked against this
+          # host. They are not shipped - see the release job below.
           submodules: recursive
 
       - name: Set up Node.js
@@ -45,10 +44,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          # The module UIs are submodules under src/modules/installed, and prebuild's
-          # generate-registry.js only registers what is on disk. Without this the build
-          # succeeds with an empty registry and ships a WebUI with no module tabs at all.
-          submodules: recursive
+          # Deliberately without the module UIs. They are released from their own repos and
+          # downloaded at runtime by ModuleUIService, so bundling them here would ship every
+          # module to every user installed or not - and worse, a bundled module shadows its
+          # remote (registration is keyed, first one wins), so nobody could ever receive a
+          # module update without a whole new WebUI release.
+          submodules: false
 
       - name: Set up Node.js
         uses: actions/setup-node@v4

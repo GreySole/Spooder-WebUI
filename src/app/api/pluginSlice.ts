@@ -35,6 +35,16 @@ export const pluginApi = createApi({
         body: form,
       }),
     }),
+    // The repo installer has existed on the backend since plugin repos landed, but nothing
+    // ever called it - so installing from a URL was only possible with curl. It is the escape
+    // hatch for anything no registry lists.
+    installPluginFromRepo: builder.mutation({
+      query: (body: { url: string; mode?: 'release' | 'source'; branch?: string }) => ({
+        url: '/install_plugin_from_repo',
+        method: 'post',
+        body,
+      }),
+    }),
     uploadPluginAssets: builder.mutation({
       query: (form) => ({
         url: `/upload_plugin_asset`,
@@ -170,6 +180,7 @@ export const {
   useGetPluginSettingsFormQuery,
   useGetPluginEventsFormQuery,
   useInstallPluginMutation,
+  useInstallPluginFromRepoMutation,
   useRefreshPluginMutation,
   useRefreshPluginsMutation,
   useBuildPluginMutation,

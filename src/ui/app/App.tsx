@@ -17,6 +17,7 @@ import ConfigTab from '../tabs/ConfigTab';
 import DashboardTab from '../tabs/DashboardTab';
 import EventTab from '../tabs/EventTab';
 import OSCTunnelTab from '../tabs/OSCTunnelTab';
+import ModulesTab from '../tabs/ModulesTab';
 import PluginTab from '../tabs/PluginTab';
 import ShareTab from '../tabs/ShareTab';
 import ThemeTab from '../tabs/ThemeTab';
@@ -73,6 +74,9 @@ export default function App() {
       break;
     case 'plugins':
       tabContent = <PluginTab />;
+      break;
+    case 'modules':
+      tabContent = <ModulesTab />;
       break;
     case 'osctunnels':
       tabContent = <OSCTunnelTab />;

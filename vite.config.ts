@@ -38,26 +38,46 @@ const modulePrefixes = fs.existsSync(installedModulesDir)
 
 const apiPrefixes = [...new Set([...corePrefixes, ...modulePrefixes])];
 
-export default defineConfig({
+export default defineConfig(({ command }) => ({
+  // Keep the node_modules symlink to the module SDK unresolved. Following it rewrites imports
+  // to the package's real path inside this repo, and Vite will not serve that URL - a nested
+  // package.json is a dependency boundary it only serves under /node_modules or /@fs.
+  resolve: { preserveSymlinks: true },
+  // Without this the SDK is pre-bundled into node_modules/.vite/deps, and editing it during
+  // development does nothing until Vite re-optimises. Excluded, it is served as source and
+  // hot reloads like the rest of the app - which is the whole reason it lives in this repo
+  // rather than being consumed from npm.
+  optimizeDeps: { exclude: ['@spooder/webui-module-sdk'] },
   plugins: [
     react(),
-    // The host half of the module federation setup. It exposes nothing - modules never import
-    // from the host - but it has to declare the same shared libraries the modules do, because
-    // those are built with `import: false` and carry no fallback copy of their own. A library
-    // shared by a module but not named here cannot resolve, and that module fails to load.
-    ...federation({
-      name: 'spooder_webui',
-      remotes: {},
-      shared: {
-        react: { singleton: true, requiredVersion: '^18.0.0' },
-        'react-dom': { singleton: true, requiredVersion: '^18.0.0' },
-        'react-redux': { singleton: true },
-        '@reduxjs/toolkit': { singleton: true },
-        'react-hook-form': { singleton: true },
-        '@spooder/webui-component-library': { singleton: true },
-        '@spooder/webui-module-sdk': { singleton: true, requiredVersion: '^0.6.0' },
-      },
-    }),
+    // Federation is a build-time concern here, and turning it on in dev actively breaks the
+    // dev server: the plugin rewrites every shared import to a loader pointing at the module
+    // SDK's real path, `/module-sdk/src/index.ts`, which Vite refuses to serve - a nested
+    // package.json is a dependency boundary it only serves under /node_modules or /@fs.
+    //
+    // Nothing is lost by skipping it. In development the modules are checked out under
+    // src/modules/installed and compiled straight into the bundle, so there are no remotes for
+    // a share scope to negotiate with.
+    //
+    // This is the host half of the setup. It exposes nothing - modules never import from the
+    // host - but it declares the same shared libraries the modules do, because those are built
+    // with `import: false` and carry no fallback copy. A library shared by a module but not
+    // named here cannot resolve at runtime, and that module fails to load.
+    ...(command === 'build'
+      ? federation({
+          name: 'spooder_webui',
+          remotes: {},
+          shared: {
+            react: { singleton: true, requiredVersion: '^18.0.0' },
+            'react-dom': { singleton: true, requiredVersion: '^18.0.0' },
+            'react-redux': { singleton: true },
+            '@reduxjs/toolkit': { singleton: true },
+            'react-hook-form': { singleton: true },
+            '@spooder/webui-component-library': { singleton: true },
+            '@spooder/webui-module-sdk': { singleton: true, requiredVersion: '^0.6.0' },
+          },
+        })
+      : []),
   ],
   server: {
     port: 3001,
@@ -71,4 +91,4 @@ export default defineConfig({
     // Federation's runtime uses top-level await, same as the module builds.
     target: 'esnext',
   },
-});
+}));

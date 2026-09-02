@@ -8,6 +8,7 @@ import {
   faPaintRoller,
   faPerson,
   faPlug,
+  faStore,
   faShareNodes,
   faTv
 } from '@fortawesome/free-solid-svg-icons';
@@ -37,6 +38,7 @@ const CORE_MAIN_TABS_BEFORE_MODULES: TabOptions = {
   dashboard: { label: 'Dashboard', icon: faDashboard },
   commands: { label: 'Events', icon: faClapperboard },
   plugins: { label: 'Plugins', icon: faPlug },
+  modules: { label: 'Modules', icon: faStore },
   osctunnels: { label: 'Tunnels', icon: faArrowsSplitUpAndLeft },
 };
 

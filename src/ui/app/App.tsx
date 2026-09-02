@@ -11,6 +11,7 @@ import useNavigation from '../../app/hooks/useNavigation';
 import useServer from '../../app/hooks/useServer';
 import useModules from '../../modules/useModules';
 import PageCircleLoader from '../common/input/general/PageCircleLoader';
+import ModuleErrorBoundary from '../common/error/ModuleErrorBoundary';
 import ModUI from '../deck/ModUI';
 import OSCMonitor from '../deck/OSCMonitor';
 import ConfigTab from '../tabs/ConfigTab';
@@ -98,7 +99,19 @@ export default function App() {
       break;
     default: {
       const ModuleComponent = moduleMap[currentTab];
-      if (ModuleComponent) tabContent = <ModuleComponent />;
+      if (ModuleComponent) {
+        // Every module renders behind a boundary. A remote is built and released separately
+        // from the host, so one throwing must cost its own tab and nothing else.
+        tabContent = (
+          <ModuleErrorBoundary
+            key={currentTab}
+            moduleKey={currentTab}
+            moduleName={modules.find((m) => m.key === currentTab)?.tabConfig.label}
+          >
+            <ModuleComponent />
+          </ModuleErrorBoundary>
+        );
+      }
       break;
     }
   }

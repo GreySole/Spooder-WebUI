@@ -16,6 +16,30 @@ export function getModules(): readonly ModuleDefinition[] {
   return snapshot;
 }
 
+// A module that fails to load has no ModuleDefinition, so it has no tab and nothing on screen
+// would otherwise mention it - it simply would not appear, which looks identical to never
+// having installed it. Recorded here so the Modules tab can say what happened.
+export interface ModuleLoadFailure {
+  key: string;
+  message: string;
+}
+
+const failures: ModuleLoadFailure[] = [];
+let failureSnapshot: readonly ModuleLoadFailure[] = [];
+
+export function getModuleFailures(): readonly ModuleLoadFailure[] {
+  return failureSnapshot;
+}
+
+export function recordModuleFailure(key: string, message: string) {
+  if (failures.some((f) => f.key === key)) {
+    return;
+  }
+  failures.push({ key, message });
+  failureSnapshot = [...failures];
+  listeners.forEach((listener) => listener());
+}
+
 export function subscribeToModules(listener: () => void): () => void {
   listeners.add(listener);
   return () => {
@@ -31,6 +55,24 @@ export function subscribeToModules(listener: () => void): () => void {
  * both paths can be live at once, and a module that is already mounted should win over a
  * second copy of itself arriving late.
  */
+/**
+ * Drops a module from the registry, so its tab goes away the moment it is uninstalled rather
+ * than lingering until the next restart.
+ *
+ * The module's injected reducer and middleware stay on the store - RTK has no clean way to
+ * remove them, and a slice nothing reads is harmless. The tab is what the user sees.
+ */
+export function unregisterModule(key: string): boolean {
+  const index = registered.findIndex((m) => m.key === key);
+  if (index === -1) {
+    return false;
+  }
+  registered.splice(index, 1);
+  snapshot = [...registered];
+  listeners.forEach((listener) => listener());
+  return true;
+}
+
 export function registerModule(definition: ModuleDefinition): boolean {
   if (registered.some((m) => m.key === definition.key)) {
     return false;

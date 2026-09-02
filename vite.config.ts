@@ -16,12 +16,21 @@ const corePrefixes = [
   // Installed module UIs, served by the backend out of user/modules. Listed explicitly rather
   // than leaning on '/module' happening to be a string prefix of it.
   '/modules',
+  // The module and plugin catalogue.
+  '/registry',
   '/config',
   '/recovery',
   '/shares',
   '/theme',
   '/server',
   '/assets',
+  // Static content the backend serves that the main WebUI links to directly: plugin icons in
+  // the plugin and share tabs, and the utility and overlay pages a plugin entry opens. Not
+  // API calls, which is why they were easy to miss - they fail as broken images and dead
+  // links rather than as errors in the console.
+  '/icons',
+  '/utility',
+  '/overlay',
 ];
 
 // Modules serve their API under /<module key> - the baseUrl each module's backend counterpart

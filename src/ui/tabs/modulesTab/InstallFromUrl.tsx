@@ -37,8 +37,8 @@ export default function InstallFromUrl({ onInstalled }: { onInstalled: () => voi
     <Border>
       <Box padding="small" width="100%">
         <Stack spacing="small" width="100%">
-          <TypeFace fontSize="medium">Install from a repository</TypeFace>
-          <TypeFace fontSize="small">
+          <TypeFace fontSize="large">Install from a repository</TypeFace>
+          <TypeFace fontSize="medium">
             For a plugin no registry lists — your own, or one someone sent you. Nothing has
             reviewed it, and it runs on this machine with the same access every plugin has.
           </TypeFace>

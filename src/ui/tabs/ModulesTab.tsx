@@ -5,6 +5,8 @@ import {
   useGetCatalogQuery,
   useRefreshCatalogMutation,
 } from '../../app/api/registrySlice';
+import { useModuleFailures } from '../../modules/useModules';
+import { Border } from '@spooder/webui-component-library';
 import PageCircleLoader from '../common/input/general/PageCircleLoader';
 import CatalogList from './modulesTab/CatalogList';
 import InstallFromUrl from './modulesTab/InstallFromUrl';
@@ -19,6 +21,9 @@ export default function ModulesTab() {
   const [pendingRestart, setPendingRestart] = useState<{ what: string; via: RestartVia } | null>(
     null,
   );
+  // Modules that were served but could not be loaded. They have no tab of their own, so this
+  // is the only place their failure can be seen.
+  const failures = useModuleFailures();
 
   if (isLoading) {
     return <PageCircleLoader />;
@@ -40,7 +45,7 @@ export default function ModulesTab() {
         </Columns>
 
         {data.duplicates.length > 0 && (
-          <TypeFace fontSize="small">
+          <TypeFace fontSize="medium">
             {data.duplicates
               .map(
                 (d) =>
@@ -48,6 +53,29 @@ export default function ModulesTab() {
               )
               .join(' ')}
           </TypeFace>
+        )}
+
+        {failures.length > 0 && (
+          <Border>
+            <Box padding="small" width="100%">
+              <Stack spacing="small" width="100%">
+                <TypeFace fontSize="large">
+                  {failures.length === 1
+                    ? "A module didn't load"
+                    : `${failures.length} modules didn't load`}
+                </TypeFace>
+                <TypeFace fontSize="medium">
+                  Installed, but Spooder couldn't start them, so they have no tab. Usually this
+                  means the module needs an update to match this version of Spooder.
+                </TypeFace>
+                {failures.map((f) => (
+                  <TypeFace key={f.key} fontSize="medium">
+                    {f.key} — {f.message}
+                  </TypeFace>
+                ))}
+              </Stack>
+            </Box>
+          </Border>
         )}
 
         {pendingRestart && (

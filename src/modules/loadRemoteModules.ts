@@ -1,6 +1,6 @@
 import type { ModuleDefinition } from '@spooder/webui-module-sdk';
 import { loadRemote, registerRemotes } from '@module-federation/runtime';
-import { registerModule } from './registry';
+import { recordModuleFailure, registerModule } from './registry';
 
 // What the backend reports for each module UI it has installed and is serving.
 interface RemoteModuleInfo {
@@ -54,9 +54,13 @@ export default async function loadRemoteModules(): Promise<void> {
   results.forEach((result, i) => {
     if (result.status === 'rejected') {
       // Usually a shared-dependency mismatch: the module was built against an SDK range this
-      // host no longer satisfies. Reported rather than swallowed, since the fix is to update
-      // one side or the other.
+      // host no longer satisfies. Recorded as well as logged, because a module that fails here
+      // never gets a tab - without this it would be invisible rather than broken.
       console.error(`Module '${installed[i].key}' failed to load:`, result.reason);
+      recordModuleFailure(
+        installed[i].key,
+        result.reason?.message ?? String(result.reason ?? 'Unknown error'),
+      );
     }
   });
 }

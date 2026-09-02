@@ -52,7 +52,7 @@ export default function RegistrySources({ sources }: { sources: RegistrySource[]
   return (
     <Stack spacing="medium" width="100%">
       <TypeFace fontSize="large">Registries</TypeFace>
-      <TypeFace fontSize="small">
+      <TypeFace fontSize="medium">
         Lists of modules and plugins Spooder can install. Adding one means trusting whoever
         maintains it — anything you install from it runs on this machine.
       </TypeFace>
@@ -71,14 +71,14 @@ export default function RegistrySources({ sources }: { sources: RegistrySource[]
                   <Button label="Remove" onClick={() => remove(source)} />
                 )}
               </Columns>
-              <TypeFace fontSize="small">{source.url}</TypeFace>
+              <TypeFace fontSize="medium">{source.url}</TypeFace>
               {source.error ? (
-                <TypeFace fontSize="small">
+                <TypeFace fontSize="medium">
                   Couldn't be reached — {source.error}
                   {(source.entryCount ?? 0) > 0 ? ' Showing the last copy Spooder downloaded.' : ''}
                 </TypeFace>
               ) : (
-                <TypeFace fontSize="small">
+                <TypeFace fontSize="medium">
                   {source.entryCount ?? 0} {source.entryCount === 1 ? 'entry' : 'entries'}
                   {source.official ? ' · built in' : ''}
                 </TypeFace>

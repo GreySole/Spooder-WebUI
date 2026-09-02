@@ -26,7 +26,7 @@ export default function RestartNotice({
     return (
       <Border>
         <Box padding="small" width="100%">
-          <TypeFace fontSize="medium">
+          <TypeFace fontSize="large">
             Restarting Spooder. This page will reconnect on its own in a few seconds.
           </TypeFace>
         </Box>
@@ -38,10 +38,10 @@ export default function RestartNotice({
     <Border>
       <Box padding="small" width="100%">
         <Stack spacing="small" width="100%">
-          <TypeFace fontSize="medium">{what} is ready.</TypeFace>
+          <TypeFace fontSize="large">{what} is ready.</TypeFace>
           {via === 'manual' ? (
             <>
-              <TypeFace fontSize="small">
+              <TypeFace fontSize="medium">
                 Spooder was started from a terminal, so it can't restart itself. Stop it and
                 start it again to load {what}.
               </TypeFace>
@@ -49,7 +49,7 @@ export default function RestartNotice({
             </>
           ) : (
             <>
-              <TypeFace fontSize="small">
+              <TypeFace fontSize="medium">
                 {via === 'app'
                   ? 'The Spooder app will restart it for you.'
                   : 'Spooder will close, and your process manager will start it again.'}

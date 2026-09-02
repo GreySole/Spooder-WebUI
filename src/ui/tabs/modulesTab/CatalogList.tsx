@@ -10,12 +10,16 @@ import {
   useToast,
 } from '@spooder/webui-component-library';
 import React, { useMemo, useState } from 'react';
+import { useDispatch } from 'react-redux';
 import {
   CatalogEntry,
   RestartVia,
   useInstallEntryMutation,
   useUninstallEntryMutation,
 } from '../../../app/api/registrySlice';
+import { _setTab } from '../../../app/slice/navigationSlice';
+import useNavigation from '../../../app/hooks/useNavigation';
+import { unregisterModule } from '../../../modules/registry';
 
 // What the button offers, and why it might not. A module is compiled by Spooder's own build,
 // so installing one takes a minute and a restart - said on the card rather than discovered
@@ -47,6 +51,8 @@ function EntryCard({
   const [install, { isLoading }] = useInstallEntryMutation();
   const [uninstall, { isLoading: removing }] = useUninstallEntryMutation();
   const { showSuccess, showError } = useToast();
+  const { currentTab } = useNavigation();
+  const dispatch = useDispatch();
   const action = actionFor(entry);
   const busy = isLoading || removing;
 
@@ -69,6 +75,13 @@ function EntryCard({
       showError(result.error.data?.error ?? `Could not remove ${entry.name}.`);
       return;
     }
+    // The backend is gone, but this page still has the module registered from when it loaded,
+    // so its tab would sit there until a restart. Drop it now - and step off it first, or the
+    // current tab points at a module that no longer renders anything.
+    if (currentTab === entry.id) {
+      dispatch(_setTab({ tab: 'modules', folder: undefined }));
+    }
+    unregisterModule(entry.id);
     onRestartNeeded(`${entry.name} (removed)`, result.data?.restartVia ?? 'manual');
   };
 
@@ -77,7 +90,7 @@ function EntryCard({
       <Box padding="small" width="100%">
         <Stack spacing="small" width="100%">
           <Columns spacing="small">
-            <TypeFace fontSize="medium">{entry.name}</TypeFace>
+            <TypeFace fontSize="large">{entry.name}</TypeFace>
             {entry.installed && entry.kind === 'module' ? (
               <Button
                 label={removing ? 'Removing…' : 'Remove'}
@@ -92,12 +105,12 @@ function EntryCard({
               />
             )}
           </Columns>
-          <TypeFace fontSize="small">{entry.summary}</TypeFace>
-          {action.note && <TypeFace fontSize="small">{action.note}</TypeFace>}
+          <TypeFace fontSize="medium">{entry.summary}</TypeFace>
+          {action.note && <TypeFace fontSize="medium">{action.note}</TypeFace>}
           {entry.installed && entry.kind === 'module' && entry.webuiInstalled === false && (
-            <TypeFace fontSize="small">Installed, but its tab hasn't been downloaded yet.</TypeFace>
+            <TypeFace fontSize="medium">Installed, but its tab hasn't been downloaded yet.</TypeFace>
           )}
-          <TypeFace fontSize="small">
+          <TypeFace fontSize="medium">
             {entry.kind} · {entry.author} · {entry.license} · from {entry.source.name}
             {entry.tags?.length ? ` · ${entry.tags.join(', ')}` : ''}
           </TypeFace>
@@ -148,7 +161,7 @@ export default function CatalogList({
 
   if (entries.length === 0) {
     return (
-      <TypeFace fontSize="small">
+      <TypeFace fontSize="medium">
         Nothing to show yet. Either no registry is turned on, or none of them could be reached.
       </TypeFace>
     );
@@ -178,7 +191,7 @@ export default function CatalogList({
       </Columns>
 
       {filtered.length === 0 && (
-        <TypeFace fontSize="small">Nothing matches that search.</TypeFace>
+        <TypeFace fontSize="medium">Nothing matches that search.</TypeFace>
       )}
 
       {modules.length > 0 && (

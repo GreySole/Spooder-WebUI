@@ -4,6 +4,8 @@ import {
   useGetPublicUrlQuery,
   useGetServerStateQuery,
   useGetSystemStatusQuery,
+  useSubscribeLiveLoggingMutation,
+  useUnsubscribeLiveLoggingMutation,
 } from '../api/serverSlice';
 
 export default function useServer() {
@@ -45,10 +47,17 @@ export default function useServer() {
     };
   }
 
+  function useLiveLoggingActions() {
+    const [subscribeLiveLogging] = useSubscribeLiveLoggingMutation();
+    const [unsubscribeLiveLogging] = useUnsubscribeLiveLoggingMutation();
+    return { subscribeLiveLogging, unsubscribeLiveLogging };
+  }
+
   return {
     getServerState,
     getMonitorLogs,
     getSystemStatus,
     getPublicUrl,
+    useLiveLoggingActions,
   };
 }

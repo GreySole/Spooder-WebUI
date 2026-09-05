@@ -1,5 +1,6 @@
 import { useOSC } from '@spooder/webui-component-library';
 import React, { createContext, ReactNode, useContext, useEffect, useRef, useState } from 'react';
+import useLiveLogging from '../../../../app/hooks/useLiveLogging';
 
 export interface OscLiveValue {
   args: any[];
@@ -28,10 +29,15 @@ interface OscLiveValuesProviderProps {
 // itself, unmounting one card would tear down another card's subscription.
 export function OscLiveValuesProvider(props: OscLiveValuesProviderProps) {
   const { enabled, children } = props;
-  const { addListener, removeListener, sendOSC, isReady } = useOSC();
+  const { addListener, removeListener, isReady } = useOSC();
   const [values, setValues] = useState<{ [address: string]: OscLiveValue }>({});
   const pending = useRef<{ [address: string]: OscLiveValue }>({});
   const dirty = useRef(false);
+
+  // Registers this provider as its own subscriber (see MonitorService.subscribeLiveLogging),
+  // separate from whatever the OSC Monitor tab is doing - so unmounting this one, or losing
+  // its heartbeat, can no longer kill the Monitor tab's feed or vice versa.
+  useLiveLogging(isReady && enabled);
 
   useEffect(() => {
     if (!isReady || !enabled) {
@@ -55,8 +61,6 @@ export function OscLiveValuesProvider(props: OscLiveValuesProviderProps) {
     }
 
     addListener('/spooder/monitor/log', onLog);
-    // Tells the backend to start broadcasting monitor entries (see MonitorService.addLog).
-    sendOSC('/spooder/monitor/live_logging', 1);
 
     const flush = setInterval(() => {
       if (!dirty.current) {
@@ -70,10 +74,8 @@ export function OscLiveValuesProvider(props: OscLiveValuesProviderProps) {
     return () => {
       clearInterval(flush);
       removeListener('/spooder/monitor/log');
-      // Deliberately not disabling live_logging: it's a single global flag that the OSC
-      // Monitor tab also turns on, and clearing it here would silently kill its feed.
     };
-  }, [isReady, enabled, addListener, removeListener, sendOSC]);
+  }, [isReady, enabled, addListener, removeListener]);
 
   return <OscLiveValuesContext.Provider value={values}>{children}</OscLiveValuesContext.Provider>;
 }

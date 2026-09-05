@@ -30,6 +30,7 @@ import { Footer } from '../app/Footer';
 import ExpandableLog from './oscMonitor/ExpandableLog';
 import PageCircleLoader from '../common/input/general/PageCircleLoader';
 import { useScrollContext } from '../../app/context/ScrollContext';
+import useLiveLogging from '../../app/hooks/useLiveLogging';
 
 export interface Log {
   timestamp: string;
@@ -47,7 +48,7 @@ interface MasterLog {
 }
 
 export default function OSCMonitor() {
-  const { addListener, removeListener, sendOSC, isReady } = useOSC();
+  const { addListener, removeListener, isReady } = useOSC();
   const { getMonitorLogs } = useServer();
   const { data, isLoading, error } = getMonitorLogs();
   const { isMobileDevice } = useTheme();
@@ -67,9 +68,13 @@ export default function OSCMonitor() {
   const [selectedTypeFilters, setSelectedTypeFilters] = useState<string[]>(['send', 'receive']);
   const { scrollToBottom, scrollContainerRef, getScrollPosition, isAtBottom } = useScrollContext();
 
+  // Registers this tab as its own live-logging subscriber (see
+  // MonitorService.subscribeLiveLogging) - independent of any OSC Receive node preview also
+  // watching the feed, and independent of any other open copy of this tab.
+  useLiveLogging(isReady);
+
   const getLog = useCallback(
     (message: any) => {
-      console.log('Received log message:', message);
       const logObj = JSON.parse(message.args[0]);
 
       switch (logObj.type) {
@@ -94,7 +99,6 @@ export default function OSCMonitor() {
       setPluginLogs(data.plugin);
     }
     addListener('/spooder/monitor/log', getLog);
-    sendOSC('/spooder/monitor/live_logging', 1);
 
     return () => {
       removeListener('/spooder/monitor/log');

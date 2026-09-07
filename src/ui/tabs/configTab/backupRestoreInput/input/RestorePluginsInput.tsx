@@ -17,6 +17,7 @@ import useRecovery from '../../../../../app/hooks/useRecovery';
 import RestorePluginSelection from '../selection/RestorePluginsSelection';
 import { KeyedObject } from '../../../../Types';
 import PageCircleLoader from '../../../../common/input/general/PageCircleLoader';
+import ProgressBar from '../../../../common/input/general/ProgressBar';
 
 interface OSCProgressObject {
   name: string;
@@ -36,6 +37,7 @@ export default function RestorePluginsInput() {
   const { addListener, removeListener, isReady } = useOSC();
   const [isRestoring, setIsRestoring] = useState<boolean>(false);
   const [isUnpacking, setIsUnpacking] = useState<boolean>(false);
+  const [uploadProgress, setUploadProgress] = useState<number | null>(null);
   const [currentProgressObj, setCurrentProgressObj] = useState<OSCProgressObject>({
     name: '',
     message: 'Starting Restore...',
@@ -59,12 +61,43 @@ export default function RestorePluginsInput() {
     return <FormLoader numRows={4} />;
   }
 
+  if (uploadProgress !== null) {
+    return (
+      <Box flexFlow='column' alignItems='center' width='100%' height='100%'>
+        <Stack spacing='medium'>
+          <TypeFace fontSize='large'>Uploading Backup...</TypeFace>
+          <Box width='300px'>
+            <ProgressBar progress={uploadProgress} total={100} />
+          </Box>
+          <TypeFace fontSize='medium'>{uploadProgress}%</TypeFace>
+        </Stack>
+      </Box>
+    );
+  }
+
   if (isUnpacking) {
     return (
       <Box flexFlow='column' alignItems='center' width='100%' height='100%'>
         <Stack spacing='medium'>
           <PageCircleLoader />
-          <TypeFace fontSize='large'>Unpacking Backup. This can take a while...</TypeFace>
+          <TypeFace fontSize='large'>
+            {currentProgressObj.totalProgress > 0
+              ? currentProgressObj.message
+              : 'Unpacking Backup. This can take a while...'}
+          </TypeFace>
+          {currentProgressObj.totalProgress > 0 && (
+            <>
+              <Box width='300px'>
+                <ProgressBar
+                  progress={currentProgressObj.progress}
+                  total={currentProgressObj.totalProgress}
+                />
+              </Box>
+              <TypeFace fontSize='medium'>
+                {currentProgressObj.progress} / {currentProgressObj.totalProgress}
+              </TypeFace>
+            </>
+          )}
         </Stack>
       </Box>
     );
@@ -79,15 +112,46 @@ export default function RestorePluginsInput() {
 
   const handleFile = (files: FileList) => {
     const file = files[0];
-    setIsUnpacking(true);
-    prepareRestorePlugins(file.name, file).then((response) => {
-      console.log(response.data, response.data.status);
-      if (response.data.status === 'ok') {
-        setIsUnpacking(false);
-        setBackupPluginList(response.data.data);
-        setPluginsFileSelection(true);
+    setCurrentProgressObj({ name: '', message: 'Starting Restore...', progress: 0, totalProgress: 0 });
+    setUploadProgress(0);
+
+    const formData = new FormData();
+    formData.append('backupName', file.name);
+    formData.append('file', file);
+
+    const xhr = new XMLHttpRequest();
+
+    xhr.upload.addEventListener('progress', (event) => {
+      if (event.lengthComputable) {
+        setUploadProgress(Math.round((event.loaded / event.total) * 100));
       }
     });
+
+    xhr.upload.addEventListener('load', () => {
+      setUploadProgress(null);
+      setIsUnpacking(true);
+    });
+
+    xhr.addEventListener('load', () => {
+      setIsUnpacking(false);
+      try {
+        const response = JSON.parse(xhr.responseText);
+        if (response.status === 'ok') {
+          setBackupPluginList(response.data);
+          setPluginsFileSelection(true);
+        }
+      } catch (e) {
+        console.error('Failed to parse restore response', e);
+      }
+    });
+
+    xhr.addEventListener('error', () => {
+      setUploadProgress(null);
+      setIsUnpacking(false);
+    });
+
+    xhr.open('POST', window.location.origin + '/recovery/prepare_restore_plugins');
+    xhr.send(formData);
   };
 
   if (isRestoring) {
@@ -96,6 +160,12 @@ export default function RestorePluginsInput() {
         <Stack spacing='medium'>
           <PageCircleLoader />
           <TypeFace fontSize='large'>{currentProgressObj?.message}</TypeFace>
+          <Box width='300px'>
+            <ProgressBar
+              progress={currentProgressObj?.progress ?? 0}
+              total={currentProgressObj?.totalProgress ?? 0}
+            />
+          </Box>
           <TypeFace fontSize='large'>
             {currentProgressObj?.progress} / {currentProgressObj?.totalProgress}
           </TypeFace>
@@ -105,6 +175,7 @@ export default function RestorePluginsInput() {
   }
 
   const startRestoring = (backupName: string, selections: any) => {
+    setCurrentProgressObj({ name: '', message: 'Starting Restore...', progress: 0, totalProgress: 0 });
     restorePlugins(backupName, selections).then((response) => {
       setIsRestoring(false);
     });
@@ -145,6 +216,12 @@ export default function RestorePluginsInput() {
         label='Restore Plugins'
         disabled={!selectedBackup}
         onClick={() => {
+          setCurrentProgressObj({
+            name: '',
+            message: 'Starting Restore...',
+            progress: 0,
+            totalProgress: 0,
+          });
           setIsUnpacking(true);
           prepareRestorePlugins(selectedBackup).then((response) => {
             console.log(response.data, response.data.status);

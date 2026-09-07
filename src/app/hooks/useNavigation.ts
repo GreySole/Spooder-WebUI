@@ -53,6 +53,7 @@ export default function useNavigation() {
     currentTab,
     currentFolder,
     urlParams,
+    rememberLastTab,
     setRememberLastTab,
   };
 }

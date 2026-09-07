@@ -34,7 +34,7 @@ export default function App() {
     [modules],
   );
 
-  const { currentTab, navigationOpen } = useNavigation();
+  const { currentTab, navigationOpen, rememberLastTab } = useNavigation();
   const { refreshThemeColors, isMobileDevice } = useTheme();
   const { scrollContainerRef } = useScrollContext();
 
@@ -46,6 +46,22 @@ export default function App() {
   useEffect(() => {
     refreshThemeColors();
   }, [serverData, tutorialDialog]);
+
+  // Keeps the address bar in sync with the active tab so it stays shareable/refreshable.
+  // When "Remember Where I Was" is off, the tab param is stripped instead so a refresh still
+  // lands on dashboard rather than resurrecting the last tab via the URL.
+  useEffect(() => {
+    const url = new URL(window.location.href);
+    if (rememberLastTab) {
+      if (url.searchParams.get('tab') !== currentTab) {
+        url.searchParams.set('tab', currentTab);
+        window.history.replaceState(null, '', url);
+      }
+    } else if (url.searchParams.has('tab')) {
+      url.searchParams.delete('tab');
+      window.history.replaceState(null, '', url);
+    }
+  }, [currentTab, rememberLastTab]);
 
   if (serverLoading) {
     return <PageCircleLoader />;

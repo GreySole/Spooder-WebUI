@@ -39,8 +39,21 @@ export const pluginApi = createApi({
     // ever called it - so installing from a URL was only possible with curl. It is the escape
     // hatch for anything no registry lists.
     installPluginFromRepo: builder.mutation({
-      query: (body: { url: string; mode?: 'release' | 'source'; branch?: string }) => ({
+      query: (body: {
+        url: string;
+        mode?: 'release' | 'source';
+        branch?: string;
+        // Fine-grained GitHub PAT, needed only when the repo is private.
+        token?: string;
+      }) => ({
         url: '/install_plugin_from_repo',
+        method: 'post',
+        body,
+      }),
+    }),
+    setPluginRepoToken: builder.mutation({
+      query: (body: { pluginName: string; token: string | null }) => ({
+        url: '/set_plugin_repo_token',
         method: 'post',
         body,
       }),
@@ -181,6 +194,7 @@ export const {
   useGetPluginEventsFormQuery,
   useInstallPluginMutation,
   useInstallPluginFromRepoMutation,
+  useSetPluginRepoTokenMutation,
   useRefreshPluginMutation,
   useRefreshPluginsMutation,
   useBuildPluginMutation,

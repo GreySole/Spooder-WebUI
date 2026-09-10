@@ -49,6 +49,17 @@ export default function NodeContextMenu(props: NodeContextMenuProps) {
   const [highlight, setHighlight] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
+  // The backdrop fills the canvas pane exactly (`inset: 0` on a sibling of the pane's own
+  // `position: relative` root), so its rect is the pane's own clipping bounds - smaller than
+  // the browser window whenever the pane sits inside other page chrome. A submenu clamped
+  // against the window instead would still get clipped by the pane's `overflow: hidden`.
+  const backdropRef = useRef<HTMLDivElement>(null);
+  const getMenuBounds = () => {
+    const rect = backdropRef.current?.getBoundingClientRect();
+    return rect
+      ? { left: rect.left, top: rect.top, right: rect.right, bottom: rect.bottom }
+      : { left: 0, top: 0, right: anchor.viewport.width, bottom: anchor.viewport.height };
+  };
   // Starts at the cursor and is corrected before paint by the measure below, so the menu opens
   // where the click was unless that would hang it off an edge of the graph.
   const [position, setPosition] = useState<Point>({ x: anchor.screen.x, y: anchor.screen.y });
@@ -129,6 +140,7 @@ export default function NodeContextMenu(props: NodeContextMenuProps) {
     // Full-container backdrop: a press anywhere outside dismisses the menu, and it also keeps
     // that press from reaching the canvas underneath (which would pan or deselect).
     <div
+      ref={backdropRef}
       style={{ position: 'absolute', inset: 0, zIndex: 30 }}
       onPointerDown={onClose}
       onContextMenu={(e) => {
@@ -210,7 +222,13 @@ export default function NodeContextMenu(props: NodeContextMenuProps) {
             ))
           )
         ) : (
-          <CategoryPanel categories={rootCategories} onSelect={choose} onPick={onClose} embedded />
+          <CategoryPanel
+            categories={rootCategories}
+            onSelect={choose}
+            onPick={onClose}
+            embedded
+            getBounds={getMenuBounds}
+          />
         )}
       </div>
     </div>

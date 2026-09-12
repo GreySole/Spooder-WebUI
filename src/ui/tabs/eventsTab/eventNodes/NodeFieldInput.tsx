@@ -2,11 +2,13 @@ import {
   FormBoolSwitch,
   FormColorInput,
   FormNumberInput,
+  FormRangeInput,
   FormSelectDropdown,
   FormTextInput,
 } from '@spooder/webui-component-library';
 import React from 'react';
 import FormAssetSelect from '../../../common/input/form/FormAssetSelect';
+import FormMultiAssetSelect from '../../../common/input/form/FormMultiAssetSelect';
 import FormAutoTextArea from '../../../common/input/form/FormAutoTextArea';
 import FormCodeInput from '../../../common/input/form/FormCodeInput';
 import { NodeFieldDef } from '../../../Types';
@@ -49,7 +51,15 @@ export default function NodeFieldInput(props: NodeFieldInputProps) {
     case 'textarea':
       return <FormAutoTextArea formKey={formKey} label={fieldLabel} />;
     case 'asset':
-      return (
+      return field['multi-select'] ? (
+        <FormMultiAssetSelect
+          formKey={formKey}
+          label={fieldLabel}
+          assetType={field.options?.assetType}
+          assetFolderPath={field.options?.folder}
+          pluginName={moduleName}
+        />
+      ) : (
         <FormAssetSelect
           formKey={formKey}
           label={fieldLabel}
@@ -60,6 +70,17 @@ export default function NodeFieldInput(props: NodeFieldInputProps) {
       );
     case 'number':
       return <FormNumberInput formKey={formKey} label={fieldLabel} />;
+    case 'range':
+      return (
+        <FormRangeInput
+          formKey={formKey}
+          label={fieldLabel}
+          min={field.options?.min ?? 0}
+          max={field.options?.max ?? 100}
+          step={field.options?.step ?? 1}
+          showValue
+        />
+      );
     case 'custom': {
       const rendererKey = customFieldKey(moduleName, field);
       const renderer = getCustomFieldRenderer(rendererKey);

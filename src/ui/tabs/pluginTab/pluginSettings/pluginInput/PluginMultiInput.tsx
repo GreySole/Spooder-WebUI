@@ -98,6 +98,7 @@ export default function PluginMultiInput(props: PluginMultiInputProps) {
         return (
           <AssetSelect
             label={label}
+            assetType={options?.assetType}
             assetFolderPath={options?.folder}
             pluginName={pluginName}
             value={value}

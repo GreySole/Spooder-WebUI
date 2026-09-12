@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { v4 as uuidv4 } from 'uuid';
 import useEvents from '../../../app/hooks/useEvents';
@@ -33,6 +33,11 @@ export default function EventNodes(props: EventNodesProps) {
   const selectedNodeId = selectedNodeIds.length === 1 ? selectedNodeIds[0] : '';
   const [timerManagerOpen, setTimerManagerOpen] = useState(false);
   const [contextMenu, setContextMenu] = useState<ContextMenuAnchor | null>(null);
+  // The corner palette buttons have no cursor position to drop a new node at (unlike the
+  // context menu, which always has one), so they use whatever's currently centered in the
+  // viewport instead. Kept in a ref rather than state: it updates on every pan/zoom frame, and
+  // nothing needs to re-render off of it - only its value at the moment a button is clicked.
+  const viewCenterRef = useRef<Point>({ x: 0, y: 0 });
 
   // One palette tree, rendered by both the corner buttons and the canvas context menu.
   const palette = useNodePalette({ eventName, onManageTimers: () => setTimerManagerOpen(true) });
@@ -225,9 +230,12 @@ export default function EventNodes(props: EventNodesProps) {
   const hasOscTrigger = (graph.nodes ?? []).some(
     (n) => n.moduleName === 'core' && n.nodeTypeId === 'osc_trigger',
   );
+  const hasDebugNode = (graph.nodes ?? []).some(
+    (n) => n.moduleName === 'core' && n.nodeTypeId === 'debug_text',
+  );
 
   return (
-    <OscLiveValuesProvider enabled={hasOscTrigger}>
+    <OscLiveValuesProvider enabled={hasOscTrigger || hasDebugNode} eventName={eventName}>
     <div
       className='node-graph-root'
       style={{
@@ -259,9 +267,15 @@ export default function EventNodes(props: EventNodesProps) {
         onConnect={onConnect}
         isValidConnection={isValidConnection}
         onOpenContextMenu={setContextMenu}
+        onViewCenterChange={(center) => {
+          viewCenterRef.current = center;
+        }}
       />
       <div style={{ position: 'absolute', top: 8, left: 8, zIndex: 20 }}>
-        <NodePalette groups={palette.groups} onSelect={(option) => palette.addNode(option)} />
+        <NodePalette
+          groups={palette.groups}
+          onSelect={(option) => palette.addNode(option, viewCenterRef.current)}
+        />
       </div>
       {contextMenu ? (
         <NodeContextMenu

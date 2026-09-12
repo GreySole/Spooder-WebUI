@@ -31,6 +31,7 @@ export interface NodeFieldDef {
     | 'text'
     | 'textarea'
     | 'number'
+    | 'range'
     | 'custom'
     | 'port';
   options?: KeyedObject;
@@ -48,6 +49,11 @@ export interface NodeFieldDef {
   // before it is filled or wired, so the node offers exactly one empty slot at a time. See
   // growableFieldVisible in nodeFieldVisibility.ts.
   growable?: boolean;
+  // Only meaningful on an 'asset' field: the value is an array of asset paths rather than one,
+  // and the card renders a multi-picker (add/remove, one entry at a time) instead of a single
+  // picker. Named with a hyphen rather than camelCase to match the plugin-settings form schema
+  // (events-form.json), which this key is read from verbatim - see NodeFieldInput.
+  'multi-select'?: boolean;
 }
 
 export interface TriggerTestDef {

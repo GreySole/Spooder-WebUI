@@ -8,6 +8,9 @@ export interface OscLiveValue {
 }
 
 const OscLiveValuesContext = createContext<{ [address: string]: OscLiveValue }>({});
+// Debug: Text Display nodes' last value, keyed by node id rather than address - see
+// MonitorService.addGraphDebugLog, which puts these on the same feed under a distinct `type`.
+const GraphDebugLiveValuesContext = createContext<{ [nodeId: string]: string }>({});
 
 // How often the live readout re-renders. OSC sources like VRChat avatar parameters stream
 // continuously, so committing every packet to state would re-render the whole graph dozens of
@@ -16,22 +19,28 @@ const OscLiveValuesContext = createContext<{ [address: string]: OscLiveValue }>(
 const FLUSH_INTERVAL_MS = 150;
 
 interface OscLiveValuesProviderProps {
-  // Only subscribe when the open graph actually has an OSC trigger; enabling the backend's
-  // live log makes it broadcast every inbound OSC message, which isn't free.
+  // Only subscribe when the open graph actually has an OSC trigger or a debug node; enabling
+  // the backend's live log makes it broadcast every inbound OSC message, which isn't free.
   enabled: boolean;
+  // Scopes the graph-debug side of the feed to the event currently open in the editor, so a
+  // Debug node's id can't collide with one from some other event's graph.
+  eventName?: string;
   children: ReactNode;
 }
 
-// Single shared subscription to the backend's monitor feed, keyed by OSC address.
+// Single shared subscription to the backend's monitor feed, fanning out into two contexts -
+// OSC live values by address, and Debug: Text Display values by node id.
 //
-// It has to be shared: OscContext.removeListener(address) removes only the *first* listener
-// registered for an address, so if every OSC node card subscribed to '/spooder/monitor/log'
-// itself, unmounting one card would tear down another card's subscription.
+// It has to be one subscription: OscContext.removeListener(address) removes only the *first*
+// listener registered for an address, so if every consumer subscribed to '/spooder/monitor/log'
+// itself, unmounting one would tear down another's subscription.
 export function OscLiveValuesProvider(props: OscLiveValuesProviderProps) {
-  const { enabled, children } = props;
+  const { enabled, eventName, children } = props;
   const { addListener, removeListener, isReady } = useOSC();
   const [values, setValues] = useState<{ [address: string]: OscLiveValue }>({});
+  const [debugValues, setDebugValues] = useState<{ [nodeId: string]: string }>({});
   const pending = useRef<{ [address: string]: OscLiveValue }>({});
+  const pendingDebug = useRef<{ [nodeId: string]: string }>({});
   const dirty = useRef(false);
 
   // Registers this provider as its own subscriber (see MonitorService.subscribeLiveLogging),
@@ -43,12 +52,23 @@ export function OscLiveValuesProvider(props: OscLiveValuesProviderProps) {
     if (!isReady || !enabled) {
       return;
     }
+    // A previous event's last debug values shouldn't linger under a node id this graph reuses.
+    setDebugValues({});
+    pendingDebug.current = {};
 
     function onLog(message: any) {
       let logObj;
       try {
         logObj = JSON.parse(message.args[0]);
       } catch (e) {
+        return;
+      }
+      if (logObj.type === 'graph_debug') {
+        if (logObj.eventId !== eventName) {
+          return;
+        }
+        pendingDebug.current[logObj.nodeId] = logObj.value ?? '';
+        dirty.current = true;
         return;
       }
       // MonitorService logs every direction/protocol down this one address; only inbound UDP
@@ -67,21 +87,44 @@ export function OscLiveValuesProvider(props: OscLiveValuesProviderProps) {
         return;
       }
       dirty.current = false;
-      setValues((current) => ({ ...current, ...pending.current }));
+      // Snapshot and clear the refs *before* handing them to React: a functional setState
+      // updater runs whenever React gets around to processing the update, not at the point
+      // this is called, so an updater that reads `pending.current` directly would see whatever
+      // the ref holds *then* - which, since the ref is cleared on the very next line every time,
+      // is always `{}`. That silently turned every flush into a no-op merging nothing in,
+      // regardless of what had actually arrived. Capturing the batch in a local first gives the
+      // updater a stable object to close over instead of a mutable ref.
+      const oscBatch = pending.current;
       pending.current = {};
+      const debugBatch = pendingDebug.current;
+      pendingDebug.current = {};
+      setValues((current) => ({ ...current, ...oscBatch }));
+      setDebugValues((current) => ({ ...current, ...debugBatch }));
     }, FLUSH_INTERVAL_MS);
 
     return () => {
       clearInterval(flush);
       removeListener('/spooder/monitor/log');
     };
-  }, [isReady, enabled, addListener, removeListener]);
+  }, [isReady, enabled, eventName, addListener, removeListener]);
 
-  return <OscLiveValuesContext.Provider value={values}>{children}</OscLiveValuesContext.Provider>;
+  return (
+    <OscLiveValuesContext.Provider value={values}>
+      <GraphDebugLiveValuesContext.Provider value={debugValues}>
+        {children}
+      </GraphDebugLiveValuesContext.Provider>
+    </OscLiveValuesContext.Provider>
+  );
 }
 
 // Latest inbound OSC message for one address, or undefined if nothing has arrived yet.
 export function useOscLiveValue(address: string | undefined): OscLiveValue | undefined {
   const values = useContext(OscLiveValuesContext);
   return address ? values[address] : undefined;
+}
+
+// Latest value a Debug: Text Display node has shown, or undefined if it hasn't run yet.
+export function useGraphDebugLiveValue(nodeId: string | undefined): string | undefined {
+  const values = useContext(GraphDebugLiveValuesContext);
+  return nodeId ? values[nodeId] : undefined;
 }

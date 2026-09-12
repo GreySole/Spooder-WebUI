@@ -2,7 +2,13 @@ import { faFileImport } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import usePlugins from '../../../../app/hooks/usePlugins';
 import React, { useRef, useState } from 'react';
-import { Box, FormLoader, FormSelectDropdown, TypeFace } from '@spooder/webui-component-library';
+import {
+  Box,
+  FormLoader,
+  FormSelectDropdown,
+  getMediaType,
+  TypeFace,
+} from '@spooder/webui-component-library';
 import { useFormContext } from 'react-hook-form';
 import PluginAssetPreview from '../../../tabs/pluginTab/PluginAssetPreview';
 
@@ -42,6 +48,12 @@ export default function FormAssetSelect(props: FormAssetSelectProps) {
 
   const assetOptions = [{ label: 'None', value: '' }];
   for (let a in assets) {
+    // getPluginAssets lists everything under the plugin's asset folder regardless of kind, so
+    // an image field would otherwise offer sounds (and vice versa) alongside the assets it
+    // actually accepts.
+    if (assetType != null && getMediaType(assets[a]) !== assetType) {
+      continue;
+    }
     assetOptions.push({
       label: assets[a].substring(assets[a].lastIndexOf('/') + 1),
       value: assets[a],

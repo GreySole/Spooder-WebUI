@@ -2,7 +2,13 @@ import { faExpandArrowsAlt, faFileImport } from '@fortawesome/free-solid-svg-ico
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import usePlugins from '../../../../app/hooks/usePlugins';
 import React, { useRef } from 'react';
-import { Box, Button, SelectDropdown, useDialog } from '@spooder/webui-component-library';
+import {
+  Box,
+  Button,
+  getMediaType,
+  SelectDropdown,
+  useDialog,
+} from '@spooder/webui-component-library';
 import PluginAssetPreview from '../../../tabs/pluginTab/PluginAssetPreview';
 
 interface AssetSelectProps {
@@ -30,6 +36,12 @@ export default function AssetSelect(props: AssetSelectProps) {
 
   const assetOptions = [{ label: 'None', value: '' }];
   for (let a in assets) {
+    // getPluginAssets lists everything under the plugin's asset folder regardless of kind, so
+    // an image field would otherwise offer sounds (and vice versa) alongside the assets it
+    // actually accepts.
+    if (assetType != null && getMediaType(assets[a]) !== assetType) {
+      continue;
+    }
     assetOptions.push({
       label: assets[a].substring(assets[a].lastIndexOf('/') + 1),
       value: assets[a],

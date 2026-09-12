@@ -519,9 +519,10 @@ option {
 	}
 
 	// Any button a control draws for itself (a custom field renderer's, say). The asset picker's
-	// own upload button is exempt - it's absolutely positioned inside the preview box and sizes
-	// itself (see assetInput.scss).
-	button:not(.asset-drop-zone-upload) {
+	// own upload button, and the multi-asset picker's per-chip remove button, are exempt - both
+	// are small, absolutely-or-tightly-sized controls that set their own dimensions (see
+	// assetInput.scss) and would otherwise be forced back up to a 1rem-control's padding.
+	button:not(.asset-drop-zone-upload):not(.asset-multi-chip-remove) {
 		font-size: 0.75rem;
 		padding: 0.5rem;
 	}

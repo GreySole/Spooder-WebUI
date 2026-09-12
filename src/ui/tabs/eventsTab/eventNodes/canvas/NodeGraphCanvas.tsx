@@ -41,6 +41,11 @@ export interface NodeGraphCanvasProps {
   // Right click / shift+space over the graph: the caller renders the node menu at the anchor
   // and drops whatever is chosen at its graph point.
   onOpenContextMenu: (anchor: ContextMenuAnchor) => void;
+  // Fires whenever pan/zoom changes what's centered in the viewport, so a caller adding a node
+  // with no anchor of its own (the corner palette buttons, which have no cursor position to work
+  // with) can drop it in view instead of at a fixed graph point the user may have panned away
+  // from long ago.
+  onViewCenterChange?: (center: Point) => void;
 }
 
 // react-hook-form mutates its values object in place, so editing a field leaves `nodes` with
@@ -191,6 +196,7 @@ function NodeGraphCanvasInner(props: InnerProps) {
     onConnect,
     isValidConnection,
     onOpenContextMenu,
+    onViewCenterChange,
     transform,
     setTransform,
     selectedEdgeId,
@@ -200,6 +206,18 @@ function NodeGraphCanvasInner(props: InnerProps) {
   const { viewportRef, isPinching } = useGraphViewport();
   const contentRef = useRef<HTMLDivElement>(null);
   const fitDone = useRef(false);
+
+  // Recomputed on every pan/zoom rather than only read on demand: reading the DOM rect lazily,
+  // at the moment a node is actually added, would race a resize (the modal opening, a side panel
+  // toggling) that hasn't reached the ref yet. Layout effect so it settles before paint, matching
+  // when the fit-to-view transform below is applied.
+  useLayoutEffect(() => {
+    const rect = viewportRef.current?.getBoundingClientRect();
+    if (!rect) {
+      return;
+    }
+    onViewCenterChange?.(screenToGraph(transform, { x: rect.width / 2, y: rect.height / 2 }));
+  }, [transform, viewportRef, onViewCenterChange]);
   // The wire currently being pulled off an input socket: held in a ref for the pointerup
   // bookkeeping, mirrored into state so EdgeLayer can stop drawing it while it's in hand.
   const detach = useRef<{ edgeId: string; screen: Point } | null>(null);

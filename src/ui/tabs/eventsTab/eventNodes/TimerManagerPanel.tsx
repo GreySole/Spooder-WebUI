@@ -15,6 +15,7 @@ const NODE_LABELS: { [nodeTypeId: string]: string } = {
   stop_timer: 'Stop',
   timer_elapsed: 'On Elapsed',
   timer_tick: 'On Tick',
+  is_timer_active: 'Is Active',
 };
 
 // Timers are global by name, so they're managed across the whole save file rather than per

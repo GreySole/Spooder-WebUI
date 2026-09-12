@@ -4,7 +4,14 @@ import { EventGraph } from '../../../Types';
 // 'core' category and the manager can find every node referencing a timer.
 export const TIMER_ACTION_NODES = ['start_timer', 'stop_timer'];
 export const TIMER_TRIGGER_NODES = ['timer_elapsed', 'timer_tick'];
-export const TIMER_NODE_IDS = [...TIMER_ACTION_NODES, ...TIMER_TRIGGER_NODES];
+// Operation nodes (a pure query, no exec flow) that take a timer name - currently just the one
+// that reads a timer's live running state.
+export const TIMER_OPERATION_NODES = ['is_timer_active'];
+export const TIMER_NODE_IDS = [
+  ...TIMER_ACTION_NODES,
+  ...TIMER_TRIGGER_NODES,
+  ...TIMER_OPERATION_NODES,
+];
 
 // What the Timers menu offers. 'delay' is grouped here because it's the lightweight
 // alternative to a named timer, but it's deliberately not a TIMER_NODE_ID: it has no name and

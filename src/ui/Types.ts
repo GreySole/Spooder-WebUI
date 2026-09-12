@@ -149,7 +149,7 @@ export interface OperationNodeDef {
   id: string;
   label: string;
   description?: string;
-  category: 'math' | 'string' | 'logic' | 'random' | 'storage' | 'array';
+  category: 'math' | 'string' | 'logic' | 'random' | 'storage' | 'array' | 'timer';
   // See TriggerNodeDef.nodeWidth.
   nodeWidth?: number;
   form: NodeForm;

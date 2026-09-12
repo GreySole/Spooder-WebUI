@@ -41,6 +41,7 @@ const CONTROL_HEIGHTS: { [fieldType: string]: number } = {
   select: 40,
   text: 50,
   number: 50,
+  range: 50, // slider row, sized the same as number/text - see FormRangeInput
   code: 56, // matches COMPACT_EDITOR_HEIGHT in FormCodeInput
   // FormAssetSelect, totalled: its ASSET_PREVIEW_HEIGHT (100) preview box, the 6px margin under
   // it, a ~30px picker, and the 6px margin under that (both margins in assetInput.scss). Those
@@ -105,6 +106,11 @@ function inlineControlHeight(
   moduleName: string,
   customFieldHeight?: (key: string) => number | undefined,
 ): number | undefined {
+  if (typeof field.options?.readoutHeight === 'number') {
+    // A field opting into a custom card-level readout (Debug: Text Display's 'value', say)
+    // rather than one of the standard typed controls below.
+    return field.options.readoutHeight;
+  }
   if (field.type === 'port') {
     // Wire-only: the row is its label and its socket, with nothing to draw between them.
     return undefined;

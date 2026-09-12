@@ -17,7 +17,12 @@ import {
   STORAGE_CATEGORY_KEY,
   STORAGE_CATEGORY_LABEL,
 } from '../storageNodes';
-import { collectTimerUsage, TIMER_MENU_NODE_IDS, TIMER_NODE_IDS } from '../timerUsage';
+import {
+  collectTimerUsage,
+  TIMER_MENU_NODE_IDS,
+  TIMER_NODE_IDS,
+  TIMER_OPERATION_NODES,
+} from '../timerUsage';
 import { PaletteCategory, PaletteGroup, PaletteOption } from './paletteTypes';
 
 export interface UseNodePaletteOptions {
@@ -136,8 +141,14 @@ export default function useNodePalette(options: UseNodePaletteOptions): NodePale
     })),
   );
 
+  // Timer operations (Is Timer Active) join the Timers menu below instead of getting a generic
+  // 'timer operations' category of their own - same reasoning as the storage setters further
+  // down, just for an operation node instead of an action.
   const operationsByCategory = new Map<string, OperationNodeDef[]>();
   for (const op of operationNodes ?? []) {
+    if (TIMER_OPERATION_NODES.includes(op.id)) {
+      continue;
+    }
     const list = operationsByCategory.get(op.category) ?? [];
     list.push(op);
     operationsByCategory.set(op.category, list);
@@ -178,8 +189,8 @@ export default function useNodePalette(options: UseNodePaletteOptions): NodePale
     }
   }
 
-  // Timers menu: the four node types with a blank name, then one submenu per timer already
-  // used anywhere in the save file offering the same four pre-filled - so pointing a second
+  // Timers menu: the node types with a blank name, then one submenu per timer already
+  // used anywhere in the save file offering the same nodes pre-filled - so pointing a second
   // event at an existing timer needs no typing.
   const timerDefs = [
     ...(manifests ?? [])
@@ -188,6 +199,11 @@ export default function useNodePalette(options: UseNodePaletteOptions): NodePale
         ...m.triggers.map((t: TriggerNodeDef) => ({ def: t, kind: 'callback' as const })),
         ...m.actions.map((a: ActionNodeDef) => ({ def: a, kind: 'action' as const })),
       ]),
+    // Is Timer Active is an operation node (a query, no exec flow), so it comes from the
+    // separate operationNodes list rather than a manifest's triggers/actions.
+    ...(operationNodes ?? [])
+      .filter((op: OperationNodeDef) => TIMER_OPERATION_NODES.includes(op.id))
+      .map((op: OperationNodeDef) => ({ def: op, kind: 'operation' as const })),
   ].filter((entry) => TIMER_MENU_NODE_IDS.includes(entry.def.id));
 
   function timerOptions(timerName: string): PaletteOption[] {

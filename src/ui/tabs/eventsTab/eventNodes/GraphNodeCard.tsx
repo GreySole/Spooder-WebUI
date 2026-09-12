@@ -14,7 +14,7 @@ import {
 import PortSocket from './canvas/PortSocket';
 import { ResolvedNodeDef } from './nodeDefLookup';
 import NodeFieldInput from './NodeFieldInput';
-import { OscLiveValue, useOscLiveValue } from './OscLiveValues';
+import { OscLiveValue, useGraphDebugLiveValue, useOscLiveValue } from './OscLiveValues';
 
 // One line of a code field's value for the card's preview row, which clips to a single line -
 // a multi-line script would otherwise show only its blank first line, or overflow the clip.
@@ -213,6 +213,10 @@ export default function GraphNodeCard(props: GraphNodeCardProps) {
   // card shows what actually arrived. Undefined for every other node type.
   const isOscTrigger = moduleName === 'core' && nodeTypeId === 'osc_trigger';
   const liveArgs = useOscLiveValue(isOscTrigger ? values?.address : undefined);
+  // Debug: Text Display has nothing of its own to show until it's actually run once - its
+  // 'value' field is wire-only, so there is no typed literal to fall back on like other fields.
+  const isDebugText = moduleName === 'core' && nodeTypeId === 'debug_text';
+  const debugLiveValue = useGraphDebugLiveValue(isDebugText ? id : undefined);
   // Concat shows what it will produce right beside its Result socket, so a chain of wires and
   // literals can be read off the card without running the event.
   const concatPreview =
@@ -334,56 +338,88 @@ export default function GraphNodeCard(props: GraphNodeCardProps) {
         {label}
       </div>
 
-      {fieldRows.map((row) => (
-        <div
-          key={row.fieldName}
-          style={{
-            position: 'absolute',
-            top: row.top,
-            left: CARD_PADDING_X,
-            width: rowWidth,
-            height: row.height,
-            // Guarantees a control that renders taller than its declared CONTROL_HEIGHTS
-            // entry gets clipped rather than pushing the next row out of alignment.
-            overflow: 'hidden',
-            paddingLeft: '0.35rem',
-            paddingRight: '0.35rem',
-          }}
-        >
-          <div style={{ ...rowLabelStyle, position: 'static' }}>
-            {row.field.label ?? row.fieldName}
-          </div>
-          {row.showsControl && row.previewOnly ? (
-            // The editor for this field is in the inspector; the card shows the first line of
-            // what's there so the node is still identifiable at a glance.
-            <div
-              style={{
-                fontFamily: 'monospace',
-                fontSize: '0.7rem',
-                opacity: 0.6,
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap',
-              }}
-              title='Select this node to edit in the inspector'
-            >
-              {firstLine(values?.[row.fieldName]) || 'Select the node to edit'}
+      {fieldRows.map((row) => {
+        const isDebugValueRow = isDebugText && row.fieldName === 'value';
+        return (
+          <div
+            key={row.fieldName}
+            style={{
+              position: 'absolute',
+              top: row.top,
+              left: CARD_PADDING_X,
+              width: rowWidth,
+              height: row.height,
+              // Guarantees a control that renders taller than its declared CONTROL_HEIGHTS
+              // entry gets clipped rather than pushing the next row out of alignment. The
+              // debug readout is the one exception: it has a native resize handle, and a
+              // user dragging it bigger than the row's default should actually show more
+              // text rather than clip against a box nothing else on this card sits below.
+              overflow: isDebugValueRow ? 'visible' : 'hidden',
+              paddingLeft: '0.35rem',
+              paddingRight: '0.35rem',
+            }}
+          >
+            <div style={{ ...rowLabelStyle, position: 'static' }}>
+              {row.field.label ?? row.fieldName}
             </div>
-          ) : row.showsControl ? (
-            // .node-inline-field (EventTab.scss) shrinks the shared Form* controls to the
-            // fixed row heights nodeLayout computes socket offsets from.
-            <div className='node-inline-field'>
-              <NodeFieldInput
-                formKey={buildNodeValueKey(eventName, nodeIndex, row.fieldName)}
-                field={row.field}
-                moduleName={moduleName}
-                label=''
-                compact
+            {isDebugValueRow ? (
+              <textarea
+                readOnly
+                value={
+                  debugLiveValue === undefined
+                    ? ''
+                    : debugLiveValue === ''
+                      ? '(empty)'
+                      : debugLiveValue
+                }
+                placeholder='Nothing received yet - fire this branch to see a value'
+                style={{
+                  display: 'block',
+                  width: '100%',
+                  height: Math.max(row.height - HANDLE_SPACING, 40),
+                  resize: 'vertical',
+                  fontFamily: 'monospace',
+                  fontSize: '0.7rem',
+                  boxSizing: 'border-box',
+                  background: 'var(--color-background-far, #1a1a1a)',
+                  color: 'var(--color-text, #eee)',
+                  border: '1px solid var(--color-border, #444)',
+                  borderRadius: 4,
+                  padding: '4px 6px',
+                }}
               />
-            </div>
-          ) : null}
-        </div>
-      ))}
+            ) : row.showsControl && row.previewOnly ? (
+              // The editor for this field is in the inspector; the card shows the first line of
+              // what's there so the node is still identifiable at a glance.
+              <div
+                style={{
+                  fontFamily: 'monospace',
+                  fontSize: '0.7rem',
+                  opacity: 0.6,
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                }}
+                title='Select this node to edit in the inspector'
+              >
+                {firstLine(values?.[row.fieldName]) || 'Select the node to edit'}
+              </div>
+            ) : row.showsControl ? (
+              // .node-inline-field (EventTab.scss) shrinks the shared Form* controls to the
+              // fixed row heights nodeLayout computes socket offsets from.
+              <div className='node-inline-field'>
+                <NodeFieldInput
+                  formKey={buildNodeValueKey(eventName, nodeIndex, row.fieldName)}
+                  field={row.field}
+                  moduleName={moduleName}
+                  label=''
+                  compact
+                />
+              </div>
+            ) : null}
+          </div>
+        );
+      })}
       {outputRows.map((row) => (
         <div
           key={row.portId}

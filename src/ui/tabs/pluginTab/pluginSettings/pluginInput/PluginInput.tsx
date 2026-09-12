@@ -93,6 +93,7 @@ export default function PluginInput(props: PluginInputProps) {
           <FormAssetSelect
             formKey={formKey}
             label={label}
+            assetType={options?.assetType}
             assetFolderPath={options?.folder}
             pluginName={pluginName}
           />

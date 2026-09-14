@@ -9,34 +9,29 @@ import {
   TypeFace,
   useToast,
 } from '@spooder/webui-component-library';
+import { IconProp } from '@fortawesome/fontawesome-svg-core';
+import { faPuzzlePiece } from '@fortawesome/free-solid-svg-icons';
 import React, { useMemo, useState } from 'react';
-import { useDispatch } from 'react-redux';
-import {
-  CatalogEntry,
-  RestartVia,
-  useInstallEntryMutation,
-  useUninstallEntryMutation,
-} from '../../../app/api/registrySlice';
-import { _setTab } from '../../../app/slice/navigationSlice';
-import useNavigation from '../../../app/hooks/useNavigation';
-import { unregisterModule } from '../../../modules/registry';
+import { CatalogEntry, RestartVia, useInstallEntryMutation } from '../../../app/api/registrySlice';
+import { DiscordIcon, ObsIcon, TwitchIcon } from '../../common/icons/icons';
+import ModuleDetailsModal from './ModuleDetailsModal';
 
-// What the button offers, and why it might not. A module is compiled by Spooder's own build,
-// so installing one takes a minute and a restart - said on the card rather than discovered
-// when the page appears to hang.
+// The registry catalogue doesn't carry real icon assets for these, so the same marks the
+// modules' own tabs use (see src/ui/common/icons/icons.tsx) stand in here too.
+const KNOWN_MODULE_ICONS: { [id: string]: IconProp | string } = {
+  twitch: TwitchIcon,
+  discord: DiscordIcon,
+  obs: ObsIcon,
+};
+
+// What the button offers, and why it might not. Only plugins go through this card now -
+// modules get their own section in ModuleDetailsModal.
 function actionFor(entry: CatalogEntry): { label: string; enabled: boolean; note?: string } {
   if (entry.installed) {
     return { label: 'Installed', enabled: false };
   }
   if (!entry.compatible) {
     return { label: 'Unavailable', enabled: false, note: `Needs Spooder ${entry.spooder}` };
-  }
-  if (entry.kind === 'module') {
-    return {
-      label: 'Install',
-      enabled: true,
-      note: 'Takes a minute to build, then needs a restart.',
-    };
   }
   return { label: 'Install', enabled: true };
 }
@@ -49,12 +44,8 @@ function EntryCard({
   onRestartNeeded: (what: string, via: RestartVia) => void;
 }) {
   const [install, { isLoading }] = useInstallEntryMutation();
-  const [uninstall, { isLoading: removing }] = useUninstallEntryMutation();
   const { showSuccess, showError } = useToast();
-  const { currentTab } = useNavigation();
-  const dispatch = useDispatch();
   const action = actionFor(entry);
-  const busy = isLoading || removing;
 
   const onInstall = async () => {
     const result: any = await install({ id: entry.id });
@@ -69,54 +60,47 @@ function EntryCard({
     showSuccess(`${entry.name} installed.`);
   };
 
-  const onUninstall = async () => {
-    const result: any = await uninstall({ id: entry.id });
-    if (result?.error) {
-      showError(result.error.data?.error ?? `Could not remove ${entry.name}.`);
-      return;
-    }
-    // The backend is gone, but this page still has the module registered from when it loaded,
-    // so its tab would sit there until a restart. Drop it now - and step off it first, or the
-    // current tab points at a module that no longer renders anything.
-    if (currentTab === entry.id) {
-      dispatch(_setTab({ tab: 'modules', folder: undefined }));
-    }
-    unregisterModule(entry.id);
-    onRestartNeeded(`${entry.name} (removed)`, result.data?.restartVia ?? 'manual');
-  };
-
   return (
     <Border>
       <Box padding="small" width="100%">
         <Stack spacing="small" width="100%">
           <Columns spacing="small">
             <TypeFace fontSize="large">{entry.name}</TypeFace>
-            {entry.installed && entry.kind === 'module' ? (
-              <Button
-                label={removing ? 'Removing…' : 'Remove'}
-                onClick={onUninstall}
-                disabled={busy}
-              />
-            ) : (
-              <Button
-                label={isLoading ? 'Building…' : action.label}
-                onClick={onInstall}
-                disabled={!action.enabled || busy}
-              />
-            )}
+            <Button
+              label={isLoading ? 'Building…' : action.label}
+              onClick={onInstall}
+              disabled={!action.enabled || isLoading}
+            />
           </Columns>
           <TypeFace fontSize="medium">{entry.summary}</TypeFace>
           {action.note && <TypeFace fontSize="medium">{action.note}</TypeFace>}
-          {entry.installed && entry.kind === 'module' && entry.webuiInstalled === false && (
-            <TypeFace fontSize="medium">Installed, but its tab hasn't been downloaded yet.</TypeFace>
-          )}
           <TypeFace fontSize="medium">
-            {entry.kind} · {entry.author} · {entry.license} · from {entry.source.name}
+            {entry.author} · {entry.license} · from {entry.source.name}
             {entry.tags?.length ? ` · ${entry.tags.join(', ')}` : ''}
           </TypeFace>
         </Stack>
       </Box>
     </Border>
+  );
+}
+
+// One icon button per module. Its own section lives in a modal rather than inline, since a
+// module's install state, notes and widget links are too much to show for every entry at once
+// in what's meant to be a scannable grid.
+function ModuleIcon({ entry, onOpen }: { entry: CatalogEntry; onOpen: () => void }) {
+  return (
+    <Box padding="small">
+      <Button
+        width="10rem"
+        label={entry.name}
+        icon={KNOWN_MODULE_ICONS[entry.id] ?? entry.icon}
+        iconSize='8rem'
+        fallbackIcon={faPuzzlePiece}
+        iconPosition="top"
+        onClick={onOpen}
+        truncate
+      />
+    </Box>
   );
 }
 
@@ -129,6 +113,9 @@ export default function CatalogList({
 }) {
   const [search, setSearch] = useState('');
   const [tag, setTag] = useState('');
+  // Holds the open module's id rather than a plain boolean, so the same state both drives the
+  // modal and picks which entry it should describe.
+  const [openModuleId, setOpenModuleId] = useState('');
 
   const tags = useMemo(() => {
     const all = new Set<string>();
@@ -197,13 +184,17 @@ export default function CatalogList({
       {modules.length > 0 && (
         <Stack spacing="small" width="100%">
           <TypeFace fontSize="large">Modules</TypeFace>
-          {modules.map((e) => (
-            <EntryCard
-              key={`${e.source.id}:${e.id}`}
-              entry={e}
-              onRestartNeeded={onRestartNeeded}
-            />
-          ))}
+          <Box flexFlow="row wrap">
+            {modules.map((e) => (
+              <ModuleIcon key={`${e.source.id}:${e.id}`} entry={e} onOpen={() => setOpenModuleId(e.id)} />
+            ))}
+          </Box>
+          <ModuleDetailsModal
+            entry={modules.find((e) => e.id === openModuleId)}
+            isOpen={openModuleId !== ''}
+            onClose={() => setOpenModuleId('')}
+            onRestartNeeded={onRestartNeeded}
+          />
         </Stack>
       )}
       {plugins.length > 0 && (

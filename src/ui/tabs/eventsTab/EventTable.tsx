@@ -1,17 +1,20 @@
 import React from 'react';
 import { useState } from 'react';
 import { useFormContext } from 'react-hook-form';
-import { faComment, faNetworkWired } from '@fortawesome/free-solid-svg-icons';
+import { faBan, faComment, faNetworkWired } from '@fortawesome/free-solid-svg-icons';
 import {
   Expandable,
+  ExpandableIcon,
   Box,
   Columns,
   SearchBar,
   FilterButton,
   ResetButton,
   SaveButton,
+  useTheme,
 } from '@spooder/webui-component-library';
 import useEvents from '../../../app/hooks/useEvents';
+import useModules from '../../../modules/useModules';
 import { Footer } from '../../app/Footer';
 import AddEventInput from './eventCommand/input/AddEventInput';
 import AddGroupInput from './eventCommand/input/AddGroupInput';
@@ -21,16 +24,24 @@ import EventElement from './EventElement';
 import { TwitchIcon } from '../../common/icons/icons';
 import ExportGroupButton from './eventCommand/input/ExportGroupButton';
 import ImportGroupButton from './eventCommand/input/ImportGroupButton';
-import { GRAPH_KEY, GROUP_KEY } from './FormKeys';
-import { getGraphTriggerKinds } from './eventNodes/graphUtil';
+import { DISABLED_GROUP_KEY, GRAPH_KEY, GROUP_KEY } from './FormKeys';
+import {
+  GraphTriggerKind,
+  getGraphTriggerKinds,
+  orderTriggerKinds,
+  triggerKindIcon,
+} from './eventNodes/graphUtil';
 
 export default function EventTable() {
   const [searchText, setSearchText] = useState<string>('');
   const [filter, setFilter] = useState<string[]>([]);
 
   const { watch } = useFormContext();
+  const { themeColors } = useTheme();
+  const modules = useModules();
   const graphs = watch(GRAPH_KEY);
   const groups = watch(GROUP_KEY);
+  const disabledGroups: string[] = watch(DISABLED_GROUP_KEY) ?? [];
 
   const searchEnabled = searchText !== '';
   const filterEnabled = filter.length > 0;
@@ -43,6 +54,17 @@ export default function EventTable() {
     .sort((a, b) => {
       return graphs[a].name.toUpperCase() > graphs[b].name.toUpperCase() ? 1 : -1;
     });
+
+  // What each group's header icons show - the full set of trigger kinds in the group, not just
+  // what the current search/filter leaves visible, so the header doesn't flicker as you type.
+  const groupTriggerKinds: { [groupName: string]: Set<GraphTriggerKind> } = {};
+  for (const key of propKeys) {
+    const graph = graphs[key];
+    const kinds = (groupTriggerKinds[graph.group] ??= new Set());
+    for (const kind of getGraphTriggerKinds(graph)) {
+      kinds.add(kind);
+    }
+  }
 
   const groupObjects = groups.reduce((obj: any, key: string) => ({ ...obj, [key]: [] }), {
     Default: [],
@@ -85,11 +107,23 @@ export default function EventTable() {
       return null;
     }
 
+    const groupIcons: ExpandableIcon[] = orderTriggerKinds(groupTriggerKinds[groupName] ?? []).map(
+      (kind) => triggerKindIcon(kind, modules),
+    );
+    if (disabledGroups.includes(groupName)) {
+      groupIcons.push({
+        icon: faBan,
+        iconColor: themeColors.colorAnalogousCW,
+        tooltipText: 'This group is disabled',
+      });
+    }
+
     return (
       <Expandable
         key={`group-${groupName}`}
         label={groupName}
         forceOpen={searchEnabled || filterEnabled}
+        icons={groupIcons}
       >
         <Box flexFlow='column'>
           <Box flexFlow='row wrap'>

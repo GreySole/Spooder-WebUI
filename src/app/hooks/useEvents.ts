@@ -1,10 +1,13 @@
 import { FieldValues } from 'react-hook-form';
 import {
+  useDeleteEventStorageValueMutation,
   useGetChatCommandsQuery,
   useGetEventGraphsQuery,
+  useGetEventStorageQuery,
   useGetNodeManifestQuery,
   useGetOperationNodesQuery,
   useSaveEventGraphsMutation,
+  useSetEventStorageValueMutation,
   useVerifyResponseScriptMutation,
 } from '../api/eventSlice';
 import { useToast } from '@spooder/webui-component-library';
@@ -67,6 +70,44 @@ export default function useEvents() {
     return { saveEvents, isLoading, isSuccess, error };
   }
 
+  function getEventStorage(eventName: string) {
+    const { data, isLoading, error, refetch } = useGetEventStorageQuery(eventName);
+    return {
+      values: data,
+      isLoading,
+      error,
+      refetch,
+    };
+  }
+
+  function getSetEventStorageValue() {
+    const [setEventStorageValueMutation, { isLoading, error }] = useSetEventStorageValueMutation();
+    function setEventStorageValue(eventName: string, key: string, value: unknown) {
+      return setEventStorageValueMutation({ eventName, key, value }).then((response) => {
+        if (response.error) {
+          showError('An error occurred while saving the value.');
+        }
+        return response;
+      });
+    }
+
+    return { setEventStorageValue, isLoading, error };
+  }
+
+  function getDeleteEventStorageValue() {
+    const [deleteEventStorageValueMutation, { isLoading, error }] = useDeleteEventStorageValueMutation();
+    function deleteEventStorageValue(eventName: string, key: string) {
+      return deleteEventStorageValueMutation({ eventName, key }).then((response) => {
+        if (response.error) {
+          showError('An error occurred while deleting the key.');
+        }
+        return response;
+      });
+    }
+
+    return { deleteEventStorageValue, isLoading, error };
+  }
+
   function getVerifyResponseScript() {
     const [verifyResponseScriptMutation, { isLoading, isSuccess, error }] =
       useVerifyResponseScriptMutation();
@@ -89,6 +130,9 @@ export default function useEvents() {
     getNodeManifest,
     getOperationNodes,
     getSaveEvents,
+    getEventStorage,
+    getSetEventStorageValue,
+    getDeleteEventStorageValue,
     getVerifyResponseScript,
   };
 }

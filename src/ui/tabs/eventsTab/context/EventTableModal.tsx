@@ -4,6 +4,7 @@ import EventGeneral from '../EventGeneral';
 import EventSaveButton from '../EventSaveButton';
 import { useEventTableModal } from './EventTableModalContext';
 import EventNodes from '../EventNodes';
+import EventStorage from '../eventStorage/EventStorage';
 
 function EventTableModal() {
   const { eventName, isOpen, cancel } = useEventTableModal();
@@ -15,6 +16,7 @@ function EventTableModal() {
         content: <EventGeneral eventName={eventName} />,
       },
       { title: 'Nodes', content: <EventNodes eventName={eventName} /> },
+      { title: 'Storage', content: <EventStorage eventName={eventName} /> },
     ],
     [eventName],
   );

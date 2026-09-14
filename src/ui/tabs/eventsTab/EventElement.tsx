@@ -1,10 +1,5 @@
 import React from 'react';
-import {
-  faCommentDots,
-  faNetworkWired,
-  faTrash,
-  faSquarePen,
-} from '@fortawesome/free-solid-svg-icons';
+import { faTrash, faSquarePen } from '@fortawesome/free-solid-svg-icons';
 import {
   Border,
   Box,
@@ -12,6 +7,7 @@ import {
   TypeFace,
   ButtonRow,
   useTheme,
+  useTooltip,
   Icon,
   Button,
   useDialog,
@@ -20,9 +16,9 @@ import { useFormContext } from 'react-hook-form';
 import { StyleSize } from '../../Types';
 import { useEventTableModal } from './context/EventTableModalContext';
 import { GRAPH_KEY, buildGraphKey, buildKey } from './FormKeys';
-import { TwitchIcon } from '../../common/icons/icons';
 import useEvents from '../../../app/hooks/useEvents';
-import { getGraphTriggerKinds } from './eventNodes/graphUtil';
+import useModules from '../../../modules/useModules';
+import { getGraphTriggerKinds, orderTriggerKinds, triggerKindIcon } from './eventNodes/graphUtil';
 
 interface EventElementProps {
   eventName: string;
@@ -37,6 +33,8 @@ export default function EventElement(props: EventElementProps) {
   const { openDialog, closeDialog } = useDialog();
   const { open, setEventName } = useEventTableModal();
   const { isMobileDevice } = useTheme();
+  const { showTip, hideTip } = useTooltip();
+  const modules = useModules();
   const graph = watch(`${GRAPH_KEY}.${eventName}`);
 
   function deleteEvent() {
@@ -77,19 +75,14 @@ export default function EventElement(props: EventElementProps) {
     open();
   }
 
-  const triggerKinds = getGraphTriggerKinds(graph);
-  let triggerIcons = [];
-  if (triggerKinds.includes('chat')) {
-    triggerIcons.push(<Icon key={'chaticon'} icon={faCommentDots} iconSize='xlarge' />);
-  }
-
-  if (triggerKinds.includes('twitch')) {
-    triggerIcons.push(<Icon key={'twitchicon'} icon={TwitchIcon} iconSize='xlarge' />);
-  }
-
-  if (triggerKinds.includes('osc')) {
-    triggerIcons.push(<Icon key={'oscicon'} icon={faNetworkWired} iconSize='xlarge' />);
-  }
+  const triggerIcons = orderTriggerKinds(getGraphTriggerKinds(graph)).map((kind) => {
+    const { icon, tooltipText } = triggerKindIcon(kind, modules);
+    return (
+      <span key={kind} onPointerEnter={() => showTip(tooltipText)} onPointerLeave={() => hideTip()}>
+        <Icon icon={icon} iconSize='xlarge' />
+      </span>
+    );
+  });
   const graphKey = buildGraphKey(eventName);
   const nameKey = buildKey(graphKey, 'name');
   const name = watch(nameKey);

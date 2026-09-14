@@ -48,10 +48,20 @@ const modulePrefixes = fs.existsSync(installedModulesDir)
 const apiPrefixes = [...new Set([...corePrefixes, ...modulePrefixes])];
 
 export default defineConfig(({ command }) => ({
-  // Keep the node_modules symlink to the module SDK unresolved. Following it rewrites imports
-  // to the package's real path inside this repo, and Vite will not serve that URL - a nested
-  // package.json is a dependency boundary it only serves under /node_modules or /@fs.
-  resolve: { preserveSymlinks: true },
+  resolve: {
+    // Keep the node_modules symlink to the module SDK unresolved. Following it rewrites imports
+    // to the package's real path inside this repo, and Vite will not serve that URL - a nested
+    // package.json is a dependency boundary it only serves under /node_modules or /@fs.
+    preserveSymlinks: true,
+    // The component library is also symlinked in (to spooder-component-library), and it carries
+    // its own react/react-dom as devDependencies for its own tests. Left alone, imports from
+    // inside the library resolve against its real on-disk node_modules rather than this app's,
+    // so the page ends up running two copies of React - the symptom is hooks throwing "Cannot
+    // read properties of null" because the library's copy never has its dispatcher set. Dedupe
+    // forces every import of these, no matter which node_modules it would otherwise resolve
+    // from, to the one copy this project depends on.
+    dedupe: ['react', 'react-dom'],
+  },
   // Without this the SDK is pre-bundled into node_modules/.vite/deps, and editing it during
   // development does nothing until Vite re-optimises. Excluded, it is served as source and
   // hot reloads like the rest of the app - which is the whole reason it lives in this repo
@@ -91,7 +101,7 @@ export default defineConfig(({ command }) => ({
   server: {
     port: 3001,
     proxy: Object.fromEntries(
-      apiPrefixes.map((prefix) => [prefix, { target: 'http://localhost:3001', changeOrigin: true }]),
+      apiPrefixes.map((prefix) => [prefix, { target: 'http://localhost:3000', changeOrigin: true }]),
     ),
   },
   build: {

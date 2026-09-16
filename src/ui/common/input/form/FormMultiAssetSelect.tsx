@@ -1,16 +1,19 @@
-import { faFileImport, faTimes } from '@fortawesome/free-solid-svg-icons';
+import { faFileImport, faPlay, faStop, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import usePlugins from '../../../../app/hooks/usePlugins';
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   Box,
+  Button,
   FormLoader,
   getMediaType,
   SelectDropdown,
   TypeFace,
+  useDialog,
 } from '@spooder/webui-component-library';
 import { useFormContext } from 'react-hook-form';
 import { ASSET_PREVIEW_HEIGHT } from './FormAssetSelect';
+import PluginAssetPreview from '../../../tabs/pluginTab/PluginAssetPreview';
 
 interface FormMultiAssetSelectProps {
   formKey: string;
@@ -23,17 +26,19 @@ interface FormMultiAssetSelectProps {
 // The multi-select sibling of FormAssetSelect: the field's value is an array of asset paths
 // rather than one. It keeps the exact same box/row structure (drop zone + picker row) so it
 // costs no more card height than the single-asset control - see CONTROL_HEIGHTS.asset in
-// nodeLayout.ts - but the drop zone holds a horizontally-scrolling strip of picked assets
-// instead of one preview, and the picker appends its selection instead of replacing the value.
+// nodeLayout.ts - but the drop zone holds a scrollable grid of small preview tiles instead of
+// one preview, and the picker appends its selection instead of replacing the value.
 export default function FormMultiAssetSelect(props: FormMultiAssetSelectProps) {
   const { formKey, label, assetType, pluginName, assetFolderPath } = props;
   const acceptedFormat = assetType != null ? assetType + '/*' : '*';
   const { getPluginAssets, getUploadPluginAssets } = usePlugins();
   const { uploadPluginAssets } = getUploadPluginAssets();
   const { setValue, watch } = useFormContext();
+  const { openDialog, closeDialog } = useDialog();
 
   const currentAssets: string[] = watch(formKey) ?? [];
-  // Purely visual, matching FormAssetSelect's drop-active highlight.
+  // Purely visual: the drop zone lights up while a file is over it, so it's clear the box will
+  // take the drop rather than the browser navigating to the file.
   const [dropActive, setDropActive] = useState(false);
   // The picker is never bound to one of the array's own entries - it's a fire-once "add" control,
   // not an editor for an existing slot - so it keeps its own value and resets after each pick.
@@ -41,6 +46,16 @@ export default function FormMultiAssetSelect(props: FormMultiAssetSelectProps) {
 
   const { data: assets, isLoading, error, refetch } = getPluginAssets(pluginName, assetFolderPath);
   const fileRef = useRef<HTMLInputElement>(null);
+  // Only one preview plays at a time - the currently playing tile's own Audio, so a second
+  // click on it (or the tile unmounting/the card closing) can stop exactly that one.
+  const playingAudioRef = useRef<HTMLAudioElement | null>(null);
+  const [playingKey, setPlayingKey] = useState<string | null>(null);
+
+  useEffect(() => {
+    return () => {
+      playingAudioRef.current?.pause();
+    };
+  }, []);
 
   if (isLoading || error) {
     return <FormLoader numRows={2} />;
@@ -92,6 +107,50 @@ export default function FormMultiAssetSelect(props: FormMultiAssetSelectProps) {
     setPickerValue('');
   }
 
+  // Images get a dialog because a tile this small can't show any detail; sounds have no
+  // meaningful "larger" view, so a click just plays them instead.
+  function showImageDialog(assetFilePreview: string) {
+    openDialog(
+      assetFilePreview.substring(assetFilePreview.lastIndexOf('/') + 1),
+      <Box width='100%' height='60vh'>
+        <PluginAssetPreview assetFilePreview={assetFilePreview} assetPath={`assets/${pluginName}`} />
+      </Box>,
+      [<Button key='close' label='Close' onClick={() => closeDialog()} />],
+    );
+  }
+
+  function stopSound() {
+    playingAudioRef.current?.pause();
+    playingAudioRef.current = null;
+    setPlayingKey(null);
+  }
+
+  // A second click on the tile that's already playing stops it (the tile doubles as its own
+  // stop button); clicking a different one swaps to that instead of layering sounds.
+  function toggleSound(key: string, assetFilePreview: string) {
+    const wasPlaying = playingKey === key;
+    stopSound();
+    if (wasPlaying) {
+      return;
+    }
+    const audio = new Audio(`assets/${pluginName}/${assetFilePreview}`);
+    audio.addEventListener('ended', () => {
+      setPlayingKey((current) => (current === key ? null : current));
+    });
+    playingAudioRef.current = audio;
+    setPlayingKey(key);
+    audio.play();
+  }
+
+  function activateTile(key: string, assetFilePreview: string) {
+    const mediaType = getMediaType(assetFilePreview);
+    if (mediaType === 'image') {
+      showImageDialog(assetFilePreview);
+    } else if (mediaType === 'sound') {
+      toggleSound(key, assetFilePreview);
+    }
+  }
+
   return (
     <Box flexFlow='column'>
       {label ? <TypeFace fontWeight='bold'>{label}</TypeFace> : null}
@@ -116,30 +175,56 @@ export default function FormMultiAssetSelect(props: FormMultiAssetSelectProps) {
           setDropActive(false);
           uploadAsset(e.dataTransfer?.files ?? null);
         }}
-        // Unlike FormAssetSelect this box holds a variable amount of content (zero to many
-        // chips), which would otherwise shrink it to fit - locking it to ASSET_PREVIEW_HEIGHT
-        // keeps it at the same size the row budget (CONTROL_HEIGHTS.asset in nodeLayout.ts)
-        // reserves, so the picker row underneath always lands where the layout expects it.
         style={{ height: ASSET_PREVIEW_HEIGHT }}
       >
         {currentAssets.length > 0 ? (
-          <div className='asset-multi-list'>
-            {currentAssets.map((assetPath, index) => (
-              <span className='asset-multi-chip' key={`${assetPath}-${index}`}>
-                <TypeFace>{assetPath.substring(assetPath.lastIndexOf('/') + 1)}</TypeFace>
-                <button
-                  type='button'
-                  className='asset-multi-chip-remove'
-                  title='Remove'
+          <div className='asset-grid-list'>
+            {currentAssets.map((assetFilePath, index) => {
+              const mediaType = getMediaType(assetFilePath);
+              const filename = assetFilePath.substring(assetFilePath.lastIndexOf('/') + 1);
+              const key = `${assetFilePath}-${index}`;
+              const isPlaying = playingKey === key;
+              return (
+                <div
+                  key={key}
+                  className='asset-grid-tile'
+                  title={isPlaying ? `Stop ${filename}` : filename}
+                  // Stopped so a click here doesn't also bubble to the drop zone, which opens
+                  // the upload file picker - previously the only thing a click on a chip did.
                   onClick={(e) => {
                     e.stopPropagation();
-                    removeAsset(index);
+                    activateTile(key, assetFilePath);
                   }}
                 >
-                  <FontAwesomeIcon icon={faTimes} />
-                </button>
-              </span>
-            ))}
+                  {mediaType === 'image' ? (
+                    <img
+                      className='asset-grid-thumb'
+                      src={`assets/${pluginName}/${assetFilePath}`}
+                      alt={filename}
+                    />
+                  ) : (
+                    <FontAwesomeIcon
+                      icon={isPlaying ? faStop : faPlay}
+                      className='asset-grid-play-icon'
+                    />
+                  )}
+                  <button
+                    type='button'
+                    className='asset-grid-remove'
+                    title='Remove'
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (isPlaying) {
+                        stopSound();
+                      }
+                      removeAsset(index);
+                    }}
+                  >
+                    <FontAwesomeIcon icon={faTimes} />
+                  </button>
+                </div>
+              );
+            })}
           </div>
         ) : (
           <span className='asset-drop-zone-hint'>

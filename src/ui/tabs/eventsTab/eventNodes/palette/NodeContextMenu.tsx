@@ -17,6 +17,10 @@ interface NodeContextMenuProps {
   nodeActionIds: string[];
   onDuplicateNodes: (nodeIds: string[]) => void;
   onDeleteNodes: (nodeIds: string[]) => void;
+  // Set only when the menu was opened on exactly one trigger (callback) node - firing more than
+  // one at once wouldn't mean anything, so the row is simply absent otherwise.
+  triggerNodeId?: string;
+  onTriggerNow: (nodeId: string) => void;
   onClose: () => void;
 }
 
@@ -44,7 +48,17 @@ function NodeActionRow(props: NodeActionRowProps) {
 // buttons - the groups come from the same useNodePalette call - with the three top-level menus
 // collapsed into one cascade, plus a search box that flattens the whole tree.
 export default function NodeContextMenu(props: NodeContextMenuProps) {
-  const { anchor, groups, nodeActionIds, onSelect, onDuplicateNodes, onDeleteNodes, onClose } = props;
+  const {
+    anchor,
+    groups,
+    nodeActionIds,
+    onSelect,
+    onDuplicateNodes,
+    onDeleteNodes,
+    triggerNodeId,
+    onTriggerNow,
+    onClose,
+  } = props;
   const [query, setQuery] = useState('');
   const [highlight, setHighlight] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -169,6 +183,15 @@ export default function NodeContextMenu(props: NodeContextMenuProps) {
             of them deliberately - it filters nodes to add, not commands. */}
         {nodeActionIds.length > 0 ? (
           <>
+            {triggerNodeId ? (
+              <NodeActionRow
+                label='Trigger Now'
+                onClick={() => {
+                  onTriggerNow(triggerNodeId);
+                  onClose();
+                }}
+              />
+            ) : null}
             <NodeActionRow label={`Duplicate ${nodeActionLabel}`} onClick={() => runNodeAction(onDuplicateNodes)} />
             <NodeActionRow
               label={`Delete ${nodeActionLabel}`}

@@ -5,6 +5,7 @@ import {
   faDashboard,
   faGears,
   faHammer,
+  faLayerGroup,
   faPaintRoller,
   faPerson,
   faPlug,
@@ -52,6 +53,7 @@ const CORE_MAIN_TABS_AFTER_MODULES: TabOptions = {
 const CORE_DECK_TABS: TabOptions = {
   osc: { label: 'OSC Monitor', icon: faTv },
   mod: { label: 'Mod UI', icon: faHammer },
+  overlay: { label: 'Overlays', icon: faLayerGroup },
 };
 
 export const navigationSlice = createSlice({
@@ -68,6 +70,10 @@ export const navigationSlice = createSlice({
       'dashboard',
     currentFolder: undefined,
     navigationOpen: false,
+    // Desktop-only: whether the mouse is over the collapsed icon rail, which is the one thing
+    // that widens it back out to show labels. Unused on mobile, where navigationOpen already
+    // drives the full slide-out instead.
+    navRailHovered: false,
     rememberLastTab: localStorage.getItem('lastTab') != null,
   },
   reducers: {
@@ -80,6 +86,9 @@ export const navigationSlice = createSlice({
     },
     _setNavigation: (state, action) => {
       state.navigationOpen = action.payload.isOpen;
+    },
+    _setNavRailHovered: (state, action) => {
+      state.navRailHovered = action.payload.isHovered;
     },
     _setRememberLastTab: (state, action) => {
       state.rememberLastTab = action.payload.isRemembering;
@@ -102,6 +111,7 @@ export const {
   _setTab,
   _toggleNavigation,
   _setNavigation,
+  _setNavRailHovered,
   _setRememberLastTab,
   _setModuleTabs,
 } = navigationSlice.actions;

@@ -6,16 +6,25 @@ import NavigationTabs from './navigation/NavigationTabs';
 import { Box, useTheme, CustomSpooder, Icon } from '@spooder/webui-component-library';
 
 export default function Header() {
-  const { navigationOpen, toggleNavigation } = useNavigation();
+  const { navigationOpen, toggleNavigation, setNavRailHovered } = useNavigation();
   const { isMobileDevice } = useTheme();
   return (
-    <Box
-      className={`nav-menu ${isMobileDevice ? (navigationOpen ? 'open' : '') : 'open'}`}
-      width='100%'
-      height='100%'
-      flexFlow='column'
-      backgroundColor='var(--color-background-far)'
+    // Box doesn't forward onMouseEnter/onMouseLeave to its underlying div (see BoxProps), so
+    // this one container - the only one that needs hover - is a plain div styled to match what
+    // Box would have rendered instead.
+    <div
+      className={`box nav-menu ${isMobileDevice ? (navigationOpen ? 'open' : '') : 'open'}`}
+      // Desktop-only rail expansion. On mobile, navigationOpen already drives the full
+      // slide-out via the hamburger toggle below, so hover has no separate role there.
+      onMouseEnter={() => !isMobileDevice && setNavRailHovered(true)}
+      onMouseLeave={() => !isMobileDevice && setNavRailHovered(false)}
       style={{
+        display: 'flex',
+        flexFlow: 'column',
+        width: '100%',
+        height: '100%',
+        boxSizing: 'border-box',
+        backgroundColor: 'var(--color-background-far)',
         borderRadius: 0,
       }}
     >
@@ -44,6 +53,6 @@ export default function Header() {
       >
         <NavigationTabs />
       </Box>
-    </Box>
+    </div>
   );
 }

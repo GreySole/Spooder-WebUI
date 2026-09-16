@@ -1,6 +1,7 @@
 import { useDispatch, useSelector } from 'react-redux';
 import {
   _setNavigation,
+  _setNavRailHovered,
   _setRememberLastTab,
   _setTab,
   _toggleNavigation,
@@ -14,6 +15,9 @@ export default function useNavigation() {
   const tabOptions = useSelector((state: IRootState) => state.navigationSlice.tabOptions);
   const deckTabOptions = useSelector((state: IRootState) => state.navigationSlice.deckTabOptions);
   const navigationOpen = useSelector((state: IRootState) => state.navigationSlice.navigationOpen);
+  const navRailHovered = useSelector(
+    (state: IRootState) => state.navigationSlice.navRailHovered,
+  );
   const rememberLastTab = useSelector((state: IRootState) => state.navigationSlice.rememberLastTab);
 
   const queryString = window.location.search;
@@ -33,6 +37,10 @@ export default function useNavigation() {
     dispatch(_setNavigation({ isOpen }));
   }
 
+  function setNavRailHovered(isHovered: boolean) {
+    dispatch(_setNavRailHovered({ isHovered }));
+  }
+
   function setRememberLastTab(isRemembering: boolean) {
     console.log('setRememberLastTab', isRemembering);
     if (isRemembering) {
@@ -45,9 +53,11 @@ export default function useNavigation() {
 
   return {
     navigationOpen,
+    navRailHovered,
     setTab,
     toggleNavigation,
     setNavigation,
+    setNavRailHovered,
     tabOptions,
     deckTabOptions,
     currentTab,

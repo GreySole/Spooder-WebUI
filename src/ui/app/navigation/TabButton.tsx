@@ -13,9 +13,19 @@ interface TabButtonProps {
 
 export default function TabButton(props: TabButtonProps) {
   const { tabName, tabFolder, tabLabel, index, icon } = props;
-  const { setTab, currentTab, currentFolder, setNavigation, tabOptions, deckTabOptions } =
-    useNavigation();
-  const { themeVariables } = useTheme();
+  const {
+    setTab,
+    currentTab,
+    currentFolder,
+    setNavigation,
+    tabOptions,
+    deckTabOptions,
+    navRailHovered,
+  } = useNavigation();
+  const { themeVariables, isMobileDevice } = useTheme();
+  // Collapsed to icon-only on the desktop rail unless the mouse is over it (see Header.tsx) -
+  // mobile's slide-out always shows the full label since there's no hover state there.
+  const showLabel = isMobileDevice || navRailHovered;
 
   const iconMap = { ...tabOptions, ...deckTabOptions };
 
@@ -40,6 +50,12 @@ export default function TabButton(props: TabButtonProps) {
         flexDirection: 'row-reverse',
         justifyContent: 'start',
         padding: '.5rem',
+        // Pinned rather than left to content: a bare icon and an icon-plus-label row would
+        // otherwise size differently, since a text line's line-height renders taller than the
+        // icon's flat pixel size - the collapsed and hover-expanded rail would visibly jump in
+        // row height. lineHeight tightens the label to match rather than overflowing this.
+        height: '2rem',
+        lineHeight: 1,
         color: iconAndTextColor,
         fontWeight: '500',
         margin: '1px 0',
@@ -52,7 +68,8 @@ export default function TabButton(props: TabButtonProps) {
         setTab(tabName, tabFolder);
         setNavigation(false);
       }}
-      label={tabLabel}
+      label={showLabel ? tabLabel : undefined}
+      tooltipText={showLabel ? undefined : tabLabel}
       icon={icon}
     />
   );

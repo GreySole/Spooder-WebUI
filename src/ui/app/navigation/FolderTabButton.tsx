@@ -13,9 +13,12 @@ export default function FolderTabButton(props: {
   subTabs: Record<string, { label: string; icon: IconProp }>;
 }) {
   const { tabName, tabLabel, index, icon, subTabs } = props;
-  const { currentTab, currentFolder, tabOptions, deckTabOptions } = useNavigation();
-  const { themeVariables } = useTheme();
+  const { currentTab, currentFolder, tabOptions, deckTabOptions, navRailHovered } =
+    useNavigation();
+  const { themeVariables, isMobileDevice } = useTheme();
   const [showSubTabs, setShowSubTabs] = useState(false);
+  // Collapsed to icon-only on the desktop rail unless the mouse is over it (see Header.tsx).
+  const showLabel = isMobileDevice || navRailHovered;
 
   console.log('FolderTabButton', tabName, currentTab, currentFolder);
 
@@ -48,6 +51,10 @@ export default function FolderTabButton(props: {
           flexDirection: 'row-reverse',
           justifyContent: 'start',
           padding: '.5rem',
+          // Pinned for the same reason as TabButton.tsx - without it, a bare icon and an
+          // icon-plus-label row size differently and the row height jumps on hover-expand.
+          height: '2rem',
+          lineHeight: 1,
           color: iconAndTextColor,
           fontWeight: '500',
           margin: '1px 0',
@@ -57,7 +64,8 @@ export default function FolderTabButton(props: {
         onClick={() => {
           setShowSubTabs(!showSubTabs);
         }}
-        label={tabLabel}
+        label={showLabel ? tabLabel : undefined}
+        tooltipText={showLabel ? undefined : tabLabel}
         icon={icon}
       />
       {showSubTabs ? (

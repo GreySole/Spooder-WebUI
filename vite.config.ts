@@ -31,6 +31,9 @@ const corePrefixes = [
   '/icons',
   '/utility',
   '/overlay',
+  // The overlay layout editor's own API - distinct from '/overlay' above, which serves the
+  // static per-plugin overlay pages themselves.
+  '/overlay_container',
 ];
 
 // Modules serve their API under /<module key> - the baseUrl each module's backend counterpart

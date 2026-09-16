@@ -31,6 +31,8 @@ export default function PluginNodeEditor(props: PluginNodeEditorProps) {
   const eType = watch(eventTypeFormKey, '');
 
   const eventNameFormKey = buildKey(nodeValueKey, 'eventname');
+  const legacyEventName = watch(eventNameFormKey, '');
+  const nestedEventName = watch(buildKey(nodeValueKey, 'event', 'name'), '');
 
   const durationFormKey = buildKey(nodeValueKey, 'duration');
 
@@ -42,6 +44,17 @@ export default function PluginNodeEditor(props: PluginNodeEditorProps) {
   if (pluginsLoading || pluginEventsFormLoading) {
     return null;
   }
+
+  // A node saved before its plugin declared events-form.json (or one whose plain-text event
+  // name was never one of that form's declared events, e.g. graphicboard's named graphics)
+  // still carries its event under the old flat `eventname` field, with no `event` object at
+  // all. CustomEventPluginNodeCommand only ever reads/writes the nested `event.name`, so
+  // switching every node of a plugin to it the moment that plugin gains a form would hide
+  // (and, on the next save, silently drop) whatever a legacy node already had configured -
+  // exactly what EventPluginCommand's own `eCommand.event ?? eCommand.eventname` fallback on
+  // the backend is written to tolerate. Keep showing the plain field for such a node; clearing
+  // it is the escape hatch into the dynamic form.
+  const usesCustomEventForm = pluginEventsForm != null && (!legacyEventName || nestedEventName);
 
   let pluginOptions = [{ label: 'None', value: '' }];
   if (plugins != null) {
@@ -62,7 +75,7 @@ export default function PluginNodeEditor(props: PluginNodeEditorProps) {
           { label: 'One Shot', value: 'oneshot' },
         ]}
       />
-      {pluginEventsForm != null ? (
+      {usesCustomEventForm ? (
         <CustomEventPluginNodeCommand
           formKey={nodeValueKey}
           pluginName={pluginName}

@@ -23,9 +23,10 @@ interface EventNodesProps {
 export default function EventNodes(props: EventNodesProps) {
   const { eventName } = props;
   const { watch, setValue, getValues } = useFormContext();
-  const { getNodeManifest, getOperationNodes } = useEvents();
+  const { getNodeManifest, getOperationNodes, getTriggerNow } = useEvents();
   const { manifests } = getNodeManifest();
   const { operationNodes } = getOperationNodes();
+  const { triggerNow } = getTriggerNow();
 
   const [selectedNodeIds, setSelectedNodeIds] = useState<string[]>([]);
   // The inspector edits one node, so it only opens on a single selection - a box-selected group
@@ -55,6 +56,14 @@ export default function EventNodes(props: EventNodesProps) {
 
   const graphKey = buildGraphKey(eventName);
   const graph: EventGraph = watch(graphKey);
+
+  // 'Trigger Now' only makes sense for exactly one trigger - firing several at once, or firing
+  // an action/operation node, has no meaning here.
+  const contextMenuTriggerNodeId =
+    contextMenuNodeIds.length === 1 &&
+    graph?.nodes.find((n) => n.id === contextMenuNodeIds[0])?.kind === 'callback'
+      ? contextMenuNodeIds[0]
+      : undefined;
 
   const resolveDef = useCallback(
     (node: Pick<EventGraphNode, 'kind' | 'moduleName' | 'nodeTypeId' | 'values'>) =>
@@ -104,6 +113,13 @@ export default function EventNodes(props: EventNodesProps) {
       setValue(`${graphKey}.nodes`, nextNodes, { shouldDirty: true });
     },
     [getValues, graphKey, setValue],
+  );
+
+  const handleTriggerNow = useCallback(
+    (nodeId: string) => {
+      triggerNow(eventName, nodeId);
+    },
+    [eventName, triggerNow],
   );
 
   const handleNodesDelete = useCallback(
@@ -285,6 +301,8 @@ export default function EventNodes(props: EventNodesProps) {
           nodeActionIds={contextMenuNodeIds}
           onDuplicateNodes={handleNodesDuplicate}
           onDeleteNodes={handleNodesDelete}
+          triggerNodeId={contextMenuTriggerNodeId}
+          onTriggerNow={handleTriggerNow}
           onClose={() => setContextMenu(null)}
         />
       ) : null}

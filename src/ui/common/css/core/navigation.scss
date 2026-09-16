@@ -1,5 +1,11 @@
 :root {
   --menu-width: 170px;
+  // Desktop's default (unhovered) sidebar width - driven by navRailHovered (see
+  // useNavigation.ts) rather than a CSS :hover, since a CSS-only version of this (:has() plus
+  // @media(hover:hover)) turned out not to fire reliably in every environment this app runs in
+  // (e.g. some embedded webviews misreport hover/pointer capability). Mobile's slide-out still
+  // uses --menu-width directly (see App.tsx), so it always opens to the full labelled width.
+  --menu-width-rail: 50px;
 }
 
 .nav-share-container {
@@ -27,6 +33,10 @@
     width 0.5s,
     border-right 0.5s;
   border-right: 2px solid transparent;
+  // Belt-and-suspenders: TabButton.tsx already omits the label entirely while collapsed, but
+  // this stops anything (a long tooltip, an unexpectedly wide icon) from ever visually
+  // spilling out of the rail into the content pane while it's narrow.
+  overflow: hidden;
 
   &.open {
     border-right: 2px solid var(--button-border-color);

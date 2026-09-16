@@ -37,7 +37,7 @@ export default function EventTable() {
   const [filter, setFilter] = useState<string[]>([]);
 
   const { watch } = useFormContext();
-  const { themeColors } = useTheme();
+  const { themeConstants } = useTheme();
   const modules = useModules();
   const graphs = watch(GRAPH_KEY);
   const groups = watch(GROUP_KEY);
@@ -113,7 +113,7 @@ export default function EventTable() {
     if (disabledGroups.includes(groupName)) {
       groupIcons.push({
         icon: faBan,
-        iconColor: themeColors.colorAnalogousCW,
+        iconColor: themeConstants.delete,
         tooltipText: 'This group is disabled',
       });
     }

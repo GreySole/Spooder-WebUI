@@ -19,6 +19,7 @@ import DashboardTab from '../tabs/DashboardTab';
 import EventTab from '../tabs/EventTab';
 import OSCTunnelTab from '../tabs/OSCTunnelTab';
 import ModulesTab from '../tabs/ModulesTab';
+import OverlayTab from '../tabs/OverlayTab';
 import PluginTab from '../tabs/PluginTab';
 import ShareTab from '../tabs/ShareTab';
 import ThemeTab from '../tabs/ThemeTab';
@@ -34,7 +35,7 @@ export default function App() {
     [modules],
   );
 
-  const { currentTab, navigationOpen, rememberLastTab } = useNavigation();
+  const { currentTab, navigationOpen, navRailHovered, rememberLastTab } = useNavigation();
   const { refreshThemeColors, isMobileDevice } = useTheme();
   const { scrollContainerRef } = useScrollContext();
 
@@ -110,6 +111,9 @@ export default function App() {
     case 'mod':
       tabContent = <ModUI />;
       break;
+    case 'overlay':
+      tabContent = <OverlayTab />;
+      break;
     case 'theme':
       tabContent = <ThemeTab />;
       break;
@@ -135,7 +139,18 @@ export default function App() {
   return (
     <Grid
       className='app-container'
-      columns={`${!isMobileDevice || navigationOpen ? 'var(--menu-width)' : '0'} 1fr`}
+      // Mobile keeps its full-width slide-out (0 closed, --menu-width open). Desktop collapses
+      // to the icon rail and widens to the full labelled width while navRailHovered is set by
+      // Header.tsx's onMouseEnter/onMouseLeave.
+      columns={`${
+        isMobileDevice
+          ? navigationOpen
+            ? 'var(--menu-width)'
+            : '0'
+          : navRailHovered
+            ? 'var(--menu-width)'
+            : 'var(--menu-width-rail)'
+      } 1fr`}
       rows={'1fr'}
       spacing='medium'
       height={'100dvh'}

@@ -60,6 +60,12 @@ export const eventApi = createApi({
         },
       }),
     }),
+    triggerNow: builder.mutation({
+      query: ({ eventName, nodeId }: { eventName: string; nodeId: string }) => ({
+        url: `/event_graphs/${encodeURIComponent(eventName)}/nodes/${encodeURIComponent(nodeId)}/trigger_now`,
+        method: 'post',
+      }),
+    }),
   }),
 });
 
@@ -73,4 +79,5 @@ export const {
   useSetEventStorageValueMutation,
   useDeleteEventStorageValueMutation,
   useVerifyResponseScriptMutation,
+  useTriggerNowMutation,
 } = eventApi;

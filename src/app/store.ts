@@ -3,6 +3,7 @@ import type { ModuleApi } from '@spooder/webui-module-sdk';
 import { configApi, serverApi } from '@spooder/webui-module-sdk';
 import { eventApi } from './api/eventSlice';
 import { moduleApi } from './api/moduleSlice';
+import { overlayContainerApi } from './api/overlayContainerSlice';
 import { registryApi } from './api/registrySlice';
 import { pluginApi } from './api/pluginSlice';
 import { recoveryApi } from './api/recoverySlice';
@@ -27,6 +28,7 @@ const coreReducers = {
   [eventApi.reducerPath]: eventApi.reducer,
   [configApi.reducerPath]: configApi.reducer,
   [moduleApi.reducerPath]: moduleApi.reducer,
+  [overlayContainerApi.reducerPath]: overlayContainerApi.reducer,
   [registryApi.reducerPath]: registryApi.reducer,
   [pluginApi.reducerPath]: pluginApi.reducer,
   [serverApi.reducerPath]: serverApi.reducer,
@@ -48,6 +50,7 @@ const store = configureStore({
       .concat(eventApi.middleware)
       .concat(configApi.middleware)
       .concat(moduleApi.middleware)
+      .concat(overlayContainerApi.middleware)
       .concat(registryApi.middleware)
       .concat(pluginApi.middleware)
       .concat(serverApi.middleware)

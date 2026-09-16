@@ -12,7 +12,16 @@ interface FooterProps {
 export function Footer({ children, showFooter }: FooterProps) {
   const ref = useRef(null);
   const { isMobileDevice } = useTheme();
-  const { navigationOpen } = useNavigation();
+  const { navigationOpen, navRailHovered } = useNavigation();
+  // Same width the sidebar itself is currently using (see App.tsx's grid columns), so the
+  // footer's edge always lines up with the nav regardless of collapsed/expanded/mobile state.
+  const menuWidth = isMobileDevice
+    ? navigationOpen
+      ? 'var(--menu-width)'
+      : '0px'
+    : navRailHovered
+      ? 'var(--menu-width)'
+      : 'var(--menu-width-rail)';
   return (
     <CSSTransition
       nodeRef={ref}
@@ -27,9 +36,9 @@ export function Footer({ children, showFooter }: FooterProps) {
         spacing='smedium'
         padding='smedium'
         justifyContent='end'
-        width={`${!isMobileDevice || navigationOpen ? 'calc(100% - var(--menu-width))' : '100%'}`}
+        width={`calc(100% - ${menuWidth})`}
         style={{
-          left: `${!isMobileDevice || navigationOpen ? 'calc(var(--menu-width) - 2px)' : '-2px'}`,
+          left: `calc(${menuWidth} - 2px)`,
           borderTop: 'solid 2px var(--button-border-color)',
           backgroundColor: 'var(--color-background-far)',
           borderRadius: 0,

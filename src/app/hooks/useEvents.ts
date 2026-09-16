@@ -8,6 +8,7 @@ import {
   useGetOperationNodesQuery,
   useSaveEventGraphsMutation,
   useSetEventStorageValueMutation,
+  useTriggerNowMutation,
   useVerifyResponseScriptMutation,
 } from '../api/eventSlice';
 import { useToast } from '@spooder/webui-component-library';
@@ -124,6 +125,26 @@ export default function useEvents() {
     return { verifyResponseScript, isLoading, isSuccess, error };
   }
 
+  function getTriggerNow() {
+    const [triggerNowMutation, { isLoading, error }] = useTriggerNowMutation();
+
+    function triggerNow(eventName: string, nodeId: string) {
+      return triggerNowMutation({ eventName, nodeId }).then((response) => {
+        if (response.error) {
+          showError(
+            (response.error as { data?: { message?: string } })?.data?.message ??
+              'Failed to fire the trigger.',
+          );
+        } else {
+          showSuccess('Trigger fired.');
+        }
+        return response;
+      });
+    }
+
+    return { triggerNow, isLoading, error };
+  }
+
   return {
     getEvents,
     getChatCommands,
@@ -134,5 +155,6 @@ export default function useEvents() {
     getSetEventStorageValue,
     getDeleteEventStorageValue,
     getVerifyResponseScript,
+    getTriggerNow,
   };
 }

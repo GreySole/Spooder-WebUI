@@ -56,7 +56,7 @@ export interface NodeGraphCanvasProps {
 function graphSignature(nodes: EventGraphNode[], edges: EventGraphEdge[]): string {
   return JSON.stringify([
     nodes.map((n) => [n.id, n.kind, n.moduleName, n.nodeTypeId, n.values, n.width]),
-    edges.map((e) => [e.toNode, e.toPort]),
+    edges.map((e) => [e.fromNode, e.toNode, e.toPort]),
   ]);
 }
 

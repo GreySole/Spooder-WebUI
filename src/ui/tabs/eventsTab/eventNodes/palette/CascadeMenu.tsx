@@ -89,6 +89,34 @@ export function CategoryPanel(props: CategoryPanelProps) {
   );
 }
 
+interface OptionLeavesProps {
+  options: PaletteOption[];
+  onSelect: (option: PaletteOption) => void;
+  onPick: () => void;
+}
+
+function OptionLeaves(props: OptionLeavesProps) {
+  const { options, onSelect, onPick } = props;
+  return (
+    <>
+      {options.map((option) => (
+        <div
+          key={option.value}
+          onClick={() => {
+            onSelect(option);
+            onPick();
+          }}
+          style={leafStyle}
+          onMouseEnter={(e) => (e.currentTarget.style.background = HIGHLIGHT_BACKGROUND)}
+          onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
+        >
+          {option.label}
+        </div>
+      ))}
+    </>
+  );
+}
+
 interface CategoryRowProps {
   category: PaletteCategory;
   isActive: boolean;
@@ -172,28 +200,22 @@ function CategoryRow(props: CategoryRowProps) {
         >
           <div ref={scrollRef}>
             {category.subcategories?.length ? (
-              <CategoryPanel
-                categories={category.subcategories}
-                onSelect={onSelect}
-                onPick={onPick}
-                getBounds={getBounds}
-              />
+              // A category can hold nodes of its own beside its submenus (Discord's actions
+              // beside its Components), so both share one panel: the nodes first, then the
+              // submenu rows.
+              <div style={panelStyle}>
+                <OptionLeaves options={category.options} onSelect={onSelect} onPick={onPick} />
+                <CategoryPanel
+                  categories={category.subcategories}
+                  onSelect={onSelect}
+                  onPick={onPick}
+                  getBounds={getBounds}
+                  embedded
+                />
+              </div>
             ) : (
               <div style={panelStyle}>
-                {category.options.map((option) => (
-                  <div
-                    key={option.value}
-                    onClick={() => {
-                      onSelect(option);
-                      onPick();
-                    }}
-                    style={leafStyle}
-                    onMouseEnter={(e) => (e.currentTarget.style.background = HIGHLIGHT_BACKGROUND)}
-                    onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
-                  >
-                    {option.label}
-                  </div>
-                ))}
+                <OptionLeaves options={category.options} onSelect={onSelect} onPick={onPick} />
               </div>
             )}
           </div>
@@ -207,11 +229,34 @@ interface CascadeMenuButtonProps {
   label: string;
   categories: PaletteCategory[];
   onSelect: (option: PaletteOption) => void;
+  // The area the menus aren't allowed to spill out of - the canvas the buttons sit on, which
+  // is smaller than the window. Defaults to the browser window.
+  getBounds?: () => MenuBounds;
 }
 
 export function CascadeMenuButton(props: CascadeMenuButtonProps) {
-  const { label, categories, onSelect } = props;
+  const { label, categories, onSelect, getBounds } = props;
   const [open, setOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // The first level hangs from the button, so unlike a submenu it can only slide sideways: a
+  // button near the right of the canvas would otherwise open a menu that runs off it. Measured
+  // after it mounts and moved only when it actually overflows, like CategoryRow's submenus.
+  // (Not clamped in height - scrolling this level would clip the submenus that fly out of it.)
+  useLayoutEffect(() => {
+    const dropdown = dropdownRef.current;
+    if (!open || !dropdown) {
+      return;
+    }
+    dropdown.style.left = '0';
+    const rect = dropdown.getBoundingClientRect();
+    const bounds = getBounds?.() ?? windowBounds();
+    const overflow = rect.right - (bounds.right - EDGE_MARGIN);
+    if (overflow > 0) {
+      const leastShift = bounds.left + EDGE_MARGIN - rect.left;
+      dropdown.style.left = `${Math.min(0, Math.max(-overflow, leastShift))}px`;
+    }
+  }, [open, getBounds]);
 
   return (
     <div style={{ position: 'relative' }} onMouseEnter={() => setOpen(true)} onMouseLeave={() => setOpen(false)}>
@@ -236,8 +281,13 @@ export function CascadeMenuButton(props: CascadeMenuButtonProps) {
         <span style={{ opacity: 0.6, fontSize: '0.7rem' }}>▾</span>
       </div>
       {open ? (
-        <div style={{ position: 'absolute', top: '100%', left: 0 }}>
-          <CategoryPanel categories={categories} onSelect={onSelect} onPick={() => setOpen(false)} />
+        <div ref={dropdownRef} style={{ position: 'absolute', top: '100%', left: 0 }}>
+          <CategoryPanel
+            categories={categories}
+            onSelect={onSelect}
+            onPick={() => setOpen(false)}
+            getBounds={getBounds}
+          />
         </div>
       ) : null}
     </div>

@@ -1,5 +1,6 @@
 import {
   ActionNodeDef,
+  EventGraphEdge,
   EventGraphNode,
   KeyedObject,
   NodeForm,
@@ -173,90 +174,83 @@ function buildTemplateForm(baseForm: NodeForm, values: KeyedObject | undefined):
   return form;
 }
 
-// Discord's interaction nodes offer one label field and one execution branch per button, grown
-// from a `buttonCount` on the node - the same arrangement as the OSC trigger's args, for the
-// same reason: only the graph knows how many there are.
+// Discord's interaction nodes take their buttons and select menus from Discord Button / Discord
+// Select Menu nodes plugged into `component0`..`componentN-1` slots (declared by the module,
+// grown by the growable-slot rule), and offer one execution branch per slot that has something
+// plugged in - so unlike the OSC trigger's args, the branches follow the graph, not a count.
 //
-// Ids are positional ('button0'), never the label. The backend sends them as the interaction's
-// customId and branches on them coming back, and an edge persists `fromPort` - so a
-// label-derived id would drop the wire the moment someone reworded a button. Keep the ceiling
-// and the naming in step with MAX_BUTTONS and interactionButtons() in the Discord module.
-const MAX_INTERACTION_BUTTONS = 25;
+// Ids are positional ('component0'), never the label. The backend sends them as the
+// interaction's customId and branches on them coming back, and an edge persists `fromPort` - so
+// a label-derived id would drop the wire the moment someone reworded a button.
 const INTERACTION_NODE_TYPES = ['interaction_send', 'interaction_send_dm'];
 
-function interactionButtonCount(values: KeyedObject | undefined): number {
-  const declared = Number(values?.buttonCount ?? 0);
-  if (!Number.isFinite(declared)) {
-    return 0;
-  }
-  return Math.min(Math.max(Math.floor(declared), 0), MAX_INTERACTION_BUTTONS);
+interface GraphView {
+  nodes: EventGraphNode[];
+  edges: EventGraphEdge[];
 }
 
-// The four styles Discord allows on a clickable button. Link and Premium are absent because
-// neither carries a customId, so neither can be one of these. Duplicated from BUTTON_STYLES in
-// the Discord module rather than shared - the WebUI can't import backend code, the same
-// arrangement the template slot pattern already uses. Keep the two in step.
-const BUTTON_STYLE_SELECTIONS = {
-  primary: 'Primary (blurple)',
-  secondary: 'Secondary (grey)',
-  success: 'Success (green)',
-  danger: 'Danger (red)',
-};
-
-// Inserted straight after the count that produced them, so the labels read as belonging to it
-// rather than trailing the wait at the bottom of the card. Each button is two rows: what it
-// says, and what colour it is.
-function buildInteractionForm(baseForm: NodeForm, values: KeyedObject | undefined): NodeForm {
-  const count = interactionButtonCount(values);
-  const form: NodeForm = {};
-  for (const [fieldName, field] of Object.entries(baseForm)) {
-    form[fieldName] = field;
-    if (fieldName !== 'buttonCount') {
-      continue;
-    }
-    for (let i = 0; i < count; i++) {
-      // Both edited in the inspector: the card keeps a labelled row for each - the label field
-      // has a socket, and both are worth reading at a glance - but draws a one-line preview
-      // instead of a control, which is roughly half the height per button.
-      form[`button${i}`] = {
-        label: `Button ${i + 1}`,
-        type: 'text',
-        portType: 'string',
-        editInInspector: true,
+// The Button / Select Menu nodes plugged into an interaction node, in slot order.
+function pluggedComponents(nodeId: string | undefined, graph: GraphView | undefined) {
+  return (graph?.edges ?? [])
+    .filter((edge) => edge.toNode === nodeId && /^component\d+$/.test(edge.toPort))
+    .map((edge) => {
+      const source = graph?.nodes.find((n) => n.id === edge.fromNode);
+      const index = Number(edge.toPort.slice('component'.length));
+      // A button is labelled by its label and a select menu by its placeholder; both are typed
+      // on the source node, so a wired-in one (which only exists at run time) falls back to the
+      // slot number.
+      const named = String(source?.values?.label ?? source?.values?.placeholder ?? '').trim();
+      return {
+        id: edge.toPort,
+        isMenu: source?.nodeTypeId === 'discord_select_menu',
+        label: named || `Component ${index + 1}`,
+        index,
       };
-      // No portType: a style is a fixed choice from four, not something worth wiring, and a
-      // wire would only be able to feed it one of the same four strings.
-      form[`button${i}Style`] = {
-        label: `Button ${i + 1} Style`,
-        type: 'select',
-        options: { selections: BUTTON_STYLE_SELECTIONS },
-        editInInspector: true,
-      };
-    }
-  }
-  return form;
+    })
+    .sort((a, b) => a.index - b.index);
 }
 
+// One branch per plugged-in component - except that once any button is plugged in, menus stop
+// being branches: they only record what was picked, and a button ends the wait. A node of menus
+// alone has no button to end it, so there the first pick is the answer and each menu branches.
 function buildInteractionExecOutputs(
   baseExecOutputs: { id: string; label: string }[] | undefined,
-  values: KeyedObject | undefined,
+  nodeId: string | undefined,
+  graph: GraphView | undefined,
 ): { id: string; label: string }[] {
-  const count = interactionButtonCount(values);
-  const buttons = Array.from({ length: count }, (_unused, i) => ({
-    id: `button${i}`,
-    // Mirrors the fallback the backend sends to Discord for an unnamed slot, so the branch on
-    // the card is labelled with whatever the button will actually say.
-    label: String(values?.[`button${i}`] ?? '').trim() || `Button ${i + 1}`,
-  }));
-  // Buttons first, so the branches read in the order they appear on the message and the
-  // timeout sits under them as the fallthrough it is.
-  return [...buttons, ...(baseExecOutputs ?? [])];
+  const components = pluggedComponents(nodeId, graph);
+  const hasButtons = components.some((c) => !c.isMenu);
+  const branches = components
+    .filter((c) => !hasButtons || !c.isMenu)
+    .map(({ id, label }) => ({ id, label }));
+  // Components first, in slot order, so the branches read in the order they appear on the
+  // message and the timeout sits under them as the fallthrough it is.
+  return [...branches, ...(baseExecOutputs ?? [])];
+}
+
+// Each plugged-in menu's own picks, so a graph with several can read them without unpacking
+// anything. Ids match what the backend returns: '<slot>Values' and '<slot>Value'.
+function buildInteractionOutputs(
+  baseOutputs: NodePortDef[] | undefined,
+  nodeId: string | undefined,
+  graph: GraphView | undefined,
+): NodePortDef[] {
+  const perMenu = pluggedComponents(nodeId, graph)
+    .filter((c) => c.isMenu)
+    .flatMap((c) => [
+      { id: `${c.id}Values`, label: `${c.label} Values`, dataType: 'any' as NodePortDataType },
+      { id: `${c.id}Value`, label: `${c.label} Value`, dataType: 'string' as NodePortDataType },
+    ]);
+  return [...(baseOutputs ?? []), ...perMenu];
 }
 
 export function resolveNodeDef(
-  node: Pick<EventGraphNode, 'kind' | 'moduleName' | 'nodeTypeId' | 'values'>,
+  node: Pick<EventGraphNode, 'kind' | 'moduleName' | 'nodeTypeId' | 'values'> & { id?: string },
   manifests: NodeManifest[] | undefined,
   operationNodes: OperationNodeDef[] | undefined,
+  // Only the callers that draw exec branches need this: a node's branches can depend on what is
+  // wired into it, which the node alone doesn't say.
+  graph?: GraphView,
 ): ResolvedNodeDef | undefined {
   if (node.kind === 'callback') {
     const def = findTriggerDef(manifests, node.moduleName, node.nodeTypeId);
@@ -284,9 +278,8 @@ export function resolveNodeDef(
   }
   if (node.kind === 'action') {
     const def = findActionDef(manifests, node.moduleName, node.nodeTypeId);
-    // Both Discord interaction nodes grow the other way round from the triggers above: their
-    // buttons are inputs and branches rather than data outputs, but the count is still the
-    // node's own.
+    // Both Discord interaction nodes branch on what is plugged into them rather than on a
+    // count of their own.
     const isInteraction =
       node.moduleName === 'discord' && INTERACTION_NODE_TYPES.includes(node.nodeTypeId);
     return (
@@ -294,11 +287,13 @@ export function resolveNodeDef(
         label: def.label,
         description: def.description,
         nodeWidth: def.nodeWidth,
-        form: isInteraction ? buildInteractionForm(def.form, node.values) : def.form,
+        form: def.form,
         defaults: def.defaults,
-        outputs: def.outputs ?? [],
+        outputs: isInteraction
+          ? buildInteractionOutputs(def.outputs, node.id, graph)
+          : (def.outputs ?? []),
         execOutputs: isInteraction
-          ? buildInteractionExecOutputs(def.execOutputs, node.values)
+          ? buildInteractionExecOutputs(def.execOutputs, node.id, graph)
           : def.execOutputs,
         isPluginNode: manifests?.find((m) => m.moduleName === node.moduleName)?.isPlugin === true,
       }

@@ -65,10 +65,19 @@ export default function EventNodes(props: EventNodesProps) {
       ? contextMenuNodeIds[0]
       : undefined;
 
+  // The pane the palette buttons sit in; their menus are kept inside it, like the context menu's.
+  const graphRootRef = useRef<HTMLDivElement>(null);
+  const getGraphBounds = useCallback(() => {
+    const rect = graphRootRef.current?.getBoundingClientRect();
+    return rect
+      ? { left: rect.left, top: rect.top, right: rect.right, bottom: rect.bottom }
+      : { left: 0, top: 0, right: window.innerWidth, bottom: window.innerHeight };
+  }, []);
+
   const resolveDef = useCallback(
-    (node: Pick<EventGraphNode, 'kind' | 'moduleName' | 'nodeTypeId' | 'values'>) =>
-      resolveNodeDef(node, manifests, operationNodes),
-    [manifests, operationNodes],
+    (node: Pick<EventGraphNode, 'kind' | 'moduleName' | 'nodeTypeId' | 'values'> & { id?: string }) =>
+      resolveNodeDef(node, manifests, operationNodes, graph),
+    [manifests, operationNodes, graph],
   );
 
   // One form update for the whole drag, however many nodes moved in it.
@@ -253,6 +262,7 @@ export default function EventNodes(props: EventNodesProps) {
   return (
     <OscLiveValuesProvider enabled={hasOscTrigger || hasDebugNode} eventName={eventName}>
     <div
+      ref={graphRootRef}
       className='node-graph-root'
       style={{
         position: 'relative',
@@ -290,6 +300,7 @@ export default function EventNodes(props: EventNodesProps) {
       <div style={{ position: 'absolute', top: 8, left: 8, zIndex: 20 }}>
         <NodePalette
           groups={palette.groups}
+          getBounds={getGraphBounds}
           onSelect={(option) => palette.addNode(option, viewCenterRef.current)}
         />
       </div>

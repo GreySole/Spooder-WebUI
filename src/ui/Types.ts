@@ -149,7 +149,7 @@ export interface OperationNodeDef {
   id: string;
   label: string;
   description?: string;
-  category: 'math' | 'string' | 'logic' | 'random' | 'storage' | 'array' | 'timer';
+  category: 'math' | 'string' | 'logic' | 'storage' | 'array' | 'timer' | 'discord';
   // See TriggerNodeDef.nodeWidth.
   nodeWidth?: number;
   form: NodeForm;
@@ -159,6 +159,8 @@ export interface OperationNodeDef {
 
 export interface NodeManifest {
   moduleName: string;
+  // How menus show the module, from `spooder_module.displayName` in its package.json.
+  displayName?: string;
   triggers: TriggerNodeDef[];
   actions: ActionNodeDef[];
   // Set for manifests generated from a plugin's events-form.json, so the node palette can

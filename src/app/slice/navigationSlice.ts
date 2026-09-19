@@ -50,7 +50,9 @@ const CORE_MAIN_TABS_AFTER_MODULES: TabOptions = {
   config: { label: 'Config', icon: faGears },
 };
 
-const CORE_DECK_TABS: TabOptions = {
+// Exported so NavigationTabs can tell where the deck's own module tabs end and these built-in
+// tool tabs begin, to draw the second divider between them.
+export const CORE_DECK_TABS: TabOptions = {
   osc: { label: 'OSC Monitor', icon: faTv },
   mod: { label: 'Mod UI', icon: faHammer },
   overlay: { label: 'Overlays', icon: faLayerGroup },

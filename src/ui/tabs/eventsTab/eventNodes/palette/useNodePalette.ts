@@ -25,6 +25,27 @@ import {
 } from '../timerUsage';
 import { PaletteCategory, PaletteGroup, PaletteOption } from './paletteTypes';
 
+// Operation-node categories that belong to an integration module, and what its submenu of them
+// is called inside that module's menu.
+const MODULE_OPERATION_LABELS: { [category: string]: string } = { discord: 'Components' };
+
+// Only the first letter, so a name that is already cased on purpose ('OBS') is left alone.
+function capitalize(name: string): string {
+  return name.charAt(0).toUpperCase() + name.slice(1);
+}
+
+// The submenus Core's action nodes are sorted into, by node id. 'Legacy' holds what only exists
+// for the Response scripts events used to be: the script node itself, and Trigger Event, which
+// chained one event into another - a graph can just carry as many triggers as it needs.
+const CORE_ACTION_GROUPS: { [label: string]: string[] } = {
+  Conditional: ['if', 'platform_branch'],
+  Debug: ['debug_text'],
+  HTTP: ['http_request', 'promise_all'],
+  Legacy: ['response', 'trigger_event'],
+  Mod: ['mod'],
+  OSC: ['software', 'osc_claim', 'osc_release'],
+};
+
 export interface UseNodePaletteOptions {
   eventName: string;
   onManageTimers: () => void;
@@ -67,7 +88,7 @@ export default function useNodePalette(options: UseNodePaletteOptions): NodePale
     if (existing) {
       existing.options.push(...entries);
     } else {
-      map.set(key, { key, label, options: entries });
+      map.set(key, { key, label: capitalize(label), options: entries });
     }
   }
 
@@ -75,7 +96,7 @@ export default function useNodePalette(options: UseNodePaletteOptions): NodePale
     addOptions(
       triggerCategories,
       manifest.moduleName,
-      manifest.moduleName,
+      manifest.displayName ?? manifest.moduleName,
       manifest.triggers.map((trigger: TriggerNodeDef) => ({
         value: `callback::${manifest.moduleName}::${trigger.id}`,
         label: trigger.label,
@@ -88,7 +109,7 @@ export default function useNodePalette(options: UseNodePaletteOptions): NodePale
     addOptions(
       manifest.isPlugin ? pluginActionCategories : actionCategories,
       manifest.moduleName,
-      manifest.moduleName,
+      manifest.displayName ?? manifest.moduleName,
       manifest.actions.map((action: ActionNodeDef) => ({
         value: `action::${manifest.moduleName}::${action.id}`,
         label: action.label,
@@ -154,19 +175,31 @@ export default function useNodePalette(options: UseNodePaletteOptions): NodePale
     operationsByCategory.set(op.category, list);
   }
   for (const [category, ops] of operationsByCategory) {
-    addOptions(
-      actionCategories,
-      `operation:${category}`,
-      `${category} operations`,
-      ops.map((op) => ({
-        value: `operation::${op.category}::${op.id}`,
-        label: op.label,
-        kind: 'operation',
-        moduleName: op.category,
-        nodeTypeId: op.id,
-        defaults: op.defaults,
-      })),
-    );
+    const entries: PaletteOption[] = ops.map((op) => ({
+      value: `operation::${op.category}::${op.id}`,
+      label: op.label,
+      kind: 'operation',
+      moduleName: op.category,
+      nodeTypeId: op.id,
+      defaults: op.defaults,
+    }));
+    const moduleLabel = MODULE_OPERATION_LABELS[category];
+    if (moduleLabel) {
+      // A module's own value nodes sit inside that module's menu rather than in a top-level
+      // '<module> operations' one - created here if the module has no action nodes to host it.
+      let host = actionCategories.get(category);
+      if (!host) {
+        host = {
+          key: category,
+          label: capitalize(manifests?.find((m: NodeManifest) => m.moduleName === category)?.displayName ?? category),
+          options: [],
+        };
+        actionCategories.set(category, host);
+      }
+      (host.subcategories ??= []).push({ key: `operation:${category}`, label: moduleLabel, options: entries });
+      continue;
+    }
+    addOptions(actionCategories, `operation:${category}`, category, entries);
   }
 
   // The Set * Value actions join the Get * Value operations they pair with: same store, same
@@ -187,6 +220,45 @@ export default function useNodePalette(options: UseNodePaletteOptions): NodePale
       }
       addOptions(actionCategories, STORAGE_CATEGORY_KEY, STORAGE_CATEGORY_LABEL, storageSetters);
     }
+  }
+
+  // Core's own action nodes sorted into what they are for, so the menu isn't one long list of
+  // unrelated things. Whatever a group doesn't claim stays in the core list itself.
+  const coreHost = actionCategories.get('core');
+  if (coreHost) {
+    for (const [groupLabel, nodeTypeIds] of Object.entries(CORE_ACTION_GROUPS)) {
+      const grouped = coreHost.options.filter((option) => nodeTypeIds.includes(option.nodeTypeId));
+      if (grouped.length === 0) {
+        continue;
+      }
+      coreHost.options = coreHost.options.filter((option) => !grouped.includes(option));
+      (coreHost.subcategories ??= []).push({
+        key: `core-group:${groupLabel}`,
+        label: groupLabel,
+        options: grouped,
+      });
+    }
+  }
+
+  // Every core operation category (math, string, storage, ...) folds into one 'Operations'
+  // submenu of core, rather than each being its own row of the Actions menu. Done after the
+  // storage setters have joined theirs above, so that one moves with the rest.
+  const operationCategories = [...actionCategories.values()].filter((c) => c.key.startsWith('operation:'));
+  if (operationCategories.length > 0) {
+    for (const category of operationCategories) {
+      actionCategories.delete(category.key);
+    }
+    let core = actionCategories.get('core');
+    if (!core) {
+      core = { key: 'core', label: 'Core', options: [] };
+      actionCategories.set('core', core);
+    }
+    (core.subcategories ??= []).push({
+      key: 'operations',
+      label: 'Operations',
+      options: [],
+      subcategories: operationCategories,
+    });
   }
 
   // Timers menu: the node types with a blank name, then one submenu per timer already

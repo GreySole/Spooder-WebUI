@@ -51,7 +51,11 @@ export function growableFieldVisible(
   if (isFieldFilled(fieldName, values, connectedInputPorts)) {
     return true;
   }
-  const fieldNames = Object.keys(form ?? {});
+  // Only the slots' own group counts when there is one: the fields around a node's slots
+  // (a message, a destination) say nothing about whether the list should grow.
+  const fieldNames = Object.entries(form ?? {})
+    .filter(([, other]) => !field.growGroup || other.growGroup === field.growGroup)
+    .map(([name]) => name);
   return fieldNames
     .slice(0, fieldNames.indexOf(fieldName))
     .every((name) => isFieldFilled(name, values, connectedInputPorts));

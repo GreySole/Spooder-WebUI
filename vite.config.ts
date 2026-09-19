@@ -63,7 +63,21 @@ export default defineConfig(({ command }) => ({
     // read properties of null" because the library's copy never has its dispatcher set. Dedupe
     // forces every import of these, no matter which node_modules it would otherwise resolve
     // from, to the one copy this project depends on.
-    dedupe: ['react', 'react-dom'],
+    //
+    // The same goes for anything else that shares state through a React context. The library
+    // carries its own copy of each, and a second react-hook-form has no form context to read
+    // (its form components throw), a second emotion misses the theme, and a second dnd-kit
+    // can't see the app's drag context.
+    dedupe: [
+      'react',
+      'react-dom',
+      'react-hook-form',
+      '@emotion/react',
+      '@emotion/styled',
+      '@dnd-kit/core',
+      '@dnd-kit/sortable',
+      '@dnd-kit/modifiers',
+    ],
   },
   // Without this the SDK is pre-bundled into node_modules/.vite/deps, and editing it during
   // development does nothing until Vite re-optimises. Excluded, it is served as source and

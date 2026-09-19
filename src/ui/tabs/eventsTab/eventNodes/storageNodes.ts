@@ -11,4 +11,4 @@ export const STORAGE_ACTION_NODE_IDS = [
 
 // Must match the key/label the operation loop builds for `category: 'storage'`.
 export const STORAGE_CATEGORY_KEY = 'operation:storage';
-export const STORAGE_CATEGORY_LABEL = 'storage operations';
+export const STORAGE_CATEGORY_LABEL = 'storage';

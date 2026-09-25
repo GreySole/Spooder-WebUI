@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef } from 'react';
 import { GraphViewportProvider } from './GraphViewportContext';
 import { Point, Transform } from './types';
-import { BoxSelectRect, useBoxSelect } from './useBoxSelect';
+import { BoxSelectMode, BoxSelectRect, useBoxSelect } from './useBoxSelect';
 import { useCanvasPanZoom } from './useCanvasPanZoom';
 
 interface GraphViewportProps {
@@ -11,36 +11,76 @@ interface GraphViewportProps {
   // Fires when a selection box is released, with the rectangle in graph space. The viewport
   // owns the gesture rather than the canvas inside it because a background drag captures the
   // pointer on this element - captured moves retarget here and never reach the content.
-  onBoxSelect?: (rect: BoxSelectRect, additive: boolean) => void;
+  onBoxSelect?: (rect: BoxSelectRect, mode: BoxSelectMode) => void;
   children: React.ReactNode;
 }
 
 const CLICK_MOVE_THRESHOLD = 4;
 
-// Shift or ctrl turns a left press on empty canvas into a selection box instead of a pan. Both
-// modifiers work: ctrl is the reflex for most node editors, shift for most canvas apps, and
-// neither means anything else here.
-function isBoxSelectGesture(e: React.PointerEvent<HTMLDivElement>): boolean {
+// Alt/shift/ctrl on a left press on empty canvas turns it into a selection box instead of a
+// pan - unmodified, left stays reserved for panning. Alt subtracts, shift or ctrl adds (both
+// work: ctrl is the reflex for most node editors, shift for most canvas apps).
+function leftBoxSelectMode(e: React.PointerEvent<HTMLDivElement>): BoxSelectMode | null {
   const target = e.target as HTMLElement;
-  return e.button === 0 && Boolean(target.dataset.canvasBackground) && (e.shiftKey || e.ctrlKey);
+  if (e.button !== 0 || !target.dataset.canvasBackground) {
+    return null;
+  }
+  if (e.altKey) {
+    return 'subtract';
+  }
+  if (e.shiftKey || e.ctrlKey) {
+    return 'add';
+  }
+  return null;
+}
+
+// A right press on empty canvas always starts a selection box (once it's actually dragged - see
+// pendingRight below), unmodified or not: unmodified it replaces the selection, same modifiers
+// as the left gesture otherwise add or subtract. Kept on the right button rather than the left
+// so plain left-drag can stay reserved for panning.
+function rightBoxSelectMode(e: React.PointerEvent<HTMLDivElement>): BoxSelectMode | null {
+  const target = e.target as HTMLElement;
+  if (e.button !== 2 || !target.dataset.canvasBackground) {
+    return null;
+  }
+  if (e.altKey) {
+    return 'subtract';
+  }
+  if (e.shiftKey || e.ctrlKey) {
+    return 'add';
+  }
+  return 'replace';
 }
 
 export default function GraphViewport(props: GraphViewportProps) {
   const { transform, onTransformChange, onBackgroundClick, onBoxSelect, children } = props;
   const viewportRef = useRef<HTMLDivElement>(null);
   const panZoom = useCanvasPanZoom(transform, onTransformChange, viewportRef);
-  const boxSelect = useBoxSelect(transform, viewportRef, (rect, additive) =>
-    onBoxSelect?.(rect, additive),
+  const boxSelect = useBoxSelect(transform, viewportRef, (rect, mode) =>
+    onBoxSelect?.(rect, mode),
   );
+  const suppressContextMenuRef = useRef(false);
 
   const clickStart = useRef<Point | null>(null);
   const moved = useRef(false);
+
+  // A right press on background doesn't start the marquee immediately - a right click that
+  // never clears the move threshold is meant to open the context menu, not eat the click as an
+  // empty box-select. This holds the press until onPointerMove either promotes it into a real
+  // drag (see there) or onPointerUp finds it was never dragged at all.
+  const pendingRight = useRef<{
+    clientX: number;
+    clientY: number;
+    pointerId: number;
+    mode: BoxSelectMode;
+  } | null>(null);
 
   // A second finger turns whatever was happening into a pinch, including a selection box the
   // first finger had started dragging.
   useEffect(() => {
     if (panZoom.isPinching) {
       boxSelect.cancel();
+      pendingRight.current = null;
       clickStart.current = null;
     }
   }, [panZoom.isPinching, boxSelect]);
@@ -68,11 +108,34 @@ export default function GraphViewport(props: GraphViewportProps) {
 
   const onPointerDown = useCallback(
     (e: React.PointerEvent<HTMLDivElement>) => {
-      if (onBoxSelect && isBoxSelectGesture(e)) {
-        // Deliberately not tracked as a background click: releasing a box that selected nothing
-        // is the user's own "select nothing", not a stray click that should clear on top of it.
-        boxSelect.start(e, viewportRef.current);
-        return;
+      if (onBoxSelect) {
+        const leftMode = leftBoxSelectMode(e);
+        if (leftMode) {
+          // Deliberately not tracked as a background click: releasing a box that selected
+          // nothing is the user's own "select nothing", not a stray click that should clear on
+          // top of it.
+          e.preventDefault();
+          boxSelect.start(e, viewportRef.current, leftMode);
+          return;
+        }
+        const rightMode = rightBoxSelectMode(e);
+        if (rightMode) {
+          // Capture now so a fast drag can't outrun the element and lose move events, but don't
+          // preventDefault - that would suppress the contextmenu event a non-drag click still
+          // needs (see onPointerUp/pendingRight below).
+          try {
+            viewportRef.current?.setPointerCapture(e.pointerId);
+          } catch {
+            // ignore - see boxSelect.start
+          }
+          pendingRight.current = {
+            clientX: e.clientX,
+            clientY: e.clientY,
+            pointerId: e.pointerId,
+            mode: rightMode,
+          };
+          return;
+        }
       }
       // Left button only: a middle press is a pan (which ends wherever it ends) and a right
       // press opens the node menu - neither should count as a click that clears the selection.
@@ -94,6 +157,21 @@ export default function GraphViewport(props: GraphViewportProps) {
           moved.current = true;
         }
       }
+      const pending = pendingRight.current;
+      if (pending && e.pointerId === pending.pointerId) {
+        const dx = e.clientX - pending.clientX;
+        const dy = e.clientY - pending.clientY;
+        if (Math.hypot(dx, dy) <= CLICK_MOVE_THRESHOLD) {
+          // Still within the click threshold - not a drag yet, and not a pan either.
+          return;
+        }
+        // Promoted into a real marquee, anchored at the original press point rather than here.
+        // The native contextmenu event that follows this button's eventual mouseup would open
+        // the node menu on top of whatever gets selected, so it's suppressed up front.
+        pendingRight.current = null;
+        suppressContextMenuRef.current = true;
+        boxSelect.start(pending, viewportRef.current, pending.mode);
+      }
       boxSelect.onPointerMove(e);
       panZoom.onPointerMove(e);
     },
@@ -102,6 +180,18 @@ export default function GraphViewport(props: GraphViewportProps) {
 
   const onPointerUp = useCallback(
     (e: React.PointerEvent<HTMLDivElement>) => {
+      const pending = pendingRight.current;
+      if (pending && e.pointerId === pending.pointerId) {
+        // Released before clearing the drag threshold - a plain right click. Leave it alone so
+        // the native contextmenu event that follows opens the node menu as usual.
+        pendingRight.current = null;
+        try {
+          (e.target as Element).releasePointerCapture?.(e.pointerId);
+        } catch {
+          // ignore - see boxSelect.start
+        }
+        return;
+      }
       boxSelect.onPointerUp(e);
       panZoom.onPointerUp(e);
       if (clickStart.current && !moved.current) {
@@ -129,7 +219,10 @@ export default function GraphViewport(props: GraphViewportProps) {
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
       onPointerUp={onPointerUp}
-      onPointerCancel={boxSelect.cancel}
+      onPointerCancel={() => {
+        pendingRight.current = null;
+        boxSelect.cancel();
+      }}
       style={{
         position: 'relative',
         width: '100%',
@@ -150,7 +243,16 @@ export default function GraphViewport(props: GraphViewportProps) {
           transform: `translate(${transform.x}px, ${transform.y}px) scale(${transform.scale})`,
         }}
       >
-        <GraphViewportProvider value={{ transform, viewportRef, isPinching: panZoom.isPinching }}>{children}</GraphViewportProvider>
+        <GraphViewportProvider
+          value={{
+            transform,
+            viewportRef,
+            isPinching: panZoom.isPinching,
+            suppressContextMenuRef,
+          }}
+        >
+          {children}
+        </GraphViewportProvider>
         {boxSelect.rect ? (
           <div
             style={{

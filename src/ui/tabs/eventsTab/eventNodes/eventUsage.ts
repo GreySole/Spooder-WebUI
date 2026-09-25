@@ -1,8 +1,9 @@
 import { EventGraph } from '../../../Types';
 
 // Rewrites an event's key on every node referencing it by that key, across all events -
-// the 'Trigger Event' node (free-text eventName) and a 'mod' node's event target (dropdown,
-// but a graph saved before this rename and not reopened would still hold the old key).
+// the 'Trigger Event' node (free-text eventName), a 'mod' node's event target (dropdown, but a
+// graph saved before this rename and not reopened would still hold the old key), and Lock
+// Event/Stop Event's free-text target (the modern nodes 'mod' was broken out into).
 // Returns the node lists that actually changed, keyed by event id, so the caller can setValue
 // only those. Mirrors renameTimerInGraphs in timerUsage.ts.
 export function renameEventInGraphs(
@@ -24,6 +25,13 @@ export function renameEventInGraphs(
         return { ...node, values: { ...node.values, eventName: to } };
       }
       if (node.nodeTypeId === 'mod' && node.values?.targettype === 'event' && node.values?.target === from) {
+        touched = true;
+        return { ...node, values: { ...node.values, target: to } };
+      }
+      if (
+        (node.nodeTypeId === 'lock_event' || node.nodeTypeId === 'stop_event') &&
+        node.values?.target === from
+      ) {
         touched = true;
         return { ...node, values: { ...node.values, target: to } };
       }

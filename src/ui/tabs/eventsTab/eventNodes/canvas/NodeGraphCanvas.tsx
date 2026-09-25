@@ -10,7 +10,7 @@ import { useGraphViewport } from './GraphViewportContext';
 import { computeNodePortLayout, nodeCardHeight, NodePortLayout, resolveNodeWidth } from './nodeLayout';
 import { computeFitTransform, screenToGraph } from './transform';
 import { ContextMenuAnchor, PendingConnection, Point, Transform } from './types';
-import { BoxSelectRect, rectIntersectsNode } from './useBoxSelect';
+import { BoxSelectMode, BoxSelectRect, rectIntersectsNode } from './useBoxSelect';
 import { useConnectionDraft } from './useConnectionDraft';
 import { useNodeDrag } from './useNodeDrag';
 import { useNodeResize } from './useNodeResize';
@@ -125,7 +125,7 @@ export default function NodeGraphCanvas(props: NodeGraphCanvasProps) {
   const nodeLayouts = useNodeLayouts(nodes, edges, resolveDef);
   const nodeWidths = useNodeWidths(nodes, edges, resolveDef);
 
-  function handleBoxSelect(rect: BoxSelectRect, additive: boolean) {
+  function handleBoxSelect(rect: BoxSelectRect, mode: BoxSelectMode) {
     const hits = nodes
       .filter((node) => {
         const layout = nodeLayouts.get(node.id);
@@ -138,9 +138,17 @@ export default function NodeGraphCanvas(props: NodeGraphCanvasProps) {
         );
       })
       .map((node) => node.id);
-    // Holding the modifier adds to what's already picked, so several boxes can build one
-    // selection; without it the box replaces the selection outright, empty box included.
-    onSelectNodes(additive ? [...new Set([...selectedNodeIds, ...hits])] : hits);
+    // 'add' unions the box into what's already picked, so several boxes can build one selection;
+    // 'subtract' drops whatever it touched back out; 'replace' is the box outright, empty box
+    // included.
+    if (mode === 'add') {
+      onSelectNodes([...new Set([...selectedNodeIds, ...hits])]);
+    } else if (mode === 'subtract') {
+      const hitSet = new Set(hits);
+      onSelectNodes(selectedNodeIds.filter((id) => !hitSet.has(id)));
+    } else {
+      onSelectNodes(hits);
+    }
     if (hits.length > 0) {
       setSelectedEdgeId('');
     }
@@ -203,7 +211,7 @@ function NodeGraphCanvasInner(props: InnerProps) {
     setSelectedEdgeId,
   } = props;
 
-  const { viewportRef, isPinching } = useGraphViewport();
+  const { viewportRef, isPinching, suppressContextMenuRef } = useGraphViewport();
   const contentRef = useRef<HTMLDivElement>(null);
   const fitDone = useRef(false);
 
@@ -351,8 +359,14 @@ function NodeGraphCanvasInner(props: InnerProps) {
     }
 
     function onContextMenu(e: MouseEvent) {
-      // The browser menu has nothing useful for a node canvas, and this one replaces it.
+      // The browser menu has nothing useful for a node canvas, and this one replaces it - unless
+      // this right click was actually a marquee drag (GraphViewport flags that here), in which
+      // case the menu should stay closed and leave whatever the drag just selected alone.
       e.preventDefault();
+      if (suppressContextMenuRef.current) {
+        suppressContextMenuRef.current = false;
+        return;
+      }
       openAt(e.clientX, e.clientY, e.target as Element | null);
     }
 
@@ -470,14 +484,18 @@ function NodeGraphCanvasInner(props: InnerProps) {
     return true;
   }
 
-  function handleSelectNode(nodeId: string, additive: boolean) {
+  function handleSelectNode(nodeId: string, mode: BoxSelectMode) {
     setSelectedEdgeId('');
-    if (additive) {
+    if (mode === 'add') {
       onSelectNodes(
         selectedNodeIds.includes(nodeId)
           ? selectedNodeIds.filter((id) => id !== nodeId)
           : [...selectedNodeIds, nodeId],
       );
+      return;
+    }
+    if (mode === 'subtract') {
+      onSelectNodes(selectedNodeIds.filter((id) => id !== nodeId));
       return;
     }
     // Pressing a node that's already part of a multi-selection keeps that selection, so the

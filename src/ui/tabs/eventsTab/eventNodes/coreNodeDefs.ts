@@ -16,7 +16,12 @@ import { ActionNodeDef, TriggerNodeDef } from '../../../Types';
 // 'plugin' is the legacy generic "pick a plugin + type an event name" node, superseded by
 // the dedicated per-event nodes under the palette's Plugins submenu; events saved with it
 // keep working and keep opening in PluginNodeEditor.
-export const PALETTE_HIDDEN_CORE_ACTIONS = ['plugin'];
+// 'mod' is the same story: superseded by the dedicated Set Lockdown/Lock Event/Lock Plugin/
+// Set Spam Guard/Stop Event nodes under the palette's Mod group (see CoreNodeManifest on the
+// backend) - one node per function instead of a function picker, and no built-in duration
+// (build a timed lock/unlock with a Start Timer instead). Events saved with 'mod' keep working
+// and keep opening in ModNodeEditor.
+export const PALETTE_HIDDEN_CORE_ACTIONS = ['plugin', 'mod'];
 
 // Core nodes whose fields are drawn by a bespoke inspector panel (see NodeInspector's
 // switch). The node card must NOT also render inline controls for these: both bind the same

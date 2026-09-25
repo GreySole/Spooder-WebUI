@@ -12,6 +12,7 @@ import {
   TITLE_HEIGHT,
 } from './canvas/nodeLayout';
 import PortSocket from './canvas/PortSocket';
+import { BoxSelectMode } from './canvas/useBoxSelect';
 import { ResolvedNodeDef } from './nodeDefLookup';
 import NodeFieldInput from './NodeFieldInput';
 import { OscLiveValue, useGraphDebugLiveValue, useOscLiveValue } from './OscLiveValues';
@@ -51,9 +52,10 @@ export interface GraphNodeCardProps {
   // Input port ids that currently have an edge landing on them - those sockets can be grabbed
   // to unhook the wire, so they advertise a grab cursor.
   connectedInputPorts?: Set<string>;
-  // `additive` is a shift/ctrl-held click: the canvas toggles this node in the selection
-  // instead of replacing it.
-  onSelect: (nodeId: string, additive: boolean) => void;
+  // A shift/ctrl-held click toggles this node into the selection ('add') instead of replacing
+  // it; alt-held removes it from the selection instead ('subtract') - same modifiers as the
+  // canvas's own box-select drag, so a click and a one-node box do the same thing.
+  onSelect: (nodeId: string, mode: BoxSelectMode) => void;
   onNodePointerDown: (e: React.PointerEvent<HTMLDivElement>, nodeId: string) => void;
   onStartConnection: (
     e: React.PointerEvent,
@@ -259,7 +261,7 @@ export default function GraphNodeCard(props: GraphNodeCardProps) {
         if (e.button !== 0) {
           return;
         }
-        onSelect(id, e.shiftKey || e.ctrlKey);
+        onSelect(id, e.altKey ? 'subtract' : e.shiftKey || e.ctrlKey ? 'add' : 'replace');
         // Sockets stop propagation themselves when they start/detach a wire, so anything that
         // reaches here is either the header, the title, a label, or bare card background.
         if (isInteractiveTarget(e.target)) {

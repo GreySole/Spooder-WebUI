@@ -11,16 +11,21 @@ export interface BoxSelectRect {
   height: number;
 }
 
+// How a completed marquee changes the existing selection: 'replace' swaps it outright (even to
+// empty, on a box that hit nothing), 'add' unions the nodes it touched into what's already
+// picked, 'subtract' removes them from it.
+export type BoxSelectMode = 'replace' | 'add' | 'subtract';
+
 // Drag a rectangle across empty canvas to select every node it touches. Kept in graph space
 // rather than screen space so the marquee and the hit test read the same coordinates the nodes
 // are stored in, with no per-frame conversion.
 export function useBoxSelect(
   transform: Transform,
   viewportRef: React.RefObject<HTMLDivElement>,
-  onComplete: (rect: BoxSelectRect, additive: boolean) => void,
+  onComplete: (rect: BoxSelectRect, mode: BoxSelectMode) => void,
 ) {
   const [rect, setRect] = useState<BoxSelectRect | null>(null);
-  const origin = useRef<{ point: Point; additive: boolean; pointerId: number } | null>(null);
+  const origin = useRef<{ point: Point; mode: BoxSelectMode; pointerId: number } | null>(null);
 
   const toGraphPoint = useCallback(
     (e: { clientX: number; clientY: number }): Point => {
@@ -33,18 +38,23 @@ export function useBoxSelect(
     [transform, viewportRef],
   );
 
+  // Anchors the marquee at `press`'s position. Takes a plain {clientX, clientY, pointerId}
+  // rather than a live React.PointerEvent so a right-drag can be promoted into a marquee from
+  // GraphViewport's pointermove, once it clears the click threshold, while still anchoring at
+  // the original mousedown point rather than wherever the threshold happened to be crossed.
   const start = useCallback(
-    (e: React.PointerEvent, captureTarget: Element | null) => {
-      // Same reason as the node drag: without this the sweep starts a native text selection
-      // across everything the box passes over.
-      e.preventDefault();
+    (
+      press: { clientX: number; clientY: number; pointerId: number },
+      captureTarget: Element | null,
+      mode: BoxSelectMode,
+    ) => {
       try {
-        captureTarget?.setPointerCapture(e.pointerId);
+        captureTarget?.setPointerCapture(press.pointerId);
       } catch {
         // A capture failure shouldn't abort the gesture - events still bubble normally.
       }
-      const point = toGraphPoint(e);
-      origin.current = { point, additive: e.shiftKey || e.ctrlKey, pointerId: e.pointerId };
+      const point = toGraphPoint(press);
+      origin.current = { point, mode, pointerId: press.pointerId };
       setRect({ x: point.x, y: point.y, width: 0, height: 0 });
     },
     [toGraphPoint],
@@ -81,7 +91,7 @@ export function useBoxSelect(
       origin.current = null;
       setRect((current) => {
         if (current) {
-          onComplete(current, from.additive);
+          onComplete(current, from.mode);
         }
         return null;
       });

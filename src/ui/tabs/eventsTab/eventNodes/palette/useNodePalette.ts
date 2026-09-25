@@ -42,7 +42,9 @@ const CORE_ACTION_GROUPS: { [label: string]: string[] } = {
   Debug: ['debug_text'],
   HTTP: ['http_request', 'promise_all'],
   Legacy: ['response', 'trigger_event'],
-  Mod: ['mod'],
+  // 'mod' itself isn't listed - it's hidden from new-node placement (PALETTE_HIDDEN_CORE_ACTIONS
+  // in coreNodeDefs.ts) so it never reaches coreHost.options for this filter to match anyway.
+  Mod: ['set_lockdown', 'lock_event', 'lock_plugin', 'set_spam_guard', 'stop_event'],
   OSC: ['software', 'osc_claim', 'osc_release'],
 };
 

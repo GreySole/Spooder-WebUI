@@ -1,0 +1,123 @@
+// Styles for the node graph editor. Colors come from the theme variables the component
+// library's ThemeProvider sets, so any app that mounts the editor inside one gets the same look.
+
+.response-code-editor {
+	font-size: 18px;
+	min-width: 300px;
+	max-width: 90vw;
+	// margin: 10px;
+}
+
+.type-label-conflicts {
+	display: flex;
+	flex-flow: column;
+}
+
+// Drag handle on the inner edge of the node graph's side panel. It straddles the panel border
+// (a few pixels of it hang outside) so the grab target is comfortable without eating into the
+// panel's content, and it only paints once the pointer is on it.
+.graph-side-panel-resizer {
+	position: absolute;
+	left: -4px;
+	top: 0;
+	bottom: 0;
+	width: 9px;
+	cursor: ew-resize;
+	// Above the panel's content so a wide control inside can't swallow the grab.
+	z-index: 2;
+	// The visible line is narrower than the grab strip - drawn as a gradient stop rather than a
+	// full fill so the handle stays easy to hit without painting a 9px bar over the border.
+	&:hover,
+	&:active {
+		background: linear-gradient(
+			to right,
+			transparent 3px,
+			var(--color-analogous-cw, #f1c40f) 3px,
+			var(--color-analogous-ccw, #f1c40f) 6px,
+			transparent 6px
+		);
+	}
+}
+
+// MultiPageModal wraps each page in a plain `.modal-body` div that hugs its content, so a page
+// that wants the modal's full height has nothing to grow into. This turns that wrapper into a
+// stretching flex column for the graph page only - scoped with :has() so the General page and
+// every other modal in the app keep hugging their content as before.
+.modal-body:has(.node-graph-root) {
+	display: flex;
+	flex-flow: column;
+	flex: 1 1 auto;
+	// Without this the wrapper refuses to shrink below its content, and a tall graph would push
+	// past the bottom of the modal rather than letting the canvas scroll inside itself.
+	min-height: 0;
+}
+
+// Inline field controls rendered inside a node card on the event graph. The shared Form*
+// components are sized for the inspector pane (1.25rem inputs); inside a 280px node they must
+// shrink to fit the fixed row heights that nodeLayout.ts computes sockets from. Heights here
+// and CONTROL_HEIGHTS there are a matched pair - changing one means changing the other.
+.node-inline-field {
+	font-size: 0.75rem;
+	// The card body is a drag handle and sets `cursor: grab`, which would otherwise be
+	// inherited by the controls sitting on it.
+	cursor: auto;
+
+	// The node card sets `user-select: none` so dragging it can't drag-select label text;
+	// the actual controls opt back in here so their values stay selectable and editable.
+	input,
+	textarea,
+	select,
+	.response-code-editor {
+		user-select: text;
+	}
+
+	label {
+		display: block;
+		width: 100%;
+	}
+
+	select,
+	input[type='text'],
+	input[type='number'] {
+		width: 100%;
+		box-sizing: border-box;
+		font-size: 0.75rem;
+		padding: 2px 4px;
+		margin: 0;
+	}
+
+	// The library reserves room for the dropdown caret at its own scale (2rem of right padding
+	// for a 1.5rem glyph, sized for a 1rem control). Left alone at 0.75rem that's a third of a
+	// node row spent on empty space before the arrow, which is what squeezes a long asset
+	// filename. Scaled down to match the rest of this block.
+	select {
+		padding-right: 1.1rem;
+		background-size: 1rem;
+		background-position: right 0.15rem center;
+	}
+
+	input[type='color'] {
+		width: 100%;
+		padding: 0;
+		margin: 0;
+	}
+
+	// Any button a control draws for itself (a custom field renderer's, say). The asset picker's
+	// own upload button, and the multi-asset picker's per-tile remove button, are exempt - both
+	// are small, absolutely-or-tightly-sized controls that set their own dimensions (see
+	// assetInput.scss) and would otherwise be forced back up to a 1rem-control's padding.
+	button:not(.asset-drop-zone-upload):not(.asset-grid-remove) {
+		font-size: 0.75rem;
+		padding: 0.5rem;
+	}
+
+	// The asset preview is the tallest thing a node row draws, and its caption competes with the
+	// row's own label at full size.
+	.asset-drop-zone-hint {
+		font-size: 0.7rem;
+	}
+
+	.response-code-editor {
+		font-size: 0.7rem !important;
+	}
+}

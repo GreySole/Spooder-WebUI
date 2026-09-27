@@ -1,6 +1,6 @@
 {
   "name": "spooder-webui",
-  "version": "0.6.8",
+  "version": "0.6.9",
   "description": "Web interface for Spooder",
   "main": "spooder.js",
   "scripts": {
@@ -25,6 +25,7 @@
     "@reduxjs/toolkit": "^2.2.5",
     "@spooder/webui-component-library": "^0.2.0",
     "@spooder/webui-module-sdk": "^0.6.0",
+    "@spooder/webui-node-graph": "^0.6.0",
     "@typescript-eslint/parser": "^5.62.0",
     "@uiw/react-textarea-code-editor": "^2.0.6",
     "@xzdarcy/react-timeline-editor": "^0.1.9",
@@ -78,6 +79,7 @@
     ]
   },
   "workspaces": [
-    "module-sdk"
+    "module-sdk",
+    "node-graph"
   ]
 }

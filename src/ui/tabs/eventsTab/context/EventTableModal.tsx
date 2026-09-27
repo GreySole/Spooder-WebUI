@@ -3,7 +3,8 @@ import React, { useMemo } from 'react';
 import EventGeneral from '../EventGeneral';
 import EventSaveButton from '../EventSaveButton';
 import { useEventTableModal } from './EventTableModalContext';
-import EventNodes from '../EventNodes';
+import { EventNodes, NodeGraphHostProvider } from '@spooder/webui-node-graph';
+import mainNodeGraphHost from '../mainNodeGraphHost';
 import EventStorage from '../eventStorage/EventStorage';
 
 function EventTableModal() {
@@ -15,7 +16,14 @@ function EventTableModal() {
         title: 'General',
         content: <EventGeneral eventName={eventName} />,
       },
-      { title: 'Nodes', content: <EventNodes eventName={eventName} /> },
+      {
+        title: 'Nodes',
+        content: (
+          <NodeGraphHostProvider host={mainNodeGraphHost}>
+            <EventNodes eventName={eventName} />
+          </NodeGraphHostProvider>
+        ),
+      },
       { title: 'Storage', content: <EventStorage eventName={eventName} /> },
     ],
     [eventName],

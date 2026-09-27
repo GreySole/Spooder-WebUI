@@ -19,7 +19,7 @@ import { KeyedObject } from '../../../../Types';
 import { getModulePluginInput } from './modulePluginInputs';
 import FormEventSelect from '../../../../common/input/form/FormEventSelect';
 import FormAssetSelect from '../../../../common/input/form/FormAssetSelect';
-import FormCodeInput from '../../../../common/input/form/FormCodeInput';
+import { FormCodeInput } from '@spooder/webui-node-graph';
 import { usePluginSettingsContext } from '../context/PluginSettingsContext';
 
 //Added default values to be overridden by subforms

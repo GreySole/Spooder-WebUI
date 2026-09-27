@@ -18,7 +18,7 @@ import { useEventTableModal } from './context/EventTableModalContext';
 import { GRAPH_KEY, buildGraphKey, buildKey } from './FormKeys';
 import useEvents from '../../../app/hooks/useEvents';
 import useModules from '../../../modules/useModules';
-import { getGraphTriggerKinds, orderTriggerKinds, triggerKindIcon } from './eventNodes/graphUtil';
+import { getGraphTriggerKinds, orderTriggerKinds, triggerKindIcon } from '@spooder/webui-node-graph';
 
 interface EventElementProps {
   eventName: string;

@@ -20,6 +20,7 @@ import AddEventInput from './eventCommand/input/AddEventInput';
 import AddGroupInput from './eventCommand/input/AddGroupInput';
 import DeleteGroupButton from './eventCommand/input/DeleteGroupButton';
 import ToggleGroupButton from './eventCommand/input/ToggleGroupButton';
+import ToggleModGroupButton from './eventCommand/input/ToggleModGroupButton';
 import EventElement from './EventElement';
 import { TwitchIcon } from '../../common/icons/icons';
 import ExportGroupButton from './eventCommand/input/ExportGroupButton';
@@ -30,7 +31,7 @@ import {
   getGraphTriggerKinds,
   orderTriggerKinds,
   triggerKindIcon,
-} from './eventNodes/graphUtil';
+} from '@spooder/webui-node-graph';
 
 export default function EventTable() {
   const [searchText, setSearchText] = useState<string>('');
@@ -127,6 +128,7 @@ export default function EventTable() {
           <Box flexFlow='row wrap'>
             <AddEventInput groupName={groupName} />
             <ToggleGroupButton groupName={groupName} />
+            <ToggleModGroupButton groupName={groupName} />
             <DeleteGroupButton groupName={groupName} />
             <ExportGroupButton groupName={groupName} />
           </Box>

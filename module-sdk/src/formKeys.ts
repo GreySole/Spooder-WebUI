@@ -1,6 +1,8 @@
 export const GRAPH_KEY = 'graphs';
 export const GROUP_KEY = 'groups';
 export const DISABLED_GROUP_KEY = 'disabledGroups';
+// Groups a moderator may view and edit from the mod UI.
+export const MOD_GROUP_KEY = 'modGroups';
 
 export function buildKey(...keys: string[]) {
   return keys.join('.');

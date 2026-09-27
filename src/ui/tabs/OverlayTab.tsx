@@ -22,9 +22,13 @@ import {
 } from '../../app/api/overlayContainerSlice';
 import PageCircleLoader from '../common/input/general/PageCircleLoader';
 import OverlayCanvas from './overlayTab/OverlayCanvas';
-import { MenuCategory, MenuOption } from './eventsTab/eventNodes/palette/CascadeMenu';
 import OverlayLayerList from './overlayTab/OverlayLayerList';
-import GraphSidePanel, { useGraphPanelWidth } from './eventsTab/eventNodes/GraphSidePanel';
+import {
+  GraphSidePanel,
+  MenuCategory,
+  MenuOption,
+  useGraphPanelWidth,
+} from '@spooder/webui-node-graph';
 import OverlayLayerSettings from './overlayTab/OverlayLayerSettings';
 
 // Common OBS browser-source sizes. Anything else is entered as a custom width and height.

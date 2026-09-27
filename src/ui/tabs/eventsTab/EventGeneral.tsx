@@ -13,7 +13,7 @@ import {
   FormBoolSwitch,
 } from '@spooder/webui-component-library';
 import { useEventTableModal } from './context/EventTableModalContext';
-import { renameEventInGraphs } from './eventNodes/eventUsage';
+import { renameEventInGraphs } from '@spooder/webui-node-graph';
 
 interface EventGeneralProps {
   eventName: string;

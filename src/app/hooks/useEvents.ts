@@ -22,6 +22,7 @@ export default function useEvents() {
       graphs: data?.graphs,
       groups: data?.groups,
       disabledGroups: data?.disabledGroups,
+      modGroups: data?.modGroups,
       isLoading,
       error,
       refetch,

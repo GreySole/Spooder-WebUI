@@ -7,10 +7,11 @@ interface EventTableFormContextProviderProps {
   defaultGraphs: any;
   defaultGroups: any;
   defaultDisabledGroups: any;
+  defaultModGroups: any;
 }
 
 export default function EventTableFormContextProvider(props: EventTableFormContextProviderProps) {
-  const { children, defaultGraphs, defaultGroups, defaultDisabledGroups } = props;
+  const { children, defaultGraphs, defaultGroups, defaultDisabledGroups, defaultModGroups } = props;
   const { resetFormRef } = useEventTableModal();
 
   const EventTableForm = useForm({
@@ -18,6 +19,7 @@ export default function EventTableFormContextProvider(props: EventTableFormConte
       graphs: defaultGraphs,
       groups: defaultGroups,
       disabledGroups: defaultDisabledGroups,
+      modGroups: defaultModGroups ?? [],
     },
   });
 
@@ -32,8 +34,9 @@ export default function EventTableFormContextProvider(props: EventTableFormConte
       graphs: defaultGraphs,
       groups: defaultGroups,
       disabledGroups: defaultDisabledGroups,
+      modGroups: defaultModGroups ?? [],
     });
-  }, [defaultGraphs, defaultGroups, defaultDisabledGroups, EventTableForm]);
+  }, [defaultGraphs, defaultGroups, defaultDisabledGroups, defaultModGroups, EventTableForm]);
 
   return <FormProvider {...EventTableForm}>{children}</FormProvider>;
 }

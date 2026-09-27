@@ -25,7 +25,7 @@ import { SortableContext, arrayMove, useSortable, verticalListSortingStrategy } 
 import { CSS } from '@dnd-kit/utilities';
 import React from 'react';
 import { OverlayLayer, layerDisplayName } from '../../../app/api/overlayContainerSlice';
-import { CascadeMenuButton, MenuCategory, MenuOption } from '../eventsTab/eventNodes/palette/CascadeMenu';
+import { CascadeMenuButton, MenuCategory, MenuOption } from '@spooder/webui-node-graph';
 
 function LayerRow({
   entry,

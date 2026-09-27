@@ -8,4 +8,5 @@ export {
   DISABLED_GROUP_KEY,
   GRAPH_KEY,
   GROUP_KEY,
+  MOD_GROUP_KEY,
 } from '@spooder/webui-module-sdk';

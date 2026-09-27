@@ -83,7 +83,7 @@ export default defineConfig(({ command }) => ({
   // development does nothing until Vite re-optimises. Excluded, it is served as source and
   // hot reloads like the rest of the app - which is the whole reason it lives in this repo
   // rather than being consumed from npm.
-  optimizeDeps: { exclude: ['@spooder/webui-module-sdk'] },
+  optimizeDeps: { exclude: ['@spooder/webui-module-sdk', '@spooder/webui-node-graph'] },
   plugins: [
     react(),
     // Federation is a build-time concern here, and turning it on in dev actively breaks the

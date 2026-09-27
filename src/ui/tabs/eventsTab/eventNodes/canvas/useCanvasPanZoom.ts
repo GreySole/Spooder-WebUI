@@ -46,14 +46,27 @@ export function useCanvasPanZoom(
     [viewportRef],
   );
 
-  const onWheel = useCallback(
-    (e: React.WheelEvent<HTMLDivElement>) => {
+  const latestOnTransformChange = useRef(onTransformChange);
+  latestOnTransformChange.current = onTransformChange;
+
+  // Registered natively with { passive: false }. React attaches its wheel handlers as passive
+  // listeners on the root, where preventDefault() is refused (and logged as an error on every
+  // zoom step) - it's only allowed on a listener that declared it might call it. Without the
+  // preventDefault the page would scroll along with the zoom.
+  useEffect(() => {
+    const viewport = viewportRef.current;
+    if (!viewport) {
+      return;
+    }
+    function onWheel(e: WheelEvent) {
       e.preventDefault();
-      const screenPoint = toViewportPoint(e);
-      onTransformChange(zoomAtPoint(transform, screenPoint, e.deltaY));
-    },
-    [transform, onTransformChange, toViewportPoint],
-  );
+      const rect = viewport!.getBoundingClientRect();
+      const screenPoint = { x: e.clientX - rect.left, y: e.clientY - rect.top };
+      latestOnTransformChange.current(zoomAtPoint(latestTransform.current, screenPoint, e.deltaY));
+    }
+    viewport.addEventListener('wheel', onWheel, { passive: false });
+    return () => viewport.removeEventListener('wheel', onWheel);
+  }, [viewportRef]);
 
   // Pinch-to-zoom, for touch only - a trackpad pinch already arrives as ctrl+wheel and is
   // handled above. Registered natively in the capture phase rather than through React's props
@@ -170,5 +183,5 @@ export function useCanvasPanZoom(
     setIsPanning(false);
   }, [isPanning]);
 
-  return { onWheel, onPointerDown, onPointerMove, onPointerUp, isPanning, isPinching };
+  return { onPointerDown, onPointerMove, onPointerUp, isPanning, isPinching };
 }

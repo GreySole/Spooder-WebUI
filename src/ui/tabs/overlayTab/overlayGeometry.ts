@@ -1,12 +1,12 @@
 // Position/size snapping for the overlay canvas - ported from the standalone edit-mode
 // prototype at webui/overlay/container.js so both keep the same feel. All units are percent
-// of the canvas, matching how OverlayContainerEntry stores x/y/width/height.
+// of the canvas, matching how OverlayLayer stores x/y/width/height.
 
 export const SNAP_PX = 8;
 export const SAFE_AREAS = [10, 5]; // % inset guides: title-safe, action-safe
 
 export interface OverlayGeometryEntry {
-  pluginName: string;
+  id: string;
   x: number;
   y: number;
   width: number;
@@ -37,7 +37,7 @@ export function getSnapTargets(
 ): number[] {
   const targets = [0, 50, 100, ...SAFE_AREAS, ...SAFE_AREAS.map((a) => 100 - a)];
   for (const entry of order) {
-    if (entry.pluginName === excludeName) continue;
+    if (entry.id === excludeName) continue;
     const pos = axis === 'x' ? entry.x : entry.y;
     const size = axis === 'x' ? entry.width : entry.height;
     targets.push(pos, pos + size, pos + size / 2);

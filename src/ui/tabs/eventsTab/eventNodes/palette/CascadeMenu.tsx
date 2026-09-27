@@ -2,6 +2,21 @@ import { panelStyle } from '@spooder/webui-module-sdk';
 import React, { useLayoutEffect, useRef, useState } from 'react';
 import { PaletteCategory, PaletteOption } from './paletteTypes';
 
+// The cascade only needs a value and a label from an option, so it's generic over what an
+// option carries - the node palette's options carry node details, the overlay editor's Add
+// Layer menu carries what to add. Defaults keep the node palette's own usages unchanged.
+export interface MenuOption {
+  value: string;
+  label: string;
+}
+
+export interface MenuCategory<T extends MenuOption = PaletteOption> {
+  key: string;
+  label: string;
+  options: T[];
+  subcategories?: MenuCategory<T>[];
+}
+
 // Kept in sync with NodeContextMenu's own edge margin so a submenu and the root menu breathe
 // the same amount of room at the screen edge.
 const EDGE_MARGIN = 8;
@@ -42,9 +57,9 @@ function windowBounds(): MenuBounds {
   return { left: 0, top: 0, right: window.innerWidth, bottom: window.innerHeight };
 }
 
-interface CategoryPanelProps {
-  categories: PaletteCategory[];
-  onSelect: (option: PaletteOption) => void;
+interface CategoryPanelProps<T extends MenuOption> {
+  categories: MenuCategory<T>[];
+  onSelect: (option: T) => void;
   onPick: () => void;
   // Set when the panel is already inside a menu surface (the context menu's search box sits
   // above it): the rows are drawn without a second border/shadow around them.
@@ -59,7 +74,7 @@ interface CategoryPanelProps {
 // Renders one level of the cascade. A row opens either a nested CategoryPanel (when the
 // category has subcategories, e.g. Plugins -> each plugin) or its list of options, so the
 // menu supports arbitrary depth while every level keeps the same look and hover behavior.
-export function CategoryPanel(props: CategoryPanelProps) {
+export function CategoryPanel<T extends MenuOption = PaletteOption>(props: CategoryPanelProps<T>) {
   const { categories, onSelect, onPick, embedded, getBounds } = props;
   const [activeCategory, setActiveCategory] = useState('');
   const surfaceStyle = embedded ? {} : panelStyle;
@@ -89,13 +104,13 @@ export function CategoryPanel(props: CategoryPanelProps) {
   );
 }
 
-interface OptionLeavesProps {
-  options: PaletteOption[];
-  onSelect: (option: PaletteOption) => void;
+interface OptionLeavesProps<T extends MenuOption> {
+  options: T[];
+  onSelect: (option: T) => void;
   onPick: () => void;
 }
 
-function OptionLeaves(props: OptionLeavesProps) {
+function OptionLeaves<T extends MenuOption>(props: OptionLeavesProps<T>) {
   const { options, onSelect, onPick } = props;
   return (
     <>
@@ -117,11 +132,11 @@ function OptionLeaves(props: OptionLeavesProps) {
   );
 }
 
-interface CategoryRowProps {
-  category: PaletteCategory;
+interface CategoryRowProps<T extends MenuOption> {
+  category: MenuCategory<T>;
   isActive: boolean;
   onEnter: () => void;
-  onSelect: (option: PaletteOption) => void;
+  onSelect: (option: T) => void;
   onPick: () => void;
   getBounds?: () => MenuBounds;
 }
@@ -132,7 +147,7 @@ interface CategoryRowProps {
 // it mounts and, only when it would actually overflow, flips it to open to the left and/or clamps
 // it to the viewport height with its own scrollbar - a plain top:0/left:100% is left alone
 // otherwise, so nothing shifts for the common case of a menu that already fits.
-function CategoryRow(props: CategoryRowProps) {
+function CategoryRow<T extends MenuOption>(props: CategoryRowProps<T>) {
   const { category, isActive, onEnter, onSelect, onPick, getBounds } = props;
   const submenuRef = useRef<HTMLDivElement>(null);
   // The scrollbar itself, not just the content behind it, needs to be clipped to the rounded
@@ -225,16 +240,18 @@ function CategoryRow(props: CategoryRowProps) {
   );
 }
 
-interface CascadeMenuButtonProps {
+interface CascadeMenuButtonProps<T extends MenuOption> {
   label: string;
-  categories: PaletteCategory[];
-  onSelect: (option: PaletteOption) => void;
+  categories: MenuCategory<T>[];
+  onSelect: (option: T) => void;
   // The area the menus aren't allowed to spill out of - the canvas the buttons sit on, which
   // is smaller than the window. Defaults to the browser window.
   getBounds?: () => MenuBounds;
 }
 
-export function CascadeMenuButton(props: CascadeMenuButtonProps) {
+export function CascadeMenuButton<T extends MenuOption = PaletteOption>(
+  props: CascadeMenuButtonProps<T>,
+) {
   const { label, categories, onSelect, getBounds } = props;
   const [open, setOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);

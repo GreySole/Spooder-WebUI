@@ -66,9 +66,7 @@ export default function EventTable() {
     }
   }
 
-  const groupObjects = groups.reduce((obj: any, key: string) => ({ ...obj, [key]: [] }), {
-    Default: [],
-  });
+  const groupObjects = groups.reduce((obj: any, key: string) => ({ ...obj, [key]: [] }), {});
 
   for (let p in propKeys) {
     const s = propKeys[p];

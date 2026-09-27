@@ -206,7 +206,6 @@ export default function GraphViewport(props: GraphViewportProps) {
     <div
       ref={viewportRef}
       data-canvas-background='true'
-      onWheel={panZoom.onWheel}
       // Middle click's own default actions have no place on a canvas that pans with it: on
       // Linux it pastes the primary selection into whatever inline field is underneath, which
       // would edit a node just for panning past it.

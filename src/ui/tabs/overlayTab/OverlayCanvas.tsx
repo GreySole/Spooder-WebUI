@@ -1,7 +1,7 @@
 import { faLock } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React, { useRef, useState } from 'react';
-import { OverlayContainerEntry } from '../../../app/api/overlayContainerSlice';
+import { OverlayLayer, layerDisplayName } from '../../../app/api/overlayContainerSlice';
 import { SAFE_AREAS, SNAP_PX, clamp, getSnapTargets, snapPosition, snapSize } from './overlayGeometry';
 
 interface GuideState {
@@ -12,28 +12,30 @@ interface GuideState {
 export default function OverlayCanvas({
   order,
   locked,
+  selectedId,
+  canvasSize,
+  onSelect,
   onChange,
 }: {
-  order: OverlayContainerEntry[];
+  order: OverlayLayer[];
+  selectedId: string | null;
+  onSelect: (id: string) => void;
+  canvasSize: { width: number; height: number };
   locked: Set<string>;
   onChange: (
-    pluginName: string,
-    patch: Partial<Pick<OverlayContainerEntry, 'x' | 'y' | 'width' | 'height'>>,
+    id: string,
+    patch: Partial<Pick<OverlayLayer, 'x' | 'y' | 'width' | 'height'>>,
   ) => void;
 }) {
   const canvasRef = useRef<HTMLDivElement>(null);
   const [guide, setGuide] = useState<GuideState>({ v: null, h: null });
 
-  const enabled = order.filter((entry) => entry.enabled);
-  // Index within the full order, not just the enabled subset, so a box's stacking always
-  // matches its row in OverlayLayerList - the top of that list renders in front, regardless of
-  // which entries above it happen to be disabled right now.
-  const zIndexFor = (pluginName: string) =>
-    order.length - order.findIndex((e) => e.pluginName === pluginName);
+  // A box's stacking matches its row in OverlayLayerList - the top of that list renders in front.
+  const zIndexFor = (id: string) => order.length - order.findIndex((e) => e.id === id);
 
   const onBoxPointerDown = (
     event: React.PointerEvent<HTMLDivElement>,
-    entry: OverlayContainerEntry,
+    entry: OverlayLayer,
   ) => {
     event.preventDefault();
     const box = event.currentTarget;
@@ -48,8 +50,8 @@ export default function OverlayCanvas({
     const startY = entry.y;
     const thresholdX = (SNAP_PX / rect.width) * 100;
     const thresholdY = (SNAP_PX / rect.height) * 100;
-    const targetsX = getSnapTargets(order, entry.pluginName, 'x');
-    const targetsY = getSnapTargets(order, entry.pluginName, 'y');
+    const targetsX = getSnapTargets(order, entry.id, 'x');
+    const targetsY = getSnapTargets(order, entry.id, 'y');
 
     const onMove = (moveEvent: PointerEvent) => {
       const dxPercent = ((moveEvent.clientX - startClientX) / rect.width) * 100;
@@ -60,7 +62,7 @@ export default function OverlayCanvas({
       const snapX = snapPosition(rawX, entry.width, targetsX, thresholdX);
       const snapY = snapPosition(rawY, entry.height, targetsY, thresholdY);
 
-      onChange(entry.pluginName, {
+      onChange(entry.id, {
         x: clamp(snapX.value, 0, 100 - entry.width),
         y: clamp(snapY.value, 0, 100 - entry.height),
       });
@@ -80,7 +82,7 @@ export default function OverlayCanvas({
 
   const onHandlePointerDown = (
     event: React.PointerEvent<HTMLDivElement>,
-    entry: OverlayContainerEntry,
+    entry: OverlayLayer,
   ) => {
     event.preventDefault();
     event.stopPropagation();
@@ -96,8 +98,8 @@ export default function OverlayCanvas({
     const startHeight = entry.height;
     const thresholdX = (SNAP_PX / rect.width) * 100;
     const thresholdY = (SNAP_PX / rect.height) * 100;
-    const targetsX = getSnapTargets(order, entry.pluginName, 'x');
-    const targetsY = getSnapTargets(order, entry.pluginName, 'y');
+    const targetsX = getSnapTargets(order, entry.id, 'x');
+    const targetsY = getSnapTargets(order, entry.id, 'y');
 
     const onMove = (moveEvent: PointerEvent) => {
       const dwPercent = ((moveEvent.clientX - startClientX) / rect.width) * 100;
@@ -108,7 +110,7 @@ export default function OverlayCanvas({
       const snapW = snapSize(entry.x, rawWidth, targetsX, thresholdX);
       const snapH = snapSize(entry.y, rawHeight, targetsY, thresholdY);
 
-      onChange(entry.pluginName, {
+      onChange(entry.id, {
         width: clamp(snapW.value, 5, 100 - entry.x),
         height: clamp(snapH.value, 5, 100 - entry.y),
       });
@@ -132,8 +134,15 @@ export default function OverlayCanvas({
           not the `aspect-ratio` property - as a flex item nested inside another flex item, the
           width this needs to derive a height from isn't reliably definite by the time
           `aspect-ratio` would need it, and the box was collapsing to zero height. */}
-      <div style={{ position: 'relative', width: 'min(900px, 100%)' }}>
-        <div style={{ paddingTop: '56.25%' }} />
+      {/* Shaped like the layout's target browser source. The width is also capped by viewport
+          height, so a portrait canvas doesn't run off the bottom of the screen. */}
+      <div
+        style={{
+          position: 'relative',
+          width: `min(900px, 100%, calc(70vh * ${canvasSize.width / canvasSize.height}))`,
+        }}
+      >
+        <div style={{ paddingTop: `${(canvasSize.height / canvasSize.width) * 100}%` }} />
         <div
           ref={canvasRef}
           style={{
@@ -184,23 +193,35 @@ export default function OverlayCanvas({
               }}
             />
           )}
-          {enabled.map((entry) => {
-            const isLocked = locked.has(entry.pluginName);
+          {order.map((entry) => {
+            const isLocked = locked.has(entry.id);
+            const isSelected = entry.id === selectedId;
             return (
               <div
-                key={entry.pluginName}
+                key={entry.id}
                 // Locked boxes drop out of hit-testing entirely, so a click lands on whatever
                 // (unlocked) box is next in the stack underneath instead of grabbing this one.
-                onPointerDown={isLocked ? undefined : (e) => onBoxPointerDown(e, entry)}
+                onPointerDown={
+                  isLocked
+                    ? undefined
+                    : (e) => {
+                        onSelect(entry.id);
+                        onBoxPointerDown(e, entry);
+                      }
+                }
                 style={{
                   position: 'absolute',
                   left: `${entry.x}%`,
                   top: `${entry.y}%`,
                   width: `${entry.width}%`,
                   height: `${entry.height}%`,
-                  zIndex: zIndexFor(entry.pluginName),
+                  zIndex: zIndexFor(entry.id),
                   boxSizing: 'border-box',
-                  border: isLocked ? '2px dashed #888' : '2px solid #4da6ff',
+                  border: isLocked
+                    ? '2px dashed #888'
+                    : isSelected
+                      ? '2px solid #ffd24d'
+                      : '2px solid #4da6ff',
                   background: isLocked ? 'rgba(136, 136, 136, 0.18)' : 'rgba(77, 166, 255, 0.18)',
                   color: '#fff',
                   fontSize: 12,
@@ -213,7 +234,7 @@ export default function OverlayCanvas({
                 }}
               >
                 {isLocked && <FontAwesomeIcon icon={faLock} style={{ marginRight: 4 }} />}
-                {entry.displayName}
+                {layerDisplayName(entry)}
                 {!isLocked && (
                   <div
                     onPointerDown={(e) => onHandlePointerDown(e, entry)}

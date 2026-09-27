@@ -1,13 +1,17 @@
 import {
   Border,
   Box,
-  BoolSwitch,
   Button,
   Columns,
   Stack,
   TypeFace,
 } from '@spooder/webui-component-library';
-import { faGripVertical, faLock, faLockOpen } from '@fortawesome/free-solid-svg-icons';
+import {
+  faGripVertical,
+  faLock,
+  faLockOpen,
+  faTrash,
+} from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   DndContext,
@@ -20,30 +24,38 @@ import {
 import { SortableContext, arrayMove, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import React from 'react';
-import { OverlayContainerEntry } from '../../../app/api/overlayContainerSlice';
+import { OverlayLayer, layerDisplayName } from '../../../app/api/overlayContainerSlice';
+import { CascadeMenuButton, MenuCategory, MenuOption } from '../eventsTab/eventNodes/palette/CascadeMenu';
 
 function LayerRow({
   entry,
   locked,
-  onToggle,
+  selected,
+  onSelect,
+  onRemove,
   onToggleLock,
 }: {
-  entry: OverlayContainerEntry;
+  entry: OverlayLayer;
   locked: boolean;
-  onToggle: (enabled: boolean) => void;
+  selected: boolean;
+  onSelect: () => void;
+  onRemove: () => void;
   onToggleLock: () => void;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
-    id: entry.pluginName,
+    id: entry.id,
   });
 
   return (
     <div
       ref={setNodeRef}
+      onClick={onSelect}
       style={{
         transform: CSS.Transform.toString(transform),
         transition,
         opacity: isDragging ? 0.5 : 1,
+        outline: selected ? '2px solid #ffd24d' : undefined,
+        borderRadius: 4,
       }}
     >
       <Border>
@@ -62,7 +74,7 @@ function LayerRow({
             >
               <FontAwesomeIcon icon={faGripVertical} />
             </span>
-            <TypeFace fontSize="medium">{entry.displayName}</TypeFace>
+            <TypeFace fontSize="medium">{layerDisplayName(entry)}</TypeFace>
           </Columns>
           <Columns spacing="small">
             <Button
@@ -70,15 +82,11 @@ function LayerRow({
               onClick={onToggleLock}
               tooltipText={
                 locked
-                  ? 'Locked - drag on the canvas passes through to overlays behind it'
+                  ? 'Locked - drag on the canvas passes through to layers behind it'
                   : 'Lock so it stops catching drags on the canvas'
               }
             />
-            <BoolSwitch
-              value={entry.enabled}
-              onChange={onToggle}
-              tooltipText={entry.enabled ? 'Shown in the overlay container' : 'Hidden'}
-            />
+            <Button icon={faTrash} onClick={onRemove} tooltipText="Remove this layer" />
           </Columns>
         </Box>
       </Border>
@@ -87,19 +95,27 @@ function LayerRow({
 }
 
 // Drag-to-reorder list that doubles as the z-order: the top row renders in front on the canvas
-// above, and enabling/disabling an overlay lives here too rather than as a separate control.
+// above. Layers are added from the picker here and removed with the row's trash button.
 export default function OverlayLayerList({
   order,
   locked,
+  selectedId,
+  addCategories,
+  onAdd,
+  onSelect,
   onReorder,
-  onToggle,
+  onRemove,
   onToggleLock,
 }: {
-  order: OverlayContainerEntry[];
+  order: OverlayLayer[];
   locked: Set<string>;
-  onReorder: (order: OverlayContainerEntry[]) => void;
-  onToggle: (pluginName: string, enabled: boolean) => void;
-  onToggleLock: (pluginName: string) => void;
+  selectedId: string | null;
+  addCategories: MenuCategory<MenuOption>[];
+  onAdd: (value: string) => void;
+  onSelect: (id: string) => void;
+  onReorder: (order: OverlayLayer[]) => void;
+  onRemove: (id: string) => void;
+  onToggleLock: (id: string) => void;
 }) {
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 4 } }));
 
@@ -108,29 +124,45 @@ export default function OverlayLayerList({
     if (!over || active.id === over.id) {
       return;
     }
-    const oldIndex = order.findIndex((e) => e.pluginName === active.id);
-    const newIndex = order.findIndex((e) => e.pluginName === over.id);
+    const oldIndex = order.findIndex((e) => e.id === active.id);
+    const newIndex = order.findIndex((e) => e.id === over.id);
     onReorder(arrayMove(order, oldIndex, newIndex));
   };
 
   return (
-    <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
-      <SortableContext
-        items={order.map((e) => e.pluginName)}
-        strategy={verticalListSortingStrategy}
-      >
-        <Stack spacing="small" width="100%">
-          {order.map((entry) => (
-            <LayerRow
-              key={entry.pluginName}
-              entry={entry}
-              locked={locked.has(entry.pluginName)}
-              onToggle={(enabled) => onToggle(entry.pluginName, enabled)}
-              onToggleLock={() => onToggleLock(entry.pluginName)}
-            />
-          ))}
-        </Stack>
-      </SortableContext>
-    </DndContext>
+    <Stack spacing="small" width="100%">
+      {/* Same cascade the node palette uses, so plugin overlays and widgets can be grouped. The
+          canvas boxes and guides beside this list have z-indexes of their own, so the menu needs
+          a stacking level above them or it opens underneath. */}
+      <div style={{ position: 'relative', zIndex: 1100 }}>
+        <CascadeMenuButton
+          label="Add a layer"
+          categories={addCategories}
+          onSelect={(option) => onAdd(option.value)}
+        />
+      </div>
+      {order.length === 0 ? (
+        <TypeFace fontSize="medium">
+          No layers yet. Add a plugin overlay or a widget to place it on the canvas.
+        </TypeFace>
+      ) : null}
+      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
+        <SortableContext items={order.map((e) => e.id)} strategy={verticalListSortingStrategy}>
+          <Stack spacing="small" width="100%">
+            {order.map((entry) => (
+              <LayerRow
+                key={entry.id}
+                entry={entry}
+                locked={locked.has(entry.id)}
+                selected={entry.id === selectedId}
+                onSelect={() => onSelect(entry.id)}
+                onRemove={() => onRemove(entry.id)}
+                onToggleLock={() => onToggleLock(entry.id)}
+              />
+            ))}
+          </Stack>
+        </SortableContext>
+      </DndContext>
+    </Stack>
   );
 }

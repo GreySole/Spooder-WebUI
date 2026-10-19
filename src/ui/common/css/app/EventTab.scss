@@ -418,3 +418,10 @@ option {
 		width: 100%;
 	}
 }
+
+// An outline on the small menus that drop from the Filter button and the group's Group Settings
+// button (both the library's `filter-button` dropdown). Without one the menu's background sits
+// too close to the page's own to read as a separate surface.
+.filter-button .dropdown {
+	outline: 2px solid var(--button-border-color);
+}

@@ -1,6 +1,6 @@
 {
   "name": "@spooder/webui-module-sdk",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "description": "The contract a Spooder WebUI module is written against - the ModuleDefinition it exports, the host state it reads, and the shared pieces it renders with",
   "main": "src/index.ts",
   "types": "src/index.ts",

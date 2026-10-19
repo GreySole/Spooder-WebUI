@@ -11,6 +11,7 @@ export type {
   NodeGraphHost,
   NodeGraphHostEvents,
   NodeGraphHostPlugins,
+  NodeGraphHostSnippets,
 } from './host';
 export { setModuleSource, useModules } from './moduleSource';
 export type { ModuleSource } from './moduleSource';

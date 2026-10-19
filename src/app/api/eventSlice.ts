@@ -4,7 +4,7 @@ export const eventApi = createApi({
   reducerPath: 'eventApi',
   baseQuery: fetchBaseQuery({ baseUrl: window.location.origin + '/events' }),
   // Scoped per event name so editing one event's storage doesn't invalidate another's cache.
-  tagTypes: ['EventStorage'],
+  tagTypes: ['EventStorage', 'Snippets'],
   endpoints: (builder) => ({
     getEventGraphs: builder.query({
       query: () => '/event_graphs',
@@ -66,6 +66,28 @@ export const eventApi = createApi({
         method: 'post',
       }),
     }),
+    getSnippets: builder.query({
+      query: () => '/snippets',
+      providesTags: ['Snippets'],
+    }),
+    createSnippet: builder.mutation({
+      query: (body) => ({
+        url: '/snippets',
+        method: 'post',
+        body,
+        headers: {
+          'Content-type': 'application/json; charset=UTF-8',
+        },
+      }),
+      invalidatesTags: ['Snippets'],
+    }),
+    deleteSnippet: builder.mutation({
+      query: (id: string) => ({
+        url: `/snippets/${encodeURIComponent(id)}`,
+        method: 'delete',
+      }),
+      invalidatesTags: ['Snippets'],
+    }),
   }),
 });
 
@@ -80,4 +102,7 @@ export const {
   useDeleteEventStorageValueMutation,
   useVerifyResponseScriptMutation,
   useTriggerNowMutation,
+  useGetSnippetsQuery,
+  useCreateSnippetMutation,
+  useDeleteSnippetMutation,
 } = eventApi;

@@ -137,3 +137,18 @@ export interface EventGraphFile {
   groups: string[];
   disabledGroups: string[];
 }
+
+// A reusable fragment of a graph - a handful of nodes plus the edges between them - importable
+// into any event's graph via the palette's Snippets menu. Node/edge ids are only unique within
+// the snippet itself: importing one always assigns fresh ids (see addSnippetNodes in
+// useNodePalette.ts), so the same snippet can be dropped into a graph any number of times.
+export interface Snippet {
+  id: string;
+  name: string;
+  description?: string;
+  nodes: EventGraphNode[];
+  edges: EventGraphEdge[];
+  // Ships with Spooder rather than being saved by a user - not editable or deletable from the
+  // Snippets menu.
+  builtIn?: boolean;
+}

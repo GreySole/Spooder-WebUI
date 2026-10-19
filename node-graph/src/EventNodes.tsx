@@ -1,7 +1,7 @@
 import React, { useCallback, useRef, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { v4 as uuidv4 } from 'uuid';
-import { useEvents } from './host';
+import { useEvents, useSnippets } from './host';
 import { EventGraph, EventGraphEdge, EventGraphNode } from './types';
 import { buildGraphKey } from '@spooder/webui-module-sdk';
 import NodeGraphCanvas from './canvas/NodeGraphCanvas';
@@ -10,6 +10,8 @@ import GraphSidePanel, { useGraphPanelWidth } from './GraphSidePanel';
 import NodeInspector from './NodeInspector';
 import NodePalette from './NodePalette';
 import NodeContextMenu from './palette/NodeContextMenu';
+import SaveSnippetModal from './palette/SaveSnippetModal';
+import SnippetManagerPanel from './palette/SnippetManagerPanel';
 import useNodePalette from './palette/useNodePalette';
 import { OscLiveValuesProvider } from './OscLiveValues';
 import TimerManagerPanel from './TimerManagerPanel';
@@ -27,12 +29,18 @@ export default function EventNodes(props: EventNodesProps) {
   const { manifests } = getNodeManifest();
   const { operationNodes } = getOperationNodes();
   const { triggerNow } = getTriggerNow();
+  const { createSnippet } = useSnippets().getCreateSnippet();
 
   const [selectedNodeIds, setSelectedNodeIds] = useState<string[]>([]);
+  // Node ids the 'Save As Snippet' modal is open for - empty means closed.
+  const [saveSnippetNodeIds, setSaveSnippetNodeIds] = useState<string[]>([]);
   // The inspector edits one node, so it only opens on a single selection - a box-selected group
   // has no one node to show.
   const selectedNodeId = selectedNodeIds.length === 1 ? selectedNodeIds[0] : '';
+  // Timer Manager and Snippet Manager share one side-panel slot, so opening either closes the
+  // other rather than stacking on top of it.
   const [timerManagerOpen, setTimerManagerOpen] = useState(false);
+  const [snippetManagerOpen, setSnippetManagerOpen] = useState(false);
   const [contextMenu, setContextMenu] = useState<ContextMenuAnchor | null>(null);
   // The corner palette buttons have no cursor position to drop a new node at (unlike the
   // context menu, which always has one), so they use whatever's currently centered in the
@@ -41,7 +49,17 @@ export default function EventNodes(props: EventNodesProps) {
   const viewCenterRef = useRef<Point>({ x: 0, y: 0 });
 
   // One palette tree, rendered by both the corner buttons and the canvas context menu.
-  const palette = useNodePalette({ eventName, onManageTimers: () => setTimerManagerOpen(true) });
+  const palette = useNodePalette({
+    eventName,
+    onManageTimers: () => {
+      setSnippetManagerOpen(false);
+      setTimerManagerOpen(true);
+    },
+    onManageSnippets: () => {
+      setTimerManagerOpen(false);
+      setSnippetManagerOpen(true);
+    },
+  });
   // Most nodes are edited entirely on their card, so their panel would open with nothing in it.
   const inspectorHasContent = useInspectorHasContent(eventName, selectedNodeId);
   const [panelWidth, setPanelWidth, persistPanelWidth] = useGraphPanelWidth();
@@ -171,6 +189,26 @@ export default function EventNodes(props: EventNodesProps) {
       setSelectedNodeIds(copies.map((n) => n.id));
     },
     [getValues, graphKey, setValue],
+  );
+
+  // Opens the modal; the actual capture happens on confirm (handleSnippetSaveConfirm), by which
+  // point the node ids are also the modal's own prompt, not just a pending selection.
+  const handleSaveSnippet = useCallback((nodeIds: string[]) => {
+    setSaveSnippetNodeIds(nodeIds);
+  }, []);
+
+  const handleSnippetSaveConfirm = useCallback(
+    (name: string, description: string) => {
+      const wanted = new Set(saveSnippetNodeIds);
+      const currentGraph: EventGraph = getValues(graphKey);
+      const nodes = currentGraph.nodes.filter((n) => wanted.has(n.id));
+      // Only the edges strictly between two selected nodes - one to a node left out of the
+      // selection would dangle the moment this snippet is imported somewhere else.
+      const edges = currentGraph.edges.filter((e) => wanted.has(e.fromNode) && wanted.has(e.toNode));
+      createSnippet({ name, description, nodes, edges });
+      setSaveSnippetNodeIds([]);
+    },
+    [createSnippet, getValues, graphKey, saveSnippetNodeIds],
   );
 
   const handleEdgeDelete = useCallback(
@@ -312,6 +350,7 @@ export default function EventNodes(props: EventNodesProps) {
           nodeActionIds={contextMenuNodeIds}
           onDuplicateNodes={handleNodesDuplicate}
           onDeleteNodes={handleNodesDelete}
+          onSaveSnippet={handleSaveSnippet}
           triggerNodeId={contextMenuTriggerNodeId}
           onTriggerNow={handleTriggerNow}
           onClose={() => setContextMenu(null)}
@@ -327,8 +366,18 @@ export default function EventNodes(props: EventNodesProps) {
           <TimerManagerPanel onClose={() => setTimerManagerOpen(false)} />
         </GraphSidePanel>
       ) : null}
+      {snippetManagerOpen ? (
+        <GraphSidePanel
+          width={panelWidth}
+          onResize={setPanelWidth}
+          onResizeEnd={persistPanelWidth}
+          zIndex={21}
+        >
+          <SnippetManagerPanel onClose={() => setSnippetManagerOpen(false)} />
+        </GraphSidePanel>
+      ) : null}
 
-      {selectedNodeId && inspectorHasContent && !timerManagerOpen ? (
+      {selectedNodeId && inspectorHasContent && !timerManagerOpen && !snippetManagerOpen ? (
         <GraphSidePanel
           width={panelWidth}
           onResize={setPanelWidth}
@@ -344,6 +393,12 @@ export default function EventNodes(props: EventNodesProps) {
           />
         </GraphSidePanel>
       ) : null}
+      <SaveSnippetModal
+        isOpen={saveSnippetNodeIds.length > 0}
+        nodeCount={saveSnippetNodeIds.length}
+        onSave={handleSnippetSaveConfirm}
+        onClose={() => setSaveSnippetNodeIds([])}
+      />
     </div>
     </OscLiveValuesProvider>
   );

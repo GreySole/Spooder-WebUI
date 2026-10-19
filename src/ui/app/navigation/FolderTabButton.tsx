@@ -65,7 +65,6 @@ export default function FolderTabButton(props: {
           setShowSubTabs(!showSubTabs);
         }}
         label={showLabel ? tabLabel : undefined}
-        tooltipText={showLabel ? undefined : tabLabel}
         icon={icon}
       />
       {showSubTabs ? (

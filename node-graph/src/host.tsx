@@ -1,6 +1,6 @@
 import React, { ComponentType, createContext, ReactNode, useContext } from 'react';
 import type { KeyedObject } from '@spooder/webui-module-sdk';
-import type { NodeManifest, OperationNodeDef } from './types';
+import type { EventGraphEdge, EventGraphNode, NodeManifest, OperationNodeDef, Snippet } from './types';
 
 // Everything the editor needs from the app it's embedded in. The editor never talks to a server
 // or a store itself: the app implements this once (over its own API and hooks) and wraps the
@@ -25,6 +25,22 @@ export interface NodeGraphHostEvents {
   getVerifyResponseScript: () => {
     verifyResponseScript: (command: string, inputMessage: string, script: string) => Promise<any>;
   };
+}
+
+export interface NodeGraphHostSnippets {
+  getSnippets: () => { snippets?: Snippet[]; isLoading: boolean; error?: unknown };
+  // Hook-shaped like getTriggerNow above, not a plain callable: the app's own createSnippet
+  // wraps a mutation hook, which has to run during render - the returned closure is what's
+  // safe to call later, from inside an event handler.
+  getCreateSnippet: () => {
+    createSnippet: (input: {
+      name: string;
+      description?: string;
+      nodes: EventGraphNode[];
+      edges: EventGraphEdge[];
+    }) => Promise<unknown>;
+  };
+  getDeleteSnippet: () => { deleteSnippet: (id: string) => Promise<unknown> };
 }
 
 export interface NodeGraphHostPlugins {
@@ -68,7 +84,22 @@ export interface NodeGraphHost {
   // Subscribes to the server's live OSC feed while `enabled`.
   useLiveLogging: (enabled: boolean) => void;
   components?: Partial<NodeGraphComponents>;
+  // Absent entirely, rather than wired to an empty store, is what lets an app skip the Snippets
+  // menu rather than ship one that can never hold anything (see useSnippets' NO_SNIPPETS below).
+  snippets?: NodeGraphHostSnippets;
 }
+
+// What useSnippets falls back to when a host doesn't implement snippets at all, so the palette
+// can call getSnippets() unconditionally instead of branching on whether the host supports it.
+const NO_SNIPPETS: NodeGraphHostSnippets = {
+  getSnippets: () => ({ snippets: [], isLoading: false }),
+  getCreateSnippet: () => ({
+    createSnippet: () => Promise.reject(new Error('This app does not support snippets.')),
+  }),
+  getDeleteSnippet: () => ({
+    deleteSnippet: () => Promise.reject(new Error('This app does not support snippets.')),
+  }),
+};
 
 const NodeGraphHostContext = createContext<NodeGraphHost | null>(null);
 
@@ -94,3 +125,4 @@ export const usePlugins = () => useNodeGraphHost().plugins;
 export const useLiveLogging = (enabled: boolean) => useNodeGraphHost().useLiveLogging(enabled);
 export const useResponseHandlers = () => useNodeGraphHost().useResponseHandlers();
 export const useHostComponents = () => useNodeGraphHost().components ?? {};
+export const useSnippets = () => useNodeGraphHost().snippets ?? NO_SNIPPETS;

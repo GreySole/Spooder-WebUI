@@ -19,8 +19,7 @@ import { Footer } from '../../app/Footer';
 import AddEventInput from './eventCommand/input/AddEventInput';
 import AddGroupInput from './eventCommand/input/AddGroupInput';
 import DeleteGroupButton from './eventCommand/input/DeleteGroupButton';
-import ToggleGroupButton from './eventCommand/input/ToggleGroupButton';
-import ToggleModGroupButton from './eventCommand/input/ToggleModGroupButton';
+import GroupSettingsMenu from './eventCommand/input/GroupSettingsMenu';
 import EventElement from './EventElement';
 import { TwitchIcon } from '../../common/icons/icons';
 import ExportGroupButton from './eventCommand/input/ExportGroupButton';
@@ -126,12 +125,11 @@ export default function EventTable() {
       >
         <Box flexFlow='column'>
           <Box flexFlow='row wrap'>
-            <AddEventInput groupName={groupName} />
-            <ToggleGroupButton groupName={groupName} />
-            <ToggleModGroupButton groupName={groupName} />
+            <GroupSettingsMenu groupName={groupName} />
             <DeleteGroupButton groupName={groupName} />
             <ExportGroupButton groupName={groupName} />
           </Box>
+          <AddEventInput groupName={groupName} />
 
           {groupObjects[groupName]}
         </Box>

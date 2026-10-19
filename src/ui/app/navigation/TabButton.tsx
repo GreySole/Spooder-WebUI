@@ -69,7 +69,6 @@ export default function TabButton(props: TabButtonProps) {
         setNavigation(false);
       }}
       label={showLabel ? tabLabel : undefined}
-      tooltipText={showLabel ? undefined : tabLabel}
       icon={icon}
     />
   );

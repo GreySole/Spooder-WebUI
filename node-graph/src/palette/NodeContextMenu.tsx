@@ -17,6 +17,7 @@ interface NodeContextMenuProps {
   nodeActionIds: string[];
   onDuplicateNodes: (nodeIds: string[]) => void;
   onDeleteNodes: (nodeIds: string[]) => void;
+  onSaveSnippet: (nodeIds: string[]) => void;
   // Set only when the menu was opened on exactly one trigger (callback) node - firing more than
   // one at once wouldn't mean anything, so the row is simply absent otherwise.
   triggerNodeId?: string;
@@ -55,6 +56,7 @@ export default function NodeContextMenu(props: NodeContextMenuProps) {
     onSelect,
     onDuplicateNodes,
     onDeleteNodes,
+    onSaveSnippet,
     triggerNodeId,
     onTriggerNow,
     onClose,
@@ -193,6 +195,7 @@ export default function NodeContextMenu(props: NodeContextMenuProps) {
               />
             ) : null}
             <NodeActionRow label={`Duplicate ${nodeActionLabel}`} onClick={() => runNodeAction(onDuplicateNodes)} />
+            <NodeActionRow label={`Save ${nodeActionLabel} As Snippet`} onClick={() => runNodeAction(onSaveSnippet)} />
             <NodeActionRow
               label={`Delete ${nodeActionLabel}`}
               color='#e74c3c'

@@ -1,4 +1,4 @@
-import { EventGraphNodeKind } from '../types';
+import { EventGraphNodeKind, Snippet } from '../types';
 
 export interface PaletteOption {
   value: string;
@@ -9,6 +9,10 @@ export interface PaletteOption {
   defaults: { [key: string]: any };
   // Entries that do something other than add a node (e.g. opening the timer manager).
   onActivate?: () => void;
+  // Set on a Snippets menu entry instead of the single-node fields above: picking it imports
+  // this snippet's whole nodes+edges fragment (see addSnippetNodes in useNodePalette.ts) rather
+  // than adding one node. kind/moduleName/nodeTypeId/defaults are unused and left as filler.
+  snippet?: Snippet;
 }
 
 export interface PaletteCategory {

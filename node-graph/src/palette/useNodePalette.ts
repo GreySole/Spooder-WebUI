@@ -1,12 +1,14 @@
 import { useFormContext } from 'react-hook-form';
 import { v4 as uuidv4 } from 'uuid';
-import { useEvents } from '../host';
+import { useEvents, useSnippets } from '../host';
 import {
   ActionNodeDef,
   EventGraph,
+  EventGraphEdge,
   EventGraphNode,
   NodeManifest,
   OperationNodeDef,
+  Snippet,
   TriggerNodeDef,
 } from '../types';
 import { buildGraphKey, GRAPH_KEY } from '@spooder/webui-module-sdk';
@@ -51,6 +53,7 @@ const CORE_ACTION_GROUPS: { [label: string]: string[] } = {
 export interface UseNodePaletteOptions {
   eventName: string;
   onManageTimers: () => void;
+  onManageSnippets: () => void;
 }
 
 export interface NodePalette {
@@ -65,7 +68,7 @@ export interface NodePalette {
 // the canvas corner and the right-click/shift+space context menu both render this, so an entry
 // added to a manifest shows up in both with no further wiring.
 export default function useNodePalette(options: UseNodePaletteOptions): NodePalette {
-  const { eventName, onManageTimers } = options;
+  const { eventName, onManageTimers, onManageSnippets } = options;
   const { watch, setValue } = useFormContext();
   const { getNodeManifest, getOperationNodes } = useEvents();
   const { manifests } = getNodeManifest();
@@ -320,6 +323,43 @@ export default function useNodePalette(options: UseNodePaletteOptions): NodePale
     });
   }
 
+  // Snippets menu: one option per snippet, built-ins first (listAll serves them that way).
+  // Picking one imports the whole fragment rather than adding a single node - see addNode's
+  // branch on option.snippet below.
+  const { snippets } = useSnippets().getSnippets();
+  const snippetCategories: PaletteCategory[] = [];
+  if (snippets && snippets.length > 0) {
+    snippetCategories.push({
+      key: 'snippets-all',
+      label: 'Snippets',
+      options: snippets.map((snippet) => ({
+        value: `snippet::${snippet.id}`,
+        label: snippet.name,
+        // Unused for a snippet entry - addNode returns before reading any of these three.
+        kind: 'action',
+        moduleName: 'core',
+        nodeTypeId: '',
+        defaults: {},
+        snippet,
+      })),
+    });
+  }
+  snippetCategories.push({
+    key: 'snippets-manage',
+    label: 'Manage Snippets',
+    options: [
+      {
+        value: 'snippet::manage',
+        label: 'Open Snippet Manager',
+        kind: 'action',
+        moduleName: 'core',
+        nodeTypeId: '',
+        defaults: {},
+        onActivate: onManageSnippets,
+      },
+    ],
+  });
+
   // Added last so 'Plugins' sits below core/module/operation entries. Skipped entirely when
   // no plugin contributed any actions, rather than showing an empty submenu.
   if (pluginActionCategories.size > 0) {
@@ -331,9 +371,55 @@ export default function useNodePalette(options: UseNodePaletteOptions): NodePale
     });
   }
 
+  // Clones a snippet's nodes and edges with fresh ids, offset so the fragment's own top-left
+  // corner lands at `position` (or stacks under the existing graph, same as a single new node,
+  // when there isn't one). Internal edges come along - that's the difference from Duplicate,
+  // which deliberately drops them (see handleNodesDuplicate in EventNodes.tsx) - but nothing
+  // about the target graph's own nodes or edges is touched.
+  function addSnippetNodes(snippet: Snippet, position?: Point) {
+    if (snippet.nodes.length === 0) {
+      return;
+    }
+    const graph: EventGraph = watch(graphKey);
+    const nodes = graph?.nodes ?? [];
+    const edges = graph?.edges ?? [];
+
+    const idMap = new Map<string, string>();
+    for (const node of snippet.nodes) {
+      idMap.set(node.id, uuidv4());
+    }
+
+    const minX = Math.min(...snippet.nodes.map((n) => n.position.x));
+    const minY = Math.min(...snippet.nodes.map((n) => n.position.y));
+    const origin = position ?? { x: 360, y: 40 + nodes.length * 110 };
+
+    const newNodes: EventGraphNode[] = snippet.nodes.map((n) => ({
+      ...n,
+      id: idMap.get(n.id)!,
+      // Deep copy so a second import of the same snippet doesn't share nested value objects
+      // (an OSC trigger's arg labels, a condition group) with the first.
+      values: JSON.parse(JSON.stringify(n.values ?? {})),
+      position: { x: n.position.x - minX + origin.x, y: n.position.y - minY + origin.y },
+    }));
+    const newEdges: EventGraphEdge[] = snippet.edges.map((e) => ({
+      id: uuidv4(),
+      fromNode: idMap.get(e.fromNode) ?? e.fromNode,
+      fromPort: e.fromPort,
+      toNode: idMap.get(e.toNode) ?? e.toNode,
+      toPort: e.toPort,
+    }));
+
+    setValue(`${graphKey}.nodes`, [...nodes, ...newNodes], { shouldDirty: true });
+    setValue(`${graphKey}.edges`, [...edges, ...newEdges], { shouldDirty: true });
+  }
+
   function addNode(option: PaletteOption, position?: Point) {
     if (option.onActivate) {
       option.onActivate();
+      return;
+    }
+    if (option.snippet) {
+      addSnippetNodes(option.snippet, position);
       return;
     }
     const graph: EventGraph = watch(graphKey);
@@ -356,6 +442,7 @@ export default function useNodePalette(options: UseNodePaletteOptions): NodePale
     { key: 'triggers', label: 'Triggers', categories: [...triggerCategories.values()] },
     { key: 'actions', label: 'Actions', categories: [...actionCategories.values()] },
     { key: 'timers', label: 'Timers', categories: timerCategories },
+    { key: 'snippets', label: 'Snippets', categories: snippetCategories },
   ].filter((group) => group.categories.length > 0);
 
   return { groups, addNode };

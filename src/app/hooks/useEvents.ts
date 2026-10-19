@@ -1,11 +1,14 @@
 import { FieldValues } from 'react-hook-form';
 import {
+  useCreateSnippetMutation,
   useDeleteEventStorageValueMutation,
+  useDeleteSnippetMutation,
   useGetChatCommandsQuery,
   useGetEventGraphsQuery,
   useGetEventStorageQuery,
   useGetNodeManifestQuery,
   useGetOperationNodesQuery,
+  useGetSnippetsQuery,
   useSaveEventGraphsMutation,
   useSetEventStorageValueMutation,
   useTriggerNowMutation,
@@ -126,6 +129,46 @@ export default function useEvents() {
     return { verifyResponseScript, isLoading, isSuccess, error };
   }
 
+  function getSnippets() {
+    const { data, isLoading, error } = useGetSnippetsQuery(null);
+    return { snippets: data?.snippets, isLoading, error };
+  }
+
+  function getCreateSnippet() {
+    const [createSnippetMutation, { isLoading, error }] = useCreateSnippetMutation();
+    function createSnippet(input: {
+      name: string;
+      description?: string;
+      nodes: unknown[];
+      edges: unknown[];
+    }) {
+      return createSnippetMutation(input).then((response) => {
+        if (response.error) {
+          showError('Failed to save the snippet.');
+        } else {
+          showSuccess('Snippet saved.');
+        }
+        return response;
+      });
+    }
+
+    return { createSnippet, isLoading, error };
+  }
+
+  function getDeleteSnippet() {
+    const [deleteSnippetMutation, { isLoading, error }] = useDeleteSnippetMutation();
+    function deleteSnippet(id: string) {
+      return deleteSnippetMutation(id).then((response) => {
+        if (response.error) {
+          showError('Failed to delete the snippet.');
+        }
+        return response;
+      });
+    }
+
+    return { deleteSnippet, isLoading, error };
+  }
+
   function getTriggerNow() {
     const [triggerNowMutation, { isLoading, error }] = useTriggerNowMutation();
 
@@ -157,5 +200,8 @@ export default function useEvents() {
     getDeleteEventStorageValue,
     getVerifyResponseScript,
     getTriggerNow,
+    getSnippets,
+    getCreateSnippet,
+    getDeleteSnippet,
   };
 }

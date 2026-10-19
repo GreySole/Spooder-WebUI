@@ -31,6 +31,14 @@ const mainNodeGraphHost: NodeGraphHost = {
     getPlugins: () => usePlugins().getPlugins(),
     getPluginEventsForm: (pluginName) => usePlugins().getPluginEventsForm(pluginName),
   },
+  snippets: {
+    getSnippets: () => {
+      const { snippets, isLoading, error } = useEvents().getSnippets();
+      return { snippets, isLoading, error };
+    },
+    getCreateSnippet: () => useEvents().getCreateSnippet(),
+    getDeleteSnippet: () => useEvents().getDeleteSnippet(),
+  },
   useResponseHandlers: () => useModule().getResponseHandlers(),
   useLiveLogging,
   components: {

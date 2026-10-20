@@ -48,6 +48,11 @@ export interface CatalogResponse {
   entries: CatalogEntry[];
 }
 
+export interface UpdateCheckResponse {
+  webuiUpdated: string[];
+  pluginsOutdated: string[];
+}
+
 export const registryApi = createApi({
   reducerPath: 'registryApi',
   baseQuery: fetchBaseQuery({ baseUrl: window.location.origin + '/registry' }),
@@ -61,6 +66,10 @@ export const registryApi = createApi({
     }),
     refreshCatalog: builder.mutation<CatalogResponse, void>({
       query: () => ({ url: '/refresh', method: 'post' }),
+      invalidatesTags: ['Catalog'],
+    }),
+    checkForUpdates: builder.mutation<UpdateCheckResponse, void>({
+      query: () => ({ url: '/check-updates', method: 'post' }),
       invalidatesTags: ['Catalog'],
     }),
     addSource: builder.mutation<{ status: string }, { url: string; name?: string }>({
@@ -96,6 +105,7 @@ export const registryApi = createApi({
 export const {
   useGetCatalogQuery,
   useRefreshCatalogMutation,
+  useCheckForUpdatesMutation,
   useAddSourceMutation,
   useRemoveSourceMutation,
   useSetSourceEnabledMutation,

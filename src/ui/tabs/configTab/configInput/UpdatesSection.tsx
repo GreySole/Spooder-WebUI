@@ -24,6 +24,20 @@ export default function UpdatesSection() {
     if (data.pluginsOutdated.length > 0) {
       parts.push(`Plugin updates available: ${data.pluginsOutdated.join(', ')}.`);
     }
+    if (data.moduleUpdates.length > 0) {
+      parts.push(
+        `Module updates available: ${data.moduleUpdates
+          .map((m) => `${m.name} ${m.version}`)
+          .join(', ')}. Install them from the Modules tab.`,
+      );
+    }
+    if (data.blocked.length > 0) {
+      parts.push(
+        `Needs a newer Spooder: ${data.blocked
+          .map((b) => `${b.name} ${b.version} (Spooder ${b.requires})`)
+          .join(', ')}. Update Spooder to get them.`,
+      );
+    }
     return parts.length > 0 ? parts.join(' ') : 'Everything is up to date.';
   };
 

@@ -97,6 +97,13 @@ export default function ModuleDetailsModal({
           <TypeFace fontSize="medium">{entry.summary}</TypeFace>
 
           <Columns spacing="small">
+            {entry.installed && entry.update?.available && (
+              <Button
+                label={isLoading ? 'Building…' : `Update to ${entry.update.available}`}
+                onClick={onInstall}
+                disabled={busy}
+              />
+            )}
             {entry.installed ? (
               <Button label={removing ? 'Removing…' : 'Remove'} onClick={onUninstall} disabled={busy} />
             ) : (
@@ -108,6 +115,26 @@ export default function ModuleDetailsModal({
             )}
           </Columns>
           {action.note && <TypeFace fontSize="medium">{action.note}</TypeFace>}
+          {entry.installed && entry.update?.installedVersion && (
+            <TypeFace fontSize="medium">Installed: {entry.update.installedVersion}</TypeFace>
+          )}
+          {entry.installed && entry.update?.available && (
+            <TypeFace fontSize="medium">
+              Update available: {entry.update.installedVersion ?? 'unknown'} → {entry.update.available}.
+              Takes a minute to build, then needs a restart.
+            </TypeFace>
+          )}
+          {entry.installed && entry.update?.blocked && (
+            <TypeFace fontSize="medium">
+              {entry.update.blocked.version} is out, but it needs Spooder {entry.update.blocked.requires}.
+              Update Spooder to get it.
+            </TypeFace>
+          )}
+          {entry.installed && entry.development && (
+            <TypeFace fontSize="medium">
+              This module is a git checkout, so it's updated with git instead of from here.
+            </TypeFace>
+          )}
           {entry.installed && entry.webuiInstalled === false && (
             <TypeFace fontSize="medium">Installed, but its tab hasn't been downloaded yet.</TypeFace>
           )}

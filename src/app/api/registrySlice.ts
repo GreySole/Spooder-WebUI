@@ -28,6 +28,14 @@ export interface CatalogEntry {
   installed: boolean;
   webuiInstalled?: boolean;
   webuiVersion?: string | null;
+  // Last known answer on whether the installed backend has a newer release (modules only).
+  update?: {
+    installedVersion: string | null;
+    available: string | null;
+    blocked: { version: string; requires: string } | null;
+  } | null;
+  // A git checkout, updated with git rather than from here.
+  development?: boolean;
 }
 
 export type RestartVia = 'app' | 'supervisor' | 'manual';
@@ -50,6 +58,9 @@ export interface CatalogResponse {
 
 export interface UpdateCheckResponse {
   webuiUpdated: string[];
+  // Releases left alone because they need a newer Spooder than this one.
+  blocked: { name: string; version: string; requires: string }[];
+  moduleUpdates: { name: string; version: string }[];
   pluginsOutdated: string[];
 }
 

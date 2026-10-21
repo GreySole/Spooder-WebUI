@@ -92,7 +92,7 @@ function ModuleIcon({ entry, onOpen }: { entry: CatalogEntry; onOpen: () => void
     <Box padding="small">
       <Button
         width="10rem"
-        label={entry.name}
+        label={entry.update?.available ? `${entry.name} ↑` : entry.name}
         icon={KNOWN_MODULE_ICONS[entry.id] ?? entry.icon}
         iconSize='8rem'
         fallbackIcon={faPuzzlePiece}

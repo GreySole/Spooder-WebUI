@@ -1,5 +1,6 @@
 import { faExpandArrowsAlt, faFileImport } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { assetAcceptAttr, isAcceptedAssetFile } from '../form/assetMime';
 import usePlugins from '../../../../app/hooks/usePlugins';
 import React, { useRef } from 'react';
 import {
@@ -22,7 +23,7 @@ interface AssetSelectProps {
 
 export default function AssetSelect(props: AssetSelectProps) {
   const { label, assetType, pluginName, assetFolderPath, value, onChange } = props;
-  const acceptedFormat = assetType != null ? assetType + '/*' : '*';
+  const acceptedFormat = assetAcceptAttr(assetType);
   const { getPluginAssets, getUploadPluginAssets } = usePlugins();
   const { data: assets, isLoading, error, refetch } = getPluginAssets(pluginName, assetFolderPath);
   const { uploadPluginAssets } = getUploadPluginAssets();

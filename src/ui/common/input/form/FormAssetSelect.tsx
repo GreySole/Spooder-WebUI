@@ -1,5 +1,6 @@
 import { faFileImport } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { assetAcceptAttr, isAcceptedAssetFile } from './assetMime';
 import usePlugins from '../../../../app/hooks/usePlugins';
 import React, { useRef, useState } from 'react';
 import {
@@ -29,7 +30,7 @@ export const ASSET_PREVIEW_HEIGHT = 100;
 
 export default function FormAssetSelect(props: FormAssetSelectProps) {
   const { formKey, label, assetType, pluginName, assetFolderPath } = props;
-  const acceptedFormat = assetType != null ? assetType + '/*' : '*';
+  const acceptedFormat = assetAcceptAttr(assetType);
   const { getPluginAssets, getUploadPluginAssets } = usePlugins();
   const { uploadPluginAssets } = getUploadPluginAssets();
   const { setValue, watch } = useFormContext();
@@ -65,7 +66,7 @@ export default function FormAssetSelect(props: FormAssetSelectProps) {
   // folder and picks it. A file the browser reports no type for is let through: that's a
   // recognition failure, not a wrong file.
   function isAcceptedFile(file: File): boolean {
-    return assetType == null || file.type === '' || file.type.startsWith(`${assetType}/`);
+    return isAcceptedAssetFile(file, assetType);
   }
 
   async function uploadAsset(files: FileList | null) {

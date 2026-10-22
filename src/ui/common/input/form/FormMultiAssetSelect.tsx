@@ -1,5 +1,6 @@
 import { faFileImport, faPlay, faStop, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { assetAcceptAttr, isAcceptedAssetFile } from './assetMime';
 import usePlugins from '../../../../app/hooks/usePlugins';
 import React, { useEffect, useRef, useState } from 'react';
 import {
@@ -30,7 +31,7 @@ interface FormMultiAssetSelectProps {
 // one preview, and the picker appends its selection instead of replacing the value.
 export default function FormMultiAssetSelect(props: FormMultiAssetSelectProps) {
   const { formKey, label, assetType, pluginName, assetFolderPath } = props;
-  const acceptedFormat = assetType != null ? assetType + '/*' : '*';
+  const acceptedFormat = assetAcceptAttr(assetType);
   const { getPluginAssets, getUploadPluginAssets } = usePlugins();
   const { uploadPluginAssets } = getUploadPluginAssets();
   const { setValue, watch } = useFormContext();
@@ -90,7 +91,7 @@ export default function FormMultiAssetSelect(props: FormMultiAssetSelectProps) {
   }
 
   function isAcceptedFile(file: File): boolean {
-    return assetType == null || file.type === '' || file.type.startsWith(`${assetType}/`);
+    return isAcceptedAssetFile(file, assetType);
   }
 
   async function uploadAsset(files: FileList | null) {
